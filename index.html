@@ -1,0 +1,827 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Timetable</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-image: linear-gradient(to top, #f3e7e9 0%, #e3eeff 99%, #e3eeff 100%);
+        }
+        .table-container {
+            overflow-x: auto;
+        }
+        .responsive-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .responsive-table th, .responsive-table td {
+            white-space: nowrap;
+            padding: 12px 16px;
+            vertical-align: middle;
+        }
+        .subject {
+            font-weight: 600;
+            color: #1e3a8a; /* darker blue */
+        }
+        .teacher, .class-name {
+            font-size: 0.875rem;
+            color: #4b5563;
+        }
+        /* Styles for active and inactive tabs */
+        .tab {
+            transition: all 0.3s ease;
+            border-bottom: 3px solid transparent;
+        }
+        .tab.active {
+            border-bottom-color: #3b82f6; /* blue-500 */
+            color: #1e3a8a;
+            font-weight: 600;
+        }
+        .main-tab-content, .day-tab-content {
+            display: none;
+        }
+        .main-tab-content.active, .day-tab-content.active {
+            display: block;
+        }
+         .schedule-cell {
+            white-space: normal;
+            vertical-align: top;
+        }
+        .schedule-cell > div {
+            padding: 4px 0;
+        }
+        select {
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            background-image: url('data:image/svg+xml;charset=UTF-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="none" stroke="%236b7280" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l4 4 4-4"/></svg>');
+            background-size: 1.2em;
+            background-position: right 0.75rem center;
+            background-repeat: no-repeat;
+        }
+
+        /* Mobile-first Responsive Styles */
+        @media (max-width: 768px) {
+            .responsive-table thead {
+                display: none;
+            }
+            .responsive-table, .responsive-table tbody, .responsive-table tr, .responsive-table td {
+                display: block;
+                width: 100%;
+            }
+            .responsive-table tr {
+                margin-bottom: 1rem;
+                border: 1px solid #e5e7eb;
+                border-radius: 0.75rem;
+                overflow: hidden;
+            }
+            .responsive-table td {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                text-align: right;
+                padding-left: 50%;
+                position: relative;
+                white-space: normal;
+            }
+            .responsive-table td:before {
+                content: attr(data-label);
+                position: absolute;
+                left: 0;
+                width: 45%;
+                padding-left: 1rem;
+                font-weight: 600;
+                text-align: left;
+                color: #374151;
+            }
+            .responsive-table .row-header {
+                background-color: #f3f4f6;
+                font-weight: 700;
+                color: #111827;
+                padding: 1rem;
+                justify-content: center;
+            }
+             .responsive-table .row-header:before {
+                content: ""; /* Hide label for header cell */
+            }
+        }
+        
+        /* --- Styles for Printing --- */
+        #printable-area {
+            display: none; /* Hidden by default */
+        }
+
+        @media print {
+            /* Hide everything on the page except for the printable area */
+            body > *:not(#printable-area) {
+                display: none !important;
+            }
+            
+            /* Make the printable area visible */
+            #printable-area {
+                display: block !important;
+                font-family: Arial, sans-serif;
+            }
+
+            /* A4 page styling */
+            @page {
+                size: A4;
+                margin: 0.5in;
+            }
+
+            h1.print-title {
+                font-size: 16pt;
+                text-align: center;
+                margin-bottom: 5px;
+            }
+
+             h2.print-subtitle {
+                font-size: 12pt;
+                text-align: center;
+                font-weight: normal;
+                margin-bottom: 20px;
+            }
+
+            table.print-table {
+                width: 100%;
+                border-collapse: collapse;
+                font-size: 9pt;
+                page-break-inside: auto;
+            }
+            
+            table.print-table tr {
+                page-break-inside: avoid;
+                page-break-after: auto;
+            }
+
+            table.print-table th, table.print-table td {
+                border: 1px solid #333;
+                padding: 4px 5px;
+                text-align: center;
+                vertical-align: middle;
+                word-wrap: break-word; /* Ensure long text wraps */
+            }
+            
+             table.print-table th {
+                background-color: #E0E0E0;
+                font-weight: bold;
+            }
+            
+             table.print-table small {
+                 font-size: 8pt;
+                 color: #333;
+             }
+        }
+    </style>
+</head>
+<body class="text-gray-800 p-4 sm:p-8">
+    <div id="main-content" class="max-w-7xl mx-auto bg-white/70 backdrop-blur-xl rounded-2xl shadow-xl p-6 sm:p-8">
+        <header class="text-center mb-6">
+            <div class="flex justify-center items-center gap-4">
+                 <svg class="h-12 w-12 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" />
+                </svg>
+                <div>
+                     <h1 class="text-4xl font-bold text-gray-900">Interactive Timetable</h1>
+                     <p class="text-gray-600 mt-1 text-lg">Veer Patta Public School, Amet</p>
+                </div>
+            </div>
+        </header>
+
+        <!-- Print Button -->
+        <div class="text-center mb-10">
+            <button onclick="printTimetable()" class="bg-blue-600 text-white font-bold py-2 px-6 rounded-lg hover:bg-blue-700 transition duration-300 ease-in-out shadow-md inline-flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M5 4v3H4a2 2 0 00-2 2v6a2 2 0 002 2h12a2 2 0 002-2V9a2 2 0 00-2-2h-1V4a2 2 0 00-2-2H7a2 2 0 00-2 2zm8 0H7v3h6V4zm-8 6a1 1 0 011-1h6a1 1 0 110 2H6a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H6z" clip-rule="evenodd" />
+                </svg>
+                Print Timetable
+            </button>
+        </div>
+
+        <!-- Main View Navigation -->
+        <div class="mb-8">
+            <div class="flex justify-center border-b border-gray-200 flex-wrap">
+                <button class="tab main-tab active py-3 px-6 text-lg font-medium text-gray-500 hover:text-blue-600" onclick="showMainView('Day', this)">View by Day</button>
+                <button class="tab main-tab py-3 px-6 text-lg font-medium text-gray-500 hover:text-blue-600" onclick="showMainView('Class', this)">View by Class</button>
+                <button class="tab main-tab py-3 px-6 text-lg font-medium text-gray-500 hover:text-blue-600" onclick="showMainView('Teacher', this)">View by Teacher</button>
+            </div>
+        </div>
+        
+        <!-- Day-wise View Container -->
+        <div id="DayView" class="main-tab-content active">
+            <div class="flex justify-center border-b border-gray-200 flex-wrap mb-6">
+                <button class="tab day-tab active py-2 px-5 font-semibold text-gray-500 hover:text-blue-600" onclick="showDayTab('Monday', this)">Monday</button>
+                <button class="tab day-tab py-2 px-5 font-semibold text-gray-500 hover:text-blue-600" onclick="showDayTab('Tuesday', this)">Tuesday</button>
+                <button class="tab day-tab py-2 px-5 font-semibold text-gray-500 hover:text-blue-600" onclick="showDayTab('Wednesday', this)">Wednesday</button>
+                <button class="tab day-tab py-2 px-5 font-semibold text-gray-500 hover:text-blue-600" onclick="showDayTab('Thursday', this)">Thursday</button>
+                <button class="tab day-tab py-2 px-5 font-semibold text-gray-500 hover:text-blue-600" onclick="showDayTab('Friday', this)">Friday</button>
+                <button class="tab day-tab py-2 px-5 font-semibold text-gray-500 hover:text-blue-600" onclick="showDayTab('Saturday', this)">Saturday</button>
+            </div>
+            <div id="day-wise-content-container"></div>
+        </div>
+
+        <!-- Class-wise View Container -->
+        <div id="ClassView" class="main-tab-content">
+            <div class="bg-gray-50 rounded-xl p-4 sm:p-6">
+                <div class="flex items-center mb-4 max-w-md mx-auto">
+                    <label for="class-select" class="mr-4 font-semibold text-gray-700">Select Class:</label>
+                    <select id="class-select" onchange="displayClassTimetable(this.value)" class="flex-1 p-3 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition">
+                    </select>
+                </div>
+                <div id="class-wise-content-container">
+                    <p class="text-gray-500 text-center py-8">Please select a class to see its weekly schedule.</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Teacher-wise View Container -->
+        <div id="TeacherView" class="main-tab-content">
+            <div class="bg-gray-50 rounded-xl p-4 sm:p-6">
+                <div class="flex items-center mb-4 max-w-md mx-auto">
+                    <label for="teacher-select" class="mr-4 font-semibold text-gray-700">Select Teacher:</label>
+                    <select id="teacher-select" onchange="displayTeacherTimetable(this.value)" class="flex-1 p-3 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition">
+                    </select>
+                </div>
+                <div id="teacher-wise-content-container">
+                    <p class="text-gray-500 text-center py-8">Please select a teacher to see their weekly schedule.</p>
+                </div>
+            </div>
+        </div>
+
+        <footer class="text-center text-sm text-gray-500 mt-12">
+            <p>This timetable was generated from the "July Updated Time Table 2025-26" document.</p>
+        </footer>
+    </div>
+
+    <!-- This container will hold the content for printing -->
+    <div id="printable-area"></div>
+
+    <script>
+        // Global variables to hold the parsed timetable data
+        let timetableData = {};
+        let teacherData = {};
+        let periodHeaders = [];
+
+        // Raw data extracted from the user's document.
+        const rawData = `
+Monday
+Class,Period 1<br>8:30 AM - 9:10 AM,Period 2<br>9:10 AM - 9:50 AM,Period 3<br>9:50 AM - 10:30 AM,Period 4<br>10:30 AM - 11:10 AM,Period 5<br>11:30 AM - 12:10 PM,Period 6<br>12:10 PM - 12:50 PM,Period 7<br>12:50 PM - 01:30 PM,Period 8<br>01:30 PM - 02:10 PM
+Class 1,EVS (Bindu),EVS (Bindu),ELGA (Bindu),ELGA (Bindu),ELGA (Bindu),Hindi (Bindu),Home Work (Anjana),Maths (Kusum)
+Class 2,Maths (Anita),Maths (Anita),ELGA (Leena),ELGA (Leena),ELGA (Leena),EVS (Rashmita),Hindi (Bindu),Hindi (Bindu)
+Class 3,EVS (Rashmita),EVS (Rashmita),ELGA (Kusum),ELGA (Kusum),ELGA (Kusum),Hindi (Kusum),Hindi (Kusum),Sports (Rakesh)
+Class 4,Hindi (Kusum),Home Work (Jainendra),ELGA (Rashmita),ELGA (Rashmita),ELGA (Rashmita),EVS (Anita),EVS (Anita),Sports (Rakesh)
+Class 5,Maths (Nidhika),Hindi (Kusum),ELGA (Anita),ELGA (Anita),ELGA (Anita),CCS (Maya),Maths (Nidhika),EVS (Nidhika)
+Class 6,Science (Hemlata),Science (Hemlata),ELGA (Nidhika),ELGA (Nidhika),ELGA (Nidhika),Maths (Nidhika),SST (Rashmita),Hindi (Jainendra)
+Class 7,Hindi (Jainendra),SST (Gyan Sir),ELGA (Harshita),ELGA (Harshita),ELGA (Harshita),SST (Gyan Sir),Maths (Leena),Science (Hemlata)
+Class 8,Hindi (Antima),CCS (Maya),ELGA (Harshita),ELGA (Harshita),ELGA (Harshita),Maths (Leena),Science (Hemlata),Sanskrit (Antima)
+Class 9,Maths (Leena),SST (Pradhyuman),Science (Toshit),CCS (Maya),Hindi (Jainendra),Hindi (Jainendra),English (Harshita),Maths (Leena)
+Class 10,SST (Pradhyuman),Hindi (Antima),Maths (Nathulal),Maths (Nathulal),Sanskrit (Antima),English (Harshita),Science (Toshit),Sports (Rakesh)
+Class 11 Science,Physics (Phy Sir),Physics (Phy Sir),Biology (Hemlata),English (Pradhyuman),Chemistry (Toshit),Chemistry (Toshit),English (Pradhyuman),Sports (Rakesh)
+Class 11 Commerce,Self Study (Maya),Business (Nidhika),Economics (Prakash),English (Pradhyuman),Accountancy (Nathulal),Accountancy (Nathulal),English (Pradhyuman),Accountancy (Nathulal)
+Class 11 Arts,English Literature (Harshita),Geography (Prakash),Economics (Prakash),English (Pradhyuman),CCS (Maya),Sports (Rakesh),English (Pradhyuman),Political Science (Pradhyuman)
+Class 12 Science,Chemistry (Toshit),Chemistry (Toshit),Physics (Phy Sir),Physics (Phy Sir),English (Pradhyuman),Biology (Hemlata),Hindi (Jainendra),Physics (Phy Sir)
+Class 12 Commerce,Accountancy (Nathulal),Accountancy (Nathulal),Business (Pradhyuman),Economics (Prakash),English (Pradhyuman),Sports (Rakesh),Hindi (Jainendra),CCS (Maya)
+Class 12 Arts,Geography (Prakash),English Literature (Harshita),Hindi Boards (Antima),Economics (Prakash),English (Pradhyuman),Political Science (Pradhyuman),Hindi (Jainendra),English Literature (Harshita)
+
+Tuesday
+Class,Period 1<br>8:30 AM - 9:10 AM,Period 2<br>9:10 AM - 9:50 AM,Period 3<br>9:50 AM - 10:30 AM,Period 4<br>10:30 AM - 11:10 AM,Period 5<br>11:30 AM - 12:10 PM,Period 6<br>12:10 PM - 12:50 PM,Period 7<br>12:50 PM - 01:30 PM,Period 8<br>01:30 PM - 02:10 PM
+Class 1,EVS (Bindu),Maths (Kusum),ELGA (Bindu),ELGA (Bindu),ELGA (Bindu),Hindi (Bindu),Hindi (Bindu),Home Work (Anjana)
+Class 2,Maths (Anita),Hindi (Bindu),ELGA (Leena),ELGA (Leena),ELGA (Leena),EVS (Rashmita),EVS (Rashmita),Hindi (Bindu)
+Class 3,EVS (Rashmita),Maths (Anita),ELGA (Kusum),ELGA (Kusum),ELGA (Kusum),Maths (Anita),Hindi (Kusum),Hindi (Kusum)
+Class 4,Hindi (Kusum),Maths (Leena),ELGA (Rashmita),ELGA (Rashmita),ELGA (Rashmita),Basic Hindi (Anjana),EVS (Anita),EVS (Anita)
+Class 5,EVS (Nidhika),Home Work (Rashmita),ELGA (Anita),ELGA (Anita),ELGA (Anita),Hindi (Kusum),Maths (Nidhika),EVS (Nidhika)
+Class 6,Science (Hemlata),Sanskrit (Jainendra),ELGA (Nidhika),ELGA (Nidhika),ELGA (Nidhika),Maths (Nidhika),Hindi (Jainendra),SST (Rashmita)
+Class 7,Hindi (Jainendra),Science (Hemlata),ELGA (Harshita),ELGA (Harshita),ELGA (Harshita),SST (Gyan Sir),Maths (Leena),Sanskrit (Antima)
+Class 8,Hindi (Antima),Sanskrit (Antima),ELGA (Harshita),ELGA (Harshita),ELGA (Harshita),Maths (Leena),Science (Hemlata),SST (Harshita)
+Class 9,Maths (Leena),English (Harshita),Hindi (Jainendra),CCS (Maya),Science (Toshit),Science (Toshit),Sanskrit (Antima),SST (Pradhyuman)
+Class 10,SST (Pradhyuman),CCS (Maya),Maths (Nathulal),Sanskrit (Antima),Hindi (Antima),English (Harshita),Science (Toshit),Maths (Nathulal)
+Class 11 Science,Physics (Phy Sir),Physics (Phy Sir),Chemistry (Toshit),Chemistry (Toshit),Biology (Hemlata),Hindi (Jainendra),English (Pradhyuman),Hindi (Jainendra)
+Class 11 Commerce,Self Study (Maya),Business (Nidhika),Economics (Prakash),Accountancy (Nathulal),Accountancy (Nathulal),Hindi (Jainendra),English (Pradhyuman),Hindi (Jainendra)
+Class 11 Arts,English Literature (Harshita),Political Science (Pradhyuman),Economics (Prakash),Geography (Prakash),CCS (Maya),Hindi (Jainendra),English (Pradhyuman),Hindi (Jainendra)
+Class 12 Science,Chemistry (Toshit),Chemistry (Toshit),Biology (Hemlata),Biology (Hemlata),Hindi (Jainendra),English (Pradhyuman),Physics (Phy Sir),Biology (Hemlata)
+Class 12 Commerce,Accountancy (Nathulal),Accountancy (Nathulal),CCS (Maya),Business (Pradhyuman),Hindi (Jainendra),English (Pradhyuman),Accountancy (Nathulal),Sports (Rakesh)
+Class 12 Arts,Geography (Prakash),Geography (Prakash),Political Science (Pradhyuman),Hindi (Jainendra),Hindi (Jainendra),English (Pradhyuman),English Literature (Harshita),Sports (Rakesh)
+
+Wednesday
+Class,Period 1<br>8:30 AM - 9:10 AM,Period 2<br>9:10 AM - 9:50 AM,Period 3<br>9:50 AM - 10:30 AM,Period 4<br>10:30 AM - 11:10 AM,Period 5<br>11:30 AM - 12:10 PM,Period 6<br>12:10 PM - 12:50 PM,Period 7<br>12:50 PM - 01:30 PM,Period 8<br>01:30 PM - 02:10 PM
+Class 1,EVS (Bindu),Maths (Kusum),ELGA (Bindu),ELGA (Bindu),ELGA (Bindu),Home Work (Anjana),Hindi (Bindu),Sports (Rakesh)
+Class 2,Maths (Anita),Hindi (Bindu),ELGA (Leena),ELGA (Leena),ELGA (Leena),Hindi (Bindu),EVS (Rashmita),Sports (Rakesh)
+Class 3,EVS (Rashmita),Home Work (Jainendra),ELGA (Kusum),ELGA (Kusum),ELGA (Kusum),Maths (Anita),Maths (Anita),Maths (Anita)
+Class 4,Hindi (Kusum),EVS (Anita),ELGA (Rashmita),ELGA (Rashmita),ELGA (Rashmita),Maths (Leena),Maths (Leena),Hindi (Kusum)
+Class 5,EVS (Nidhika),EVS (Nidhika),ELGA (Anita),ELGA (Anita),ELGA (Anita),Hindi (Kusum),Hindi (Kusum),Maths (Nidhika)
+Class 6,Science (Hemlata),SST (Rashmita),ELGA (Nidhika),ELGA (Nidhika),ELGA (Nidhika),Maths (Nidhika),Science (Hemlata),CCS (Maya)
+Class 7,Hindi (Jainendra),Sanskrit (Antima),ELGA (Harshita),ELGA (Harshita),ELGA (Harshita),Science (Hemlata),CCS (Maya),SST (Gyan Sir)
+Class 8,Sanskrit (Antima),Science (Hemlata),ELGA (Harshita),ELGA (Harshita),ELGA (Harshita),English Boards (Rashmita),SST (Harshita),Maths (Leena)
+Class 9,Maths (Leena),Maths (Leena),Hindi (Jainendra),Science (Toshit),Sports (Rakesh),Sanskrit (Antima),SST (Pradhyuman),English (Harshita)
+Class 10,SST (Pradhyuman),English (Harshita),Science DM (),Maths (Nathulal),Sanskrit (Antima),Science (Toshit),Hindi (Antima),Maths (Nathulal)
+Class 11 Science,Physics (Phy Sir),Physics (Phy Sir),English (Pradhyuman),Biology (Hemlata),Biology (Hemlata),Sports (Rakesh),Chemistry (Toshit),Chemistry (Toshit)
+Class 11 Commerce,CCS (Maya),Economics (Prakash),English (Pradhyuman),Self Study (Maya),Accountancy (Nathulal),Accountancy (Nathulal),Business (Nidhika),Sports (Rakesh)
+Class 11 Arts,English Literature (Harshita),Economics (Prakash),English (Pradhyuman),Geography (Prakash),Self Study (Toshit),Political Science (Pradhyuman),Sports (Rakesh),Sports (Rakesh)
+Class 12 Science,Chemistry (Toshit),Chemistry (Toshit),Biology (Hemlata),Hindi (Jainendra),English (Pradhyuman),Sports (Rakesh),Hindi (Jainendra),Hindi (Jainendra)
+Class 12 Commerce,Accountancy (Nathulal),Accountancy (Nathulal),Economics (Prakash),Business (Pradhyuman),English (Pradhyuman),CCS (Maya),Hindi (Jainendra),Hindi (Jainendra)
+Class 12 Arts,Geography (Prakash),Political Science (Pradhyuman),Economics (Prakash),Hindi (Jainendra),English (Pradhyuman),English Literature (Harshita),Hindi (Jainendra),Hindi (Jainendra)
+
+Thursday
+Class,Period 1<br>8:30 AM - 9:10 AM,Period 2<br>9:10 AM - 9:50 AM,Period 3<br>9:50 AM - 10:30 AM,Period 4<br>10:30 AM - 11:10 AM,Period 5<br>11:30 AM - 12:10 PM,Period 6<br>12:10 PM - 12:50 PM,Period 7<br>12:50 PM - 01:30 PM,Period 8<br>01:30 PM - 02:10 PM
+Class 1,Hindi (Bindu),EVS (Bindu),ELGA (Bindu),ELGA (Bindu),ELGA (Bindu),EVS (Bindu),CCS (Maya),Hindi (Anjana)
+Class 2,Maths (Anita),Maths (Anita),ELGA (Leena),ELGA (Leena),ELGA (Leena),EVS (Rashmita),EVS (Rashmita),Hindi (Bindu)
+Class 3,EVS (Rashmita),EVS (Rashmita),ELGA (Kusum),ELGA (Kusum),ELGA (Kusum),Hindi (Kusum),Home Work (Bindu),Maths (Anita)
+Class 4,Hindi (Kusum),CCS (Maya),ELGA (Rashmita),ELGA (Rashmita),ELGA (Rashmita),EVS (Anita),EVS (Anita),Games (Rakesh)
+Class 5,EVS (Nidhika),Hindi (Kusum),ELGA (Anita),ELGA (Anita),ELGA (Anita),Home work (Anjana),Maths (Nidhika),Hindi (Kusum)
+Class 6,Science (Hemlata),Maths (Nidhika),ELGA (Nidhika),ELGA (Nidhika),ELGA (Nidhika),Hindi (Jainendra),Science (Hemlata),SST (Rashmita)
+Class 7,Hindi (Jainendra),Science (Hemlata),ELGA (Harshita),ELGA (Harshita),ELGA (Harshita),SST (Gyan Sir),Sanskrit (Antima),Maths (Leena)
+Class 8,Hindi (Antima),SST (Harshita),ELGA (Harshita),ELGA (Harshita),ELGA (Harshita),Maths (Leena),Maths (Leena),Science (Hemlata)
+Class 9,Maths (Leena),Hindi (Jainendra),SST (Pradhyuman),SST (Pradhyuman),Sanskrit (Antima),Sanskrit (Antima),Science (Toshit),Science (Toshit)
+Class 10,SST (Pradhyuman),SST (Pradhyuman),Science (Toshit),Science (Toshit),Maths (Nathulal),Maths (Nathulal),English (Harshita),Sanskrit (Antima)
+Class 11 Science,Physics (Phy Sir),Physics (Phy Sir),Biology (Hemlata),Biology (Hemlata),Chemistry (Toshit),Chemistry (Toshit),Hindi (Jainendra),English (Pradhyuman)
+Class 11 Commerce,CCS (Maya),Economics (Prakash),Accountancy (Nathulal),Accountancy (Nathulal),Hindi (Jainendra),Business (Nidhika),Hindi (Jainendra),English (Pradhyuman)
+Class 11 Arts,English Literature (Harshita),Economics (Prakash),Geography (Prakash),Self Study (Antima),Political Science (Pradhyuman),Sports (Rakesh),Hindi (Jainendra),English (Pradhyuman)
+Class 12 Science,Chemistry (Toshit),Chemistry (Toshit),Hindi (Jainendra),Physics (Phy Sir),Biology (Hemlata),Biology (Hemlata),English (Pradhyuman),Hindi (Jainendra)
+Class 12 Commerce,Accountancy (Nathulal),Accountancy (Nathulal),Hindi (Jainendra),Economics (Prakash),Sports (Rakesh),Business (Pradhyuman),English (Pradhyuman),Hindi (Jainendra)
+Class 12 Arts,Geography (Prakash),Self Study (Antima),Hindi (Jainendra),Economics (Prakash),Sports (Rakesh),CCS (Maya),Hindi (Jainendra),Hindi (Jainendra)
+
+Friday
+Class,Period 1<br>8:30 AM - 9:10 AM,Period 2<br>9:10 AM - 9:50 AM,Period 3<br>9:50 AM - 10:30 AM,Period 4<br>10:30 AM - 11:10 AM,Period 5<br>11:30 AM - 12:10 PM,Period 6<br>12:10 PM - 12:50 PM,Period 7<br>12:50 PM - 01:30 PM,Period 8<br>01:30 PM - 02:10 PM
+Class 1,Hindi (Bindu),Hindi (Bindu),Maths (Kusum),EVS (Bindu),Maths (Kusum),CCS (Maya),EVS (Bindu),EVS (Bindu)
+Class 2,Maths (Anita),Maths (Anita),Hindi (Bindu),EVS (Rashmita),Hindi (Bindu),Hindi (Bindu),CCS (Maya),EVS (Rashmita)
+Class 3,EVS (Rashmita),EVS (Rashmita),Maths (Anita),Maths (Anita),CCS (Maya),Hindi (Kusum),Hindi (Kusum),Home Work (Anjana)
+Class 4,Hindi (Kusum),Hindi (Kusum),Home Work (Rashmita),CCS (Maya),Maths (Leena),Maths (Leena),EVS (Anita),EVS (Anita)
+Class 5,EVS (Nidhika),EVS (Nidhika),Basic Hindi (Antima),Hindi (Kusum),Maths (Nidhika),Maths (Nidhika),Home Work (Anjana),Sports (Rakesh)
+Class 6,Science (Hemlata),Sanskrit (Jainendra),Maths (Nidhika),Maths (Nidhika),Sanskrit (Jainendra),SST (Rashmita),SST (Rashmita),Sports (Rakesh)
+Class 7,Hindi (Jainendra),Maths (Leena),Maths (Leena),Science (Hemlata),Science (Hemlata),Sanskrit (Antima),SST (Gyan Sir),SST (Gyan Sir)
+Class 8,Hindi (Antima),Science (Hemlata),Science (Hemlata),Maths (Leena),Sports (Rakesh),SST (Harshita),SST (Harshita),Sanskrit (Antima)
+Class 9,Maths (Leena),SST (Pradhyuman),Science (Toshit),Sanskrit (Antima),English (Harshita),Hindi (Jainendra),Sports (Rakesh),CCS (Maya)
+Class 10,SST (Pradhyuman),Sanskrit (Antima),Maths (Nathulal),English (Harshita),Hindi (Antima),Science (Toshit),Sports (Rakesh),English (Harshita)
+Class 11 Science,Physics (Phy Sir),Physics (Phy Sir),Hindi (Jainendra),Chemistry (Toshit),Chemistry (Toshit),English (Pradhyuman),Biology (Hemlata),Biology (Hemlata)
+Class 11 Commerce,Self Study (Maya),Economics (Prakash),Hindi (Jainendra),Accountancy (Nathulal),Accountancy (Nathulal),English (Pradhyuman),Business (Nidhika),Business (Nidhika)
+Class 11 Arts,English Literature (Harshita),Economics (Prakash),Hindi (Jainendra),Geography (Prakash),Political Science (Pradhyuman),English (Pradhyuman),Sports (Rakesh),Sports (Rakesh)
+Class 12 Science,Chemistry (Toshit),Chemistry (Toshit),Physics (Phy Sir),Physics (Phy Sir),Sports (Rakesh),Biology (Hemlata),English (Pradhyuman),Hindi (Jainendra)
+Class 12 Commerce,Accountancy (Nathulal),Accountancy (Nathulal),Economics (Prakash),Business (Pradhyuman),Sports (Rakesh),Accountancy (Nathulal),English (Pradhyuman),Hindi (Jainendra)
+Class 12 Arts,Geography (Prakash),English Literature (Harshita),Economics/Political Science (Prakash/Pradhyuman),Self Study (Jainendra),Sports (Rakesh),Sports (Rakesh),English (Pradhyuman),Hindi (Jainendra)
+
+Saturday
+Class,Period 1<br>8:30 AM - 9:10 AM,Period 2<br>9:10 AM - 9:50 AM,Period 3<br>9:50 AM - 10:30 AM,Period 4<br>10:30 AM - 11:10 AM,Period 5<br>11:30 AM - 12:10 PM,Period 6<br>12:10 PM - 12:50 PM,Period 7<br>12:50 PM - 01:30 PM,Period 8<br>01:30 PM - 02:10 PM
+Class 1,EVS (Bindu),EVS (Bindu),Hindi (Bindu),Hindi (Bindu),Sports (Rakesh Sir),Maths (Kusum),Home Work (Anjana),Home Work (Bindu)
+Class 2,Maths (Anita),EVS (Rashmita),EVS (Rashmita),EVS (Rashmita),Sports (Rakesh Sir),CCS (Maya),Hindi (Bindu),Home Work (Anita)
+Class 3,EVS (Rashmita),Maths (Anita),Hindi (Kusum),Hindi (Kusum),EVS (Rashmita),Home Work (Anjana),CCS (Maya),Home Work (Rashmita)
+Class 4,Hindi (Kusum),Hindi (Kusum),EVS (Anita),EVS (Anita),Home Work (Anjana),Maths (Leena),Maths (Leena),Maths (Leena)
+Class 5,Maths (Nidhika),Maths (Nidhika),CCS (Maya),EVS (Nidhika),EVS (Nidhika),Sports (Rakesh Sir),Hindi (Kusum),Home Work (Anjana)
+Class 6,Science (Hemlata),Hindi (Jainendra),Maths (Nidhika),CCS (Maya),Sanskrit (Jainendra),Maths (Nidhika),SST (Rashmita),Hindi (Jainendra)
+Class 7,Hindi (Jainendra),Science (Hemlata),Science (Hemlata),Maths (Leena),SST (Gyan Sir),English Basic (Rashmita),SST (Gyan Sir),Sports (Rakesh)
+Class 8,Hindi (Antima),Sanskrit (Antima),Maths (Leena),Science (Hemlata),CCS (Maya),SST (Harshita),SST (Harshita),Sports (Rakesh)
+Class 9,Maths (Leena),Maths (Leena),Science (Toshit),Hindi (Jainendra),Maths (Leena),SST (Pradhyuman),Science (Toshit),English (Harshita)
+Class 10,SST (Pradhyuman),SST (Pradhyuman),Maths (Nathulal),Sanskrit (Antima),English (Harshita),Science (Toshit),SST (Pradhyuman),Hindi (Antima)
+Class 11 Science,Physics (Phy Sir),Physics (Phy Sir),Hindi (Jainendra),Chemistry (Toshit),Chemistry (Toshit),Hindi (Jainendra),Biology (Hemlata),Sports (Rakesh)
+Class 11 Commerce,Self Study (Maya),Economics (Prakash),Hindi (Jainendra),Accountancy (Nathulal),Accountancy (Nathulal),Hindi (Jainendra),Business (Nidhika),Business (Nidhika)
+Class 11 Arts,English Literature (Harshita),Economics (Prakash),Hindi (Jainendra),Geography (Prakash),Political Science (Pradhyuman),Hindi (Jainendra),Sports (Rakesh),Sports (Rakesh)
+Class 12 Science,Chemistry (Toshit),Chemistry (Toshit),Physics (Phy Sir),Physics (Phy Sir),Biology (Hemlata),Biology (Hemlata),Hindi (Jainendra),English (Pradhyuman)
+Class 12 Commerce,Accountancy (Nathulal),Accountancy (Nathulal),Economics (Prakash),Business (Pradhyuman),Sports (Rakesh),Accountancy (Nathulal),Hindi (Jainendra),English (Pradhyuman)
+Class 12 Arts,Geography (Prakash),English Literature (Harshita),Economics/Political Science (Prakash/Pradhyuman),English Literature (Harshita),Sports (Rakesh),Sports (Rakesh),Hindi (Jainendra),English (Pradhyuman)
+`;
+
+        /**
+         * Custom sort function to order class names numerically then alphabetically.
+         * e.g., Class 1, Class 2, ..., Class 10, Class 11 Arts, Class 11 Commerce
+         */
+        function customSortClasses(a, b) {
+            const numA = parseInt(a.match(/\d+/)?.[0]);
+            const numB = parseInt(b.match(/\d+/)?.[0]);
+
+            // If both have numbers and the numbers are different, sort by number
+            if (!isNaN(numA) && !isNaN(numB) && numA !== numB) {
+                return numA - numB;
+            }
+            
+            // Otherwise, sort alphabetically (handles "Class 11 Arts" vs "Class 11 Commerce")
+            return a.localeCompare(b);
+        }
+
+        function parseData() {
+            // Replace "Nindika" with "Nidhika" before processing
+            const correctedData = rawData.replace(/\(Nindika\)/g, '(Nidhika)');
+            const dayBlocks = correctedData.trim().split(/\n\s*(?=Tuesday|Wednesday|Thursday|Friday|Saturday)/);
+            const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+            
+            let firstHeader = true;
+
+            dayBlocks.forEach((block) => {
+                const lines = block.trim().split('\n');
+                const day = lines[0].trim();
+                if(!days.includes(day)) return;
+
+                const headerLine = lines[1].split(',');
+                
+                if (firstHeader) {
+                    periodHeaders = headerLine.slice(1);
+                    firstHeader = false;
+                }
+
+                timetableData[day] = {};
+                const dataLines = lines.slice(2).filter(line => !line.toLowerCase().startsWith('vacant'));
+                
+                dataLines.forEach((line) => {
+                    const columns = line.split(',');
+                    const className = columns[0].trim();
+                    timetableData[day][className] = columns.slice(1);
+
+                    columns.slice(1).forEach((cellText, periodIndex) => {
+                        const match = cellText.trim().match(/^(.*?)\s*\((.*?)\)$/);
+                        if (match) {
+                            let subjectsPart = match[1].trim();
+                            let teachersPart = match[2].trim();
+
+                            // Handle special case: "Subject1/Subject2 (Teacher1/Teacher2)"
+                            if (subjectsPart.includes('/') && teachersPart.includes('/')) {
+                                const subjects = subjectsPart.split('/');
+                                const teachers = teachersPart.split('/');
+                                
+                                subjects.forEach((subject, i) => {
+                                    if (teachers[i]) {
+                                        let teacherName = teachers[i].trim().replace(/\s+Sir$/, '');
+                                        if (!teacherData[teacherName]) teacherData[teacherName] = {};
+                                        if (!teacherData[teacherName][day]) teacherData[teacherName][day] = Array(periodHeaders.length).fill(null);
+                                        if (!teacherData[teacherName][day][periodIndex]) teacherData[teacherName][day][periodIndex] = [];
+                                        teacherData[teacherName][day][periodIndex].push({ subject: subject.trim(), className });
+                                    }
+                                });
+                            } else {
+                                // Handle normal case
+                                let teacherName = teachersPart.replace(/\s+Sir$/, '');
+                                if (!teacherData[teacherName]) teacherData[teacherName] = {};
+                                if (!teacherData[teacherName][day]) teacherData[teacherName][day] = Array(periodHeaders.length).fill(null);
+                                if (!teacherData[teacherName][day][periodIndex]) teacherData[teacherName][day][periodIndex] = [];
+                                teacherData[teacherName][day][periodIndex].push({ subject: subjectsPart, className });
+                            }
+                        }
+                    });
+                });
+            });
+        }
+
+        function createDayWiseTables() {
+            const container = document.getElementById('day-wise-content-container');
+            container.innerHTML = '';
+            Object.keys(timetableData).forEach(day => {
+                const dayContent = document.createElement('div');
+                dayContent.id = day;
+                dayContent.className = 'day-tab-content';
+
+                const dayContainer = document.createElement('div');
+                dayContainer.className = 'bg-white rounded-xl shadow-lg p-4 sm:p-6';
+                
+                const tableContainer = document.createElement('div');
+                tableContainer.className = 'table-container';
+
+                const table = document.createElement('table');
+                table.className = 'responsive-table w-full text-sm text-left border-collapse';
+
+                const thead = document.createElement('thead');
+                thead.className = 'bg-gray-50';
+                let tr = document.createElement('tr');
+                let th = document.createElement('th');
+                th.className = 'border-b-2 border-gray-200 px-3 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider';
+                th.textContent = 'Class';
+                tr.appendChild(th);
+
+                periodHeaders.forEach(headerText => {
+                    th = document.createElement('th');
+                    th.className = 'border-b-2 border-gray-200 px-3 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider';
+                    th.innerHTML = headerText.replace('<br>', '<br><span class="font-normal normal-case text-gray-500">') + '</span>';
+                    tr.appendChild(th);
+                });
+                thead.appendChild(tr);
+                table.appendChild(thead);
+
+                const tbody = document.createElement('tbody');
+                Object.keys(timetableData[day]).sort(customSortClasses).forEach(className => {
+                    const classRow = document.createElement('tr');
+                    classRow.className = 'border-b border-gray-200';
+                    let td = document.createElement('td');
+                    td.className = 'row-header px-3 py-3 font-medium text-gray-900';
+                    td.setAttribute('data-label', 'Class');
+                    td.textContent = className;
+                    classRow.appendChild(td);
+
+                    timetableData[day][className].forEach((cellText, i) => {
+                        td = document.createElement('td');
+                        td.className = 'px-3 py-3';
+                        td.setAttribute('data-label', periodHeaders[i].split('<br>')[0]);
+                        const match = cellText.trim().match(/^(.*?)\s*\((.*?)\)$/);
+                        if (match) {
+                            td.innerHTML = `<div class="text-right"><div class="subject">${match[1].trim()}</div><div class="teacher">${match[2].trim()}</div></div>`;
+                        } else {
+                            td.innerHTML = `<div class="text-right"><div class="subject">${cellText.trim()}</div></div>`;
+                        }
+                        classRow.appendChild(td);
+                    });
+                    tbody.appendChild(classRow);
+                });
+                table.appendChild(tbody);
+                tableContainer.appendChild(table);
+                dayContainer.appendChild(tableContainer);
+                dayContent.appendChild(dayContainer);
+                container.appendChild(dayContent);
+            });
+        }
+
+        function populateClassDropdown() {
+            const select = document.getElementById('class-select');
+            select.innerHTML = '';
+            const classNames = new Set();
+            Object.values(timetableData).forEach(dayData => {
+                Object.keys(dayData).forEach(className => classNames.add(className));
+            });
+
+            let option = document.createElement('option');
+            option.value = "";
+            option.textContent = "--- Select a Class ---";
+            select.appendChild(option);
+
+            Array.from(classNames).sort(customSortClasses).forEach(className => {
+                option = document.createElement('option');
+                option.value = className;
+                option.textContent = className;
+                select.appendChild(option);
+            });
+        }
+        
+        function populateTeacherDropdown() {
+            const select = document.getElementById('teacher-select');
+            select.innerHTML = '';
+            const teacherNames = Object.keys(teacherData).sort();
+
+            let option = document.createElement('option');
+            option.value = "";
+            option.textContent = "--- Select a Teacher ---";
+            select.appendChild(option);
+
+            teacherNames.forEach(teacherName => {
+                option = document.createElement('option');
+                option.value = teacherName;
+                option.textContent = teacherName;
+                select.appendChild(option);
+            });
+        }
+
+        function displayClassTimetable(className) {
+            const container = document.getElementById('class-wise-content-container');
+            if (!className) {
+                container.innerHTML = '<p class="text-gray-500 text-center py-8">Please select a class to see its weekly schedule.</p>';
+                return;
+            }
+
+            container.innerHTML = '';
+            const tableContainer = document.createElement('div');
+            tableContainer.className = 'table-container';
+            const table = document.createElement('table');
+            table.className = 'responsive-table w-full text-sm text-left border-collapse';
+            const thead = document.createElement('thead');
+            thead.className = 'bg-gray-50';
+            let tr = document.createElement('tr');
+            let th = document.createElement('th');
+            th.className = 'border-b-2 border-gray-200 px-3 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider';
+            th.textContent = 'Day';
+            tr.appendChild(th);
+
+            periodHeaders.forEach(headerText => {
+                th = document.createElement('th');
+                th.className = 'border-b-2 border-gray-200 px-3 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider';
+                th.innerHTML = headerText.replace('<br>', '<br><span class="font-normal normal-case text-gray-500">') + '</span>';
+                tr.appendChild(th);
+            });
+            thead.appendChild(tr);
+            table.appendChild(thead);
+
+            const tbody = document.createElement('tbody');
+            Object.keys(timetableData).forEach(day => {
+                const row = document.createElement('tr');
+                row.className = 'border-b border-gray-200';
+                let td = document.createElement('td');
+                td.className = 'row-header px-3 py-3 font-medium text-gray-900';
+                td.setAttribute('data-label', 'Day');
+                td.textContent = day;
+                row.appendChild(td);
+
+                const daySchedule = timetableData[day][className] || [];
+                periodHeaders.forEach((header, index) => {
+                    const cellText = daySchedule[index] || '';
+                    td = document.createElement('td');
+                    td.className = 'px-3 py-3';
+                    td.setAttribute('data-label', header.split('<br>')[0]);
+                    const match = cellText.trim().match(/^(.*?)\s*\((.*?)\)$/);
+                    if (match) {
+                        td.innerHTML = `<div class="text-right"><div class="subject">${match[1].trim()}</div><div class="teacher">${match[2].trim()}</div></div>`;
+                    } else {
+                        td.innerHTML = `<div class="text-right"><div class="subject">${cellText.trim()}</div></div>`;
+                    }
+                    row.appendChild(td);
+                });
+                tbody.appendChild(row);
+            });
+            table.appendChild(tbody);
+            tableContainer.appendChild(table);
+            container.appendChild(tableContainer);
+        }
+
+        function displayTeacherTimetable(teacherName) {
+            const container = document.getElementById('teacher-wise-content-container');
+            if (!teacherName) {
+                container.innerHTML = '<p class="text-gray-500 text-center py-8">Please select a teacher to see their weekly schedule.</p>';
+                return;
+            }
+
+            container.innerHTML = '';
+            const tableContainer = document.createElement('div');
+            tableContainer.className = 'table-container';
+            const table = document.createElement('table');
+            table.className = 'responsive-table w-full text-sm text-left border-collapse';
+            const thead = document.createElement('thead');
+            thead.className = 'bg-gray-50';
+            let tr = document.createElement('tr');
+            let th = document.createElement('th');
+            th.className = 'border-b-2 border-gray-200 px-3 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider';
+            th.textContent = 'Day';
+            tr.appendChild(th);
+
+            periodHeaders.forEach(headerText => {
+                th = document.createElement('th');
+                th.className = 'border-b-2 border-gray-200 px-3 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider';
+                th.innerHTML = headerText.replace('<br>', '<br><span class="font-normal normal-case text-gray-500">') + '</span>';
+                tr.appendChild(th);
+            });
+            thead.appendChild(tr);
+            table.appendChild(thead);
+
+            const tbody = document.createElement('tbody');
+            const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+            days.forEach(day => {
+                const row = document.createElement('tr');
+                row.className = 'border-b border-gray-200';
+                let td = document.createElement('td');
+                td.className = 'row-header px-3 py-3 font-medium text-gray-900';
+                td.setAttribute('data-label', 'Day');
+                td.textContent = day;
+                row.appendChild(td);
+
+                const teacherDaySchedule = teacherData[teacherName]?.[day] || [];
+                periodHeaders.forEach((header, index) => {
+                    td = document.createElement('td');
+                    td.className = 'schedule-cell px-3 py-3 text-center align-middle';
+                    td.setAttribute('data-label', header.split('<br>')[0]);
+                    const periods = teacherDaySchedule[index] || [];
+                    if (periods.length > 0) {
+                        const contentDiv = document.createElement('div');
+                        contentDiv.className = 'text-right';
+                        periods.forEach(p => {
+                            const entryDiv = document.createElement('div');
+                            entryDiv.className = 'mb-1';
+                            entryDiv.innerHTML = `<div class="subject">${p.subject}</div><div class="class-name">${p.className}</div>`;
+                            contentDiv.appendChild(entryDiv);
+                        });
+                        td.appendChild(contentDiv);
+                    }
+                    row.appendChild(td);
+                });
+                tbody.appendChild(row);
+            });
+            table.appendChild(tbody);
+            tableContainer.appendChild(table);
+            container.appendChild(tableContainer);
+        }
+
+        /**
+         * Gathers the currently visible timetable data, formats it for printing,
+         * and opens the browser's print dialog.
+         */
+        function printTimetable() {
+            const activeMainTab = document.querySelector('.main-tab.active');
+            const viewName = activeMainTab.getAttribute('onclick').match(/'([^']+)'/)[1];
+            const printableContainer = document.getElementById('printable-area');
+
+            let title = '';
+            let tableHTML = '';
+            
+            // Create the header row for the print table
+            const headerRow = '<tr><th>' + 
+                (viewName === 'Day' ? 'Class' : 'Day') + 
+                '</th>' +
+                periodHeaders.map(h => `<th>${h.replace(/<br>/g, ' ')}</th>`).join('') +
+                '</tr>';
+
+            let bodyRows = '';
+
+            // --- Logic for Day-wise Printing ---
+            if (viewName === 'Day') {
+                const activeDayTab = document.querySelector('.day-tab.active');
+                if (!activeDayTab) { alert('Could not find an active day.'); return; }
+                const day = activeDayTab.textContent;
+                title = `Daily Timetable: ${day}`;
+                
+                Object.keys(timetableData[day]).sort(customSortClasses).forEach(className => {
+                    bodyRows += `<tr><td>${className}</td>`;
+                    const schedule = timetableData[day][className];
+                    schedule.forEach(cellText => {
+                        const match = cellText.trim().match(/^(.*?)\s*\((.*?)\)$/);
+                        const content = match ? `${match[1].trim()}<br><small>(${match[2].trim()})</small>` : cellText.trim();
+                        bodyRows += `<td>${content}</td>`;
+                    });
+                    bodyRows += '</tr>';
+                });
+
+            // --- Logic for Class-wise Printing ---
+            } else if (viewName === 'Class') {
+                const selectedClass = document.getElementById('class-select').value;
+                if (!selectedClass) {
+                    alert('Please select a class to print.');
+                    return;
+                }
+                title = `Weekly Timetable: ${selectedClass}`;
+                const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+                
+                days.forEach(day => {
+                    bodyRows += `<tr><td>${day}</td>`;
+                    const schedule = timetableData[day]?.[selectedClass] || Array(periodHeaders.length).fill('');
+                    schedule.forEach(cellText => {
+                        const match = cellText.trim().match(/^(.*?)\s*\((.*?)\)$/);
+                        const content = match ? `${match[1].trim()}<br><small>(${match[2].trim()})</small>` : cellText.trim();
+                        bodyRows += `<td>${content}</td>`;
+                    });
+                    bodyRows += '</tr>';
+                });
+
+            // --- Logic for Teacher-wise Printing ---
+            } else if (viewName === 'Teacher') {
+                const selectedTeacher = document.getElementById('teacher-select').value;
+                if (!selectedTeacher) {
+                    alert('Please select a teacher to print.');
+                    return;
+                }
+                title = `Weekly Schedule: ${selectedTeacher}`;
+                const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+
+                days.forEach(day => {
+                    bodyRows += `<tr><td>${day}</td>`;
+                    const daySchedule = teacherData[selectedTeacher]?.[day] || [];
+                    periodHeaders.forEach((header, index) => {
+                        const periods = daySchedule[index] || [];
+                        // Format multiple periods in the same slot cleanly
+                        const content = periods.map(p => `${p.subject}<br><small>(${p.className})</small>`).join('<hr style="margin:1px 0; border-top: 1px dotted #888;">');
+                        bodyRows += `<td>${content || ''}</td>`;
+                    });
+                    bodyRows += '</tr>';
+                });
+            }
+
+            // Check if there is content to print
+            if (!bodyRows) {
+                alert('No data available to print for the current selection.');
+                return;
+            }
+
+            // Assemble the final HTML for the printable table
+            tableHTML = `<table class="print-table"><thead>${headerRow}</thead><tbody>${bodyRows}</tbody></table>`;
+            
+            // Populate the hidden printable area with the generated content
+            printableContainer.innerHTML = `
+                <h1 class="print-title">${title}</h1>
+                <h2 class="print-subtitle">Veer Patta Public School, Amet (July 2025-26)</h2>
+                ${tableHTML}
+            `;
+
+            // Trigger the browser's print dialog
+            window.print();
+        }
+
+        function showMainView(viewName, element) {
+            document.querySelectorAll('.main-tab-content').forEach(c => c.classList.remove('active'));
+            document.getElementById(viewName + 'View').classList.add('active');
+            document.querySelectorAll('.main-tab').forEach(t => t.classList.remove('active'));
+            element.classList.add('active');
+        }
+        
+        function showDayTab(dayName, element) {
+            document.querySelectorAll('.day-tab-content').forEach(c => c.classList.remove('active'));
+            document.getElementById(dayName).classList.add('active');
+            document.querySelectorAll('.day-tab').forEach(t => t.classList.remove('active'));
+            element.classList.add('active');
+        }
+        
+        window.onload = function() {
+            parseData();
+            createDayWiseTables();
+            populateClassDropdown();
+            populateTeacherDropdown();
+            // Set the first day tab to active by default
+            const firstDayTab = document.querySelector('.day-tab');
+            if(firstDayTab) {
+                 showDayTab('Monday', firstDayTab);
+            }
+        }
+
+    </script>
+</body>
+</html>
