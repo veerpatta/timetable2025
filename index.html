@@ -1,0 +1,1109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Timetable Command Center - Veer Patta Public School</title>
+    
+    <!-- LIBRARIES (CDN) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/lucide@latest/dist/umd/lucide.min.js"></script>
+
+    <!-- FONTS -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- STYLES -->
+    <style>
+        /* --- RESET & BASE STYLES --- */
+        :root {
+            --indigo-600: #4f46e5;
+            --indigo-700: #4338ca;
+            --indigo-100: #e0e7ff;
+            --indigo-800: #3730a3;
+            --gray-100: #f3f4f6;
+            --gray-300: #d1d5db;
+            --gray-500: #6b7280;
+            --gray-600: #4b5563;
+            --gray-700: #374151;
+            --gray-800: #1f2937;
+            --gray-900: #111827;
+            --red-500: #ef4444;
+            --red-600: #dc2626;
+            --green-600: #16a34a;
+            --green-700: #15803d;
+            --blue-900: #1e3a8a;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--gray-100);
+            color: var(--gray-800);
+            margin: 0;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        /* --- LAYOUT & CONTAINERS --- */
+        .app-container {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 1rem; /* Mobile padding */
+        }
+        .main-content {
+            padding: 0.25rem;
+        }
+
+        /* --- HEADER & FOOTER --- */
+        header, footer { text-align: center; }
+        h1 { font-size: 2rem; font-weight: 800; color: var(--gray-900); }
+        h2 { font-size: 1.25rem; font-weight: 700; color: var(--gray-800); }
+        h3 { font-size: 1.1rem; font-weight: 700; color: var(--gray-800); }
+        header p { color: var(--gray-600); margin-top: 0.5rem; font-size: 1rem; }
+        footer { margin-top: 3rem; color: var(--gray-500); font-size: 0.875rem; }
+
+        /* --- NAVIGATION --- */
+        nav {
+            margin: 1.5rem 0;
+            padding: 0.5rem;
+            background-color: rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(4px);
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -2px rgba(0,0,0,0.1);
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+        .nav-button {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 0.75rem;
+            border-radius: 0.5rem;
+            transition: all 0.2s ease-in-out;
+            color: var(--gray-600);
+            background-color: transparent;
+            border: none;
+            cursor: pointer;
+            font-size: 0.875rem;
+            font-weight: 600;
+        }
+        .nav-button:hover {
+            background-color: var(--indigo-100);
+            color: var(--indigo-600);
+        }
+        .nav-button.active {
+            background-color: var(--indigo-600);
+            color: white;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -2px rgba(0,0,0,0.1);
+        }
+
+        /* --- CARDS & PANELS --- */
+        .card {
+            background-color: white;
+            padding: 1rem;
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -2px rgba(0,0,0,0.1);
+            margin-bottom: 1rem;
+        }
+        .stat-card {
+            display: flex;
+            align-items: center;
+            padding: 1rem;
+        }
+        .stat-card-icon {
+            border-radius: 9999px;
+            padding: 0.75rem;
+            margin-right: 1rem;
+            color: white;
+        }
+        .stat-card-label { font-size: 0.875rem; color: var(--gray-500); font-weight: 500; }
+        .stat-card-value { font-size: 1.5rem; font-weight: 700; color: var(--gray-800); }
+        .bg-blue-500 { background-color: #3b82f6; }
+        .bg-green-500 { background-color: #22c55e; }
+        .bg-yellow-500 { background-color: #eab308; }
+
+        /* --- FORMS & BUTTONS --- */
+        select, button, input[type="checkbox"] {
+            font-family: 'Inter', sans-serif;
+        }
+        select, .button {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--gray-300);
+            border-radius: 0.5rem;
+            box-shadow: 0 1px 2px 0 rgba(0,0,0,0.05);
+            font-size: 1rem;
+        }
+        .button {
+            cursor: pointer;
+            font-weight: 700;
+            color: white;
+            transition: background-color 0.2s;
+        }
+        .button-indigo { background-color: var(--indigo-600); border-color: var(--indigo-600); }
+        .button-indigo:hover { background-color: var(--indigo-700); }
+        .button-red { background-color: var(--red-600); border-color: var(--red-600); }
+        .button-red:hover { background-color: #b91c1c; }
+        .button-green { background-color: var(--green-600); border-color: var(--green-600); }
+        .button-green:hover { background-color: var(--green-700); }
+        .button-gray { background-color: var(--gray-700); border-color: var(--gray-700); }
+        .button-gray:hover { background-color: var(--gray-800); }
+
+        /* --- TABLES --- */
+        .table-container {
+            overflow-x: auto;
+            margin-top: 1rem;
+        }
+        table {
+            width: 100%;
+            text-align: left;
+            border-collapse: collapse;
+            font-size: 0.8rem;
+        }
+        th, td {
+            padding: 0.5rem;
+            white-space: nowrap;
+        }
+        thead {
+            background-color: #f9fafb;
+        }
+        th {
+            font-weight: 600;
+        }
+        tbody tr {
+            border-bottom: 1px solid #e5e7eb;
+        }
+        td .font-semibold { font-weight: 600; }
+        td .text-blue-900 { color: var(--blue-900); }
+        td .text-xs { font-size: 0.7rem; }
+        td .line-through { text-decoration: line-through; }
+        td .text-red-600 { color: var(--red-600); font-weight: 700; }
+
+        /* --- UTILITY & GRID --- */
+        .grid { display: grid; gap: 1rem; }
+        .grid-cols-1 { grid-template-columns: repeat(1, minmax(0, 1fr)); }
+        
+        .flex { display: flex; }
+        .flex-col { flex-direction: column; }
+        .items-center { align-items: center; }
+        .justify-between { justify-content: space-between; }
+        .gap-4 { gap: 1rem; }
+        .gap-6 { gap: 1.5rem; }
+        .mb-4 { margin-bottom: 1rem; }
+        .mr-2 { margin-right: 0.5rem; }
+        .font-bold { font-weight: 700; }
+        .text-center { text-align: center; }
+        .space-y-6 > :not([hidden]) ~ :not([hidden]) { margin-top: 1.5rem; }
+
+        /* --- MULTI-SELECT DROPDOWN --- */
+        .multiselect-container { position: relative; }
+        .multiselect-options {
+            display: none;
+            position: absolute;
+            z-index: 10;
+            width: 100%;
+            margin-top: 0.25rem;
+            background-color: white;
+            border: 1px solid var(--gray-300);
+            border-radius: 0.5rem;
+            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -4px rgba(0,0,0,0.1);
+            max-height: 15rem;
+            overflow-y: auto;
+        }
+        .multiselect-options.open { display: block; }
+        .multiselect-options label {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.5rem;
+            cursor: pointer;
+        }
+        .multiselect-options label:hover { background-color: var(--gray-100); }
+        .multiselect-options input { height: 1.25rem; width: 1.25rem; }
+
+        /* --- SCREENSHOT & MODAL --- */
+        .screenshot-modal {
+            position: fixed;
+            inset: 0;
+            background-color: rgba(0,0,0,0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 50;
+            padding: 1rem;
+        }
+        .screenshot-modal-content {
+            background-color: white;
+            border-radius: 0.5rem;
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
+            padding: 1rem;
+            max-width: 36rem;
+            width: 100%;
+        }
+        .screenshot-modal-content img {
+            width: 100%;
+            border-radius: 0.375rem;
+            border: 1px solid var(--gray-300);
+        }
+
+        /* --- DESKTOP & LARGER SCREEN STYLES --- */
+        @media (min-width: 768px) {
+            .app-container {
+                padding: 2rem;
+            }
+            h1 { font-size: 2.8rem; }
+            h2 { font-size: 1.5rem; }
+            h3 { font-size: 1.25rem; }
+            header p { font-size: 1.125rem; }
+            .nav-button { font-size: 1rem; padding: 0.5rem 1rem; }
+            .card { padding: 1.5rem; }
+            .grid { gap: 1.5rem; }
+            .md-grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+            .md-grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+            table { font-size: 0.875rem; }
+            th, td { padding: 0.75rem; }
+            td .text-xs { font-size: 0.75rem; }
+        }
+
+        @media (min-width: 1024px) {
+            .lg-grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+            .lg-grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+            .lg-grid-cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+            .lg-col-span-2 { grid-column: span 2 / span 2; }
+            .lg-col-span-3 { grid-column: span 3 / span 3; }
+        }
+
+        /* --- PRINT STYLES --- */
+        @media print {
+            body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            .app-container, main { padding: 0 !important; }
+            header, nav, footer, .no-print { display: none !important; }
+            .card, .bg-white, .bg-gray-50, .bg-indigo-100 {
+                background-color: transparent !important;
+                box-shadow: none !important;
+                border: none !important;
+            }
+            table { width: 100% !important; border-collapse: collapse !important; font-size: 9pt; }
+            th, td { border: 1px solid #ccc !important; padding: 4px !important; }
+            .table-container { overflow: visible !important; }
+            .text-red-600 { color: #dc2626 !important; }
+            .text-blue-900 { color: #1e3a8a !important; }
+            .font-bold { font-weight: 700 !important; }
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="app-container">
+        <header>
+            <h1>Timetable Command Center</h1>
+            <p>Veer Patta Public School, Amet</p>
+            <div class="mt-6 text-center no-print">
+                <button onclick="window.print()" class="button button-gray" style="display: inline-flex; align-items: center; width: auto; padding: 0.5rem 1.5rem;">
+                    <i data-lucide="printer" class="mr-2"></i> Print View
+                </button>
+            </div>
+        </header>
+
+        <nav class="no-print">
+            <button id="nav-Dashboard" class="nav-button" onclick="switchView('Dashboard')"><i data-lucide="pie-chart"></i><span>Dashboard</span></button>
+            <button id="nav-Day" class="nav-button" onclick="switchView('Day')"><i data-lucide="calendar"></i><span>Day View</span></button>
+            <button id="nav-Substitution" class="nav-button" onclick="switchView('Substitution')"><i data-lucide="user-check"></i><span>Substitutions</span></button>
+            <button id="nav-Class" class="nav-button" onclick="switchView('Class')"><i data-lucide="school"></i><span>Class View</span></button>
+            <button id="nav-Teacher" class="nav-button" onclick="switchView('Teacher')"><i data-lucide="users"></i><span>Teacher View</span></button>
+        </nav>
+
+        <main id="main-content" class="main-content"></main>
+
+        <footer>
+            <p>This interactive dashboard is an AI-driven upgrade for modern school administration, proudly serving Veer Patta Public School, Amet.</p>
+        </footer>
+    </div>
+    
+    <div id="modal-container"></div>
+
+    <script>
+        // --- DATA STORE ---
+        const rawData = `
+        Monday
+        Class,Period 1<br>8:30 AM - 9:10 AM,Period 2<br>9:10 AM - 9:50 AM,Period 3<br>9:50 AM - 10:30 AM,Period 4<br>10:30 AM - 11:10 AM,Period 5<br>11:30 AM - 12:10 PM,Period 6<br>12:10 PM - 12:50 PM,Period 7<br>12:50 PM - 01:30 PM,Period 8<br>01:30 PM - 02:10 PM
+        Class 1,EVS (Bindu),EVS (Bindu),ELGA (Bindu),ELGA (Bindu),ELGA (Bindu),Hindi (Bindu),Home Work (Anjana),Maths (Kusum)
+        Class 2,Maths (Anita),Maths (Anita),ELGA (Leena),ELGA (Leena),ELGA (Leena),EVS (Rashmita),Hindi (Bindu),Hindi (Bindu)
+        Class 3,EVS (Rashmita),EVS (Rashmita),ELGA (Kusum),ELGA (Kusum),ELGA (Kusum),Hindi (Kusum),Hindi (Kusum),Sports (Rakesh)
+        Class 4,Hindi (Kusum),Home Work (Jainendra),ELGA (Rashmita),ELGA (Rashmita),ELGA (Rashmita),EVS (Anita),EVS (Anita),Sports (Rakesh)
+        Class 5,Maths (Nidhika),Hindi (Kusum),ELGA (Anita),ELGA (Anita),ELGA (Anita),CCS (Maya),Maths (Nidhika),EVS (Nidhika)
+        Class 6,Science (Hemlata),Science (Hemlata),ELGA (Nidhika),ELGA (Nidhika),ELGA (Nidhika),Maths (Nidhika),SST (Rashmita),Hindi (Jainendra)
+        Class 7,Hindi (Jainendra),SST (Gyan Sir),ELGA (Harshita),ELGA (Harshita),ELGA (Harshita),SST (Gyan Sir),Maths (Leena),Science (Hemlata)
+        Class 8,Hindi (Antima),CCS (Maya),ELGA (Harshita),ELGA (Harshita),ELGA (Harshita),Maths (Leena),Science (Hemlata),Sanskrit (Antima)
+        Class 9,Maths (Leena),SST (Pradhyuman),Science (Toshit),CCS (Maya),Hindi (Jainendra),Hindi (Jainendra),English (Harshita),Maths (Leena)
+        Class 10,SST (Pradhyuman),Hindi (Antima),Maths (Nathulal),Maths (Nathulal),Sanskrit (Antima),English (Harshita),Science (Toshit),Sports (Rakesh)
+        Class 11 Science,Physics (Phy Sir),Physics (Phy Sir),Biology (Hemlata),English (Pradhyuman),Chemistry (Toshit),Chemistry (Toshit),English (Pradhyuman),Sports (Rakesh)
+        Class 11 Commerce,Self Study (Maya),Business (Nidhika),Economics (Prakash),English (Pradhyuman),Accountancy (Nathulal),Accountancy (Nathulal),English (Pradhyuman),Accountancy (Nathulal)
+        Class 11 Arts,English Literature (Harshita),Geography (Prakash),Economics (Prakash),English (Pradhyuman),CCS (Maya),Sports (Rakesh),English (Pradhyuman),Political Science (Pradhyuman)
+        Class 12 Science,Chemistry (Toshit),Chemistry (Toshit),Physics (Phy Sir),Physics (Phy Sir),English (Pradhyuman),Biology (Hemlata),Hindi (Jainendra),Physics (Phy Sir)
+        Class 12 Commerce,Accountancy (Nathulal),Accountancy (Nathulal),Business (Pradhyuman),Economics (Prakash),English (Pradhyuman),Sports (Rakesh),Hindi (Jainendra),CCS (Maya)
+        Class 12 Arts,Geography (Prakash),English Literature (Harshita),Hindi Boards (Antima),Economics (Prakash),English (Pradhyuman),Political Science (Pradhyuman),Hindi (Jainendra),English Literature (Harshita)
+
+        Tuesday
+        Class,Period 1<br>8:30 AM - 9:10 AM,Period 2<br>9:10 AM - 9:50 AM,Period 3<br>9:50 AM - 10:30 AM,Period 4<br>10:30 AM - 11:10 AM,Period 5<br>11:30 AM - 12:10 PM,Period 6<br>12:10 PM - 12:50 PM,Period 7<br>12:50 PM - 01:30 PM,Period 8<br>01:30 PM - 02:10 PM
+        Class 1,EVS (Bindu),Maths (Kusum),ELGA (Bindu),ELGA (Bindu),ELGA (Bindu),Hindi (Bindu),Hindi (Bindu),Home Work (Anjana)
+        Class 2,Maths (Anita),Hindi (Bindu),ELGA (Leena),ELGA (Leena),ELGA (Leena),EVS (Rashmita),EVS (Rashmita),Hindi (Bindu)
+        Class 3,EVS (Rashmita),Maths (Anita),ELGA (Kusum),ELGA (Kusum),ELGA (Kusum),Maths (Anita),Hindi (Kusum),Hindi (Kusum)
+        Class 4,Hindi (Kusum),Maths (Leena),ELGA (Rashmita),ELGA (Rashmita),ELGA (Rashmita),Basic Hindi (Anjana),EVS (Anita),EVS (Anita)
+        Class 5,EVS (Nidhika),Home Work (Rashmita),ELGA (Anita),ELGA (Anita),ELGA (Anita),Hindi (Kusum),Maths (Nidhika),EVS (Nidhika)
+        Class 6,Science (Hemlata),Sanskrit (Jainendra),ELGA (Nidhika),ELGA (Nidhika),ELGA (Nidhika),Maths (Nidhika),Hindi (Jainendra),SST (Rashmita)
+        Class 7,Hindi (Jainendra),Science (Hemlata),ELGA (Harshita),ELGA (Harshita),ELGA (Harshita),SST (Gyan Sir),Maths (Leena),Sanskrit (Antima)
+        Class 8,Hindi (Antima),Sanskrit (Antima),ELGA (Harshita),ELGA (Harshita),ELGA (Harshita),Maths (Leena),Science (Hemlata),SST (Harshita)
+        Class 9,Maths (Leena),English (Harshita),Hindi (Jainendra),CCS (Maya),Science (Toshit),Science (Toshit),Sanskrit (Antima),SST (Pradhyuman)
+        Class 10,SST (Pradhyuman),CCS (Maya),Maths (Nathulal),Sanskrit (Antima),Hindi (Antima),English (Harshita),Science (Toshit),Maths (Nathulal)
+        Class 11 Science,Physics (Phy Sir),Physics (Phy Sir),Chemistry (Toshit),Chemistry (Toshit),Biology (Hemlata),Hindi (Jainendra),English (Pradhyuman),Hindi (Jainendra)
+        Class 11 Commerce,Self Study (Maya),Business (Nidhika),Economics (Prakash),Accountancy (Nathulal),Accountancy (Nathulal),Hindi (Jainendra),English (Pradhyuman),Hindi (Jainendra)
+        Class 11 Arts,English Literature (Harshita),Political Science (Pradhyuman),Economics (Prakash),Geography (Prakash),CCS (Maya),Hindi (Jainendra),English (Pradhyuman),Hindi (Jainendra)
+        Class 12 Science,Chemistry (Toshit),Chemistry (Toshit),Biology (Hemlata),Biology (Hemlata),Hindi (Jainendra),English (Pradhyuman),Physics (Phy Sir),Biology (Hemlata)
+        Class 12 Commerce,Accountancy (Nathulal),Accountancy (Nathulal),CCS (Maya),Business (Pradhyuman),Hindi (Jainendra),English (Pradhyuman),Accountancy (Nathulal),Sports (Rakesh)
+        Class 12 Arts,Geography (Prakash),Geography (Prakash),Political Science (Pradhyuman),Hindi (Jainendra),Hindi (Jainendra),English (Pradhyuman),English Literature (Harshita),Sports (Rakesh)
+
+        Wednesday
+        Class,Period 1<br>8:30 AM - 9:10 AM,Period 2<br>9:10 AM - 9:50 AM,Period 3<br>9:50 AM - 10:30 AM,Period 4<br>10:30 AM - 11:10 AM,Period 5<br>11:30 AM - 12:10 PM,Period 6<br>12:10 PM - 12:50 PM,Period 7<br>12:50 PM - 01:30 PM,Period 8<br>01:30 PM - 02:10 PM
+        Class 1,EVS (Bindu),Maths (Kusum),ELGA (Bindu),ELGA (Bindu),ELGA (Bindu),Home Work (Anjana),Hindi (Bindu),Sports (Rakesh)
+        Class 2,Maths (Anita),Hindi (Bindu),ELGA (Leena),ELGA (Leena),ELGA (Leena),Hindi (Bindu),EVS (Rashmita),Sports (Rakesh)
+        Class 3,EVS (Rashmita),Home Work (Jainendra),ELGA (Kusum),ELGA (Kusum),ELGA (Kusum),Maths (Anita),Maths (Anita),Maths (Anita)
+        Class 4,Hindi (Kusum),EVS (Anita),ELGA (Rashmita),ELGA (Rashmita),ELGA (Rashmita),Maths (Leena),Maths (Leena),Hindi (Kusum)
+        Class 5,EVS (Nidhika),EVS (Nidhika),ELGA (Anita),ELGA (Anita),ELGA (Anita),Hindi (Kusum),Hindi (Kusum),Maths (Nidhika)
+        Class 6,Science (Hemlata),SST (Rashmita),ELGA (Nidhika),ELGA (Nidhika),ELGA (Nidhika),Maths (Nidhika),Science (Hemlata),CCS (Maya)
+        Class 7,Hindi (Jainendra),Sanskrit (Antima),ELGA (Harshita),ELGA (Harshita),ELGA (Harshita),Science (Hemlata),CCS (Maya),SST (Gyan Sir)
+        Class 8,Sanskrit (Antima),Science (Hemlata),ELGA (Harshita),ELGA (Harshita),ELGA (Harshita),English Boards (Rashmita),SST (Harshita),Maths (Leena)
+        Class 9,Maths (Leena),Maths (Leena),Hindi (Jainendra),Science (Toshit),Sports (Rakesh),Sanskrit (Antima),SST (Pradhyuman),English (Harshita)
+        Class 10,SST (Pradhyuman),English (Harshita),Science (Toshit),Maths (Nathulal),Sanskrit (Antima),Science (Toshit),Hindi (Antima),Maths (Nathulal)
+        Class 11 Science,Physics (Phy Sir),Physics (Phy Sir),English (Pradhyuman),Biology (Hemlata),Biology (Hemlata),Sports (Rakesh),Chemistry (Toshit),Chemistry (Toshit)
+        Class 11 Commerce,CCS (Maya),Economics (Prakash),English (Pradhyuman),Self Study (Maya),Accountancy (Nathulal),Accountancy (Nathulal),Business (Nidhika),Sports (Rakesh)
+        Class 11 Arts,English Literature (Harshita),Economics (Prakash),English (Pradhyuman),Geography (Prakash),Self Study (Toshit),Political Science (Pradhyuman),Sports (Rakesh),Sports (Rakesh)
+        Class 12 Science,Chemistry (Toshit),Chemistry (Toshit),Biology (Hemlata),Hindi (Jainendra),English (Pradhyuman),Sports (Rakesh),Hindi (Jainendra),Hindi (Jainendra)
+        Class 12 Commerce,Accountancy (Nathulal),Accountancy (Nathulal),Economics (Prakash),Business (Pradhyuman),English (Pradhyuman),CCS (Maya),Hindi (Jainendra),Hindi (Jainendra)
+        Class 12 Arts,Geography (Prakash),Political Science (Pradhyuman),Economics (Prakash),Hindi (Jainendra),English (Pradhyuman),English Literature (Harshita),Hindi (Jainendra),Hindi (Jainendra)
+
+        Thursday
+        Class,Period 1<br>8:30 AM - 9:10 AM,Period 2<br>9:10 AM - 9:50 AM,Period 3<br>9:50 AM - 10:30 AM,Period 4<br>10:30 AM - 11:10 AM,Period 5<br>11:30 AM - 12:10 PM,Period 6<br>12:10 PM - 12:50 PM,Period 7<br>12:50 PM - 01:30 PM,Period 8<br>01:30 PM - 02:10 PM
+        Class 1,Hindi (Bindu),EVS (Bindu),ELGA (Bindu),ELGA (Bindu),ELGA (Bindu),EVS (Bindu),CCS (Maya),Hindi (Anjana)
+        Class 2,Maths (Anita),Maths (Anita),ELGA (Leena),ELGA (Leena),ELGA (Leena),EVS (Rashmita),EVS (Rashmita),Hindi (Bindu)
+        Class 3,EVS (Rashmita),EVS (Rashmita),ELGA (Kusum),ELGA (Kusum),ELGA (Kusum),Hindi (Kusum),Home Work (Bindu),Maths (Anita)
+        Class 4,Hindi (Kusum),CCS (Maya),ELGA (Rashmita),ELGA (Rashmita),ELGA (Rashmita),EVS (Anita),EVS (Anita),Games (Rakesh)
+        Class 5,EVS (Nidhika),Hindi (Kusum),ELGA (Anita),ELGA (Anita),ELGA (Anita),Home work (Anjana),Maths (Nidhika),Hindi (Kusum)
+        Class 6,Science (Hemlata),Maths (Nidhika),ELGA (Nidhika),ELGA (Nidhika),ELGA (Nidhika),Hindi (Jainendra),Science (Hemlata),SST (Rashmita)
+        Class 7,Hindi (Jainendra),Science (Hemlata),ELGA (Harshita),ELGA (Harshita),ELGA (Harshita),SST (Gyan Sir),Sanskrit (Antima),Maths (Leena)
+        Class 8,Hindi (Antima),SST (Harshita),ELGA (Harshita),ELGA (Harshita),ELGA (Harshita),Maths (Leena),Maths (Leena),Science (Hemlata)
+        Class 9,Maths (Leena),Hindi (Jainendra),SST (Pradhyuman),SST (Pradhyuman),Sanskrit (Antima),Sanskrit (Antima),Science (Toshit),Science (Toshit)
+        Class 10,SST (Pradhyuman),SST (Pradhyuman),Science (Toshit),Science (Toshit),Maths (Nathulal),Maths (Nathulal),English (Harshita),Sanskrit (Antima)
+        Class 11 Science,Physics (Phy Sir),Physics (Phy Sir),Biology (Hemlata),Biology (Hemlata),Chemistry (Toshit),Chemistry (Toshit),Hindi (Jainendra),English (Pradhyuman)
+        Class 11 Commerce,CCS (Maya),Economics (Prakash),Accountancy (Nathulal),Accountancy (Nathulal),Hindi (Jainendra),Business (Nidhika),Hindi (Jainendra),English (Pradhyuman)
+        Class 11 Arts,English Literature (Harshita),Economics (Prakash),Geography (Prakash),Self Study (Antima),Political Science (Pradhyuman),Sports (Rakesh),Hindi (Jainendra),English (Pradhyuman)
+        Class 12 Science,Chemistry (Toshit),Chemistry (Toshit),Hindi (Jainendra),Physics (Phy Sir),Biology (Hemlata),Biology (Hemlata),English (Pradhyuman),Hindi (Jainendra)
+        Class 12 Commerce,Accountancy (Nathulal),Accountancy (Nathulal),Hindi (Jainendra),Economics (Prakash),Sports (Rakesh),Business (Pradhyuman),English (Pradhyuman),Hindi (Jainendra)
+        Class 12 Arts,Geography (Prakash),Self Study (Antima),Hindi (Jainendra),Economics (Prakash),Sports (Rakesh),CCS (Maya),Hindi (Jainendra),Hindi (Jainendra)
+
+        Friday
+        Class,Period 1<br>8:30 AM - 9:10 AM,Period 2<br>9:10 AM - 9:50 AM,Period 3<br>9:50 AM - 10:30 AM,Period 4<br>10:30 AM - 11:10 AM,Period 5<br>11:30 AM - 12:10 PM,Period 6<br>12:10 PM - 12:50 PM,Period 7<br>12:50 PM - 01:30 PM,Period 8<br>01:30 PM - 02:10 PM
+        Class 1,Hindi (Bindu),Hindi (Bindu),Maths (Kusum),EVS (Bindu),Maths (Kusum),CCS (Maya),EVS (Bindu),EVS (Bindu)
+        Class 2,Maths (Anita),Maths (Anita),Hindi (Bindu),EVS (Rashmita),Hindi (Bindu),Hindi (Bindu),CCS (Maya),EVS (Rashmita)
+        Class 3,EVS (Rashmita),EVS (Rashmita),Maths (Anita),Maths (Anita),CCS (Maya),Hindi (Kusum),Hindi (Kusum),Home Work (Anjana)
+        Class 4,Hindi (Kusum),Hindi (Kusum),Home Work (Rashmita),CCS (Maya),Maths (Leena),Maths (Leena),EVS (Anita),EVS (Anita)
+        Class 5,EVS (Nidhika),EVS (Nidhika),Basic Hindi (Antima),Hindi (Kusum),Maths (Nidhika),Maths (Nidhika),Home Work (Anjana),Sports (Rakesh)
+        Class 6,Science (Hemlata),Sanskrit (Jainendra),Maths (Nidhika),Maths (Nidhika),Sanskrit (Jainendra),SST (Rashmita),SST (Rashmita),Sports (Rakesh)
+        Class 7,Hindi (Jainendra),Maths (Leena),Maths (Leena),Science (Hemlata),Science (Hemlata),Sanskrit (Antima),SST (Gyan Sir),SST (Gyan Sir)
+        Class 8,Hindi (Antima),Science (Hemlata),Science (Hemlata),Maths (Leena),Sports (Rakesh),SST (Harshita),SST (Harshita),Sanskrit (Antima)
+        Class 9,Maths (Leena),SST (Pradhyuman),Science (Toshit),Sanskrit (Antima),English (Harshita),Hindi (Jainendra),Sports (Rakesh),CCS (Maya)
+        Class 10,SST (Pradhyuman),Sanskrit (Antima),Maths (Nathulal),English (Harshita),Hindi (Antima),Science (Toshit),Sports (Rakesh),English (Harshita)
+        Class 11 Science,Physics (Phy Sir),Physics (Phy Sir),Hindi (Jainendra),Chemistry (Toshit),Chemistry (Toshit),English (Pradhyuman),Biology (Hemlata),Biology (Hemlata)
+        Class 11 Commerce,Self Study (Maya),Economics (Prakash),Hindi (Jainendra),Accountancy (Nathulal),Accountancy (Nathulal),English (Pradhyuman),Business (Nidhika),Business (Nidhika)
+        Class 11 Arts,English Literature (Harshita),Economics (Prakash),Hindi (Jainendra),Geography (Prakash),Political Science (Pradhyuman),English (Pradhyuman),Sports (Rakesh),Sports (Rakesh)
+        Class 12 Science,Chemistry (Toshit),Chemistry (Toshit),Physics (Phy Sir),Physics (Phy Sir),Sports (Rakesh),Biology (Hemlata),English (Pradhyuman),Hindi (Jainendra)
+        Class 12 Commerce,Accountancy (Nathulal),Accountancy (Nathulal),Economics (Prakash),Business (Pradhyuman),Sports (Rakesh),Accountancy (Nathulal),English (Pradhyuman),Hindi (Jainendra)
+        Class 12 Arts,Geography (Prakash),English Literature (Harshita),Economics/Political Science (Prakash/Pradhyuman),Self Study (Jainendra),Sports (Rakesh),Sports (Rakesh),English (Pradhyuman),Hindi (Jainendra)
+
+        Saturday
+        Class,Period 1<br>8:30 AM - 9:10 AM,Period 2<br>9:10 AM - 9:50 AM,Period 3<br>9:50 AM - 10:30 AM,Period 4<br>10:30 AM - 11:10 AM,Period 5<br>11:30 AM - 12:10 PM,Period 6<br>12:10 PM - 12:50 PM,Period 7<br>12:50 PM - 01:30 PM,Period 8<br>01:30 PM - 02:10 PM
+        Class 1,EVS (Bindu),EVS (Bindu),Hindi (Bindu),Hindi (Bindu),Sports (Rakesh Sir),Maths (Kusum),Home Work (Anjana),Home Work (Bindu)
+        Class 2,Maths (Anita),EVS (Rashmita),EVS (Rashmita),EVS (Rashmita),Sports (Rakesh Sir),CCS (Maya),Hindi (Bindu),Home Work (Anita)
+        Class 3,EVS (Rashmita),Maths (Anita),Hindi (Kusum),Hindi (Kusum),EVS (Rashmita),Home Work (Anjana),CCS (Maya),Home Work (Rashmita)
+        Class 4,Hindi (Kusum),Hindi (Kusum),EVS (Anita),EVS (Anita),Home Work (Anjana),Maths (Leena),Maths (Leena),Maths (Leena)
+        Class 5,Maths (Nidhika),Maths (Nidhika),CCS (Maya),EVS (Nidhika),EVS (Nidhika),Sports (Rakesh Sir),Hindi (Kusum),Home Work (Anjana)
+        Class 6,Science (Hemlata),Hindi (Jainendra),Maths (Nidhika),CCS (Maya),Sanskrit (Jainendra),Maths (Nidhika),SST (Rashmita),Hindi (Jainendra)
+        Class 7,Hindi (Jainendra),Science (Hemlata),Science (Hemlata),Maths (Leena),SST (Gyan Sir),English Basic (Rashmita),SST (Gyan Sir),Sports (Rakesh)
+        Class 8,Hindi (Antima),Sanskrit (Antima),Maths (Leena),Science (Hemlata),CCS (Maya),SST (Harshita),SST (Harshita),Sports (Rakesh)
+        Class 9,Maths (Leena),Maths (Leena),Science (Toshit),Hindi (Jainendra),Maths (Leena),SST (Pradhyuman),Science (Toshit),English (Harshita)
+        Class 10,SST (Pradhyuman),SST (Pradhyuman),Maths (Nathulal),Sanskrit (Antima),English (Harshita),Science (Toshit),SST (Pradhyuman),Hindi (Antima)
+        Class 11 Science,Physics (Phy Sir),Physics (Phy Sir),Hindi (Jainendra),Chemistry (Toshit),Chemistry (Toshit),Hindi (Jainendra),Biology (Hemlata),Sports (Rakesh)
+        Class 11 Commerce,Self Study (Maya),Economics (Prakash),Hindi (Jainendra),Accountancy (Nathulal),Accountancy (Nathulal),Hindi (Jainendra),Business (Nidhika),Business (Nidhika)
+        Class 11 Arts,English Literature (Harshita),Economics (Prakash),Hindi (Jainendra),Geography (Prakash),Political Science (Pradhyuman),Hindi (Jainendra),Sports (Rakesh),Sports (Rakesh)
+        Class 12 Science,Chemistry (Toshit),Chemistry (Toshit),Physics (Phy Sir),Physics (Phy Sir),Biology (Hemlata),Biology (Hemlata),Hindi (Jainendra),English (Pradhyuman)
+        Class 12 Commerce,Accountancy (Nathulal),Accountancy (Nathulal),Economics (Prakash),Business (Pradhyuman),Sports (Rakesh),Accountancy (Nathulal),Hindi (Jainendra),English (Pradhyuman)
+        Class 12 Arts,Geography (Prakash),English Literature (Harshita),Economics/Political Science (Prakash/Pradhyuman),English Literature (Harshita),Sports (Rakesh),Sports (Rakesh),Hindi (Jainendra),English (Pradhyuman)
+        `;
+
+        // --- GLOBAL STATE & CONSTANTS ---
+        let state = {
+            currentView: 'Dashboard',
+            substitutions: {}, // { Monday: { plan: { 'Class 1': { 0: 'TeacherA' } }, timestamp: 123 } }
+            allData: {},
+            charts: {} // To hold chart instances
+        };
+
+        const mainContent = document.getElementById('main-content');
+        const modalContainer = document.getElementById('modal-container');
+
+        // --- DATA PARSING & UTILITY FUNCTIONS ---
+        const parseTimetableData = () => {
+            const timetable = {};
+            const teacherDetails = {};
+            let headers = [];
+
+            const correctedData = rawData.replace(/\(Nindika\)/g, '(Nidhika)').replace(/\s+Sir/g, '');
+            const dayBlocks = correctedData.trim().split(/\n\s*(?=Tuesday|Wednesday|Thursday|Friday|Saturday)/);
+
+            dayBlocks.forEach((block, index) => {
+                const lines = block.trim().split('\n');
+                const day = lines[0].trim();
+                timetable[day] = {};
+
+                if (index === 0) {
+                    headers = lines[1].split(',').slice(1).map(h => {
+                        const parts = h.split('<br>');
+                        return { name: parts[0], time: parts[1] };
+                    });
+                }
+
+                const dataLines = lines.slice(2);
+                dataLines.forEach(line => {
+                    if (!line.trim()) return;
+                    const columns = line.split(',');
+                    const className = columns[0].trim();
+                    timetable[day][className] = [];
+
+                    columns.slice(1).forEach((cell, periodIndex) => {
+                        const match = cell.trim().match(/^(.*?)\s*\((.*?)\)$/);
+                        let entry = { subject: cell.trim(), teacher: null, period: periodIndex, className, day };
+                        if (match) {
+                            entry.subject = match[1].trim();
+                            entry.teacher = match[2].trim();
+                        }
+                        timetable[day][className].push(entry);
+
+                        if (entry.teacher) {
+                            const teachersInCell = entry.teacher.split('/').map(t => t.trim());
+                            const subjectsInCell = entry.subject.split('/').map(s => s.trim());
+
+                            teachersInCell.forEach((teacherName, i) => {
+                                if (!teacherDetails[teacherName]) {
+                                    teacherDetails[teacherName] = { schedule: {}, periodCount: 0 };
+                                }
+                                if (!teacherDetails[teacherName].schedule[day]) {
+                                    teacherDetails[teacherName].schedule[day] = Array(headers.length).fill(null);
+                                }
+                                const subjectForTeacher = subjectsInCell[i] || subjectsInCell[0];
+                                teacherDetails[teacherName].schedule[day][periodIndex] = { subject: subjectForTeacher, className };
+                                teacherDetails[teacherName].periodCount++;
+                            });
+                        }
+                    });
+                });
+            });
+
+            const classNames = Object.keys(timetable.Monday || {}).sort((a,b) => {
+                const numA = parseInt(a.match(/\d+/)?.[0]);
+                const numB = parseInt(b.match(/\d+/)?.[0]);
+                if (!isNaN(numA) && !isNaN(numB) && numA !== numB) return numA - numB;
+                return a.localeCompare(b);
+            });
+
+            return { timetable, teacherDetails, periodHeaders: headers, classNames, teacherNames: Object.keys(teacherDetails).sort() };
+        };
+
+        // --- RENDER FUNCTIONS FOR EACH VIEW ---
+
+        function renderDashboard() {
+            const today = new Date().toLocaleDateString('en-US', { weekday: 'long' });
+            const { teacherDetails, teacherNames, timetable, classNames } = state.allData;
+
+            const substitutionCount = Object.values(state.substitutions[today]?.plan || {}).reduce((acc, classSubs) => acc + Object.keys(classSubs).length, 0);
+            const totalClassesToday = timetable[today] ? Object.values(timetable[today]).flat().filter(p => p.teacher).length : 0;
+
+            const html = `
+                <div class="space-y-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                        <div class="card stat-card"><div class="stat-card-icon bg-blue-500"><i data-lucide="calendar"></i></div><div><div class="stat-card-label">Today's Date</div><div class="stat-card-value">${new Date().toLocaleDateString('en-GB')}</div></div></div>
+                        <div class="card stat-card"><div class="stat-card-icon bg-green-500"><i data-lucide="clapperboard"></i></div><div><div class="stat-card-label">Total Classes Today</div><div class="stat-card-value">${totalClassesToday}</div></div></div>
+                        <div class="card stat-card"><div class="stat-card-icon bg-yellow-500"><i data-lucide="users"></i></div><div><div class="stat-card-label">Teachers on Duty</div><div class="stat-card-value">${teacherNames.length}</div></div></div>
+                        <div class="card stat-card"><div class="stat-card-icon bg-red-500"><i data-lucide="user-check"></i></div><div><div class="stat-card-label">Substitutions Made</div><div class="stat-card-value">${substitutionCount}</div></div></div>
+                    </div>
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        <div class="lg:col-span-3" id="free-teacher-finder-container"></div>
+                    </div>
+                </div>
+            `;
+            mainContent.innerHTML = html;
+            renderFreeTeacherFinder();
+        }
+        
+        function renderFreeTeacherFinder(day = null, period = null) {
+            const container = document.getElementById('free-teacher-finder-container');
+            if (!container) return;
+
+            const currentDay = day || new Date().toLocaleDateString('en-US', { weekday: 'long' });
+            const currentPeriod = period || 1;
+            const periodIndex = currentPeriod - 1;
+
+            const absentToday = Object.keys(state.substitutions[currentDay]?.plan || {}).flatMap(className => 
+                Object.keys(state.substitutions[currentDay].plan[className]).map(pIndex => 
+                    state.allData.timetable[currentDay][className][pIndex].teacher
+                )
+            ).filter((value, index, self) => self.indexOf(value) === index);
+
+            const freeTeachers = state.allData.teacherNames.filter(teacher => {
+                if (absentToday.includes(teacher)) return false;
+                
+                if (teacher === 'Gyan') return false; 
+                if (teacher === 'Phy' && periodIndex > 3) return false;
+                if (teacher === 'Anjana' && periodIndex < 4) return false;
+
+                if (state.allData.teacherDetails[teacher]?.schedule[currentDay]?.[periodIndex]) return false;
+                
+                let isSubstituting = false;
+                for (const cName in (state.substitutions[currentDay]?.plan || {})) {
+                    if (state.substitutions[currentDay].plan[cName][periodIndex] === teacher) {
+                        isSubstituting = true;
+                        break;
+                    }
+                }
+                if(isSubstituting) return false;
+
+                return true;
+            });
+
+            const dayOptions = Object.keys(state.allData.timetable).map(d => `<option value="${d}" ${d === currentDay ? 'selected' : ''}>${d}</option>`).join('');
+            const periodOptions = state.allData.periodHeaders.map((p, i) => `<option value="${i+1}" ${i+1 == currentPeriod ? 'selected' : ''}>${p.name}</option>`).join('');
+            const freeTeachersList = freeTeachers.length > 0
+                ? freeTeachers.map(t => `<div style="background-color: #dcfce7; color: #166534; padding: 0.5rem; border-radius: 0.375rem; font-size: 0.875rem; font-weight: 600;">${t}</div>`).join('')
+                : `<div style="color: #6b7280;">No teachers are free.</div>`;
+
+            const html = `
+                <div class="card">
+                    <h3 class="mb-4 flex items-center"><i data-lucide="search" class="mr-2"></i> Live Free Teacher Finder</h3>
+                    <div class="flex flex-col md:flex-row gap-4 mb-4">
+                        <select id="finder-day-select">${dayOptions}</select>
+                        <select id="finder-period-select">${periodOptions}</select>
+                    </div>
+                    <div style="max-height: 12rem; overflow-y: auto; padding-right: 0.5rem; display: flex; flex-direction: column; gap: 0.5rem;">
+                        ${freeTeachersList}
+                    </div>
+                </div>`;
+            container.innerHTML = html;
+            
+            document.getElementById('finder-day-select').addEventListener('change', (e) => {
+                renderFreeTeacherFinder(e.target.value, document.getElementById('finder-period-select').value);
+            });
+            document.getElementById('finder-period-select').addEventListener('change', (e) => {
+                renderFreeTeacherFinder(document.getElementById('finder-day-select').value, e.target.value);
+            });
+        }
+        
+        function renderDayView(day = 'Monday') {
+            const { timetable, classNames, periodHeaders } = state.allData;
+            const daySubs = state.substitutions[day]?.plan || {};
+
+            const dayButtons = Object.keys(timetable).map(d => 
+                `<button class="nav-button ${day === d ? 'active' : ''}" onclick="renderDayView('${d}')">${d}</button>`
+            ).join('');
+
+            const tableHeader = `<th>Class</th>` + periodHeaders.map(h => `<th>${h.name}<br/><span class="text-xs" style="font-weight:400;">${h.time}</span></th>`).join('');
+
+            const tableBody = classNames.map(cName => `
+                <tr>
+                    <td class="font-bold">${cName}</td>
+                    ${timetable[day][cName].map((period, i) => {
+                        const substitute = daySubs[cName]?.[i];
+                        return `
+                            <td>
+                                <div class="font-semibold text-blue-900">${period.subject}</div>
+                                ${period.teacher ? `<div class="text-xs ${substitute ? 'line-through' : ''}">${period.teacher}</div>` : ''}
+                                ${substitute ? `<div class="text-xs font-bold text-red-600">Sub: ${substitute}</div>` : ''}
+                            </td>
+                        `;
+                    }).join('')}
+                </tr>
+            `).join('');
+
+            const html = `
+                <div class="card">
+                    <div class="flex items-center gap-4">
+                        <i data-lucide="calendar" style="color: var(--indigo-600);"></i>
+                        <h2>View by Day</h2>
+                    </div>
+                    <div class="flex flex-wrap gap-2" style="border-bottom: 1px solid #e5e7eb; padding-bottom: 0.5rem; margin-top: 1rem;">
+                        ${dayButtons}
+                    </div>
+                    <div class="table-container">
+                        <table>
+                            <thead><tr>${tableHeader}</tr></thead>
+                            <tbody>${tableBody}</tbody>
+                        </table>
+                    </div>
+                </div>`;
+            mainContent.innerHTML = html;
+        }
+        
+        function renderClassView(selectedClass = '') {
+            const { timetable, classNames, periodHeaders } = state.allData;
+
+            const classOptions = `<option value="">-- Select a Class --</option>` + classNames.map(c => `<option value="${c}" ${c === selectedClass ? 'selected' : ''}>${c}</option>`).join('');
+
+            let tableHtml = '';
+            if (selectedClass) {
+                const tableHeader = `<th>Day</th>` + periodHeaders.map(h => `<th>${h.name}<br/><span class="text-xs" style="font-weight:400;">${h.time}</span></th>`).join('');
+                const tableBody = Object.keys(timetable).map(day => {
+                    const daySubs = state.substitutions[day]?.plan || {};
+                    return `
+                        <tr>
+                            <td class="font-bold">${day}</td>
+                            ${timetable[day][selectedClass].map((period, i) => {
+                                const substitute = daySubs[selectedClass]?.[i];
+                                return `
+                                    <td>
+                                        <div class="font-semibold text-blue-900">${period.subject}</div>
+                                        ${period.teacher ? `<div class="text-xs ${substitute ? 'line-through' : ''}">${period.teacher}</div>` : ''}
+                                        ${substitute ? `<div class="text-xs font-bold text-red-600">Sub: ${substitute}</div>` : ''}
+                                    </td>
+                                `;
+                            }).join('')}
+                        </tr>
+                    `;
+                }).join('');
+                tableHtml = `
+                    <div class="table-container">
+                        <table>
+                            <thead><tr>${tableHeader}</tr></thead>
+                            <tbody>${tableBody}</tbody>
+                        </table>
+                    </div>`;
+            }
+
+            const html = `
+                <div class="card">
+                    <div class="flex items-center gap-4">
+                        <i data-lucide="school" style="color: var(--indigo-600);"></i>
+                        <h2>View by Class</h2>
+                    </div>
+                     <select onchange="renderClassView(this.value)" style="margin-top: 1rem; max-width: 100%;" class="w-full">
+                        ${classOptions}
+                    </select>
+                    ${tableHtml}
+                </div>`;
+            mainContent.innerHTML = html;
+        }
+        
+        function renderTeacherView(selectedTeacher = '') {
+            const { teacherDetails, teacherNames, periodHeaders, timetable } = state.allData;
+
+            const teacherOptions = `<option value="">-- Select a Teacher --</option>` + teacherNames.map(t => `<option value="${t}" ${t === selectedTeacher ? 'selected' : ''}>${t}</option>`).join('');
+
+            let detailsHtml = '';
+            if (selectedTeacher) {
+                const tableHeader = `<th>Day</th>` + periodHeaders.map(h => `<th>${h.name}</th>`).join('');
+                const tableBody = Object.keys(timetable).map(day => {
+                    const daySchedule = teacherDetails[selectedTeacher].schedule[day] || [];
+                    const daySubs = state.substitutions[day]?.plan || {};
+                    return `
+                        <tr>
+                            <td class="font-bold">${day}</td>
+                            ${periodHeaders.map((_, i) => {
+                                const originalPeriod = daySchedule[i];
+                                const isSubstitutedOut = originalPeriod && daySubs[originalPeriod.className]?.[i];
+                                
+                                let subPeriod = null;
+                                for (const cName in daySubs) {
+                                    if (daySubs[cName][i] === selectedTeacher) {
+                                        subPeriod = timetable[day][cName][i];
+                                        break;
+                                    }
+                                }
+
+                                return `
+                                    <td>
+                                        ${originalPeriod ? `
+                                            <div class="${isSubstitutedOut ? 'line-through' : ''}" style="${isSubstitutedOut ? 'color: #9ca3af;' : ''}">
+                                                <div class="font-semibold text-blue-900">${originalPeriod.subject}</div>
+                                                <div class="text-xs">${originalPeriod.className}</div>
+                                            </div>` : ''}
+                                        ${subPeriod ? `
+                                            <div style="margin-top: 0.25rem; color: var(--red-600);">
+                                                <div class="font-semibold">${subPeriod.subject}</div>
+                                                <div class="text-xs">(Sub for ${subPeriod.teacher})</div>
+                                                <div class="text-xs">${subPeriod.className}</div>
+                                            </div>` : ''}
+                                    </td>
+                                `;
+                            }).join('')}
+                        </tr>
+                    `;
+                }).join('');
+
+                detailsHtml = `
+                    <div class="mt-4">
+                         <div style="background-color: var(--indigo-100); color: var(--indigo-800); font-weight: 600; display: flex; align-items: center; justify-content: center; border-radius: 0.5rem; padding: 0.75rem; margin-bottom: 1.5rem;">
+                            Weekly Periods: ${teacherDetails[selectedTeacher].periodCount}
+                        </div>
+                    </div>
+                    <div class="table-container">
+                        <table>
+                            <thead><tr>${tableHeader}</tr></thead>
+                            <tbody>${tableBody}</tbody>
+                        </table>
+                    </div>`;
+            }
+
+            const html = `
+                <div class="card">
+                     <div class="flex items-center gap-4">
+                        <i data-lucide="users" style="color: var(--indigo-600);"></i>
+                        <h2>View by Teacher</h2>
+                    </div>
+                    <div style="margin-top: 1rem;">
+                        <select onchange="renderTeacherView(this.value)" class="w-full">${teacherOptions}</select>
+                    </div>
+                    <div id="teacher-details-container">${detailsHtml}</div>
+                </div>`;
+
+            mainContent.innerHTML = html;
+        }
+
+        function renderSubstitutionView(day = 'Monday', absentTeachers = []) {
+            const { teacherNames, periodHeaders, teacherDetails } = state.allData;
+
+            // Day selector
+            const dayOptions = Object.keys(state.allData.timetable).map(d => `<option value="${d}" ${d === day ? 'selected' : ''}>${d}</option>`).join('');
+
+            // Multi-select dropdown for absent teachers
+            const teacherOptions = teacherNames.map(t => `
+                <label>
+                    <input type="checkbox" value="${t}" ${absentTeachers.includes(t) ? 'checked' : ''} onchange="handleAbsentTeacherChange(this)">
+                    <span>${t}</span>
+                </label>`).join('');
+            
+            const multiselectHTML = `
+                <div class="multiselect-container">
+                    <button class="button" style="background-color: white; color: black; display: flex; justify-content: space-between; align-items: center;" onclick="toggleMultiselect()">
+                        <span id="multiselect-label">${absentTeachers.length > 0 ? `${absentTeachers.length} selected` : 'Select teachers...'}</span>
+                        <i data-lucide="chevron-down"></i>
+                    </button>
+                    <div id="multiselect-options" class="multiselect-options">
+                        ${teacherOptions}
+                    </div>
+                </div>
+            `;
+            
+            // Generate Plan
+            const daySubsData = state.substitutions[day]?.plan || {};
+            const vacantSlots = [];
+             absentTeachers.forEach(absentTeacher => {
+                const schedule = teacherDetails[absentTeacher]?.schedule[day];
+                if (schedule) {
+                    schedule.forEach((period, periodIndex) => {
+                        if (period) {
+                            vacantSlots.push({ ...period, periodIndex, originalTeacher: absentTeacher });
+                        }
+                    });
+                }
+            });
+            
+            const plan = vacantSlots.map(slot => {
+                const substitute = daySubsData[slot.className]?.[slot.periodIndex];
+                return { ...slot, substitute };
+            }).sort((a, b) => a.periodIndex - b.periodIndex);
+            
+            let planTableHTML = '';
+            if (plan.length > 0) {
+                const tableRows = plan.map(slot => `
+                    <tr style="border-bottom: 1px solid #e5e7eb;">
+                        <td style="padding: 0.5rem; font-weight: 500;">${periodHeaders[slot.periodIndex].name}</td>
+                        <td style="padding: 0.5rem; font-weight: 500;">${slot.className}</td>
+                        <td style="padding: 0.5rem;">${slot.subject}</td>
+                        <td style="padding: 0.5rem; color: #b91c1c; font-weight: 700;">${slot.originalTeacher}</td>
+                        <td style="padding: 0.5rem; color: #15803d; font-weight: 700;">${slot.substitute || '--'}</td>
+                    </tr>
+                `).join('');
+
+                planTableHTML = `
+                    <div style="margin-top: 2rem;">
+                        <div id="substitution-plan-screenshot-area" style="padding: 1rem; background-color: white;">
+                            <h3 style="text-align: center; margin-bottom: 1rem;">Consolidated Substitution Plan for ${day}</h3>
+                            <div class="table-container">
+                                <table style="font-size: 1rem;">
+                                    <thead style="background-color: #f9fafb;">
+                                        <tr>
+                                            <th style="padding: 0.75rem;">Period</th>
+                                            <th style="padding: 0.75rem;">Class</th>
+                                            <th style="padding: 0.75rem;">Subject</th>
+                                            <th style="padding: 0.75rem;">Original Teacher</th>
+                                            <th style="padding: 0.75rem;">Assigned Substitute</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>${tableRows}</tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="text-center" style="margin-top: 1.5rem;">
+                            <button id="share-plan-btn" class="button button-green" style="display: inline-flex; align-items: center; width: auto; padding: 0.5rem 1.5rem;">
+                                <i data-lucide="camera" class="mr-2"></i> Share Plan
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }
+
+            const html = `
+                <div class="card">
+                    <div class="grid md:grid-cols-2 gap-6 items-end">
+                        <div>
+                            <label class="block font-bold" style="color: var(--gray-700); margin-bottom: 0.5rem;">1. Select Day</label>
+                            <select id="sub-day-select" onchange="handleSubDayChange(this.value)">${dayOptions}</select>
+                        </div>
+                        <div>
+                            <label class="block font-bold" style="color: var(--gray-700); margin-bottom: 0.5rem;">2. Select Absent Teachers</label>
+                            ${multiselectHTML}
+                        </div>
+                    </div>
+                    <div class="text-center" style="border-top: 1px solid #e5e7eb; padding-top: 1.5rem; margin-top: 1.5rem;">
+                        <button id="generate-plan-btn" class="button button-indigo" style="font-size: 1rem; padding: 0.75rem 1rem; width: 100%; margin-bottom: 0.5rem;">
+                            Generate & Auto-Assign Plan
+                        </button>
+                        <button id="reset-plan-btn" class="button button-red" style="padding: 0.5rem 1rem; width: 100%;">
+                            Reset for ${day}
+                        </button>
+                    </div>
+                    <div id="plan-container">${planTableHTML}</div>
+                </div>`;
+            mainContent.innerHTML = html;
+            attachSubstitutionEventListeners(day, absentTeachers);
+        }
+
+        // --- EVENT HANDLERS & LOGIC ---
+
+        function attachSubstitutionEventListeners(day, absentTeachers) {
+            document.getElementById('generate-plan-btn').addEventListener('click', () => handleGeneratePlan(day, absentTeachers));
+            document.getElementById('reset-plan-btn').addEventListener('click', () => handleResetPlan(day));
+            const shareBtn = document.getElementById('share-plan-btn');
+            if(shareBtn) shareBtn.addEventListener('click', () => handleScreenshot(day));
+        }
+
+        function handleSubDayChange(newDay) {
+            const selectedCheckboxes = Array.from(document.querySelectorAll('#multiselect-options input:checked'));
+            const absentTeachers = selectedCheckboxes.map(cb => cb.value);
+            renderSubstitutionView(newDay, absentTeachers);
+        }
+        
+        function handleAbsentTeacherChange(checkbox) {
+            const day = document.getElementById('sub-day-select').value;
+            const selectedCheckboxes = Array.from(document.querySelectorAll('#multiselect-options input:checked'));
+            const absentTeachers = selectedCheckboxes.map(cb => cb.value);
+            renderSubstitutionView(day, absentTeachers);
+        }
+
+        function toggleMultiselect() {
+            document.getElementById('multiselect-options').classList.toggle('open');
+        }
+
+        function findFreeTeachers(day, periodIndex, absentTeachers, currentDaySubs) {
+            const free = [];
+            for (const teacher of state.allData.teacherNames) {
+                if (absentTeachers.includes(teacher)) continue; 
+                if (teacher === 'Gyan') continue; 
+                if (teacher === 'Phy' && periodIndex > 3) continue;
+                if (teacher === 'Anjana' && periodIndex < 4) continue;
+
+                if (state.allData.teacherDetails[teacher]?.schedule[day]?.[periodIndex]) continue;
+
+                let isBusyAsSub = false;
+                for (const cName in currentDaySubs) {
+                    if (currentDaySubs[cName][periodIndex] === teacher) {
+                        isBusyAsSub = true;
+                        break;
+                    }
+                }
+                if (isBusyAsSub) continue;
+                
+                free.push(teacher);
+            }
+            return free.sort();
+        };
+
+        function handleGeneratePlan(day, absentTeachers) {
+            if (absentTeachers.length === 0) {
+                alert("Please select at least one absent teacher.");
+                return;
+            }
+            const { teacherDetails } = state.allData;
+
+            const vacantSlots = [];
+            absentTeachers.forEach(absentTeacher => {
+                const schedule = teacherDetails[absentTeacher]?.schedule[day];
+                if (schedule) {
+                    schedule.forEach((period, periodIndex) => {
+                        if (period) {
+                            vacantSlots.push({ ...period, periodIndex, originalTeacher: absentTeacher });
+                        }
+                    });
+                }
+            });
+
+            const newDaySubstitutions = {};
+            const subLoad = state.allData.teacherNames.reduce((acc, t) => ({...acc, [t]: 0}), {});
+
+            vacantSlots.sort((a,b) => a.periodIndex - b.periodIndex).forEach(slot => {
+                let freeTeachers = findFreeTeachers(day, slot.periodIndex, absentTeachers, newDaySubstitutions);
+                freeTeachers.sort((a,b) => subLoad[a] - subLoad[b]);
+
+                if (freeTeachers.length > 0) {
+                    const substitute = freeTeachers[0];
+                    if (!newDaySubstitutions[slot.className]) {
+                        newDaySubstitutions[slot.className] = {};
+                    }
+                    newDaySubstitutions[slot.className][slot.periodIndex] = substitute;
+                    subLoad[substitute]++;
+                }
+            });
+            
+            state.substitutions[day] = { plan: newDaySubstitutions, timestamp: Date.now() };
+            renderSubstitutionView(day, absentTeachers);
+        }
+        
+        function handleResetPlan(day) {
+            delete state.substitutions[day];
+            renderSubstitutionView(day, []);
+        }
+
+        async function handleScreenshot(day) {
+            const planElement = document.getElementById('substitution-plan-screenshot-area');
+            const shareBtn = document.getElementById('share-plan-btn');
+            if (!planElement || !window.html2canvas) {
+                alert("Screenshot tool is not ready.");
+                return;
+            }
+            shareBtn.textContent = 'Generating...';
+            shareBtn.disabled = true;
+
+            try {
+                const canvas = await window.html2canvas(planElement, {
+                    useCORS: true,
+                    backgroundColor: '#ffffff',
+                    scale: 2,
+                });
+                const dataUrl = canvas.toDataURL('image/png');
+                const blob = await (await fetch(dataUrl)).blob();
+                const file = new File([blob], `substitution-plan-${day}.png`, { type: 'image/png' });
+
+                if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                    await navigator.share({
+                        files: [file],
+                        title: `Substitution Plan for ${day}`,
+                        text: `Here is the teacher substitution plan for ${day}.`,
+                    });
+                } else {
+                    showScreenshotModal(dataUrl, day);
+                }
+            } catch (error) {
+                console.error("Screenshot failed:", error);
+                alert("Could not generate screenshot.");
+            } finally {
+                shareBtn.innerHTML = `<i data-lucide="camera" class="mr-2"></i> Share Plan`;
+                shareBtn.disabled = false;
+                lucide.createIcons();
+            }
+        }
+        
+        function showScreenshotModal(dataUrl, day) {
+            const modalHTML = `
+                <div class="screenshot-modal" id="screenshot-modal">
+                    <div class="screenshot-modal-content">
+                        <div class="flex justify-between items-center mb-4">
+                            <h4 class="font-bold">Substitution Plan Screenshot</h4>
+                            <button onclick="closeModal()" style="padding: 0.25rem; border-radius: 9999px; background: none; border: none; cursor: pointer;"><i data-lucide="x"></i></button>
+                        </div>
+                        <img src="${dataUrl}" alt="Substitution Plan Screenshot"/>
+                        <div class="mt-4 text-center">
+                            <a href="${dataUrl}" download="substitution-plan-${day}.png" class="button button-indigo" style="text-decoration: none; display: inline-block; width: auto; padding: 0.5rem 1.5rem;">
+                                Download
+                            </a>
+                        </div>
+                    </div>
+                </div>`;
+            modalContainer.innerHTML = modalHTML;
+            lucide.createIcons();
+        }
+        
+        function closeModal() {
+            modalContainer.innerHTML = '';
+        }
+
+        // --- APP INITIALIZATION & NAVIGATION ---
+        function switchView(view) {
+            state.currentView = view;
+            document.querySelectorAll('nav .nav-button').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(`nav-${view}`).classList.add('active');
+
+            // Destroy charts before switching views
+            Object.values(state.charts).forEach(chart => {
+                if (chart && typeof chart.destroy === 'function') {
+                    chart.destroy();
+                }
+            });
+            state.charts = {};
+
+            switch(view) {
+                case 'Dashboard': renderDashboard(); break;
+                case 'Day': renderDayView(); break;
+                case 'Class': renderClassView(); break;
+                case 'Teacher': renderTeacherView(); break;
+                case 'Substitution': renderSubstitutionView(); break;
+                default: renderDashboard();
+            }
+            lucide.createIcons();
+        }
+        
+        function autoResetSubstitutions() {
+            const now = Date.now();
+            const twelveHours = 12 * 60 * 60 * 1000;
+            let needsUpdate = false;
+            const updatedSubs = Object.entries(state.substitutions).reduce((acc, [day, data]) => {
+                if (now - data.timestamp < twelveHours) {
+                    acc[day] = data;
+                } else {
+                    needsUpdate = true;
+                }
+                return acc;
+            }, {});
+
+            if (needsUpdate) {
+                state.substitutions = updatedSubs;
+                // If the current view relies on subs, refresh it
+                if (['Dashboard', 'Day', 'Class', 'Teacher'].includes(state.currentView)) {
+                    switchView(state.currentView);
+                }
+            }
+        }
+
+        function init() {
+            state.allData = parseTimetableData();
+            switchView('Dashboard');
+            setInterval(autoResetSubstitutions, 60 * 60 * 1000); // Check every hour
+        }
+
+        // --- RUN APP ---
+        window.onload = init;
+
+    </script>
+</body>
+</html>
