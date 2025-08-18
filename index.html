@@ -977,7 +977,7 @@
             captureElement.style.display = 'block';
             
             try {
-                const canvas = await html2canvas(captureElement, { scale: 2, backgroundColor: '#ffffff' });
+                const canvas = await html2canvas(captureElement, { scale: 2, backgroundColor: '#ffffff', width: 1200, windowWidth: 1200 });
                 const dataUrl = canvas.toDataURL('image/png');
                 const blob = await (await fetch(dataUrl)).blob();
                 const file = new File([blob], `timetable-plan.png`, { type: 'image/png' });
