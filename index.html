@@ -18,9 +18,9 @@
     <style>
         /* --- UI/UX STYLES --- */
         :root {
-            --primary-50: #eff6ff; --primary-100: #dbeafe; --primary-200: #bfdbfe; --primary-300: #93c5fd; --primary-400: #60a5fa; --primary-500: #3b82f6; --primary-600: #2563eb; --primary-700: #1d4ed8; --primary-800: #1e40af; --primary-900: #1e3a8a;
+            --primary-50: #eff6ff; --primary-100: #dbeafe; --primary-600: #2563eb; --primary-700: #1d4ed8; --primary-800: #1e40af;
             --gray-50: #f9fafb; --gray-100: #f3f4f6; --gray-200: #e5e7eb; --gray-300: #d1d5db; --gray-400: #9ca3af; --gray-500: #6b7280; --gray-600: #4b5563; --gray-700: #374151; --gray-800: #1f2937; --gray-900: #111827;
-            --red-50: #fef2f2; --red-100: #fee2e2; --red-600: #dc2626; --red-800: #991b1b;
+            --red-50: #fef2f2; --red-600: #dc2626;
             --green-50: #f0fdf4; --green-500: #22c55e; --green-800: #166534;
             --yellow-500: #eab308;
             --border-radius: 0.75rem;
@@ -45,28 +45,23 @@
 
         header {
             text-align: center;
-            padding: 2rem 1rem;
+            padding: 1.5rem 1rem;
             background-color: white;
             border-radius: var(--border-radius);
             box-shadow: var(--shadow-md);
             margin-bottom: 2rem;
         }
         
-        header img {
-            max-width: 200px;
-            margin-bottom: 1rem;
-        }
-
         header h1 {
-            font-size: 2.25rem;
+            font-size: 1.75rem;
             font-weight: 800;
             color: var(--gray-900);
             letter-spacing: -0.025em;
         }
         header p {
             color: var(--gray-500);
-            margin-top: 0.5rem;
-            font-size: 1.125rem;
+            margin-top: 0.25rem;
+            font-size: 1rem;
         }
 
         nav {
@@ -110,7 +105,7 @@
 
         .card {
             background-color: white;
-            padding: 1.5rem;
+            padding: 1rem;
             border-radius: var(--border-radius);
             box-shadow: var(--shadow-md);
             margin-bottom: 1.5rem;
@@ -119,8 +114,8 @@
         .stat-card { display: flex; align-items: center; gap: 1rem; }
         .stat-card-icon { border-radius: 0.5rem; padding: 0.75rem; color: white; display: flex; align-items: center; justify-content: center; }
         .stat-card-label { font-size: 0.875rem; color: var(--gray-500); font-weight: 500; }
-        .stat-card-value { font-size: 1.75rem; font-weight: 700; color: var(--gray-800); }
-        .bg-blue-500 { background-color: var(--primary-500); }
+        .stat-card-value { font-size: 1.5rem; font-weight: 700; color: var(--gray-800); }
+        .bg-blue-500 { background-color: var(--primary-600); }
         .bg-green-500 { background-color: var(--green-500); }
         .bg-yellow-500 { background-color: var(--yellow-500); }
         .bg-red-500 { background-color: var(--red-600); }
@@ -138,7 +133,7 @@
         }
         select:focus, input:focus {
             outline: none;
-            border-color: var(--primary-500);
+            border-color: var(--primary-600);
             box-shadow: 0 0 0 3px var(--primary-100);
         }
         
@@ -159,18 +154,18 @@
         .button-secondary:hover { background-color: var(--gray-800); }
 
         .table-container { overflow-x: auto; margin-top: 1.5rem; }
-        table { width: 100%; text-align: left; border-collapse: collapse; font-size: 0.875rem; }
-        th, td { padding: 0.75rem 1rem; white-space: nowrap; }
+        table { width: 100%; text-align: left; border-collapse: collapse; font-size: 0.8rem; }
+        th, td { padding: 0.5rem; white-space: nowrap; }
         thead { background-color: var(--gray-50); }
         th { font-weight: 600; color: var(--gray-600); }
         tbody tr { border-bottom: 1px solid var(--gray-200); }
         td .subject { font-weight: 600; color: var(--primary-800); }
-        td .teacher { font-size: 0.8rem; color: var(--gray-500); }
-        td .class-name { font-size: 0.8rem; color: var(--gray-500); }
+        td .teacher { font-size: 0.75rem; color: var(--gray-500); }
+        td .class-name { font-size: 0.75rem; color: var(--gray-500); }
         td .line-through { text-decoration: line-through; color: var(--gray-400); }
         td .substitute { font-weight: 700; color: var(--green-800); background-color: var(--green-50); padding: 2px 6px; border-radius: 4px; }
 
-        .grid { display: grid; gap: 1.5rem; }
+        .grid { display: grid; gap: 1rem; }
         .grid-cols-1 { grid-template-columns: repeat(1, minmax(0, 1fr)); }
         
         footer { margin-top: 4rem; text-align: center; color: var(--gray-500); font-size: 0.875rem; }
@@ -188,6 +183,10 @@
         @media (min-width: 768px) {
             .md-grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
             header h1 { font-size: 2.5rem; }
+            header p { font-size: 1.125rem; }
+            .card { padding: 1.5rem; }
+            table { font-size: 0.875rem; }
+            th, td { padding: 0.75rem 1rem; }
         }
         @media (min-width: 1024px) {
             .lg-grid-cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
@@ -204,31 +203,15 @@
             }
             .no-print, nav, footer, header { display: none !important; }
             
-            .app-container {
-                padding: 0 !important;
-                margin: 0 !important;
-            }
-            main {
-                display: none !important;
-            }
-            #print-capture-area {
-                display: block !important;
-            }
-            #print-header {
-                display: block !important;
-                text-align: center;
-                margin-bottom: 1rem;
-            }
+            .app-container { padding: 0 !important; margin: 0 !important; }
+            main { display: none !important; }
+            #print-capture-area { display: block !important; }
+            #print-header { display: block !important; text-align: center; margin-bottom: 1rem; }
             #print-header img { max-width: 150px; margin-bottom: 0.5rem; }
             #print-header h1 { font-size: 16pt; color: black; margin: 0; }
             #print-header h2 { font-size: 12pt; color: #333; margin: 0.25rem 0 0 0; }
             
-            .card {
-                box-shadow: none !important;
-                border: 1px solid #ccc !important;
-                padding: 0 !important;
-                page-break-inside: avoid;
-            }
+            .card { box-shadow: none !important; border: 1px solid #ccc !important; padding: 0 !important; page-break-inside: avoid; }
             .table-container { overflow: visible !important; margin-top: 0 !important; }
             table { width: 100% !important; border-collapse: collapse !important; }
             th, td {
@@ -261,7 +244,6 @@
 
     <div class="app-container">
         <header class="no-print">
-            <img src="Untitled design.png" alt="Veer Patta Public School Logo">
             <h1>Timetable Command Center</h1>
             <p>Veer Patta Public School, Amet</p>
             <div class="mt-6 text-center no-print flex justify-center gap-4" style="max-width: 400px; margin: 1.5rem auto 0 auto;">
@@ -960,9 +942,9 @@
             if (state.currentView === 'Substitution') {
                 contentToPrint = document.getElementById('substitution-plan-content');
             } else if (mainContent.querySelector('.table-container')) {
-                contentToPrint = mainContent.querySelector('.card').cloneNode(true);
-                // Remove buttons from the clone
-                contentToPrint.querySelectorAll('button, select').forEach(el => el.remove());
+                const cardClone = mainContent.querySelector('.card').cloneNode(true);
+                cardClone.querySelectorAll('button, select, .flex-wrap.gap-2').forEach(el => el.remove());
+                contentToPrint = cardClone;
             }
 
             if (contentToPrint) {
@@ -992,6 +974,7 @@
             document.body.appendChild(tempMsg);
 
             const captureElement = document.getElementById('print-capture-area');
+            captureElement.style.display = 'block';
             
             try {
                 const canvas = await html2canvas(captureElement, { scale: 2, backgroundColor: '#ffffff' });
@@ -1015,6 +998,7 @@
                 console.error("Screenshot failed:", error);
                 alert("Could not generate image.");
             } finally {
+                captureElement.style.display = 'none';
                 document.body.removeChild(tempMsg);
             }
         }
