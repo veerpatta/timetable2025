@@ -7,7 +7,6 @@
     
     <!-- LIBRARIES (CDN) -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/lucide@latest/dist/umd/lucide.min.js"></script>
 
     <!-- FONTS -->
@@ -17,321 +16,276 @@
 
     <!-- STYLES -->
     <style>
-        /* --- RESET & BASE STYLES --- */
+        /* --- UI/UX STYLES --- */
         :root {
-            --indigo-600: #4f46e5;
-            --indigo-700: #4338ca;
-            --indigo-100: #e0e7ff;
-            --indigo-800: #3730a3;
-            --gray-100: #f3f4f6;
-            --gray-300: #d1d5db;
-            --gray-500: #6b7280;
-            --gray-600: #4b5563;
-            --gray-700: #374151;
-            --gray-800: #1f2937;
-            --gray-900: #111827;
-            --red-500: #ef4444;
-            --red-600: #dc2626;
-            --green-600: #16a34a;
-            --green-700: #15803d;
-            --blue-900: #1e3a8a;
+            --primary-50: #eff6ff; --primary-100: #dbeafe; --primary-200: #bfdbfe; --primary-300: #93c5fd; --primary-400: #60a5fa; --primary-500: #3b82f6; --primary-600: #2563eb; --primary-700: #1d4ed8; --primary-800: #1e40af; --primary-900: #1e3a8a;
+            --gray-50: #f9fafb; --gray-100: #f3f4f6; --gray-200: #e5e7eb; --gray-300: #d1d5db; --gray-400: #9ca3af; --gray-500: #6b7280; --gray-600: #4b5563; --gray-700: #374151; --gray-800: #1f2937; --gray-900: #111827;
+            --red-50: #fef2f2; --red-100: #fee2e2; --red-600: #dc2626; --red-800: #991b1b;
+            --green-50: #f0fdf4; --green-500: #22c55e; --green-800: #166534;
+            --yellow-500: #eab308;
+            --border-radius: 0.75rem;
+            --shadow-sm: 0 1px 2px 0 rgba(0,0,0,0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -2px rgba(0,0,0,0.1);
         }
 
         body {
             font-family: 'Inter', sans-serif;
-            background-color: var(--gray-100);
-            color: var(--gray-800);
+            background-color: var(--gray-50);
+            color: var(--gray-700);
             margin: 0;
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
         }
 
-        /* --- LAYOUT & CONTAINERS --- */
         .app-container {
-            max-width: 1280px;
+            max-width: 1400px;
             margin: 0 auto;
-            padding: 1rem; /* Mobile padding */
-        }
-        .main-content {
-            padding: 0.25rem;
+            padding: 1rem;
         }
 
-        /* --- HEADER & FOOTER --- */
-        header, footer { text-align: center; }
-        h1 { font-size: 2rem; font-weight: 800; color: var(--gray-900); }
-        h2 { font-size: 1.25rem; font-weight: 700; color: var(--gray-800); }
-        h3 { font-size: 1.1rem; font-weight: 700; color: var(--gray-800); }
-        header p { color: var(--gray-600); margin-top: 0.5rem; font-size: 1rem; }
-        footer { margin-top: 3rem; color: var(--gray-500); font-size: 0.875rem; }
+        header {
+            text-align: center;
+            padding: 2rem 1rem;
+            background-color: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-md);
+            margin-bottom: 2rem;
+        }
+        
+        header img {
+            max-width: 200px;
+            margin-bottom: 1rem;
+        }
 
-        /* --- NAVIGATION --- */
+        header h1 {
+            font-size: 2.25rem;
+            font-weight: 800;
+            color: var(--gray-900);
+            letter-spacing: -0.025em;
+        }
+        header p {
+            color: var(--gray-500);
+            margin-top: 0.5rem;
+            font-size: 1.125rem;
+        }
+
         nav {
-            margin: 1.5rem 0;
-            padding: 0.5rem;
-            background-color: rgba(255, 255, 255, 0.6);
-            backdrop-filter: blur(4px);
-            border-radius: 0.75rem;
-            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -2px rgba(0,0,0,0.1);
+            margin: 0 0 2rem 0;
+            padding: 0.75rem;
+            background-color: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(10px);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-md);
             display: flex;
             flex-wrap: wrap;
             justify-content: center;
             gap: 0.5rem;
+            position: sticky;
+            top: 1rem;
+            z-index: 40;
         }
         .nav-button {
             display: flex;
             align-items: center;
             gap: 0.5rem;
-            padding: 0.5rem 0.75rem;
+            padding: 0.6rem 1rem;
             border-radius: 0.5rem;
             transition: all 0.2s ease-in-out;
             color: var(--gray-600);
             background-color: transparent;
             border: none;
             cursor: pointer;
-            font-size: 0.875rem;
+            font-size: 0.9rem;
             font-weight: 600;
         }
         .nav-button:hover {
-            background-color: var(--indigo-100);
-            color: var(--indigo-600);
+            background-color: var(--primary-100);
+            color: var(--primary-700);
         }
         .nav-button.active {
-            background-color: var(--indigo-600);
+            background-color: var(--primary-600);
             color: white;
-            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -2px rgba(0,0,0,0.1);
+            box-shadow: var(--shadow-sm);
         }
 
-        /* --- CARDS & PANELS --- */
         .card {
             background-color: white;
-            padding: 1rem;
-            border-radius: 0.75rem;
-            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -2px rgba(0,0,0,0.1);
-            margin-bottom: 1rem;
+            padding: 1.5rem;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-md);
+            margin-bottom: 1.5rem;
         }
-        .stat-card {
-            display: flex;
-            align-items: center;
-            padding: 1rem;
-        }
-        .stat-card-icon {
-            border-radius: 9999px;
-            padding: 0.75rem;
-            margin-right: 1rem;
-            color: white;
-        }
+        
+        .stat-card { display: flex; align-items: center; gap: 1rem; }
+        .stat-card-icon { border-radius: 0.5rem; padding: 0.75rem; color: white; display: flex; align-items: center; justify-content: center; }
         .stat-card-label { font-size: 0.875rem; color: var(--gray-500); font-weight: 500; }
-        .stat-card-value { font-size: 1.5rem; font-weight: 700; color: var(--gray-800); }
-        .bg-blue-500 { background-color: #3b82f6; }
-        .bg-green-500 { background-color: #22c55e; }
-        .bg-yellow-500 { background-color: #eab308; }
+        .stat-card-value { font-size: 1.75rem; font-weight: 700; color: var(--gray-800); }
+        .bg-blue-500 { background-color: var(--primary-500); }
+        .bg-green-500 { background-color: var(--green-500); }
+        .bg-yellow-500 { background-color: var(--yellow-500); }
+        .bg-red-500 { background-color: var(--red-600); }
 
-        /* --- FORMS & BUTTONS --- */
-        select, button, input[type="checkbox"] {
+        select, .button, input[type="text"] {
             font-family: 'Inter', sans-serif;
-        }
-        select, .button {
             width: 100%;
-            padding: 0.75rem;
+            box-sizing: border-box;
+            padding: 0.75rem 1rem;
             border: 1px solid var(--gray-300);
             border-radius: 0.5rem;
-            box-shadow: 0 1px 2px 0 rgba(0,0,0,0.05);
+            box-shadow: var(--shadow-sm);
             font-size: 1rem;
+            transition: all 0.2s ease;
         }
+        select:focus, input:focus {
+            outline: none;
+            border-color: var(--primary-500);
+            box-shadow: 0 0 0 3px var(--primary-100);
+        }
+        
         .button {
             cursor: pointer;
-            font-weight: 700;
-            color: white;
-            transition: background-color 0.2s;
-        }
-        .button-indigo { background-color: var(--indigo-600); border-color: var(--indigo-600); }
-        .button-indigo:hover { background-color: var(--indigo-700); }
-        .button-red { background-color: var(--red-600); border-color: var(--red-600); }
-        .button-red:hover { background-color: #b91c1c; }
-        .button-green { background-color: var(--green-600); border-color: var(--green-600); }
-        .button-green:hover { background-color: var(--green-700); }
-        .button-gray { background-color: var(--gray-700); border-color: var(--gray-700); }
-        .button-gray:hover { background-color: var(--gray-800); }
-
-        /* --- TABLES --- */
-        .table-container {
-            overflow-x: auto;
-            margin-top: 1rem;
-        }
-        table {
-            width: 100%;
-            text-align: left;
-            border-collapse: collapse;
-            font-size: 0.8rem;
-        }
-        th, td {
-            padding: 0.5rem;
-            white-space: nowrap;
-        }
-        thead {
-            background-color: #f9fafb;
-        }
-        th {
             font-weight: 600;
+            color: white;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
         }
-        tbody tr {
-            border-bottom: 1px solid #e5e7eb;
-        }
-        td .font-semibold { font-weight: 600; }
-        td .text-blue-900 { color: var(--blue-900); }
-        td .text-xs { font-size: 0.7rem; }
-        td .line-through { text-decoration: line-through; }
-        td .text-red-600 { color: var(--red-600); font-weight: 700; }
+        .button-primary { background-color: var(--primary-600); border-color: var(--primary-600); }
+        .button-primary:hover { background-color: var(--primary-700); }
+        .button-danger { background-color: var(--red-600); border-color: var(--red-600); }
+        .button-danger:hover { background-color: #b91c1c; }
+        .button-secondary { background-color: var(--gray-700); border-color: var(--gray-700); color: white; }
+        .button-secondary:hover { background-color: var(--gray-800); }
 
-        /* --- UTILITY & GRID --- */
-        .grid { display: grid; gap: 1rem; }
+        .table-container { overflow-x: auto; margin-top: 1.5rem; }
+        table { width: 100%; text-align: left; border-collapse: collapse; font-size: 0.875rem; }
+        th, td { padding: 0.75rem 1rem; white-space: nowrap; }
+        thead { background-color: var(--gray-50); }
+        th { font-weight: 600; color: var(--gray-600); }
+        tbody tr { border-bottom: 1px solid var(--gray-200); }
+        td .subject { font-weight: 600; color: var(--primary-800); }
+        td .teacher { font-size: 0.8rem; color: var(--gray-500); }
+        td .class-name { font-size: 0.8rem; color: var(--gray-500); }
+        td .line-through { text-decoration: line-through; color: var(--gray-400); }
+        td .substitute { font-weight: 700; color: var(--green-800); background-color: var(--green-50); padding: 2px 6px; border-radius: 4px; }
+
+        .grid { display: grid; gap: 1.5rem; }
         .grid-cols-1 { grid-template-columns: repeat(1, minmax(0, 1fr)); }
         
+        footer { margin-top: 4rem; text-align: center; color: var(--gray-500); font-size: 0.875rem; }
+        
         .flex { display: flex; }
-        .flex-col { flex-direction: column; }
         .items-center { align-items: center; }
         .justify-center { justify-content: center; }
         .justify-between { justify-content: space-between; }
-        .gap-2 { gap: 0.5rem; }
         .gap-4 { gap: 1rem; }
-        .gap-6 { gap: 1.5rem; }
+        .mb-2 { margin-bottom: 0.5rem; }
         .mb-4 { margin-bottom: 1rem; }
-        .mr-2 { margin-right: 0.5rem; }
-        .font-bold { font-weight: 700; }
-        .text-center { text-align: center; }
-        .space-y-6 > :not([hidden]) ~ :not([hidden]) { margin-top: 1.5rem; }
+        
+        #print-header { display: none; }
 
-        /* --- MULTI-SELECT DROPDOWN --- */
-        .multiselect-container { position: relative; }
-        .multiselect-options {
-            display: none;
-            position: absolute;
-            z-index: 10;
-            width: 100%;
-            margin-top: 0.25rem;
-            background-color: white;
-            border: 1px solid var(--gray-300);
-            border-radius: 0.5rem;
-            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -4px rgba(0,0,0,0.1);
-            max-height: 15rem;
-            overflow-y: auto;
-        }
-        .multiselect-options.open { display: block; }
-        .multiselect-options label {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            padding: 0.5rem;
-            cursor: pointer;
-        }
-        .multiselect-options label:hover { background-color: var(--gray-100); }
-        .multiselect-options input { height: 1.25rem; width: 1.25rem; }
-
-        /* --- SCREENSHOT & MODAL --- */
-        .screenshot-modal {
-            position: fixed;
-            inset: 0;
-            background-color: rgba(0,0,0,0.5);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 50;
-            padding: 1rem;
-        }
-        .screenshot-modal-content {
-            background-color: white;
-            border-radius: 0.5rem;
-            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
-            padding: 1rem;
-            max-width: 36rem;
-            width: 100%;
-        }
-        .screenshot-modal-content img {
-            width: 100%;
-            border-radius: 0.375rem;
-            border: 1px solid var(--gray-300);
-        }
-
-        /* --- DESKTOP & LARGER SCREEN STYLES --- */
         @media (min-width: 768px) {
-            .app-container {
-                padding: 2rem;
-            }
-            h1 { font-size: 2.8rem; }
-            h2 { font-size: 1.5rem; }
-            h3 { font-size: 1.25rem; }
-            header p { font-size: 1.125rem; }
-            .nav-button { font-size: 1rem; padding: 0.5rem 1rem; }
-            .card { padding: 1.5rem; }
-            .grid { gap: 1.5rem; }
             .md-grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-            .md-grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-            table { font-size: 0.875rem; }
-            th, td { padding: 0.75rem; }
-            td .text-xs { font-size: 0.75rem; }
+            header h1 { font-size: 2.5rem; }
         }
-
         @media (min-width: 1024px) {
-            .lg-grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-            .lg-grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
             .lg-grid-cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
-            .lg-col-span-2 { grid-column: span 2 / span 2; }
-            .lg-col-span-3 { grid-column: span 3 / span 3; }
         }
 
         /* --- PRINT STYLES --- */
         @media print {
-            body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-            .app-container, main { padding: 0 !important; }
-            header, nav, footer, .no-print { display: none !important; }
-            .card, .bg-white, .bg-gray-50, .bg-indigo-100 {
-                background-color: transparent !important;
-                box-shadow: none !important;
-                border: none !important;
+            @page { size: A4 landscape; margin: 0.7cm; }
+            body {
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+                background: none !important;
+                font-size: 9pt;
             }
-            table { width: 100% !important; border-collapse: collapse !important; font-size: 9pt; }
-            th, td { border: 1px solid #ccc !important; padding: 4px !important; }
-            .table-container { overflow: visible !important; }
-            .text-red-600 { color: #dc2626 !important; }
-            .text-blue-900 { color: #1e3a8a !important; }
-            .font-bold { font-weight: 700 !important; }
+            .no-print, nav, footer, header { display: none !important; }
+            
+            .app-container {
+                padding: 0 !important;
+                margin: 0 !important;
+            }
+            main {
+                display: none !important;
+            }
+            #print-capture-area {
+                display: block !important;
+            }
+            #print-header {
+                display: block !important;
+                text-align: center;
+                margin-bottom: 1rem;
+            }
+            #print-header img { max-width: 150px; margin-bottom: 0.5rem; }
+            #print-header h1 { font-size: 16pt; color: black; margin: 0; }
+            #print-header h2 { font-size: 12pt; color: #333; margin: 0.25rem 0 0 0; }
+            
+            .card {
+                box-shadow: none !important;
+                border: 1px solid #ccc !important;
+                padding: 0 !important;
+                page-break-inside: avoid;
+            }
+            .table-container { overflow: visible !important; margin-top: 0 !important; }
+            table { width: 100% !important; border-collapse: collapse !important; }
+            th, td {
+                border: 1px solid #ccc !important;
+                padding: 0.3rem !important;
+                font-size: 8pt;
+                font-weight: bold !important;
+                color: black !important;
+                white-space: normal;
+                word-break: break-word;
+                text-align: center;
+            }
+            thead { background-color: #f0f0f0 !important; }
+            td .subject { color: black !important; font-weight: bold; }
+            td .teacher, td .class-name { color: #333 !important; font-size: 7pt; font-weight: normal !important; }
+            td .line-through { text-decoration: line-through; color: #777 !important; }
+            td .substitute { color: #166534 !important; font-weight: bold; background-color: transparent !important; padding: 0 !important; }
         }
-
     </style>
 </head>
 <body>
+    <div id="print-capture-area" style="display: none; background: white; padding: 1.5rem;">
+        <div id="print-header">
+            <img src="Untitled design.png" alt="Veer Patta Public School Logo">
+            <h1 id="print-header-title">Veer Patta Public School - Timetable</h1>
+            <h2 id="print-header-subtitle"></h2>
+        </div>
+        <div id="print-content"></div>
+    </div>
 
     <div class="app-container">
-        <header>
+        <header class="no-print">
+            <img src="Untitled design.png" alt="Veer Patta Public School Logo">
             <h1>Timetable Command Center</h1>
             <p>Veer Patta Public School, Amet</p>
-            <div class="mt-6 text-center no-print flex justify-center gap-2">
-                <button onclick="window.print()" class="button button-gray" style="display: inline-flex; align-items: center; width: auto; padding: 0.5rem 1.5rem;">
-                    <i data-lucide="printer" class="mr-2"></i> Print View
-                </button>
-                <button onclick="handleShareScreenshot()" class="button button-green" style="display: inline-flex; align-items: center; width: auto; padding: 0.5rem 1.5rem;">
-                    <i data-lucide="share-2" class="mr-2"></i> Share Plan
+            <div class="mt-6 text-center no-print flex justify-center gap-4" style="max-width: 400px; margin: 1.5rem auto 0 auto;">
+                <button onclick="handlePrint()" class="button button-secondary">
+                    <i data-lucide="printer"></i> Print Active View
                 </button>
             </div>
         </header>
 
         <nav class="no-print">
-            <button id="nav-Dashboard" class="nav-button" onclick="switchView('Dashboard')"><i data-lucide="pie-chart"></i><span>Dashboard</span></button>
-            <button id="nav-Day" class="nav-button" onclick="switchView('Day')"><i data-lucide="calendar"></i><span>Day View</span></button>
-            <button id="nav-Substitution" class="nav-button" onclick="switchView('Substitution')"><i data-lucide="user-check"></i><span>Substitutions</span></button>
+            <button id="nav-Dashboard" class="nav-button" onclick="switchView('Dashboard')"><i data-lucide="layout-dashboard"></i><span>Dashboard</span></button>
+            <button id="nav-Day" class="nav-button" onclick="switchView('Day')"><i data-lucide="calendar-days"></i><span>Day View</span></button>
+            <button id="nav-Substitution" class="nav-button" onclick="switchView('Substitution')"><i data-lucide="user-cog"></i><span>Substitutions</span></button>
             <button id="nav-Class" class="nav-button" onclick="switchView('Class')"><i data-lucide="school"></i><span>Class View</span></button>
             <button id="nav-Teacher" class="nav-button" onclick="switchView('Teacher')"><i data-lucide="users"></i><span>Teacher View</span></button>
         </nav>
 
         <main id="main-content" class="main-content"></main>
 
-        <footer>
-            <p>This interactive dashboard is an AI-driven upgrade for modern school administration, proudly serving Veer Patta Public School, Amet.</p>
+        <footer class="no-print">
+            <p>Enhanced Timetable Dashboard for Veer Patta Public School, Amet.</p>
         </footer>
     </div>
     
-    <div id="modal-container"></div>
-
     <script>
         // --- DATA STORE ---
         const rawData = `
@@ -455,11 +409,9 @@
             currentView: 'Dashboard',
             substitutions: {}, // { Monday: { plan: { 'Class 1': { 0: 'TeacherA' } }, timestamp: 123 } }
             allData: {},
-            charts: {} // To hold chart instances
         };
 
         const mainContent = document.getElementById('main-content');
-        const modalContainer = document.getElementById('modal-container');
 
         // --- DATA PARSING & UTILITY FUNCTIONS ---
         const parseTimetableData = () => {
@@ -504,7 +456,7 @@
 
                             teachersInCell.forEach((teacherName, i) => {
                                 if (!teacherDetails[teacherName]) {
-                                    teacherDetails[teacherName] = { schedule: {}, periodCount: 0 };
+                                    teacherDetails[teacherName] = { schedule: {}, periodCount: 0, subjects: new Set() };
                                 }
                                 if (!teacherDetails[teacherName].schedule[day]) {
                                     teacherDetails[teacherName].schedule[day] = Array(headers.length).fill(null);
@@ -512,11 +464,40 @@
                                 const subjectForTeacher = subjectsInCell[i] || subjectsInCell[0];
                                 teacherDetails[teacherName].schedule[day][periodIndex] = { subject: subjectForTeacher, className };
                                 teacherDetails[teacherName].periodCount++;
+                                teacherDetails[teacherName].subjects.add(subjectForTeacher);
                             });
                         }
                     });
                 });
             });
+            
+            Object.keys(teacherDetails).forEach(teacher => {
+                Object.keys(timetable).forEach(day => {
+                    const schedule = teacherDetails[teacher].schedule[day];
+                    if (!schedule) return;
+
+                    for (let p = 0; p < schedule.length; p++) {
+                        if (schedule[p]) {
+                            const allClasses = [];
+                            Object.keys(timetable[day]).forEach(cName => {
+                                const period = timetable[day][cName][p];
+                                if (period && period.teacher && period.teacher.includes(teacher)) {
+                                    allClasses.push(cName);
+                                }
+                            });
+
+                            if (allClasses.length > 1) {
+                                const combinedClassName = allClasses.join(' / ');
+                                teacherDetails[teacher].schedule[day][p].className = combinedClassName;
+                                allClasses.forEach(cName => {
+                                    timetable[day][cName][p].className = combinedClassName;
+                                });
+                            }
+                        }
+                    }
+                });
+            });
+
 
             const classNames = Object.keys(timetable.Monday || {}).sort((a,b) => {
                 const numA = parseInt(a.match(/\d+/)?.[0]);
@@ -538,16 +519,15 @@
             const totalClassesToday = timetable[today] ? Object.values(timetable[today]).flat().filter(p => p.teacher).length : 0;
 
             const html = `
-                <div class="space-y-6">
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                        <div class="card stat-card"><div class="stat-card-icon bg-blue-500"><i data-lucide="calendar"></i></div><div><div class="stat-card-label">Today's Date</div><div class="stat-card-value">${new Date().toLocaleDateString('en-GB')}</div></div></div>
-                        <div class="card stat-card"><div class="stat-card-icon bg-green-500"><i data-lucide="clapperboard"></i></div><div><div class="stat-card-label">Total Classes Today</div><div class="stat-card-value">${totalClassesToday}</div></div></div>
-                        <div class="card stat-card"><div class="stat-card-icon bg-yellow-500"><i data-lucide="users"></i></div><div><div class="stat-card-label">Teachers on Duty</div><div class="stat-card-value">${teacherNames.length}</div></div></div>
-                        <div class="card stat-card"><div class="stat-card-icon bg-red-500"><i data-lucide="user-check"></i></div><div><div class="stat-card-label">Substitutions Made</div><div class="stat-card-value">${substitutionCount}</div></div></div>
-                    </div>
-                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                        <div class="lg:col-span-3" id="free-teacher-finder-container"></div>
-                    </div>
+                <div class="grid grid-cols-1 md-grid-cols-2 lg-grid-cols-4 gap-4">
+                    <div class="card stat-card"><div class="stat-card-icon bg-blue-500"><i data-lucide="calendar"></i></div><div><div class="stat-card-label">Today's Date</div><div class="stat-card-value">${new Date().toLocaleDateString('en-GB')}</div></div></div>
+                    <div class="card stat-card"><div class="stat-card-icon bg-green-500"><i data-lucide="clapperboard"></i></div><div><div class="stat-card-label">Total Classes Today</div><div class="stat-card-value">${totalClassesToday}</div></div></div>
+                    <div class="card stat-card"><div class="stat-card-icon bg-yellow-500"><i data-lucide="users"></i></div><div><div class="stat-card-label">Teachers on Duty</div><div class="stat-card-value">${teacherNames.length}</div></div></div>
+                    <div class="card stat-card"><div class="stat-card-icon bg-red-500"><i data-lucide="user-check"></i></div><div><div class="stat-card-label">Substitutions Made</div><div class="stat-card-value">${substitutionCount}</div></div></div>
+                </div>
+                <div class="card" style="margin-top: 1.5rem;">
+                    <h2 style="font-size: 1.25rem; font-weight: 700; color: var(--gray-800); margin-bottom: 1rem;">Live Free Teacher Finder</h2>
+                    <div id="free-teacher-finder-container"></div>
                 </div>
             `;
             mainContent.innerHTML = html;
@@ -562,47 +542,21 @@
             const currentPeriod = period || 1;
             const periodIndex = currentPeriod - 1;
 
-            const absentToday = Object.keys(state.substitutions[currentDay]?.plan || {}).flatMap(className => 
-                Object.keys(state.substitutions[currentDay].plan[className]).map(pIndex => 
-                    state.allData.timetable[currentDay][className][pIndex].teacher
-                )
-            ).filter((value, index, self) => self.indexOf(value) === index);
-
-            const freeTeachers = state.allData.teacherNames.filter(teacher => {
-                if (absentToday.includes(teacher)) return false;
-                
-                if (teacher === 'Gyan') return false; 
-                if (teacher === 'Phy' && periodIndex > 3) return false;
-                if (teacher === 'Anjana' && periodIndex < 4) return false;
-
-                if (state.allData.teacherDetails[teacher]?.schedule[currentDay]?.[periodIndex]) return false;
-                
-                let isSubstituting = false;
-                for (const cName in (state.substitutions[currentDay]?.plan || {})) {
-                    if (state.substitutions[currentDay].plan[cName][periodIndex] === teacher) {
-                        isSubstituting = true;
-                        break;
-                    }
-                }
-                if(isSubstituting) return false;
-
-                return true;
-            });
+            const freeTeachers = findFreeTeachers(currentDay, periodIndex, [], {});
 
             const dayOptions = Object.keys(state.allData.timetable).map(d => `<option value="${d}" ${d === currentDay ? 'selected' : ''}>${d}</option>`).join('');
-            const periodOptions = state.allData.periodHeaders.map((p, i) => `<option value="${i+1}" ${i+1 == currentPeriod ? 'selected' : ''}>${p.name}</option>`).join('');
+            const periodOptions = state.allData.periodHeaders.map((p, i) => `<option value="${i+1}" ${i+1 == currentPeriod ? 'selected' : ''}>${p.name} (${p.time})</option>`).join('');
             const freeTeachersList = freeTeachers.length > 0
-                ? freeTeachers.map(t => `<div style="background-color: #dcfce7; color: #166534; padding: 0.5rem; border-radius: 0.375rem; font-size: 0.875rem; font-weight: 600;">${t}</div>`).join('')
-                : `<div style="color: #6b7280;">No teachers are free.</div>`;
+                ? freeTeachers.map(t => `<div style="background-color: var(--primary-50); color: var(--primary-800); padding: 0.5rem 0.75rem; border-radius: 0.375rem; font-size: 0.875rem; font-weight: 500;">${t}</div>`).join('')
+                : `<div style="color: var(--gray-500); padding: 0.5rem 0.75rem;">No teachers are free for this slot.</div>`;
 
             const html = `
-                <div class="card">
-                    <h3 class="mb-4 flex items-center"><i data-lucide="search" class="mr-2"></i> Live Free Teacher Finder</h3>
-                    <div class="flex flex-col md:flex-row gap-4 mb-4">
-                        <select id="finder-day-select">${dayOptions}</select>
-                        <select id="finder-period-select">${periodOptions}</select>
-                    </div>
-                    <div style="max-height: 12rem; overflow-y: auto; padding-right: 0.5rem; display: flex; flex-direction: column; gap: 0.5rem;">
+                <div class="grid grid-cols-1 md-grid-cols-2 gap-4 mb-4">
+                    <select id="finder-day-select">${dayOptions}</select>
+                    <select id="finder-period-select">${periodOptions}</select>
+                </div>
+                <div style="max-height: 15rem; overflow-y: auto; padding: 0.5rem; background-color: var(--gray-50); border-radius: 0.5rem;">
+                    <div style="display: flex; flex-direction: column; gap: 0.5rem;">
                         ${freeTeachersList}
                     </div>
                 </div>`;
@@ -623,8 +577,10 @@
             const dayButtons = Object.keys(timetable).map(d => 
                 `<button class="nav-button ${day === d ? 'active' : ''}" onclick="renderDayView('${d}')">${d}</button>`
             ).join('');
+            
+            document.getElementById('print-header-subtitle').textContent = `Daily Schedule for ${day}`;
 
-            const tableHeader = `<th>Class</th>` + periodHeaders.map(h => `<th>${h.name}<br/><span class="text-xs" style="font-weight:400;">${h.time}</span></th>`).join('');
+            const tableHeader = `<th>Class</th>` + periodHeaders.map(h => `<th>${h.name}<br/><span style="font-weight:400; font-size: 0.75rem;">${h.time}</span></th>`).join('');
 
             const tableBody = classNames.map(cName => `
                 <tr>
@@ -633,9 +589,9 @@
                         const substitute = daySubs[cName]?.[i];
                         return `
                             <td>
-                                <div class="font-semibold text-blue-900">${period.subject}</div>
-                                ${period.teacher ? `<div class="text-xs ${substitute ? 'line-through' : ''}">${period.teacher}</div>` : ''}
-                                ${substitute ? `<div class="text-xs font-bold text-red-600">Sub: ${substitute}</div>` : ''}
+                                <div class="subject">${period.subject}</div>
+                                ${period.teacher ? `<div class="teacher ${substitute ? 'line-through' : ''}">${period.teacher}</div>` : ''}
+                                ${substitute ? `<div class="teacher substitute">Sub: ${substitute}</div>` : ''}
                             </td>
                         `;
                     }).join('')}
@@ -644,11 +600,13 @@
 
             const html = `
                 <div class="card">
-                    <div class="flex items-center gap-4">
-                        <i data-lucide="calendar" style="color: var(--indigo-600);"></i>
-                        <h2>View by Day</h2>
+                    <div class="flex items-center justify-between flex-wrap gap-4">
+                        <h2 style="font-size: 1.25rem; font-weight: 700; color: var(--gray-800);">Daily Schedule: ${day}</h2>
+                        <button onclick="handleShareScreenshot()" class="button button-secondary" style="width: auto;">
+                           <i data-lucide="share-2"></i> Share View
+                        </button>
                     </div>
-                    <div class="flex flex-wrap gap-2" style="border-bottom: 1px solid #e5e7eb; padding-bottom: 0.5rem; margin-top: 1rem;">
+                    <div class="flex flex-wrap gap-2" style="border-bottom: 1px solid var(--gray-200); padding-bottom: 0.75rem; margin: 1rem 0;">
                         ${dayButtons}
                     </div>
                     <div class="table-container">
@@ -663,12 +621,13 @@
         
         function renderClassView(selectedClass = '') {
             const { timetable, classNames, periodHeaders } = state.allData;
+            document.getElementById('print-header-subtitle').textContent = selectedClass ? `Weekly Schedule for ${selectedClass}` : 'Class Timetables';
 
             const classOptions = `<option value="">-- Select a Class --</option>` + classNames.map(c => `<option value="${c}" ${c === selectedClass ? 'selected' : ''}>${c}</option>`).join('');
 
             let tableHtml = '';
             if (selectedClass) {
-                const tableHeader = `<th>Day</th>` + periodHeaders.map(h => `<th>${h.name}<br/><span class="text-xs" style="font-weight:400;">${h.time}</span></th>`).join('');
+                const tableHeader = `<th>Day</th>` + periodHeaders.map(h => `<th>${h.name}<br/><span style="font-weight:400; font-size: 0.75rem;">${h.time}</span></th>`).join('');
                 const tableBody = Object.keys(timetable).map(day => {
                     const daySubs = state.substitutions[day]?.plan || {};
                     return `
@@ -678,9 +637,9 @@
                                 const substitute = daySubs[selectedClass]?.[i];
                                 return `
                                     <td>
-                                        <div class="font-semibold text-blue-900">${period.subject}</div>
-                                        ${period.teacher ? `<div class="text-xs ${substitute ? 'line-through' : ''}">${period.teacher}</div>` : ''}
-                                        ${substitute ? `<div class="text-xs font-bold text-red-600">Sub: ${substitute}</div>` : ''}
+                                        <div class="subject">${period.subject}</div>
+                                        ${period.teacher ? `<div class="teacher ${substitute ? 'line-through' : ''}">${period.teacher}</div>` : ''}
+                                        ${substitute ? `<div class="teacher substitute">Sub: ${substitute}</div>` : ''}
                                     </td>
                                 `;
                             }).join('')}
@@ -693,16 +652,18 @@
                             <thead><tr>${tableHeader}</tr></thead>
                             <tbody>${tableBody}</tbody>
                         </table>
+                    </div>
+                    <div class="text-center no-print" style="margin-top: 1.5rem; max-width: 250px; margin-left: auto; margin-right: auto;">
+                       <button onclick="handleShareScreenshot()" class="button button-secondary">
+                           <i data-lucide="share-2"></i> Share View
+                       </button>
                     </div>`;
             }
 
             const html = `
                 <div class="card">
-                    <div class="flex items-center gap-4">
-                        <i data-lucide="school" style="color: var(--indigo-600);"></i>
-                        <h2>View by Class</h2>
-                    </div>
-                     <select onchange="renderClassView(this.value)" style="margin-top: 1rem; max-width: 100%;" class="w-full">
+                    <h2 style="font-size: 1.25rem; font-weight: 700; color: var(--gray-800);" class="mb-4">View by Class</h2>
+                     <select onchange="renderClassView(this.value)">
                         ${classOptions}
                     </select>
                     ${tableHtml}
@@ -712,6 +673,7 @@
         
         function renderTeacherView(selectedTeacher = '') {
             const { teacherDetails, teacherNames, periodHeaders, timetable } = state.allData;
+            document.getElementById('print-header-subtitle').textContent = selectedTeacher ? `Weekly Schedule for ${selectedTeacher}` : 'Teacher Timetables';
 
             const teacherOptions = `<option value="">-- Select a Teacher --</option>` + teacherNames.map(t => `<option value="${t}" ${t === selectedTeacher ? 'selected' : ''}>${t}</option>`).join('');
 
@@ -726,12 +688,12 @@
                             <td class="font-bold">${day}</td>
                             ${periodHeaders.map((_, i) => {
                                 const originalPeriod = daySchedule[i];
-                                const isSubstitutedOut = originalPeriod && daySubs[originalPeriod.className]?.[i];
+                                const isSubstitutedOut = originalPeriod && daySubs[originalPeriod.className.split(' / ')[0]]?.[i];
                                 
-                                let subPeriod = null;
+                                let subPeriodInfo = null;
                                 for (const cName in daySubs) {
                                     if (daySubs[cName][i] === selectedTeacher) {
-                                        subPeriod = timetable[day][cName][i];
+                                        subPeriodInfo = timetable[day][cName][i];
                                         break;
                                     }
                                 }
@@ -739,15 +701,15 @@
                                 return `
                                     <td>
                                         ${originalPeriod ? `
-                                            <div class="${isSubstitutedOut ? 'line-through' : ''}" style="${isSubstitutedOut ? 'color: #9ca3af;' : ''}">
-                                                <div class="font-semibold text-blue-900">${originalPeriod.subject}</div>
-                                                <div class="text-xs">${originalPeriod.className}</div>
+                                            <div class="${isSubstitutedOut ? 'line-through' : ''}">
+                                                <div class="subject">${originalPeriod.subject}</div>
+                                                <div class="class-name">${originalPeriod.className}</div>
                                             </div>` : ''}
-                                        ${subPeriod ? `
-                                            <div style="margin-top: 0.25rem; color: var(--red-600);">
-                                                <div class="font-semibold">${subPeriod.subject}</div>
-                                                <div class="text-xs">(Sub for ${subPeriod.teacher})</div>
-                                                <div class="text-xs">${subPeriod.className}</div>
+                                        ${subPeriodInfo ? `
+                                            <div style="margin-top: 0.25rem;">
+                                                <div class="subject substitute">${subPeriodInfo.subject}</div>
+                                                <div class="class-name">(Sub for ${subPeriodInfo.teacher})</div>
+                                                <div class="class-name">${subPeriodInfo.className}</div>
                                             </div>` : ''}
                                     </td>
                                 `;
@@ -758,8 +720,8 @@
 
                 detailsHtml = `
                     <div class="mt-4">
-                         <div style="background-color: var(--indigo-100); color: var(--indigo-800); font-weight: 600; display: flex; align-items: center; justify-content: center; border-radius: 0.5rem; padding: 0.75rem; margin-bottom: 1.5rem;">
-                            Weekly Periods: ${teacherDetails[selectedTeacher].periodCount}
+                         <div style="background-color: var(--primary-50); color: var(--primary-800); font-weight: 600; text-align: center; border-radius: 0.5rem; padding: 0.75rem; margin-bottom: 1.5rem;">
+                            Total Weekly Periods: ${teacherDetails[selectedTeacher].periodCount}
                         </div>
                     </div>
                     <div class="table-container">
@@ -767,18 +729,18 @@
                             <thead><tr>${tableHeader}</tr></thead>
                             <tbody>${tableBody}</tbody>
                         </table>
+                    </div>
+                    <div class="text-center no-print" style="margin-top: 1.5rem; max-width: 250px; margin-left: auto; margin-right: auto;">
+                       <button onclick="handleShareScreenshot()" class="button button-secondary">
+                           <i data-lucide="share-2"></i> Share View
+                       </button>
                     </div>`;
             }
 
             const html = `
                 <div class="card">
-                     <div class="flex items-center gap-4">
-                        <i data-lucide="users" style="color: var(--indigo-600);"></i>
-                        <h2>View by Teacher</h2>
-                    </div>
-                    <div style="margin-top: 1rem;">
-                        <select onchange="renderTeacherView(this.value)" class="w-full">${teacherOptions}</select>
-                    </div>
+                    <h2 style="font-size: 1.25rem; font-weight: 700; color: var(--gray-800);" class="mb-4">View by Teacher</h2>
+                    <select onchange="renderTeacherView(this.value)">${teacherOptions}</select>
                     <div id="teacher-details-container">${detailsHtml}</div>
                 </div>`;
 
@@ -787,30 +749,16 @@
 
         function renderSubstitutionView(day = 'Monday', absentTeachers = []) {
             const { teacherNames, periodHeaders, teacherDetails } = state.allData;
+            document.getElementById('print-header-subtitle').textContent = `Substitution Plan for ${day}`;
 
-            // Day selector
             const dayOptions = Object.keys(state.allData.timetable).map(d => `<option value="${d}" ${d === day ? 'selected' : ''}>${d}</option>`).join('');
-
-            // Multi-select dropdown for absent teachers
-            const teacherOptions = teacherNames.map(t => `
-                <label>
+            
+            const teacherOptionsHtml = teacherNames.map(t => `
+                <label style="display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem; border-radius: 0.375rem; cursor:pointer;" onmouseover="this.style.backgroundColor='var(--gray-100)'" onmouseout="this.style.backgroundColor='transparent'">
                     <input type="checkbox" value="${t}" ${absentTeachers.includes(t) ? 'checked' : ''} onchange="handleAbsentTeacherChange(this)">
                     <span>${t}</span>
                 </label>`).join('');
-            
-            const multiselectHTML = `
-                <div class="multiselect-container">
-                    <button class="button" style="background-color: white; color: black; display: flex; justify-content: space-between; align-items: center;" onclick="toggleMultiselect()">
-                        <span id="multiselect-label">${absentTeachers.length > 0 ? `${absentTeachers.length} selected` : 'Select teachers...'}</span>
-                        <i data-lucide="chevron-down"></i>
-                    </button>
-                    <div id="multiselect-options" class="multiselect-options">
-                        ${teacherOptions}
-                    </div>
-                </div>
-            `;
-            
-            // Generate Plan
+
             const daySubsData = state.substitutions[day]?.plan || {};
             const vacantSlots = [];
              absentTeachers.forEach(absentTeacher => {
@@ -825,44 +773,41 @@
             });
             
             const plan = vacantSlots.map(slot => {
-                const substitute = daySubsData[slot.className]?.[slot.periodIndex];
+                const firstClassName = slot.className.split(' / ')[0];
+                const substitute = daySubsData[firstClassName]?.[slot.periodIndex];
                 return { ...slot, substitute };
             }).sort((a, b) => a.periodIndex - b.periodIndex);
             
             let planTableHTML = '';
             if (plan.length > 0) {
                 const tableRows = plan.map(slot => `
-                    <tr style="border-bottom: 1px solid #e5e7eb;">
-                        <td style="padding: 0.5rem; font-weight: 500;">${periodHeaders[slot.periodIndex].name}</td>
-                        <td style="padding: 0.5rem; font-weight: 500;">${slot.className}</td>
-                        <td style="padding: 0.5rem;">${slot.subject}</td>
-                        <td style="padding: 0.5rem; color: #b91c1c; font-weight: 700;">${slot.originalTeacher}</td>
-                        <td style="padding: 0.5rem; color: #15803d; font-weight: 700;">${slot.substitute || '--'}</td>
+                    <tr>
+                        <td>${periodHeaders[slot.periodIndex].name}</td>
+                        <td>${slot.className}</td>
+                        <td>${slot.subject}</td>
+                        <td style="color: var(--red-600);">${slot.originalTeacher}</td>
+                        <td><span class="substitute">${slot.substitute || '--'}</span></td>
                     </tr>
                 `).join('');
 
                 planTableHTML = `
                     <div style="margin-top: 2rem;">
-                        <div id="substitution-plan-screenshot-area" style="padding: 1rem; background-color: white;">
-                            <h3 style="text-align: center; margin-bottom: 1rem;">Consolidated Substitution Plan for ${day}</h3>
+                        <div id="substitution-plan-content">
+                            <h3 style="text-align: center; margin-bottom: 1rem; font-size: 1.25rem; color: var(--gray-800);">Consolidated Substitution Plan: ${day}</h3>
                             <div class="table-container">
                                 <table>
-                                    <thead style="background-color: #f9fafb;">
+                                    <thead>
                                         <tr>
-                                            <th style="padding: 0.75rem;">Period</th>
-                                            <th style="padding: 0.75rem;">Class</th>
-                                            <th style="padding: 0.75rem;">Subject</th>
-                                            <th style="padding: 0.75rem;">Original Teacher</th>
-                                            <th style="padding: 0.75rem;">Assigned Substitute</th>
+                                            <th>Period</th><th>Class</th><th>Subject</th><th>Original Teacher</th><th>Assigned Substitute</th>
                                         </tr>
                                     </thead>
                                     <tbody>${tableRows}</tbody>
                                 </table>
                             </div>
                         </div>
-                        <div class="text-center" style="margin-top: 1.5rem;">
-                            <button id="share-plan-btn" class="button button-green" style="display: inline-flex; align-items: center; width: auto; padding: 0.5rem 1.5rem;">
-                                <i data-lucide="camera" class="mr-2"></i> Share Plan
+                        <div class="text-center no-print" style="margin-top: 1.5rem; max-width: 250px; margin-left: auto; margin-right: auto;">
+                            <button onclick="handleShareScreenshot()" class="button button-secondary">
+                                <i data-lucide="share-2"></i> Share This Plan
                             </button>
                         </div>
                     </div>
@@ -871,22 +816,24 @@
 
             const html = `
                 <div class="card">
-                    <div class="grid md:grid-cols-2 gap-6 items-end">
+                    <div class="grid grid-cols-1 md-grid-cols-2 gap-6 items-start">
                         <div>
-                            <label class="block font-bold" style="color: var(--gray-700); margin-bottom: 0.5rem;">1. Select Day</label>
+                            <label class="block font-bold mb-2">1. Select Day</label>
                             <select id="sub-day-select" onchange="handleSubDayChange(this.value)">${dayOptions}</select>
                         </div>
                         <div>
-                            <label class="block font-bold" style="color: var(--gray-700); margin-bottom: 0.5rem;">2. Select Absent Teachers</label>
-                            ${multiselectHTML}
+                            <label class="block font-bold mb-2">2. Select Absent Teachers</label>
+                            <div style="border: 1px solid var(--gray-300); border-radius: 0.5rem; padding: 0.5rem; max-height: 15rem; overflow-y: auto;">
+                                ${teacherOptionsHtml}
+                            </div>
                         </div>
                     </div>
-                    <div class="text-center" style="border-top: 1px solid #e5e7eb; padding-top: 1.5rem; margin-top: 1.5rem;">
-                        <button id="generate-plan-btn" class="button button-indigo" style="font-size: 1rem; padding: 0.75rem 1rem; width: 100%; margin-bottom: 0.5rem;">
-                            Generate & Auto-Assign Plan
+                    <div class="grid grid-cols-1 md-grid-cols-2 gap-4" style="border-top: 1px solid var(--gray-200); padding-top: 1.5rem; margin-top: 1.5rem;">
+                        <button id="generate-plan-btn" class="button button-primary">
+                           <i data-lucide="wand-2"></i> Generate Smart Plan
                         </button>
-                        <button id="reset-plan-btn" class="button button-red" style="padding: 0.5rem 1rem; width: 100%;">
-                            Reset for ${day}
+                        <button id="reset-plan-btn" class="button button-danger">
+                           <i data-lucide="rotate-cw"></i> Reset for ${day}
                         </button>
                     </div>
                     <div id="plan-container">${planTableHTML}</div>
@@ -900,25 +847,33 @@
         function attachSubstitutionEventListeners(day, absentTeachers) {
             document.getElementById('generate-plan-btn').addEventListener('click', () => handleGeneratePlan(day, absentTeachers));
             document.getElementById('reset-plan-btn').addEventListener('click', () => handleResetPlan(day));
-            const shareBtn = document.getElementById('share-plan-btn');
-            if(shareBtn) shareBtn.addEventListener('click', () => handleShareScreenshot(day));
         }
 
         function handleSubDayChange(newDay) {
-            const selectedCheckboxes = Array.from(document.querySelectorAll('#multiselect-options input:checked'));
+            const selectedCheckboxes = Array.from(document.querySelectorAll('input[type="checkbox"]:checked'));
             const absentTeachers = selectedCheckboxes.map(cb => cb.value);
             renderSubstitutionView(newDay, absentTeachers);
         }
         
         function handleAbsentTeacherChange(checkbox) {
             const day = document.getElementById('sub-day-select').value;
-            const selectedCheckboxes = Array.from(document.querySelectorAll('#multiselect-options input:checked'));
+            const selectedCheckboxes = Array.from(document.querySelectorAll('input[type="checkbox"]:checked'));
             const absentTeachers = selectedCheckboxes.map(cb => cb.value);
             renderSubstitutionView(day, absentTeachers);
         }
 
-        function toggleMultiselect() {
-            document.getElementById('multiselect-options').classList.toggle('open');
+        function calculateDailyWorkload(teacher, day, currentSubs) {
+            let count = 0;
+            const schedule = state.allData.teacherDetails[teacher]?.schedule[day];
+            if (schedule) {
+                count += schedule.filter(p => p !== null).length;
+            }
+            Object.values(currentSubs).forEach(classSub => {
+                Object.values(classSub).forEach(subTeacher => {
+                    if (subTeacher === teacher) count++;
+                });
+            });
+            return count;
         }
 
         function findFreeTeachers(day, periodIndex, absentTeachers, currentDaySubs) {
@@ -926,7 +881,7 @@
             for (const teacher of state.allData.teacherNames) {
                 if (absentTeachers.includes(teacher)) continue; 
                 if (teacher === 'Gyan') continue; 
-                if (teacher === 'Phy') continue; // Phy Sir is unavailable for any substitutions
+                if (teacher === 'Phy') continue; 
                 if (teacher === 'Anjana' && periodIndex < 4) continue;
 
                 if (state.allData.teacherDetails[teacher]?.schedule[day]?.[periodIndex]) continue;
@@ -942,7 +897,7 @@
                 
                 free.push(teacher);
             }
-            return free.sort();
+            return free;
         };
 
         function handleGeneratePlan(day, absentTeachers) {
@@ -965,19 +920,29 @@
             });
 
             const newDaySubstitutions = {};
-            const subLoad = state.allData.teacherNames.reduce((acc, t) => ({...acc, [t]: 0}), {});
-
+            
             vacantSlots.sort((a,b) => a.periodIndex - b.periodIndex).forEach(slot => {
                 let freeTeachers = findFreeTeachers(day, slot.periodIndex, absentTeachers, newDaySubstitutions);
-                freeTeachers.sort((a,b) => subLoad[a] - subLoad[b]);
-
+                
                 if (freeTeachers.length > 0) {
+                    freeTeachers.sort((a, b) => {
+                        const workloadA = calculateDailyWorkload(a, day, newDaySubstitutions);
+                        const workloadB = calculateDailyWorkload(b, day, newDaySubstitutions);
+                        const isSameSubjectA = teacherDetails[a].subjects.has(slot.subject);
+                        const isSameSubjectB = teacherDetails[b].subjects.has(slot.subject);
+                        if (isSameSubjectA && !isSameSubjectB) return -1;
+                        if (!isSameSubjectA && isSameSubjectB) return 1;
+                        return workloadA - workloadB;
+                    });
+
                     const substitute = freeTeachers[0];
-                    if (!newDaySubstitutions[slot.className]) {
-                        newDaySubstitutions[slot.className] = {};
-                    }
-                    newDaySubstitutions[slot.className][slot.periodIndex] = substitute;
-                    subLoad[substitute]++;
+                    const classNames = slot.className.split(' / ');
+                    classNames.forEach(cName => {
+                        if (!newDaySubstitutions[cName]) {
+                            newDaySubstitutions[cName] = {};
+                        }
+                        newDaySubstitutions[cName][slot.periodIndex] = substitute;
+                    });
                 }
             });
             
@@ -990,78 +955,68 @@
             renderSubstitutionView(day, []);
         }
 
-        async function handleShareScreenshot(day) {
-            const elementToCapture = state.currentView === 'Substitution' 
-                ? document.getElementById('substitution-plan-screenshot-area') 
-                : document.getElementById('main-content');
-            
-            if (!elementToCapture || !window.html2canvas) {
-                alert("Content not found or screenshot tool is not ready.");
-                return;
+        function preparePrintContent() {
+            let contentToPrint;
+            if (state.currentView === 'Substitution') {
+                contentToPrint = document.getElementById('substitution-plan-content');
+            } else if (mainContent.querySelector('.table-container')) {
+                contentToPrint = mainContent.querySelector('.card').cloneNode(true);
+                // Remove buttons from the clone
+                contentToPrint.querySelectorAll('button, select').forEach(el => el.remove());
             }
 
-            // Temporarily clone and style for full capture
-            const clone = elementToCapture.cloneNode(true);
-            document.body.appendChild(clone);
-            clone.style.position = 'absolute';
-            clone.style.left = '-9999px';
-            clone.style.top = '0';
-            clone.style.width = '1024px'; // A good width for capturing table content
-            clone.style.backgroundColor = 'white';
-            clone.style.padding = '1rem';
+            if (contentToPrint) {
+                document.getElementById('print-content').innerHTML = contentToPrint.innerHTML;
+                return true;
+            }
+            return false;
+        }
+
+        function handlePrint() {
+            if (preparePrintContent()) {
+                window.print();
+            } else {
+                alert("No printable content available for this view.");
+            }
+        }
+
+        async function handleShareScreenshot() {
+            if (!preparePrintContent()) {
+                alert("No content to share for this view.");
+                return;
+            }
             
-            const tableContainers = clone.querySelectorAll('.table-container');
-            tableContainers.forEach(tc => tc.style.overflowX = 'visible');
+            const tempMsg = document.createElement('div');
+            tempMsg.textContent = 'Generating image...';
+            tempMsg.style.cssText = `position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: var(--primary-600); color: white; padding: 1rem; border-radius: 0.5rem; z-index: 100;`;
+            document.body.appendChild(tempMsg);
 
-
+            const captureElement = document.getElementById('print-capture-area');
+            
             try {
-                const canvas = await window.html2canvas(clone, {
-                    useCORS: true,
-                    scale: 2,
-                });
+                const canvas = await html2canvas(captureElement, { scale: 2, backgroundColor: '#ffffff' });
                 const dataUrl = canvas.toDataURL('image/png');
                 const blob = await (await fetch(dataUrl)).blob();
-                const file = new File([blob], `timetable-view.png`, { type: 'image/png' });
+                const file = new File([blob], `timetable-plan.png`, { type: 'image/png' });
 
                 if (navigator.canShare && navigator.canShare({ files: [file] })) {
                     await navigator.share({
                         files: [file],
-                        title: `Timetable View: ${state.currentView}`,
-                        text: `Here is the current view from the Timetable Command Center.`,
+                        title: document.getElementById('print-header-subtitle').textContent,
+                        text: `Timetable plan from Veer Patta Public School.`,
                     });
                 } else {
-                    showScreenshotModal(dataUrl, "timetable-view");
+                    const link = document.createElement('a');
+                    link.href = dataUrl;
+                    link.download = 'timetable-plan.png';
+                    link.click();
                 }
             } catch (error) {
                 console.error("Screenshot failed:", error);
-                alert("Could not generate screenshot.");
+                alert("Could not generate image.");
             } finally {
-                document.body.removeChild(clone);
+                document.body.removeChild(tempMsg);
             }
-        }
-        
-        function showScreenshotModal(dataUrl, day) {
-            const modalHTML = `
-                <div class="screenshot-modal" id="screenshot-modal">
-                    <div class="screenshot-modal-content">
-                        <div class="flex justify-between items-center mb-4">
-                            <h4 class="font-bold">Screenshot Preview</h4>
-                            <button onclick="closeModal()" style="padding: 0.25rem; border-radius: 9999px; background: none; border: none; cursor: pointer;"><i data-lucide="x"></i></button>
-                        </div>
-                        <img src="${dataUrl}" alt="Timetable Screenshot"/>
-                        <div class="mt-4 text-center">
-                            <a href="${dataUrl}" download="${day}.png" class="button button-indigo" style="text-decoration: none; display: inline-block; width: auto; padding: 0.5rem 1.5rem;">
-                                Download
-                            </a>
-                        </div>
-                    </div>
-                </div>`;
-            modalContainer.innerHTML = modalHTML;
-            lucide.createIcons();
-        }
-        
-        function closeModal() {
-            modalContainer.innerHTML = '';
         }
 
         // --- APP INITIALIZATION & NAVIGATION ---
@@ -1069,14 +1024,6 @@
             state.currentView = view;
             document.querySelectorAll('nav .nav-button').forEach(btn => btn.classList.remove('active'));
             document.getElementById(`nav-${view}`).classList.add('active');
-
-            // Destroy charts before switching views
-            Object.values(state.charts).forEach(chart => {
-                if (chart && typeof chart.destroy === 'function') {
-                    chart.destroy();
-                }
-            });
-            state.charts = {};
 
             switch(view) {
                 case 'Dashboard': renderDashboard(); break;
@@ -1089,37 +1036,12 @@
             lucide.createIcons();
         }
         
-        function autoResetSubstitutions() {
-            const now = Date.now();
-            const twelveHours = 12 * 60 * 60 * 1000;
-            let needsUpdate = false;
-            const updatedSubs = Object.entries(state.substitutions).reduce((acc, [day, data]) => {
-                if (now - data.timestamp < twelveHours) {
-                    acc[day] = data;
-                } else {
-                    needsUpdate = true;
-                }
-                return acc;
-            }, {});
-
-            if (needsUpdate) {
-                state.substitutions = updatedSubs;
-                // If the current view relies on subs, refresh it
-                if (['Dashboard', 'Day', 'Class', 'Teacher'].includes(state.currentView)) {
-                    switchView(state.currentView);
-                }
-            }
-        }
-
         function init() {
             state.allData = parseTimetableData();
             switchView('Dashboard');
-            setInterval(autoResetSubstitutions, 60 * 60 * 1000); // Check every hour
         }
 
-        // --- RUN APP ---
         window.onload = init;
-
     </script>
 </body>
 </html>
