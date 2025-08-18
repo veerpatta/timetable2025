@@ -21,7 +21,7 @@
             --primary-50: #eff6ff; --primary-100: #dbeafe; --primary-600: #2563eb; --primary-700: #1d4ed8; --primary-800: #1e40af;
             --gray-50: #f9fafb; --gray-100: #f3f4f6; --gray-200: #e5e7eb; --gray-300: #d1d5db; --gray-400: #9ca3af; --gray-500: #6b7280; --gray-600: #4b5563; --gray-700: #374151; --gray-800: #1f2937; --gray-900: #111827;
             --red-50: #fef2f2; --red-600: #dc2626;
-            --green-50: #f0fdf4; --green-500: #22c55e; --green-800: #166534;
+            --green-50: #f0fdf4; --green-500: #22c55e; --green-600: #16a34a; --green-700: #15803d; --green-800: #166534;
             --yellow-500: #eab308;
             --border-radius: 0.75rem;
             --shadow-sm: 0 1px 2px 0 rgba(0,0,0,0.05);
@@ -152,6 +152,9 @@
         .button-danger:hover { background-color: #b91c1c; }
         .button-secondary { background-color: var(--gray-700); border-color: var(--gray-700); color: white; }
         .button-secondary:hover { background-color: var(--gray-800); }
+        .button-whatsapp { background-color: var(--green-600); border-color: var(--green-600); color: white; }
+        .button-whatsapp:hover { background-color: var(--green-700); }
+
 
         .table-container { overflow-x: auto; margin-top: 1.5rem; }
         table { width: 100%; text-align: left; border-collapse: collapse; font-size: 0.8rem; }
@@ -174,6 +177,7 @@
         .items-center { align-items: center; }
         .justify-center { justify-content: center; }
         .justify-between { justify-content: space-between; }
+        .gap-2 { gap: 0.5rem; }
         .gap-4 { gap: 1rem; }
         .mb-2 { margin-bottom: 0.5rem; }
         .mb-4 { margin-bottom: 1rem; }
@@ -583,7 +587,7 @@
                             <button onclick="handlePrint()" class="button button-secondary" style="width: auto;">
                                <i data-lucide="printer"></i>
                             </button>
-                            <button onclick="handleShareScreenshot()" class="button button-secondary" style="width: auto;">
+                            <button onclick="handleShareScreenshot()" class="button button-whatsapp" style="width: auto;">
                                <i data-lucide="share-2"></i>
                             </button>
                         </div>
@@ -639,7 +643,7 @@
                        <button onclick="handlePrint()" class="button button-secondary">
                            <i data-lucide="printer"></i> Print View
                        </button>
-                       <button onclick="handleShareScreenshot()" class="button button-secondary">
+                       <button onclick="handleShareScreenshot()" class="button button-whatsapp">
                            <i data-lucide="share-2"></i> Share View
                        </button>
                     </div>`;
@@ -719,7 +723,7 @@
                        <button onclick="handlePrint()" class="button button-secondary">
                            <i data-lucide="printer"></i> Print View
                        </button>
-                       <button onclick="handleShareScreenshot()" class="button button-secondary">
+                       <button onclick="handleShareScreenshot()" class="button button-whatsapp">
                            <i data-lucide="share-2"></i> Share View
                        </button>
                     </div>`;
@@ -797,7 +801,7 @@
                            <button onclick="handlePrint()" class="button button-secondary">
                                <i data-lucide="printer"></i> Print Plan
                            </button>
-                           <button onclick="handleShareScreenshot()" class="button button-secondary">
+                           <button onclick="handleShareScreenshot()" class="button button-whatsapp">
                                <i data-lucide="share-2"></i> Share Plan
                            </button>
                         </div>
