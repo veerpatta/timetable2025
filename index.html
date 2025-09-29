@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Timetable Command Center - Veer Patta Public School</title>
-    
+
     <!-- LIBRARIES (CDN) -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/lucide@latest/dist/umd/lucide.min.js"></script>
@@ -15,228 +15,12 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
     <!-- STYLES -->
-    <style>
-        /* --- UI/UX STYLES --- */
-        :root {
-            --primary-50: #eff6ff; --primary-100: #dbeafe; --primary-600: #2563eb; --primary-700: #1d4ed8; --primary-800: #1e40af;
-            --gray-50: #f9fafb; --gray-100: #f3f4f6; --gray-200: #e5e7eb; --gray-300: #d1d5db; --gray-400: #9ca3af; --gray-500: #6b7280; --gray-600: #4b5563; --gray-700: #374151; --gray-800: #1f2937; --gray-900: #111827;
-            --red-50: #fef2f2; --red-600: #dc2626;
-            --green-50: #f0fdf4; --green-500: #22c55e; --green-600: #16a34a; --green-700: #15803d; --green-800: #166534;
-            --yellow-500: #eab308;
-            --border-radius: 0.75rem;
-            --shadow-sm: 0 1px 2px 0 rgba(0,0,0,0.05);
-            --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -2px rgba(0,0,0,0.1);
-        }
-
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: var(--gray-50);
-            color: var(--gray-700);
-            margin: 0;
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
-        }
-
-        .app-container {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 1rem;
-        }
-
-        header {
-            text-align: center;
-            padding: 1.5rem 1rem;
-            background-color: white;
-            border-radius: var(--border-radius);
-            box-shadow: var(--shadow-md);
-            margin-bottom: 2rem;
-        }
-        
-        header h1 {
-            font-size: 1.75rem;
-            font-weight: 800;
-            color: var(--gray-900);
-            letter-spacing: -0.025em;
-        }
-        header p {
-            color: var(--gray-500);
-            margin-top: 0.25rem;
-            font-size: 1rem;
-        }
-
-        nav {
-            margin: 0 0 2rem 0;
-            padding: 0.75rem;
-            background-color: rgba(255, 255, 255, 0.85);
-            backdrop-filter: blur(10px);
-            border-radius: var(--border-radius);
-            box-shadow: var(--shadow-md);
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 0.5rem;
-            position: sticky;
-            top: 1rem;
-            z-index: 40;
-        }
-        .nav-button {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            padding: 0.6rem 1rem;
-            border-radius: 0.5rem;
-            transition: all 0.2s ease-in-out;
-            color: var(--gray-600);
-            background-color: transparent;
-            border: none;
-            cursor: pointer;
-            font-size: 0.9rem;
-            font-weight: 600;
-        }
-        .nav-button:hover {
-            background-color: var(--primary-100);
-            color: var(--primary-700);
-        }
-        .nav-button.active {
-            background-color: var(--primary-600);
-            color: white;
-            box-shadow: var(--shadow-sm);
-        }
-
-        .card {
-            background-color: white;
-            padding: 1rem;
-            border-radius: var(--border-radius);
-            box-shadow: var(--shadow-md);
-            margin-bottom: 1.5rem;
-        }
-        
-        .stat-card { display: flex; align-items: center; gap: 1rem; }
-        .stat-card-icon { border-radius: 0.5rem; padding: 0.75rem; color: white; display: flex; align-items: center; justify-content: center; }
-        .stat-card-label { font-size: 0.875rem; color: var(--gray-500); font-weight: 500; }
-        .stat-card-value { font-size: 1.5rem; font-weight: 700; color: var(--gray-800); }
-        .bg-blue-500 { background-color: var(--primary-600); }
-        .bg-green-500 { background-color: var(--green-500); }
-        .bg-yellow-500 { background-color: var(--yellow-500); }
-        .bg-red-500 { background-color: var(--red-600); }
-
-        select, .button, input[type="text"] {
-            font-family: 'Inter', sans-serif;
-            width: 100%;
-            box-sizing: border-box;
-            padding: 0.75rem 1rem;
-            border: 1px solid var(--gray-300);
-            border-radius: 0.5rem;
-            box-shadow: var(--shadow-sm);
-            font-size: 1rem;
-            transition: all 0.2s ease;
-        }
-        select:focus, input:focus {
-            outline: none;
-            border-color: var(--primary-600);
-            box-shadow: 0 0 0 3px var(--primary-100);
-        }
-        
-        .button {
-            cursor: pointer;
-            font-weight: 600;
-            color: white;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.5rem;
-        }
-        .button-primary { background-color: var(--primary-600); border-color: var(--primary-600); }
-        .button-primary:hover { background-color: var(--primary-700); }
-        .button-danger { background-color: var(--red-600); border-color: var(--red-600); }
-        .button-danger:hover { background-color: #b91c1c; }
-        .button-secondary { background-color: var(--gray-700); border-color: var(--gray-700); color: white; }
-        .button-secondary:hover { background-color: var(--gray-800); }
-        .button-whatsapp { background-color: var(--green-600); border-color: var(--green-600); color: white; }
-        .button-whatsapp:hover { background-color: var(--green-700); }
-
-
-        .table-container { overflow-x: auto; margin-top: 1.5rem; }
-        table { width: 100%; text-align: left; border-collapse: collapse; font-size: 0.8rem; }
-        th, td { padding: 0.5rem; white-space: nowrap; }
-        thead { background-color: var(--gray-50); }
-        th { font-weight: 600; color: var(--gray-600); }
-        tbody tr { border-bottom: 1px solid var(--gray-200); }
-        td .subject { font-weight: 600; color: var(--primary-800); }
-        td .teacher { font-size: 0.75rem; color: var(--gray-500); }
-        td .class-name { font-size: 0.75rem; color: var(--gray-500); }
-        td .line-through { text-decoration: line-through; color: var(--gray-400); }
-        td .substitute { font-weight: 700; color: var(--green-800); background-color: var(--green-50); padding: 2px 6px; border-radius: 4px; }
-
-        .grid { display: grid; gap: 1rem; }
-        .grid-cols-1 { grid-template-columns: repeat(1, minmax(0, 1fr)); }
-        
-        footer { margin-top: 4rem; text-align: center; color: var(--gray-500); font-size: 0.875rem; }
-        
-        .flex { display: flex; }
-        .items-center { align-items: center; }
-        .justify-center { justify-content: center; }
-        .justify-between { justify-content: space-between; }
-        .gap-2 { gap: 0.5rem; }
-        .gap-4 { gap: 1rem; }
-        .mb-2 { margin-bottom: 0.5rem; }
-        .mb-4 { margin-bottom: 1rem; }
-        
-        #print-header { display: none; }
-
-        @media (min-width: 768px) {
-            .md-grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-            header h1 { font-size: 2.5rem; }
-            header p { font-size: 1.125rem; }
-            .card { padding: 1.5rem; }
-            table { font-size: 0.875rem; }
-            th, td { padding: 0.75rem 1rem; }
-        }
-        @media (min-width: 1024px) {
-            .lg-grid-cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
-        }
-
-        /* --- PRINT STYLES --- */
-        @media print {
-            @page { size: A4 landscape; margin: 0.7cm; }
-            body {
-                -webkit-print-color-adjust: exact !important;
-                print-color-adjust: exact !important;
-                background: none !important;
-                font-size: 9pt;
-            }
-            .no-print, nav, footer, header { display: none !important; }
-            
-            .app-container { padding: 0 !important; margin: 0 !important; }
-            main { display: none !important; }
-            #print-capture-area { display: block !important; }
-            #print-header { display: block !important; text-align: center; margin-bottom: 1rem; }
-            #print-header img { max-width: 150px; margin-bottom: 0.5rem; }
-            #print-header h1 { font-size: 16pt; color: black; margin: 0; }
-            #print-header h2 { font-size: 12pt; color: #333; margin: 0.25rem 0 0 0; }
-            
-            .card { box-shadow: none !important; border: 1px solid #ccc !important; padding: 0 !important; page-break-inside: avoid; }
-            .table-container { overflow: visible !important; margin-top: 0 !important; }
-            table { width: 100% !important; border-collapse: collapse !important; }
-            th, td {
-                border: 1px solid #ccc !important;
-                padding: 0.3rem !important;
-                font-size: 8pt;
-                font-weight: bold !important;
-                color: black !important;
-                white-space: normal;
-                word-break: break-word;
-                text-align: center;
-            }
-            thead { background-color: #f0f0f0 !important; }
-            td .subject { color: black !important; font-weight: bold; }
-            td .teacher, td .class-name { color: #333 !important; font-size: 7pt; font-weight: normal !important; }
-            td .line-through { text-decoration: line-through; color: #777 !important; }
-            td .substitute { color: #166534 !important; font-weight: bold; background-color: transparent !important; padding: 0 !important; }
-        }
-    </style>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
+    <div id="loader">
+        <div class="spinner"></div>
+    </div>
     <div id="print-capture-area" style="display: none; background: white; padding: 1.5rem;">
         <div id="print-header">
             <img src="Untitled design.png" alt="Veer Patta Public School Logo">
@@ -266,7 +50,7 @@
             <p>Enhanced Timetable Dashboard for Veer Patta Public School, Amet.</p>
         </footer>
     </div>
-    
+
     <script>
         // --- DATA STORE ---
         const rawData = `
@@ -304,7 +88,7 @@
         Class 11 Science,Physics (Phy),Physics (Phy),Chemistry (Toshit),Chemistry (Toshit),Biology (Hemlata),Hindi (Jainendra),English (Pradhyuman),Hindi (Jainendra)
         Class 11 Commerce,Self Study (Maya),Business (Nidhika),Economics (Prakash),Accountancy (Nathulal),Accountancy (Nathulal),Hindi (Jainendra),English (Pradhyuman),Hindi (Jainendra)
         Class 11 Arts,English Literature (Harshita),Political Science (Pradhyuman),Economics (Prakash),Geography (Prakash),CCS (Maya),Hindi (Jainendra),English (Pradhyuman),Hindi (Jainendra)
-        Class 12 Science,Chemistry (Toshit),Chemistry (Toshit),Biology (Hemlata),Biology (Hemlata),Hindi (Jainendra),English (Pradhyuman),Physics (Phy),Biology (Hemlata)
+        Class 12 Science,Chemistry (Toshit),Chemistry (Toshit),Biology (Hemlata),Biology (Hemlata),Hindi (Jainendra),english (Pradhyuman),Physics (Phy),Biology (Hemlata)
         Class 12 Commerce,Accountancy (Nathulal),Accountancy (Nathulal),CCS (Maya),Business (Pradhyuman),Hindi (Jainendra),English (Pradhyuman),Accountancy (Nathulal),Sports (Rakesh)
         Class 12 Arts,Geography (Prakash),Geography (Prakash),Political Science (Pradhyuman),Hindi (Jainendra),Hindi (Jainendra),English (Pradhyuman),English Literature (Harshita),Sports (Rakesh)
 
@@ -451,7 +235,7 @@
                     });
                 });
             });
-            
+
             Object.keys(teacherDetails).forEach(teacher => {
                 Object.keys(timetable).forEach(day => {
                     const schedule = teacherDetails[teacher].schedule[day];
@@ -514,7 +298,7 @@
             mainContent.innerHTML = html;
             renderFreeTeacherFinder();
         }
-        
+
         function renderFreeTeacherFinder(day = null, period = null) {
             const container = document.getElementById('free-teacher-finder-container');
             if (!container) return;
@@ -542,7 +326,7 @@
                     </div>
                 </div>`;
             container.innerHTML = html;
-            
+
             document.getElementById('finder-day-select').addEventListener('change', (e) => {
                 renderFreeTeacherFinder(e.target.value, document.getElementById('finder-period-select').value);
             });
@@ -550,15 +334,15 @@
                 renderFreeTeacherFinder(document.getElementById('finder-day-select').value, e.target.value);
             });
         }
-        
+
         function renderDayView(day = 'Monday') {
             const { timetable, classNames, periodHeaders } = state.allData;
             const daySubs = state.substitutions[day]?.plan || {};
 
-            const dayButtons = Object.keys(timetable).map(d => 
+            const dayButtons = Object.keys(timetable).map(d =>
                 `<button class="nav-button ${day === d ? 'active' : ''}" onclick="renderDayView('${d}')">${d}</button>`
             ).join('');
-            
+
             document.getElementById('print-header-subtitle').textContent = `Daily Schedule for ${day}`;
 
             const tableHeader = `<th>Class</th>` + periodHeaders.map(h => `<th>${h.name}<br/><span style="font-weight:400; font-size: 0.75rem;">${h.time}</span></th>`).join('');
@@ -604,7 +388,7 @@
                 </div>`;
             mainContent.innerHTML = html;
         }
-        
+
         function renderClassView(selectedClass = '') {
             const { timetable, classNames, periodHeaders } = state.allData;
             document.getElementById('print-header-subtitle').textContent = selectedClass ? `Weekly Schedule for ${selectedClass}` : 'Class Timetables';
@@ -659,7 +443,7 @@
                 </div>`;
             mainContent.innerHTML = html;
         }
-        
+
         function renderTeacherView(selectedTeacher = '') {
             const { teacherDetails, teacherNames, periodHeaders, timetable } = state.allData;
             document.getElementById('print-header-subtitle').textContent = selectedTeacher ? `Weekly Schedule for ${selectedTeacher}` : 'Teacher Timetables';
@@ -678,7 +462,7 @@
                             ${periodHeaders.map((_, i) => {
                                 const originalPeriod = daySchedule[i];
                                 const isSubstitutedOut = originalPeriod && daySubs[originalPeriod.className.split(' / ')[0]]?.[i];
-                                
+
                                 let subPeriodInfo = null;
                                 for (const cName in daySubs) {
                                     if (daySubs[cName][i] === selectedTeacher) {
@@ -744,7 +528,7 @@
             document.getElementById('print-header-subtitle').textContent = `Substitution Plan for ${day}`;
 
             const dayOptions = Object.keys(state.allData.timetable).map(d => `<option value="${d}" ${d === day ? 'selected' : ''}>${d}</option>`).join('');
-            
+
             const teacherOptionsHtml = teacherNames.map(t => `
                 <label style="display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem; border-radius: 0.375rem; cursor:pointer;" onmouseover="this.style.backgroundColor='var(--gray-100)'" onmouseout="this.style.backgroundColor='transparent'">
                     <input type="checkbox" value="${t}" ${absentTeachers.includes(t) ? 'checked' : ''} onchange="handleAbsentTeacherChange(this)">
@@ -763,13 +547,13 @@
                     });
                 }
             });
-            
+
             const plan = vacantSlots.map(slot => {
                 const firstClassName = slot.className.split(' / ')[0];
                 const substitute = daySubsData[firstClassName]?.[slot.periodIndex];
                 return { ...slot, substitute };
             }).sort((a, b) => a.periodIndex - b.periodIndex);
-            
+
             let planTableHTML = '';
             if (plan.length > 0) {
                 const tableRows = plan.map(slot => `
@@ -849,7 +633,7 @@
             const absentTeachers = selectedCheckboxes.map(cb => cb.value);
             renderSubstitutionView(newDay, absentTeachers);
         }
-        
+
         function handleAbsentTeacherChange(checkbox) {
             const day = document.getElementById('sub-day-select').value;
             const selectedCheckboxes = Array.from(document.querySelectorAll('input[type="checkbox"]:checked'));
@@ -874,9 +658,9 @@
         function findFreeTeachers(day, periodIndex, absentTeachers, currentDaySubs) {
             const free = [];
             for (const teacher of state.allData.teacherNames) {
-                if (absentTeachers.includes(teacher)) continue; 
-                if (teacher === 'Gyan') continue; 
-                if (teacher === 'Phy') continue; 
+                if (absentTeachers.includes(teacher)) continue;
+                if (teacher === 'Gyan') continue;
+                if (teacher === 'Phy') continue;
                 if (teacher === 'Anjana' && periodIndex < 4) continue;
 
                 if (state.allData.teacherDetails[teacher]?.schedule[day]?.[periodIndex]) continue;
@@ -889,7 +673,7 @@
                     }
                 }
                 if (isBusyAsSub) continue;
-                
+
                 free.push(teacher);
             }
             return free;
@@ -915,10 +699,10 @@
             });
 
             const newDaySubstitutions = {};
-            
+
             vacantSlots.sort((a,b) => a.periodIndex - b.periodIndex).forEach(slot => {
                 let freeTeachers = findFreeTeachers(day, slot.periodIndex, absentTeachers, newDaySubstitutions);
-                
+
                 if (freeTeachers.length > 0) {
                     // Smart sorting: 1. Same subject, 2. Lowest workload
                     freeTeachers.sort((a, b) => {
@@ -941,11 +725,11 @@
                     });
                 }
             });
-            
+
             state.substitutions[day] = { plan: newDaySubstitutions, timestamp: Date.now() };
             renderSubstitutionView(day, absentTeachers);
         }
-        
+
         function handleResetPlan(day) {
             delete state.substitutions[day];
             renderSubstitutionView(day, []);
@@ -981,7 +765,7 @@
                 alert("No content to share for this view.");
                 return;
             }
-            
+
             const tempMsg = document.createElement('div');
             tempMsg.textContent = 'Generating image...';
             tempMsg.style.cssText = `position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: var(--primary-600); color: white; padding: 1rem; border-radius: 0.5rem; z-index: 100;`;
@@ -989,7 +773,7 @@
 
             const captureElement = document.getElementById('print-capture-area');
             captureElement.style.display = 'block';
-            
+
             try {
                 const canvas = await html2canvas(captureElement, { scale: 2, backgroundColor: '#ffffff', width: 1200, windowWidth: 1200 });
                 const dataUrl = canvas.toDataURL('image/png');
@@ -1033,10 +817,16 @@
             }
             lucide.createIcons();
         }
-        
+
         function init() {
             state.allData = parseTimetableData();
             switchView('Dashboard');
+
+            const loader = document.getElementById('loader');
+            loader.style.opacity = '0';
+            setTimeout(() => {
+                loader.style.display = 'none';
+            }, 300);
         }
 
         window.onload = init;
