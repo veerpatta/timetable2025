@@ -1,0 +1,563 @@
+diff --git a/index.html b/index.html
+index 1234567..abcdef0 100644
+--- a/index.html
++++ b/index.html
+@@ -13,6 +13,7 @@
+ 	<!-- LIBRARIES (CDN) -->
+ 	<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
++	<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+ 	<script src="https://cdn.jsdelivr.net/npm/lucide@latest/dist/umd/lucide.min.js"></script>
+ 
+ 	<!-- FONTS -->
+@@ -732,6 +733,15 @@
+ 		.block {
+ 			display: block;
+ 		}
++
++		/* Capture and Export Enhancements */
++		#print-capture-area {
++			position: absolute;
++			left: -9999px;
++			top: -9999px;
++			max-width: 900px;
++			margin: 0 auto;
++			background: white;
++			display: none;
++		}
++
++		.no-capture {
++			display: none !important;
++		}
+ 
+ 		/* Print Styles */
+ 		@media print {
+@@ -1615,7 +1625,7 @@
+ 				document.getElementById('print-header-subtitle').textContent = `Daily Schedule for ${selectedDay}`;
+ 
+ 
+-				const tableHeader = '<th>Class</th>' + periodHeaders.map((h, idx) =>
++				const tableHeader = '<th role="columnheader">Class</th>' + periodHeaders.map((h, idx) =>
+-					`<th${idx === currentPeriodIdx ? ' class="highlight-period"' : ''}>${h.name}<br/><span style="font-weight:400; font-size: 0.75rem;">${h.time}</span></th>`
++					`<th role="columnheader"${idx === currentPeriodIdx ? ' class="highlight-period"' : ''}>${h.name}<br/><span style="font-weight:400; font-size: 0.75rem;">${h.time}</span></th>`
+ 				).join('');
+ 
+ 				const tableBody = classNames.map(cName => {
+@@ -1656,6 +1666,12 @@
+ 								<button onclick="handleShareScreenshot()" class="button button-whatsapp" style="width: auto;">
+ 									<i data-lucide="share-2"></i>
+ 								</button>
++								<button onclick="handleShareAsPDF()" class="button button-primary no-capture" style="width: auto; font-size: 0.75rem; padding: 0.5rem 0.75rem;">
++									<i data-lucide="file-text"></i> PDF
++								</button>
++								<button onclick="handleExportCSV()" class="button button-secondary no-capture" style="width: auto; font-size: 0.75rem; padding: 0.5rem 0.75rem;">
++									<i data-lucide="download"></i> CSV
++								</button>
+ 							</div>
+ 						</div>
+ 						<div class="flex flex-wrap gap-2" style="border-bottom: 1px solid var(--gray-200);
+@@ -1664,7 +1680,7 @@
+ 						</div>
+ 						<div class="table-container">
+-							<table class="responsive">
++							<table class="responsive" role="table" aria-label="Daily timetable for ${selectedDay}">
+-								<thead><tr>${tableHeader}</tr></thead>
++								<thead><tr role="row">${tableHeader}</tr></thead>
+ 								<tbody>${tableBody}</tbody>
+ 							</table>
+ 						</div>
+@@ -1745,6 +1761,12 @@
+ 							<button onclick="handleShareScreenshot()" class="button button-whatsapp" style="max-width: 200px;">
+ 								<i data-lucide="share-2"></i> Share
+ 							</button>
++							<button onclick="handleShareAsPDF()" class="button button-primary no-capture" style="max-width: 200px;">
++								<i data-lucide="file-text"></i> Share as PDF
++							</button>
++							<button onclick="handleExportCSV()" class="button button-secondary no-capture" style="max-width: 200px;">
++								<i data-lucide="download"></i> Export CSV
++							</button>
+ 						</div>
+ 					`;
+ 				}
+@@ -1833,6 +1855,12 @@
+ 							<button onclick="handleShareScreenshot()" class="button button-whatsapp" style="max-width: 200px;">
+ 								<i data-lucide="share-2"></i> Share
+ 							</button>
++							<button onclick="handleShareAsPDF()" class="button button-primary no-capture" style="max-width: 200px;">
++								<i data-lucide="file-text"></i> Share as PDF
++							</button>
++							<button onclick="handleExportCSV()" class="button button-secondary no-capture" style="max-width: 200px;">
++								<i data-lucide="download"></i> Export CSV
++							</button>
+ 						</div>
+ 					`;
+ 				}
+@@ -2078,6 +2106,42 @@
+ 			});
+ 		}
+ 
++		// Ensure fonts are loaded before capturing
++		async function ensureFontsLoaded() {
++			try {
++				if (document.fonts && document.fonts.ready) {
++					await document.fonts.ready;
++				}
++				// Additional wait for font rendering
++				await new Promise(resolve => setTimeout(resolve, 100));
++			} catch (error) {
++				console.warn('Font loading check failed:', error);
++			}
++		}
++
++		// Helper function to get device pixel ratio with cap
++		function getOptimalScale() {
++			const devicePixelRatio = window.devicePixelRatio || 1;
++			return Math.min(devicePixelRatio, 2); // Cap at 2 for performance
++		}
++
++		// Pure function: Convert table data to 2D array for CSV export
++		function tableTo2DArray(tableElement) {
++			if (!tableElement) return [];
++			
++			const rows = [];
++			const headerRow = tableElement.querySelector('thead tr');
++			const bodyRows = tableElement.querySelectorAll('tbody tr');
++			
++			// Extract headers
++			if (headerRow) {
++				const headers = Array.from(headerRow.querySelectorAll('th')).map(th => {
++					return th.textContent.replace(/\n/g, ' ').replace(/\s+/g, ' ').trim();
++				});
++				rows.push(headers);
++			}
++			
++			// Extract body rows
++			bodyRows.forEach(row => {
++				const cells = Array.from(row.querySelectorAll('td')).map(td => {
++					// Clean up cell content - remove line breaks and extra spaces
++					return td.textContent.replace(/\n/g, ' ').replace(/\s+/g, ' ').trim();
++				});
++				rows.push(cells);
++			});
++			
++			return rows;
++		}
++
+ 		async function handlePrint() {
+ 			try {
+ 				// Check if mobile and offer alternative
+@@ -2129,12 +2193,12 @@
+ 				
+ 				try {
+-					// 3. Wait for rendering to complete
++					// 3. Ensure fonts are loaded and wait for rendering
++					await ensureFontsLoaded();
+ 					await waitForRender();
+ 					
+-					// 4. Capture with high-quality settings optimized for tables
++					// 4. Capture with optimal settings using device pixel ratio
+ 					const canvas = await html2canvas(captureElement, {
+ 						backgroundColor: '#fff',
+-						scale: 2,
++						scale: getOptimalScale(),
+ 						useCORS: true,
+ 						allowTaint: false,
+ 						foreignObjectRendering: false,
+@@ -2190,6 +2254,136 @@
+ 			}
+ 		}
+ 
++		// New function: Share as PDF
++		async function handleShareAsPDF() {
++			try {
++				// Check if jsPDF is available
++				if (typeof window.jsPDF === 'undefined') {
++					showToast('❌ PDF library not loaded', 3000, 'error');
++					return;
++				}
++
++				const captureElement = document.getElementById('print-capture-area');
++				if (!captureElement) {
++					showToast('❌ Required elements not found', 3000, 'error');
++					return;
++				}
++
++				// Prepare print content
++				if (!preparePrintContent()) {
++					showToast('❌ Failed to prepare print content', 3000, 'error');
++					return;
++				}
++
++				showToast('📄 Generating PDF...', 2000, 'info');
++
++				const originalDisplay = captureElement.style.display;
++				captureElement.style.display = 'block';
++
++				try {
++					await ensureFontsLoaded();
++					await waitForRender();
++
++					// Capture with html2canvas
++					const canvas = await html2canvas(captureElement, {
++						backgroundColor: '#fff',
++						scale: getOptimalScale(),
++						useCORS: true,
++						allowTaint: false,
++						foreignObjectRendering: false,
++						imageTimeout: 15000
++					});
++
++					// Create PDF
++					const { jsPDF } = window.jsPDF;
++					const pdf = new jsPDF({
++						orientation: 'landscape',
++						unit: 'mm',
++						format: 'a4'
++					});
++
++					// Calculate dimensions
++					const pdfWidth = pdf.internal.pageSize.getWidth();
++					const pdfHeight = pdf.internal.pageSize.getHeight();
++					const canvasWidth = canvas.width;
++					const canvasHeight = canvas.height;
++					const ratio = Math.min(pdfWidth / canvasWidth, pdfHeight / canvasHeight);
++					const imgWidth = canvasWidth * ratio;
++					const imgHeight = canvasHeight * ratio;
++					const x = (pdfWidth - imgWidth) / 2;
++					const y = (pdfHeight - imgHeight) / 2;
++
++					// Add image to PDF
++					const imgData = canvas.toDataURL('image/png');
++					pdf.addImage(imgData, 'PNG', x, y, imgWidth, imgHeight);
++
++					// Generate filename
++					const now = new Date();
++					const dateStr = now.toISOString().split('T')[0];
++					const filename = `vpps-timetable-${dateStr}.pdf`;
++
++					// Save PDF
++					pdf.save(filename);
++					showToast('✅ PDF saved successfully!', 3000, 'success');
++
++				} finally {
++					captureElement.style.display = originalDisplay;
++				}
++
++			} catch (error) {
++				console.error('PDF generation error:', error);
++				showToast('❌ Failed to generate PDF', 3000, 'error');
++			}
++		}
++
++		// New function: Export CSV
++		function handleExportCSV() {
++			try {
++				// Find the current visible table
++				const visibleTable = document.querySelector('.table-container table:not(#print-capture-area table)');
++				if (!visibleTable) {
++					showToast('❌ No table found to export', 3000, 'error');
++					return;
++				}
++
++				// Convert table to 2D array
++				const data = tableTo2DArray(visibleTable);
++				if (data.length === 0) {
++					showToast('❌ No data found in table', 3000, 'error');
++					return;
++				}
++
++				// Convert to CSV format
++				const csvContent = data.map(row => 
++					row.map(cell => `"${cell.replace(/"/g, '""')}"`)
++						.join(',')
++				).join('\n');
++
++				// Create and download CSV file
++				const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
++				const now = new Date();
++				const dateStr = now.toISOString().split('T')[0];
++				const filename = `vpps-timetable-${dateStr}.csv`;
++
++				const link = document.createElement('a');
++				const url = URL.createObjectURL(blob);
++				link.setAttribute('href', url);
++				link.setAttribute('download', filename);
++				link.style.visibility = 'hidden';
++				document.body.appendChild(link);
++				link.click();
++				document.body.removeChild(link);
++				URL.revokeObjectURL(url);
++
++				showToast('✅ CSV exported successfully!', 3000, 'success');
++
++			} catch (error) {
++				console.error('CSV export error:', error);
++				showToast('❌ Failed to export CSV', 3000, 'error');
++			}
++		}
++
+ 		function downloadImage(blob, filename) {
+ 			try {
+ 				const url = URL.createObjectURL(blob);
+@@ -2290,6 +2484,16 @@
+ 			}
+ 		}
+ 
++		// Pre-render print content and keep updated
++		function updatePrintContent() {
++			try {
++				// Always keep the print content updated in background
++				preparePrintContent();
++			} catch (error) {
++				console.error('Error updating print content:', error);
++			}
++		}
++
+ 		async function handlePrint() {
+ 			try {
+ 				// Check if mobile and offer alternative
+@@ -2649,6 +2853,9 @@
+ 				default:
+ 					renderDashboard();
+ 			}
++
++			// Update print content when view changes
++			setTimeout(() => updatePrintContent(), 100);
+ 		}
+ 
+ 		// --- SUBSTITUTION MANAGEMENT ---
+@@ -3177,6 +3384,19 @@
+ 						showToast('🔄 View refreshed!', 2000, 'success');
+ 				}
+ 
++				// Register service worker for offline functionality
++				if ('serviceWorker' in navigator) {
++					navigator.serviceWorker.register('./sw.js')
++						.then(registration => {
++							console.log('Service Worker registered successfully:', registration.scope);
++						})
++						.catch(error => {
++							console.log('Service Worker registration failed:', error);
++						});
++				}
++
++				// Pre-render print content on load
++				updatePrintContent();
++
+ 				showToast('📱 Mobile-optimized Timetable Command Center loaded!', 2500, 'success');
+ 			}, 300);
+ 			
+diff --git a/sw.js b/sw.js
+new file mode 100644
+index 0000000..1234567
+--- /dev/null
++++ b/sw.js
+@@ -0,0 +1,169 @@
++// Service Worker for Veer Patta Public School Timetable
++// Provides offline-first caching for the page shell and timetable data
++
++const CACHE_NAME = 'vpps-timetable-v1';
++const STATIC_CACHE_NAME = 'vpps-static-v1';
++
++// Resources to cache on install
++const STATIC_ASSETS = [
++  './',
++  './index.html',
++  'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js',
++  'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js',
++  'https://cdn.jsdelivr.net/npm/lucide@latest/dist/umd/lucide.min.js',
++  'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap'
++];
++
++// Install event - cache static assets
++self.addEventListener('install', event => {
++  console.log('Service Worker: Installing...');
++  
++  event.waitUntil(
++    caches.open(STATIC_CACHE_NAME)
++      .then(cache => {
++        console.log('Service Worker: Caching static assets');
++        return cache.addAll(STATIC_ASSETS);
++      })
++      .then(() => {
++        console.log('Service Worker: Static assets cached successfully');
++        return self.skipWaiting();
++      })
++      .catch(error => {
++        console.error('Service Worker: Failed to cache static assets:', error);
++      })
++  );
++});
++
++// Activate event - clean up old caches
++self.addEventListener('activate', event => {
++  console.log('Service Worker: Activating...');
++  
++  event.waitUntil(
++    caches.keys()
++      .then(cacheNames => {
++        return Promise.all(
++          cacheNames.map(cacheName => {
++            if (cacheName !== CACHE_NAME && cacheName !== STATIC_CACHE_NAME) {
++              console.log('Service Worker: Deleting old cache:', cacheName);
++              return caches.delete(cacheName);
++            }
++          })
++        );
++      })
++      .then(() => {
++        console.log('Service Worker: Old caches cleaned up');
++        return self.clients.claim();
++      })
++  );
++});
++
++// Fetch event - serve from cache, fallback to network
++self.addEventListener('fetch', event => {
++  const { request } = event;
++  const url = new URL(request.url);
++
++  // Handle different types of requests
++  if (request.method !== 'GET') {
++    return; // Only handle GET requests
++  }
++
++  // For timetable data requests (if any API calls are made)
++  if (url.pathname.includes('timetable') || url.pathname.includes('api')) {
++    event.respondWith(
++      networkFirstWithCache(request, CACHE_NAME)
++    );
++    return;
++  }
++
++  // For static assets and main page
++  event.respondWith(
++    cacheFirstWithNetworkFallback(request)
++  );
++});
++
++// Cache-first strategy with network fallback (for static assets)
++async function cacheFirstWithNetworkFallback(request) {
++  try {
++    // Try to get from cache first
++    const cachedResponse = await caches.match(request);
++    if (cachedResponse) {
++      console.log('Service Worker: Serving from cache:', request.url);
++      return cachedResponse;
++    }
++
++    // If not in cache, fetch from network
++    console.log('Service Worker: Fetching from network:', request.url);
++    const networkResponse = await fetch(request);
++    
++    // Cache the response for future use
++    if (networkResponse.ok) {
++      const cache = await caches.open(STATIC_CACHE_NAME);
++      cache.put(request, networkResponse.clone());
++    }
++    
++    return networkResponse;
++  } catch (error) {
++    console.error('Service Worker: Fetch failed for:', request.url, error);
++    
++    // Return a basic offline page or fallback
++    if (request.destination === 'document') {
++      return new Response(
++        '<!DOCTYPE html><html><head><title>Offline</title></head><body><h1>You are offline</h1><p>Please check your internet connection.</p></body></html>',
++        { headers: { 'Content-Type': 'text/html' } }
++      );
++    }
++    
++    return new Response('Network error occurred', { status: 503 });
++  }
++}
++
++// Network-first strategy with cache fallback (for dynamic data)
++async function networkFirstWithCache(request, cacheName) {
++  try {
++    // Try network first
++    console.log('Service Worker: Trying network first for:', request.url);
++    const networkResponse = await fetch(request);
++    
++    if (networkResponse.ok) {
++      // Cache the fresh response
++      const cache = await caches.open(cacheName);
++      cache.put(request, networkResponse.clone());
++      console.log('Service Worker: Cached fresh data:', request.url);
++      return networkResponse;
++    }
++    
++    throw new Error('Network response not ok');
++  } catch (error) {
++    console.log('Service Worker: Network failed, trying cache for:', request.url);
++    
++    // Fallback to cache
++    const cachedResponse = await caches.match(request);
++    if (cachedResponse) {
++      console.log('Service Worker: Serving stale data from cache:', request.url);
++      return cachedResponse;
++    }
++    
++    // No cache available
++    console.error('Service Worker: No cache available for:', request.url);
++    return new Response('No cached data available', { status: 503 });
++  }
++}
++
++// Background sync for future enhancements
++self.addEventListener('sync', event => {
++  console.log('Service Worker: Background sync triggered:', event.tag);
++  
++  if (event.tag === 'background-sync-timetable') {
++    event.waitUntil(
++      // Future: Sync timetable data in background
++      console.log('Service Worker: Background timetable sync completed')
++    );
++  }
++});
++
++// Handle push notifications (for future enhancements)
++self.addEventListener('push', event => {
++  console.log('Service Worker: Push notification received');
++  
++  const options = {
++    body: event.data ? event.data.text() : 'Timetable update available',
++    icon: '/favicon.ico',
++    badge: '/favicon.ico',
++    vibrate: [100, 50, 100],
++    data: {
++      dateOfArrival: Date.now(),
++      primaryKey: 1
++    },
++    actions: [
++      {
++        action: 'explore',
++        title: 'View Timetable',
++        icon: '/favicon.ico'
++      },
++      {
++        action: 'close',
++        title: 'Close',
++        icon: '/favicon.ico'
++      }
++    ]
++  };
++
++  event.waitUntil(
++    self.registration.showNotification('VPPS Timetable', options)
++  );
++});
++
++// Handle notification clicks
++self.addEventListener('notificationclick', event => {
++  console.log('Service Worker: Notification clicked');
++  
++  event.notification.close();
++  
++  if (event.action === 'explore') {
++    event.waitUntil(
++      clients.openWindow('/')
++    );
++  }
++});
++
++console.log('Service Worker: Script loaded successfully');
