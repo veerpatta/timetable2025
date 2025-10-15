@@ -1,0 +1,13 @@
+{
+  "name": "Time Table",
+  "short_name": "Time Table",
+  "description": "Veer Patta Public School - Timetable Command Center",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#2563eb",
+  "icons": [
+    { "src": "./icons/VPPS Full Logo only.png", "sizes": "512x512", "type": "image/png", "purpose": "any" }
+  ]
+}
