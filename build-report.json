@@ -1,0 +1,51 @@
+{
+  "timestamp": "2025-11-10T10:29:47.261Z",
+  "files": [
+    {
+      "file": "index.html",
+      "rawSize": 173701,
+      "gzippedSize": 37409,
+      "compression": "78.5%"
+    },
+    {
+      "file": "scripts/perf.js",
+      "rawSize": 18718,
+      "gzippedSize": 4740,
+      "compression": "74.7%"
+    },
+    {
+      "file": "scripts/colors.js",
+      "rawSize": 9578,
+      "gzippedSize": 2863,
+      "compression": "70.1%"
+    },
+    {
+      "file": "styles/theme.css",
+      "rawSize": 9105,
+      "gzippedSize": 2482,
+      "compression": "72.7%"
+    },
+    {
+      "file": "styles/colors.css",
+      "rawSize": 7398,
+      "gzippedSize": 1766,
+      "compression": "76.1%"
+    },
+    {
+      "file": "sw.js",
+      "rawSize": 6653,
+      "gzippedSize": 2064,
+      "compression": "69.0%"
+    },
+    {
+      "file": "manifest.webmanifest",
+      "rawSize": 392,
+      "gzippedSize": 258,
+      "compression": "34.2%"
+    }
+  ],
+  "totals": {
+    "raw": 225545,
+    "gzipped": 51582
+  }
+}
