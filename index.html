@@ -91,8 +91,8 @@
 
 		body {
 			font-family: 'Inter', system-ui, -apple-system, sans-serif;
-			background: linear-gradient(135deg, var(--primary-50) 0%, var(--gray-50) 100%);
-			color: var(--gray-900);
+			background: linear-gradient(135deg, var(--bg-gradient-start) 0%, var(--bg-gradient-end) 100%);
+			color: var(--text);
 			min-height: 100vh;
 			line-height: 1.6;
 		}
@@ -104,7 +104,7 @@
 			left: 0;
 			width: 100%;
 			height: 100%;
-			background: white;
+			background: var(--bg);
 			display: flex;
 			align-items: center;
 			justify-content: center;
@@ -141,7 +141,7 @@
 
 		/* Header - Mobile Optimized */
 		header {
-			background: white;
+			background: var(--card);
 			border-radius: var(--radius-lg);
 			padding: 1rem;
 			margin-bottom: 1rem;
@@ -181,7 +181,7 @@
 
 		/* Navigation - Mobile Optimized */
 		nav {
-			background: white;
+			background: var(--card);
 			border-radius: var(--radius-lg);
 			padding: 0.5rem;
 			margin-bottom: 1rem;
@@ -211,9 +211,9 @@
 			min-width: 48px; /* Minimum touch target */
 			min-height: 48px; /* Minimum touch target */
 			background: transparent;
-			border: 1px solid var(--gray-200);
+			border: 1px solid var(--border);
 			border-radius: var(--radius-lg);
-			color: var(--gray-700);
+			color: var(--text);
 			font-size: 0.75rem;
 			font-weight: 600;
 			cursor: pointer;
@@ -294,7 +294,7 @@
 
 		/* Cards - Mobile Optimized */
 		.card {
-			background: white;
+			background: var(--card);
 			border-radius: var(--radius-lg);
 			padding: 1rem;
 			box-shadow: var(--shadow);
@@ -323,7 +323,7 @@
 			text-align: center;
 			gap: 0.75rem;
 			padding: 1rem;
-			background: white;
+			background: var(--card);
 			border-radius: var(--radius-lg);
 			box-shadow: var(--shadow);
 			transition: transform 0.2s, box-shadow 0.2s;
@@ -360,7 +360,7 @@
 		.stat-card-value {
 			font-size: 1.25rem;
 			font-weight: 700;
-			color: var(--gray-900);
+			color: var(--text);
 			line-height: 1;
 		}
 		
@@ -450,9 +450,9 @@
 		.sticky-first-col tbody td:first-child {
 			position: sticky;
 			left: 0;
-			background: white;
+			background: var(--card);
 			z-index: 2;
-			box-shadow: 2px 0 0 0 var(--gray-200);
+			box-shadow: 2px 0 0 0 var(--border);
 		}
 		
 		/* Larger screens get better spacing */
@@ -560,11 +560,11 @@
 			width: 100%;
 			padding: 0.75rem;
 			min-height: 48px; /* Touch-friendly minimum */
-			border: 2px solid var(--gray-300);
+			border: 2px solid var(--border);
 			border-radius: var(--radius-lg);
-			background: white;
+			background: var(--bg);
 			font-size: 1rem; /* Prevent zoom on iOS */
-			color: var(--gray-700);
+			color: var(--text);
 			cursor: pointer;
 			transition: all 0.2s;
 			-webkit-appearance: none;
@@ -802,7 +802,7 @@
 			top: -9999px;
 			max-width: 900px;
 			margin: 0 auto;
-			background: white;
+			background: var(--bg);
 			display: none;
 		}
 
@@ -1117,9 +1117,9 @@
 		}
 		.day-tab {
 			appearance: none;
-			border: 1px solid var(--gray-200);
-			background: white;
-			color: var(--gray-700);
+			border: 1px solid var(--border);
+			background: var(--card);
+			color: var(--text);
 			border-radius: 9999px;
 			padding: 0.5rem 0.75rem;
 			font-size: 0.85rem;
@@ -1137,8 +1137,8 @@
 		/* Flat list styling for mobile class/teacher day view */
 		.timetable-list {
 			border-radius: var(--radius-lg);
-			border: 1px solid var(--gray-200);
-			background: white;
+			border: 1px solid var(--border);
+			background: var(--card);
 			overflow: hidden;
 		}
 		.timetable-row {
@@ -1150,9 +1150,9 @@
 			border-bottom: 1px solid var(--gray-100);
 		}
 		.timetable-row:last-child { border-bottom: 0; }
-		.timetable-row .period-col { color: var(--gray-700); font-weight: 700; font-size: 0.85rem; }
-		.timetable-row .subject-col { font-weight: 600; color: var(--gray-900); }
-		.timetable-row .teacher-col { color: var(--gray-600); font-size: 0.85rem; }
+		.timetable-row .period-col { color: var(--text); font-weight: 700; font-size: 0.85rem; }
+		.timetable-row .subject-col { font-weight: 600; color: var(--text); }
+		.timetable-row .teacher-col { color: var(--text-secondary); font-size: 0.85rem; }
 		.timetable-row.is-current { background: var(--primary-50); }
 		.timetable-row .extra { display: none; grid-column: 1 / -1; color: var(--gray-600); font-size: 0.8rem; }
 		.timetable-row.expanded .extra { display: block; }
@@ -1448,7 +1448,9 @@
 			// Update theme-color meta tag for mobile browsers
 			const themeColorMeta = document.querySelector('meta[name="theme-color"]');
 			if (themeColorMeta) {
-				themeColorMeta.setAttribute('content', mode === 'dark' ? '#1a1a2e' : '#2563eb');
+				// Get the computed value of --card CSS variable for the current theme
+				const cardColor = getComputedStyle(document.documentElement).getPropertyValue('--card').trim();
+				themeColorMeta.setAttribute('content', cardColor || (mode === 'dark' ? '#16213e' : '#ffffff'));
 			}
 
 			// Update toggle button icon
