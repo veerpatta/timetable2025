@@ -29,9 +29,6 @@
 	<!-- THEME SYSTEM -->
 	<link rel="stylesheet" href="./styles/theme.css">
 
-	<!-- GLOBAL SEARCH (Feature Flag: feat_advanced_search) -->
-	<link rel="stylesheet" href="./styles/search.css">
-
 	<!-- STYLES -->
 	<style>
 		/* CSS Variables for Theme */
@@ -1318,22 +1315,6 @@
 			</button>
 			<h1>📚 Timetable Command Center</h1>
 			<p>Veer Patta Public School, Amet</p>
-
-			<!-- Global Search Bar (Feature Flag: feat_advanced_search) -->
-			<div class="global-search-container">
-				<div class="global-search-wrapper">
-					<i data-lucide="search" class="global-search-icon"></i>
-					<input
-						type="search"
-						id="global-search-input"
-						placeholder="Search teachers, classes, subjects..."
-						aria-label="Global search"
-						autocomplete="off"
-						readonly
-					/>
-					<span class="global-search-shortcut" aria-hidden="true">Ctrl+K</span>
-				</div>
-			</div>
 		</header>
 
 		<nav class="no-print" id="main-nav">
@@ -1371,136 +1352,6 @@
 		<i data-lucide="clock"></i>
 	</button>
 
-	<!-- Global Search Modal (Feature Flag: feat_advanced_search) -->
-	<div id="search-modal" class="search-modal" role="dialog" aria-modal="true" aria-labelledby="search-modal-title">
-		<div class="search-modal-overlay" aria-hidden="true"></div>
-		<div class="search-modal-content">
-			<!-- Header with Search Input and Filters -->
-			<div class="search-modal-header">
-				<div class="search-modal-header-top">
-					<div class="search-modal-input-wrapper">
-						<i data-lucide="search" class="search-modal-input-icon"></i>
-						<input
-							type="search"
-							id="global-search-input-modal"
-							placeholder="Search teachers, classes, subjects..."
-							aria-label="Search"
-							autocomplete="off"
-						/>
-					</div>
-					<button
-						id="search-modal-close"
-						class="search-modal-close"
-						aria-label="Close search"
-						title="Close search (ESC)"
-					>
-						<i data-lucide="x"></i>
-					</button>
-				</div>
-
-				<!-- Filters -->
-				<div class="search-filters">
-					<div class="search-filter-group">
-						<label class="search-filter-label" for="search-filter-day">
-							<i data-lucide="calendar"></i>
-							Day
-						</label>
-						<select id="search-filter-day" aria-label="Filter by day">
-							<option value="">All Days</option>
-							<option value="Monday">Monday</option>
-							<option value="Tuesday">Tuesday</option>
-							<option value="Wednesday">Wednesday</option>
-							<option value="Thursday">Thursday</option>
-							<option value="Friday">Friday</option>
-							<option value="Saturday">Saturday</option>
-						</select>
-					</div>
-
-					<div class="search-filter-group">
-						<label class="search-filter-label" for="search-filter-period-start">
-							<i data-lucide="clock"></i>
-							Period Start
-						</label>
-						<input
-							type="number"
-							id="search-filter-period-start"
-							placeholder="0"
-							min="0"
-							max="10"
-							aria-label="Filter by period start"
-						/>
-					</div>
-
-					<div class="search-filter-group">
-						<label class="search-filter-label" for="search-filter-period-end">
-							<i data-lucide="clock"></i>
-							Period End
-						</label>
-						<input
-							type="number"
-							id="search-filter-period-end"
-							placeholder="10"
-							min="0"
-							max="10"
-							aria-label="Filter by period end"
-						/>
-					</div>
-
-					<div class="search-filter-group">
-						<label class="search-filter-label" for="search-filter-subject">
-							<i data-lucide="book"></i>
-							Subject
-						</label>
-						<input
-							type="text"
-							id="search-filter-subject"
-							placeholder="e.g., Math"
-							aria-label="Filter by subject"
-						/>
-					</div>
-
-					<label class="search-filter-checkbox">
-						<input
-							type="checkbox"
-							id="search-filter-availability"
-							aria-label="Show only available teachers"
-						/>
-						<span>
-							<i data-lucide="user-check"></i>
-							Free Teachers Only
-						</span>
-					</label>
-
-					<div class="search-filters-actions">
-						<button
-							class="button-reset-filters"
-							onclick="resetFilters()"
-							aria-label="Reset all filters"
-							title="Reset all filters"
-						>
-							<i data-lucide="rotate-ccw"></i>
-							Reset
-						</button>
-					</div>
-				</div>
-			</div>
-
-			<!-- Body with Results/History -->
-			<div class="search-modal-body">
-				<h2 id="search-modal-title" class="sr-only">Global Search</h2>
-
-				<!-- Search History (shown when no search query) -->
-				<div id="search-history-container"></div>
-
-				<!-- Search Results (shown when searching) -->
-				<div id="search-results-container"></div>
-			</div>
-		</div>
-	</div>
-
-	<!-- Global Search Script (Feature Flag: feat_advanced_search) -->
-	<script src="./scripts/search.js"></script>
-
 	<script>
 		// ============================================
 		// THEME SYSTEM (Dark Mode)
@@ -1512,7 +1363,6 @@
 		 */
 		const FEATURE_FLAGS = {
 			feat_dark_mode: true, // Toggle this to enable/disable dark mode
-			feat_advanced_search: true, // Toggle this to enable/disable global search
 		};
 
 		/**
@@ -4882,21 +4732,6 @@
 			document.addEventListener('DOMContentLoaded', () => {
 				// Initialize theme system early
 				initTheme();
-
-				// Initialize global search (Feature Flag: feat_advanced_search)
-				if (typeof initSearch === 'function') {
-					initSearch();
-				}
-
-				// Add keyboard shortcut for search (Ctrl+K)
-				document.addEventListener('keydown', (e) => {
-					if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
-						e.preventDefault();
-						if (typeof openSearchModal === 'function') {
-							openSearchModal();
-						}
-					}
-				});
 
 				// Add theme toggle button event listener
 				const themeToggleBtn = document.getElementById('theme-toggle');
