@@ -3784,7 +3784,7 @@
 
 		// --- FIX SUBSTITUTION VIEW ---
 		function renderSubstitutionView(day = null, absentTeachers = []) {
-			const { teacherNames, periodHeaders, teacherDetails, timetable, days } = state.allData;
+			const { teacherNames, periodHeaders, teacherDetails, timetable } = state.allData;
 			// Always default to the current day when none is provided
 			const currentDay = getCurrentDay();
 			const selectedDay = day || currentDay;
