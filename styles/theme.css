@@ -274,9 +274,14 @@ textarea,
 }
 
 [data-theme="dark"] .nav-button.active {
-	background: var(--primary);
-	border-color: var(--primary);
-	color: var(--bg);
+        background: var(--primary);
+        border-color: var(--primary);
+        color: var(--text-on-primary);
+}
+
+[data-theme="dark"] .nav-button.active:hover,
+[data-theme="dark"] .nav-button.active:focus-visible {
+        color: var(--text-on-primary);
 }
 
 /* Cards and containers */
