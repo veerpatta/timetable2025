@@ -15,9 +15,13 @@ const MAX_BUNDLE_SIZE = 500 * 1024; // 500KB target
 const FILES_TO_ANALYZE = [
   'index.html',
   'scripts/perf.js',
+  'scripts/a11y.js',
   'scripts/colors.js',
+  'scripts/ui.js',
   'styles/theme.css',
+  'styles/a11y.css',
   'styles/colors.css',
+  'styles/ui.css',
   'sw.js',
   'manifest.webmanifest'
 ];

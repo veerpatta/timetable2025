@@ -1,0 +1,64 @@
+
+╔═══════════════════════════════════════════════════════════════╗
+║     VEER PATTA PUBLIC SCHOOL TIMETABLE - BUILD REPORT        ║
+╚═══════════════════════════════════════════════════════════════╝
+
+📊 FILE SIZE ANALYSIS
+
+┌─────────────────────────┬──────────┬──────────┬─────────────┐
+│ File                    │ Raw Size │ Gzipped  │ Compression │
+├─────────────────────────┼──────────┼──────────┼─────────────┤
+│ index.html              │ 170.07 KB │ 36.67 KB │       78.4% │
+│ scripts/perf.js         │ 18.28 KB │  4.63 KB │       74.7% │
+│ scripts/a11y.js         │ 14.33 KB │  3.97 KB │       72.3% │
+│ scripts/colors.js       │  9.35 KB │   2.8 KB │       70.1% │
+│ scripts/ui.js           │ 42.46 KB │  8.12 KB │       80.9% │
+│ styles/theme.css        │  8.89 KB │  2.42 KB │       72.7% │
+│ styles/a11y.css         │ 11.96 KB │  3.09 KB │       74.2% │
+│ styles/colors.css       │  7.22 KB │  1.72 KB │       76.1% │
+│ styles/ui.css           │  19.7 KB │  3.59 KB │       81.8% │
+│ sw.js                   │  6.69 KB │  2.06 KB │       69.1% │
+│ manifest.webmanifest    │    392 B │    258 B │       34.2% │
+└─────────────────────────┴──────────┴──────────┴─────────────┘
+
+📦 BUNDLE SIZE SUMMARY
+
+Total Raw Size:       309.34 KB
+Total Gzipped Size:   69.32 KB
+Overall Compression:  77.6%
+Target Size:          500 KB
+Budget Status:        ✅ WITHIN (-190.66 KB)
+
+📝 JAVASCRIPT ANALYSIS
+
+scripts/perf.js:
+  Lines:              708
+  Functions:          6
+  Classes:            6
+  Async Functions:    0
+  Comments:           72
+
+scripts/colors.js:
+  Lines:              350
+  Functions:          12
+  Classes:            0
+  Async Functions:    0
+  Comments:           34
+
+⚡ PERFORMANCE FEATURES IMPLEMENTED
+
+✅ Lazy Loading:        html2canvas, jsPDF loaded on-demand
+✅ Caching:             SessionStorage with TTL (10 min)
+✅ Debouncing:          Input handlers debounced (300ms)
+✅ Virtual Scrolling:   Enabled for 100+ items
+✅ Lazy Images:         IntersectionObserver with 50px margin
+✅ Code Splitting:      Heavy libraries lazy loaded
+
+💡 OPTIMIZATION RECOMMENDATIONS
+
+⚠️  index.html is large - consider extracting inline JS to modules
+
+📄 Full report saved to: build-report.json
+
+═════════════════════════════════════════════════════════════════
+
