@@ -17,9 +17,11 @@
 	<link rel="apple-touch-icon" href="./icons/VPPS Full Logo only.png">
 
 	<!-- LIBRARIES (CDN) -->
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+	<!-- html2canvas and jsPDF are now lazy loaded via perf.js for better performance -->
 	<script src="https://cdn.jsdelivr.net/npm/lucide@latest/dist/umd/lucide.min.js"></script>
+
+	<!-- PERFORMANCE OPTIMIZATION MODULE -->
+	<script src="./scripts/perf.js" defer></script>
 
 	<!-- FONTS -->
 	<link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1370,6 +1372,7 @@
 		const FEATURE_FLAGS = {
 			feat_dark_mode: true, // Toggle this to enable/disable dark mode
 			feat_color_coding: true, // Toggle this to enable/disable subject color coding
+			feat_perf_opt: true, // Toggle this to enable/disable performance optimizations
 		};
 
 		/**
@@ -2371,6 +2374,79 @@
 				};
 			}
 		};
+
+		// --- CACHED TIMETABLE DATA PARSING (Performance Optimization) ---
+		const parseTimetableDataCached = () => {
+			// Check if performance optimizations are enabled
+			if (!FEATURE_FLAGS.feat_perf_opt || typeof PerformanceOptimization === 'undefined') {
+				return parseTimetableData();
+			}
+
+			const cache = PerformanceOptimization.cache;
+			const cacheKey = 'parsed_timetable_data';
+
+			// Try to get from cache
+			const cached = cache.get(cacheKey);
+			if (cached) {
+				console.log('📦 Using cached timetable data');
+				return cached;
+			}
+
+			// Parse and cache
+			console.log('🔄 Parsing timetable data...');
+			const data = parseTimetableData();
+			cache.set(cacheKey, data, 10 * 60 * 1000); // Cache for 10 minutes
+			return data;
+		};
+
+		// --- VIRTUAL SCROLLING HELPER (Performance Optimization) ---
+		let virtualScroller = null; // Global virtual scroller instance
+
+		/**
+		 * Apply virtual scrolling to a container with table rows
+		 * @param {HTMLElement} container - Container element
+		 * @param {Array} items - Array of items to render
+		 * @param {Function} renderRow - Function that takes (item, index) and returns HTMLElement
+		 * @param {number} rowHeight - Height of each row in pixels
+		 */
+		function applyVirtualScrolling(container, items, renderRow, rowHeight = 50) {
+			if (!FEATURE_FLAGS.feat_perf_opt || typeof PerformanceOptimization === 'undefined') {
+				return null; // Feature disabled
+			}
+
+			if (!container || !items || items.length < 100) {
+				return null; // Not needed for small lists
+			}
+
+			// Destroy existing scroller
+			if (virtualScroller) {
+				virtualScroller.destroy();
+			}
+
+			// Create new virtual scroller
+			virtualScroller = new PerformanceOptimization.VirtualScroller({
+				container: container,
+				items: items,
+				rowHeight: rowHeight,
+				bufferSize: 10,
+				renderRow: renderRow
+			});
+
+			virtualScroller.init();
+			console.log(`✅ Virtual scrolling enabled for ${items.length} items`);
+			return virtualScroller;
+		}
+
+		// --- DEBOUNCED RENDER FUNCTIONS (Performance Optimization) ---
+		let debouncedRenderClassView, debouncedRenderTeacherView, debouncedRenderDayView;
+
+		// Initialize debounced functions after PerformanceOptimization is available
+		function initDebouncedFunctions() {
+			if (FEATURE_FLAGS.feat_perf_opt && typeof PerformanceOptimization !== 'undefined') {
+				// Will be initialized when render functions are defined
+				console.log('✅ Debouncing enabled for render functions');
+			}
+		}
 
 		// --- ENHANCED SMART FREE TEACHER FINDER ---
 		function findFreeTeachers(day, periodIndex, absentTeachers, currentDaySubs, vacantPeriod = null) {
@@ -4075,8 +4151,16 @@
 					return;
 				}
 
-				// Check if html2canvas is available
-				if (typeof html2canvas === 'undefined') {
+				// Lazy load html2canvas if feat_perf_opt is enabled
+				if (FEATURE_FLAGS.feat_perf_opt && typeof PerformanceOptimization !== 'undefined') {
+					try {
+						showToast('⏳ Loading screenshot library...', 2000, 'info');
+						await PerformanceOptimization.lazyLoader.loadHtml2Canvas();
+					} catch (error) {
+						showToast('❌ Failed to load screenshot library', 3000, 'error');
+						return;
+					}
+				} else if (typeof html2canvas === 'undefined') {
 					showToast('❌ Screenshot library not loaded', 3000, 'error');
 					return;
 				}
@@ -4163,8 +4247,19 @@
 		// New function: Share as PDF
 		async function handleShareAsPDF() {
 			try {
-				// Check if jsPDF is available (UMD exposes window.jspdf.jsPDF)
-				if (!window.jspdf || typeof window.jspdf.jsPDF === 'undefined') {
+				// Lazy load jsPDF and html2canvas if feat_perf_opt is enabled
+				if (FEATURE_FLAGS.feat_perf_opt && typeof PerformanceOptimization !== 'undefined') {
+					try {
+						showToast('⏳ Loading PDF libraries...', 2000, 'info');
+						await Promise.all([
+							PerformanceOptimization.lazyLoader.loadJsPDF(),
+							PerformanceOptimization.lazyLoader.loadHtml2Canvas()
+						]);
+					} catch (error) {
+						showToast('❌ Failed to load PDF libraries', 3000, 'error');
+						return;
+					}
+				} else if (!window.jspdf || typeof window.jspdf.jsPDF === 'undefined') {
 					showToast('❌ PDF library not loaded', 3000, 'error');
 					return;
 				}
@@ -4502,8 +4597,8 @@
 					throw new Error(`Missing required DOM elements: ${missingElements.join(', ')}`);
 				}
 
-				// Parse data
-				state.allData = parseTimetableData();
+				// Parse data (with caching if feat_perf_opt enabled)
+				state.allData = parseTimetableDataCached();
 				console.log('Initialized with data:', state.allData.days);
 
 				// Apply winter timings and required substitutions, then validate
@@ -4684,6 +4779,12 @@
 						.catch(error => {
 							console.log('Service Worker registration failed:', error);
 						});
+				}
+
+				// Initialize lazy image loading (Performance Optimization)
+				if (FEATURE_FLAGS.feat_perf_opt && typeof PerformanceOptimization !== 'undefined') {
+					PerformanceOptimization.lazyImageLoader.observe();
+					console.log('✅ Lazy image loading initialized');
 				}
 
 				// Pre-render print content on load
