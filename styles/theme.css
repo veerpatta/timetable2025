@@ -15,18 +15,19 @@
    ======================================== */
 
 :root {
-	/* Semantic Color Tokens - Light Mode */
-	--bg: #ffffff;
-	--bg-secondary: #f9fafb;
-	--bg-gradient-start: #eff6ff;
-	--bg-gradient-end: #f9fafb;
+        /* Semantic Color Tokens - Light Mode */
+        --bg: #ffffff;
+        --bg-secondary: #f9fafb;
+        --bg-gradient-start: #eff6ff;
+        --bg-gradient-end: #f9fafb;
 
-	--card: #ffffff;
-	--card-hover: #f9fafb;
+        --card: #ffffff;
+        --card-hover: #f9fafb;
 
-	--text: #111827;
-	--text-secondary: #4b5563;
-	--text-muted: #6b7280;
+        --text: #111827;
+        --text-secondary: #4b5563;
+        --text-muted: #6b7280;
+        --text-on-primary: #ffffff;
 
 	--primary: #2563eb;
 	--primary-hover: #1d4ed8;
@@ -74,18 +75,19 @@
    ======================================== */
 
 [data-theme="dark"] {
-	/* Semantic Color Tokens - Dark Mode */
-	--bg: #1a1a2e;
-	--bg-secondary: #0f0f1e;
-	--bg-gradient-start: #1a1a2e;
-	--bg-gradient-end: #16213e;
+        /* Semantic Color Tokens - Dark Mode */
+        --bg: #1a1a2e;
+        --bg-secondary: #0f0f1e;
+        --bg-gradient-start: #1a1a2e;
+        --bg-gradient-end: #16213e;
 
-	--card: #16213e;
-	--card-hover: #1e2d4d;
+        --card: #16213e;
+        --card-hover: #1e2d4d;
 
-	--text: #e8e8e8;
-	--text-secondary: #b8b8b8;
-	--text-muted: #8b8b8b;
+        --text: #e8e8e8;
+        --text-secondary: #b8b8b8;
+        --text-muted: #8b8b8b;
+        --text-on-primary: #ffffff;
 
 	--primary: #4a7c7e;
 	--primary-hover: #5a8c8e;
@@ -316,9 +318,9 @@ textarea,
 
 /* Buttons */
 [data-theme="dark"] button:not(.nav-button):not(#theme-toggle) {
-	background: var(--primary);
-	color: var(--bg);
-	border-color: var(--primary);
+        background: var(--primary);
+        color: var(--text-on-primary);
+        border-color: var(--primary);
 }
 
 [data-theme="dark"] button:not(.nav-button):not(#theme-toggle):hover {
