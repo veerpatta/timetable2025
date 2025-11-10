@@ -226,8 +226,39 @@
 	 */
 	function isFeatureEnabled() {
 		try {
-			const value = localStorage.getItem(FEATURE_FLAG);
-			return value === 'true' || value === '1' || value === 'enabled';
+			const storedValue = localStorage.getItem(FEATURE_FLAG);
+
+			if (storedValue !== null && storedValue !== undefined) {
+				const normalizedValue = String(storedValue).trim().toLowerCase();
+
+				if (
+						normalizedValue === 'false' ||
+						normalizedValue === '0' ||
+						normalizedValue === 'disabled' ||
+						normalizedValue === 'off'
+				) {
+					return false;
+				}
+
+				if (
+						normalizedValue === 'true' ||
+						normalizedValue === '1' ||
+						normalizedValue === 'enabled' ||
+						normalizedValue === 'on'
+				) {
+					return true;
+				}
+
+				// Fallback to enabled for unrecognized but existing values
+				return true;
+			}
+
+			const featureFlags = window.FEATURE_FLAGS || {};
+			if (Object.prototype.hasOwnProperty.call(featureFlags, FEATURE_FLAG)) {
+				return Boolean(featureFlags[FEATURE_FLAG]);
+			}
+
+			return true; // Default to enabled when no stored value exists
 		} catch (e) {
 			console.warn('Unable to read feature flag from localStorage:', e);
 			return true; // Default to enabled if localStorage is unavailable
