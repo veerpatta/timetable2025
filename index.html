@@ -29,9 +29,6 @@
 	<!-- THEME SYSTEM -->
 	<link rel="stylesheet" href="./styles/theme.css">
 
-	<!-- MOTION SYSTEM -->
-	<link rel="stylesheet" href="./styles/motion.css">
-
 	<!-- STYLES -->
 	<style>
 		/* CSS Variables for Theme */
@@ -1366,7 +1363,6 @@
 		 */
 		const FEATURE_FLAGS = {
 			feat_dark_mode: true, // Toggle this to enable/disable dark mode
-			feat_motion: true, // Toggle this to enable/disable micro-interactions and animations
 		};
 
 		/**
@@ -2912,28 +2908,28 @@
 						<div id=\"free-teacher-finder-container\"></div>
 					</div>
 
-					<div class="card motion-slide-up">
+					<div class="card">
 						<h2 style="font-size: 1.25rem; font-weight: 700; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
 							<i data-lucide=\"zap\" style=\"width: 20px; height: 20px;\"></i>
 							Quick Actions
 						</h2>
 						<div class="grid grid-cols-1 grid-cols-md-2 gap-4">
-							<button class="button button-primary motion-ripple motion-hover-lift" onclick="switchView('Day')" style="background: linear-gradient(135deg, var(--primary-600), var(--primary-700));">
-								<i data-lucide="calendar"></i>
+							<button class="button button-primary" onclick="switchView('Day')" style="background: linear-gradient(135deg, var(--primary-600), var(--primary-700));">
+								<i data-lucide="calendar"></i> 
 								<span class="mobile-only">Today's Schedule</span>
 								<span class="desktop-only">View Today's Schedule</span>
 							</button>
-							<button class="button button-primary motion-ripple motion-hover-lift" onclick="switchView('Substitution')" style="background: linear-gradient(135deg, var(--green-500), var(--green-600));">
+							<button class="button button-primary" onclick="switchView('Substitution')" style="background: linear-gradient(135deg, var(--green-500), var(--green-600));">
 								<i data-lucide="user-cog"></i>
 								<span class="mobile-only">Substitutions</span>
 								<span class="desktop-only">Manage Substitutions</span>
 							</button>
-							<button class="button button-secondary motion-ripple motion-hover-lift" onclick="switchView('Class')" style="background: linear-gradient(135deg, var(--yellow-500), var(--yellow-600)); color: white;">
+							<button class="button button-secondary" onclick="switchView('Class')" style="background: linear-gradient(135deg, var(--yellow-500), var(--yellow-600)); color: white;">
 								<i data-lucide="school"></i>
 								<span class="mobile-only">Classes</span>
 								<span class="desktop-only">Browse Classes</span>
 							</button>
-							<button class="button button-secondary motion-ripple motion-hover-lift" onclick="switchView('Teacher')" style="background: linear-gradient(135deg, var(--red-500), var(--red-600)); color: white;">
+							<button class="button button-secondary" onclick="switchView('Teacher')" style="background: linear-gradient(135deg, var(--red-500), var(--red-600)); color: white;">
 								<i data-lucide="users"></i>
 								<span class="mobile-only">Teachers</span>
 								<span class="desktop-only">Teacher Schedules</span>
@@ -2942,7 +2938,7 @@
 					</div>
 
 					<div class="flex justify-center gap-4" style="margin-top: 1.5rem;">
-						<button onclick="handlePrint()" class="button button-secondary motion-ripple motion-press" style="max-width:250px;">
+						<button onclick="handlePrint()" class="button button-secondary" style="max-width:250px;">
 							<i data-lucide="printer"></i> Print Complete Timetable
 						</button>
 					</div>
@@ -3926,37 +3922,17 @@
 				clearInterval(window.dashboardInterval);
 				window.dashboardInterval = null;
 			}
-
+			
 			// Swipe handlers cleanup removed
 
 			state.currentView = view;
-
+			
 			// Update navigation
 			document.querySelectorAll('.nav-button').forEach(btn => btn.classList.remove('active'));
 			const activeBtn = document.getElementById(`nav-${view}`);
 			if (activeBtn) activeBtn.classList.add('active');
 
-			// Add page transition animation if motion system is available
-			const mainContent = document.getElementById('main-content');
-			if (mainContent && window.Motion && window.Motion.shouldAnimate()) {
-				// Fade out current view
-				window.Motion.transitionExit(mainContent, 'fade', () => {
-					// Render new view
-					renderView(view);
-					// Fade in new view
-					window.Motion.transition(mainContent, 'slide');
-				});
-			} else {
-				// Render without animation
-				renderView(view);
-			}
-
-			// Update print content when view changes
-			setTimeout(() => updatePrintContent(), 100);
-		}
-
-		// Helper function to render view
-		function renderView(view) {
+			// Render view
 			switch(view) {
 				case 'Dashboard':
 					renderDashboard();
@@ -3976,6 +3952,9 @@
 				default:
 					renderDashboard();
 			}
+
+			// Update print content when view changes
+			setTimeout(() => updatePrintContent(), 100);
 		}
 
 		// --- SUBSTITUTION MANAGEMENT ---
@@ -4511,24 +4490,9 @@
 				// Validate required DOM elements exist
 				const requiredElements = ['main-content', 'print-capture-area', 'print-header-title', 'print-header-subtitle', 'print-content'];
 				const missingElements = requiredElements.filter(id => !document.getElementById(id));
-
+				
 				if (missingElements.length > 0) {
 					throw new Error(`Missing required DOM elements: ${missingElements.join(', ')}`);
-				}
-
-				// Show loading skeletons while data is being parsed
-				const mainContent = document.getElementById('main-content');
-				if (mainContent && window.Motion) {
-					mainContent.innerHTML = `
-						<div class="card">
-							<div class="motion-skeleton motion-skeleton-heading"></div>
-							<div class="motion-skeleton motion-skeleton-text"></div>
-							<div class="motion-skeleton motion-skeleton-text"></div>
-						</div>
-						<div class="card">
-							<div class="motion-skeleton motion-skeleton-card"></div>
-						</div>
-					`;
 				}
 
 				// Parse data
@@ -4547,19 +4511,19 @@
 					}
 					showToast('❄️ Winter schedule active: timings updated & sports substitutions applied', 3500, 'success');
 				}
-
+				
 				// Validate parsed data
 				if (!state.allData || !state.allData.days || state.allData.days.length === 0) {
 					throw new Error('Failed to parse timetable data properly');
 				}
-
+				
 				// Initialize substitutions structure
 				state.allData.days.forEach(day => {
 					if (!state.substitutions[day]) {
 						state.substitutions[day] = { plan: {}, absentTeachers: [] };
 					}
 				});
-
+				
 				// Render initial view
 				switchView('Dashboard');
 				
@@ -4804,8 +4768,5 @@
 			console.error('Window object not available');
 		}
 	</script>
-
-	<!-- MOTION SYSTEM -->
-	<script src="./scripts/motion.js"></script>
 </body>
 </html>
