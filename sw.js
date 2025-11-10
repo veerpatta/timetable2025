@@ -9,7 +9,7 @@ const STATIC_ASSETS = [
   './',
   './index.html',
   './manifest.webmanifest',
-  './icons/VPPS Full Logo only.png',
+  './icons/icon-512.png',
   './scripts/perf.js',
   './scripts/a11y.js',
   './scripts/colors.js',
@@ -177,8 +177,8 @@ self.addEventListener('push', event => {
   
   const options = {
     body: event.data ? event.data.text() : 'Timetable update available',
-  icon: './icons/VPPS Full Logo only.png',
-  badge: './icons/VPPS Full Logo only.png',
+  icon: './icons/icon-512.png',
+  badge: './icons/icon-512.png',
     vibrate: [100, 50, 100],
     data: {
       dateOfArrival: Date.now(),
@@ -188,12 +188,12 @@ self.addEventListener('push', event => {
       {
         action: 'explore',
         title: 'View Timetable',
-  icon: './icons/VPPS Full Logo only.png'
+  icon: './icons/icon-512.png'
       },
       {
         action: 'close',
         title: 'Close',
-  icon: './icons/VPPS Full Logo only.png'
+  icon: './icons/icon-512.png'
       }
     ]
   };
