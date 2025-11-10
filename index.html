@@ -1307,42 +1307,66 @@
 
 	/* Fix text colors in dark mode for better contrast */
 	[data-theme="dark"] .subject {
-		color: var(--text);
+		color: var(--text) !important;
 	}
 
 	[data-theme="dark"] .teacher {
-		color: var(--text-secondary);
+		color: var(--text-secondary) !important;
 	}
 
 	[data-theme="dark"] .class-name {
-		color: var(--text-secondary);
+		color: var(--text-secondary) !important;
 	}
 
 	[data-theme="dark"] .stat-card-label {
-		color: var(--text-muted);
+		color: var(--text-secondary) !important;
 	}
 
-	/* Fix button colors in dark mode */
+	/* Fix button colors in dark mode - override inline styles */
 	[data-theme="dark"] .button-secondary {
-		background: var(--primary);
-		color: var(--bg);
-		border-color: var(--primary);
+		background: var(--primary) !important;
+		color: var(--bg) !important;
+		border-color: var(--primary) !important;
 	}
 
 	[data-theme="dark"] .button-secondary:hover {
-		background: var(--primary-hover);
-		border-color: var(--primary-hover);
+		background: var(--primary-hover) !important;
+		border-color: var(--primary-hover) !important;
 	}
 
-	/* Fix dropdown arrow color in dark mode */
+	[data-theme="dark"] .button-danger {
+		background: var(--red-500) !important;
+		color: var(--text) !important;
+	}
+
+	[data-theme="dark"] .button-danger:hover {
+		background: var(--red-600) !important;
+	}
+
+	/* Fix button text/icons to ensure visibility in dark mode */
+	[data-theme="dark"] .button-secondary span,
+	[data-theme="dark"] .button-secondary i {
+		color: var(--bg) !important;
+	}
+
+	/* Fix dropdown styling in dark mode */
 	[data-theme="dark"] select {
-		background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%23e8e8e8' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+		background: var(--bg-secondary) !important;
+		color: var(--text) !important;
+		border-color: var(--border) !important;
+		background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%23e8e8e8' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e") !important;
 	}
 
 	/* Ensure dropdown text and options are visible */
 	[data-theme="dark"] select option {
-		background: var(--bg-secondary);
-		color: var(--text);
+		background: var(--bg-secondary) !important;
+		color: var(--text) !important;
+	}
+
+	/* Fix placeholder text in dark mode */
+	[data-theme="dark"] select::placeholder,
+	[data-theme="dark"] input::placeholder {
+		color: var(--text-muted) !important;
 	}
 
 	/* Fix substitute class styling in dark mode */
@@ -1357,7 +1381,72 @@
 
 	/* Fix table header text in dark mode */
 	[data-theme="dark"] th {
-		color: var(--text);
+		color: var(--text) !important;
+		background: var(--bg-secondary) !important;
+	}
+
+	/* Fix table cell backgrounds and text in dark mode */
+	[data-theme="dark"] td {
+		background: var(--card) !important;
+		color: var(--text) !important;
+	}
+
+	/* Ensure all table text elements are visible */
+	[data-theme="dark"] table * {
+		border-color: var(--border) !important;
+	}
+
+	/* Fix heading colors in dark mode */
+	[data-theme="dark"] h2,
+	[data-theme="dark"] h3,
+	[data-theme="dark"] h4 {
+		color: var(--text) !important;
+	}
+
+	/* Fix card and section heading colors */
+	[data-theme="dark"] .card h2,
+	[data-theme="dark"] .card h3,
+	[data-theme="dark"] .dashboard-card h2,
+	[data-theme="dark"] .dashboard-card h3 {
+		color: var(--text) !important;
+	}
+
+	/* Fix inline styled headings with color values */
+	[data-theme="dark"] h2[style*="color"],
+	[data-theme="dark"] h3[style*="color"] {
+		color: var(--primary-text) !important;
+	}
+
+	/* Fix icon colors in dark mode */
+	[data-theme="dark"] .button i,
+	[data-theme="dark"] .nav-button i {
+		color: currentColor !important;
+	}
+
+	/* Fix card hover states in dark mode */
+	[data-theme="dark"] .card:hover,
+	[data-theme="dark"] .stat-card:hover {
+		background: var(--card-hover) !important;
+	}
+
+	/* Fix any remaining inline text colors in dark mode */
+	[data-theme="dark"] div[style*="color: #"],
+	[data-theme="dark"] span[style*="color: #"],
+	[data-theme="dark"] p[style*="color: #"],
+	[data-theme="dark"] small[style*="color: #"] {
+		color: var(--text-secondary) !important;
+	}
+
+	/* Fix primary colored inline text in dark mode */
+	[data-theme="dark"] [style*="color: #2563eb"],
+	[data-theme="dark"] [style*="color: #1d4ed8"] {
+		color: var(--primary-text) !important;
+	}
+
+	/* Ensure proper contrast for all form labels */
+	[data-theme="dark"] label,
+	[data-theme="dark"] .form-label {
+		color: var(--text) !important;
 	}
 	</style>
 </head>
