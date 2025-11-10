@@ -26,6 +26,9 @@
 	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 	<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
+	<!-- THEME SYSTEM -->
+	<link rel="stylesheet" href="./styles/theme.css">
+
 	<!-- STYLES -->
 	<style>
 		/* CSS Variables for Theme */
@@ -134,6 +137,7 @@
 			margin-bottom: 1rem;
 			box-shadow: var(--shadow-md);
 			text-align: center;
+			position: relative;
 		}
 
 		header h1 {
@@ -1306,6 +1310,9 @@
 
 	<div class="app-container">
 		<header class="no-print">
+			<button id="theme-toggle" aria-label="Toggle dark mode" title="Toggle dark mode">
+				<i data-lucide="sun" id="theme-icon"></i>
+			</button>
 			<h1>📚 Timetable Command Center</h1>
 			<p>Veer Patta Public School, Amet</p>
 		</header>
@@ -1346,6 +1353,158 @@
 	</button>
 
 	<script>
+		// ============================================
+		// THEME SYSTEM (Dark Mode)
+		// Feature Flag: feat_dark_mode
+		// ============================================
+
+		/**
+		 * Feature flags configuration
+		 */
+		const FEATURE_FLAGS = {
+			feat_dark_mode: true, // Toggle this to enable/disable dark mode
+		};
+
+		/**
+		 * Initialize theme system on app load
+		 * Checks localStorage for saved preference, falls back to system preference
+		 * @public
+		 */
+		function initTheme() {
+			// Check if dark mode feature is enabled
+			if (!FEATURE_FLAGS.feat_dark_mode) {
+				console.log('[Theme] Dark mode feature is disabled');
+				return;
+			}
+
+			// Prevent transition flicker on load
+			document.documentElement.classList.add('no-transition');
+
+			// Get stored theme preference
+			const storedTheme = localStorage.getItem('theme');
+
+			// Determine theme: stored > system preference > light (default)
+			let theme;
+			if (storedTheme) {
+				theme = storedTheme;
+			} else {
+				// Check system preference
+				const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+				theme = prefersDark ? 'dark' : 'light';
+			}
+
+			// Apply the theme
+			applyTheme(theme, false); // false = don't save to localStorage yet
+
+			// Re-enable transitions after a brief delay
+			setTimeout(() => {
+				document.documentElement.classList.remove('no-transition');
+			}, 100);
+
+			// Listen for system theme changes
+			window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
+				// Only apply system preference if user hasn't set a manual preference
+				if (!localStorage.getItem('theme')) {
+					const newTheme = e.matches ? 'dark' : 'light';
+					applyTheme(newTheme, false);
+				}
+			});
+
+			console.log('[Theme] Initialized with theme:', theme);
+		}
+
+		/**
+		 * Apply theme to the document
+		 * @param {string} mode - 'light' or 'dark'
+		 * @param {boolean} save - Whether to save preference to localStorage (default: true)
+		 * @public
+		 */
+		function applyTheme(mode, save = true) {
+			// Validate mode
+			if (mode !== 'light' && mode !== 'dark') {
+				console.error('[Theme] Invalid mode:', mode);
+				return;
+			}
+
+			// Apply theme to HTML element
+			document.documentElement.setAttribute('data-theme', mode);
+
+			// Update theme-color meta tag for mobile browsers
+			const themeColorMeta = document.querySelector('meta[name="theme-color"]');
+			if (themeColorMeta) {
+				themeColorMeta.setAttribute('content', mode === 'dark' ? '#1a1a2e' : '#2563eb');
+			}
+
+			// Update toggle button icon
+			const themeIcon = document.getElementById('theme-icon');
+			const themeToggle = document.getElementById('theme-toggle');
+
+			if (themeIcon && themeToggle) {
+				// Add rotation animation
+				themeToggle.classList.add('toggling');
+
+				// Change icon
+				themeIcon.setAttribute('data-lucide', mode === 'dark' ? 'moon' : 'sun');
+
+				// Re-initialize lucide icons to render the new icon
+				if (typeof lucide !== 'undefined' && lucide.createIcons) {
+					lucide.createIcons();
+				}
+
+				// Remove animation class after animation completes
+				setTimeout(() => {
+					themeToggle.classList.remove('toggling');
+				}, 300);
+
+				// Update ARIA label for accessibility
+				themeToggle.setAttribute('aria-label',
+					mode === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'
+				);
+				themeToggle.setAttribute('title',
+					mode === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'
+				);
+			}
+
+			// Save to localStorage if requested
+			if (save) {
+				localStorage.setItem('theme', mode);
+				console.log('[Theme] Saved preference:', mode);
+			}
+
+			// Dispatch custom event for other components to react
+			window.dispatchEvent(new CustomEvent('themechange', { detail: { theme: mode } }));
+		}
+
+		/**
+		 * Toggle between light and dark themes
+		 * @public
+		 */
+		function toggleTheme() {
+			if (!FEATURE_FLAGS.feat_dark_mode) {
+				console.log('[Theme] Dark mode feature is disabled');
+				return;
+			}
+
+			const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
+			const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+			applyTheme(newTheme);
+
+			console.log('[Theme] Toggled to:', newTheme);
+		}
+
+		/**
+		 * Get current theme
+		 * @returns {string} Current theme ('light' or 'dark')
+		 * @public
+		 */
+		function getCurrentTheme() {
+			return document.documentElement.getAttribute('data-theme') || 'light';
+		}
+
+		// ============================================
+		// END THEME SYSTEM
+		// ============================================
+
 		// --- ENHANCED DATA STORE ---
 		const rawData = `Monday
 		Class,Period 1<br>8:30 AM - 9:10 AM,Period 2<br>9:10 AM - 9:50 AM,Period 3<br>9:50 AM - 10:30 AM,Period 4<br>10:30 AM - 11:10 AM,Period 5<br>11:30 AM - 12:10 PM,Period 6<br>12:10 PM - 12:50 PM,Period 7<br>12:50 PM - 01:30 PM,Period 8<br>01:30 PM - 02:10 PM
@@ -4571,6 +4730,16 @@
 		if (typeof window !== 'undefined') {
 			// Add mobile-specific event listeners
 			document.addEventListener('DOMContentLoaded', () => {
+				// Initialize theme system early
+				initTheme();
+
+				// Add theme toggle button event listener
+				const themeToggleBtn = document.getElementById('theme-toggle');
+				if (themeToggleBtn) {
+					themeToggleBtn.addEventListener('click', toggleTheme);
+					console.log('[Theme] Toggle button initialized');
+				}
+
 				// Prevent zoom on double tap
 				let lastTouchEnd = 0;
 				document.addEventListener('touchend', (event) => {
