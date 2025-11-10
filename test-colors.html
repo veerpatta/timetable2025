@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Color Contrast Test - Subject Color Coding</title>
+	<link rel="stylesheet" href="./styles/colors.css">
+	<style>
+		body {
+			font-family: Arial, sans-serif;
+			padding: 20px;
+			background: #f5f5f5;
+		}
+		.test-container {
+			max-width: 800px;
+			margin: 0 auto;
+			background: white;
+			padding: 20px;
+			border-radius: 8px;
+		}
+		.color-test {
+			margin: 20px 0;
+			padding: 20px;
+			border-radius: 8px;
+			border-left: 4px solid;
+		}
+		.contrast-ratio {
+			font-weight: bold;
+			margin-top: 10px;
+		}
+		.pass { color: green; }
+		.fail { color: red; }
+	</style>
+</head>
+<body>
+	<div class="test-container">
+		<h1>Subject Color Coding - Accessibility Test</h1>
+		<p>Testing WCAG AA compliance (contrast ratio ≥4.5:1)</p>
+
+		<div class="color-test subject-color-languages">
+			<h3>Languages Category</h3>
+			<p>Background: #dbeafe | Text: #1e3a8a</p>
+			<p class="contrast-ratio" id="languages-ratio"></p>
+		</div>
+
+		<div class="color-test subject-color-sciences">
+			<h3>Sciences Category</h3>
+			<p>Background: #d1fae5 | Text: #065f46</p>
+			<p class="contrast-ratio" id="sciences-ratio"></p>
+		</div>
+
+		<div class="color-test subject-color-math">
+			<h3>Mathematics Category</h3>
+			<p>Background: #e9d5ff | Text: #581c87</p>
+			<p class="contrast-ratio" id="math-ratio"></p>
+		</div>
+
+		<div class="color-test subject-color-social">
+			<h3>Social Studies Category</h3>
+			<p>Background: #fed7aa | Text: #7c2d12</p>
+			<p class="contrast-ratio" id="social-ratio"></p>
+		</div>
+
+		<div class="color-test subject-color-sports">
+			<h3>Sports & Activities Category</h3>
+			<p>Background: #fecaca | Text: #7f1d1d</p>
+			<p class="contrast-ratio" id="sports-ratio"></p>
+		</div>
+
+		<h2>Sample Subjects</h2>
+		<div id="subject-samples"></div>
+	</div>
+
+	<script>
+		// Calculate relative luminance
+		function getLuminance(r, g, b) {
+			const [rs, gs, bs] = [r, g, b].map(c => {
+				c = c / 255;
+				return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4);
+			});
+			return 0.2126 * rs + 0.7152 * gs + 0.0722 * bs;
+		}
+
+		// Calculate contrast ratio
+		function getContrastRatio(color1, color2) {
+			const l1 = getLuminance(...hexToRgb(color1));
+			const l2 = getLuminance(...hexToRgb(color2));
+			const lighter = Math.max(l1, l2);
+			const darker = Math.min(l1, l2);
+			return (lighter + 0.05) / (darker + 0.05);
+		}
+
+		// Convert hex to RGB
+		function hexToRgb(hex) {
+			const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+			return result ? [
+				parseInt(result[1], 16),
+				parseInt(result[2], 16),
+				parseInt(result[3], 16)
+			] : null;
+		}
+
+		// Test colors
+		const tests = [
+			{ id: 'languages', bg: '#dbeafe', text: '#1e3a8a' },
+			{ id: 'sciences', bg: '#d1fae5', text: '#065f46' },
+			{ id: 'math', bg: '#e9d5ff', text: '#581c87' },
+			{ id: 'social', bg: '#fed7aa', text: '#7c2d12' },
+			{ id: 'sports', bg: '#fecaca', text: '#7f1d1d' }
+		];
+
+		tests.forEach(test => {
+			const ratio = getContrastRatio(test.bg, test.text);
+			const passes = ratio >= 4.5;
+			const el = document.getElementById(`${test.id}-ratio`);
+			el.innerHTML = `Contrast Ratio: <span class="${passes ? 'pass' : 'fail'}">${ratio.toFixed(2)}:1 ${passes ? '✓ PASS' : '✗ FAIL'}</span>`;
+		});
+
+		// Sample subjects
+		const subjects = [
+			'English', 'Hindi', 'Sanskrit', 'ELGA',
+			'Science', 'Physics', 'Chemistry', 'Biology', 'EVS',
+			'Maths', 'Mathematics',
+			'SST', 'History', 'Geography', 'Political Science', 'Economics', 'Accountancy', 'Business',
+			'Sports', 'Physical Education', 'PT', 'Games'
+		];
+
+		const samplesContainer = document.getElementById('subject-samples');
+		subjects.forEach(subject => {
+			const div = document.createElement('div');
+			div.className = 'subject';
+			div.textContent = subject;
+			div.style.display = 'inline-block';
+			div.style.margin = '5px';
+			div.style.padding = '10px 15px';
+			div.style.borderRadius = '6px';
+			samplesContainer.appendChild(div);
+		});
+	</script>
+	<script src="./scripts/colors.js"></script>
+</body>
+</html>
