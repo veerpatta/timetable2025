@@ -50,7 +50,7 @@ The following assets were added to `STATIC_ASSETS` array:
 - `./` - Root path
 - `./index.html` - Main application
 - `./manifest.webmanifest` - PWA manifest
-- `./icons/VPPS Full Logo only.png` - School logo
+- `./icons/icon-512.png` - School logo
 - External CDN resources:
   - html2canvas (1.4.1)
   - jsPDF (2.5.1)
@@ -114,7 +114,7 @@ The following assets were added to `STATIC_ASSETS` array:
 - ✅ All 12 local assets are cached:
   - `/` or `/index.html`
   - `/manifest.webmanifest`
-  - `/icons/VPPS Full Logo only.png`
+  - `/icons/icon-512.png`
   - `/scripts/perf.js`
   - `/scripts/a11y.js`
   - `/scripts/colors.js`
@@ -136,7 +136,7 @@ Cache Storage
     ├── http://localhost:8000/
     ├── http://localhost:8000/index.html
     ├── http://localhost:8000/manifest.webmanifest
-    ├── http://localhost:8000/icons/VPPS Full Logo only.png
+    ├── http://localhost:8000/icons/icon-512.png
     ├── http://localhost:8000/scripts/perf.js
     ├── http://localhost:8000/scripts/a11y.js
     ├── http://localhost:8000/scripts/colors.js
