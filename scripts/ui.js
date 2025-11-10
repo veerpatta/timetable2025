@@ -288,6 +288,9 @@
      * });
      * sheet.show();
      */
+    // Track instances so each sheet title receives a unique ID for accessibility attributes.
+    let bottomSheetInstanceCounter = 0;
+
     class ModernBottomSheet {
         /**
          * @param {Object} options - Configuration options
@@ -319,7 +322,9 @@
             sheet.className = 'modern-bottom-sheet';
             sheet.setAttribute('role', 'dialog');
             sheet.setAttribute('aria-modal', 'true');
-            sheet.setAttribute('aria-labelledby', 'bottom-sheet-title');
+            const titleId = `bottom-sheet-title-${++bottomSheetInstanceCounter}`;
+            this.titleId = titleId;
+            sheet.setAttribute('aria-labelledby', titleId);
 
             // Handle for dragging
             const handle = document.createElement('div');
@@ -333,7 +338,7 @@
 
             const title = document.createElement('h2');
             title.className = 'modern-bottom-sheet-title';
-            title.id = 'bottom-sheet-title';
+            title.id = titleId;
             title.textContent = this.options.title;
 
             const closeBtn = document.createElement('button');
