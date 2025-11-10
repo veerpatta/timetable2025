@@ -29,6 +29,9 @@
 	<!-- THEME SYSTEM -->
 	<link rel="stylesheet" href="./styles/theme.css">
 
+	<!-- DASHBOARD ANALYTICS -->
+	<link rel="stylesheet" href="./styles/dashboard.css">
+
 	<!-- STYLES -->
 	<style>
 		/* CSS Variables for Theme */
@@ -2896,10 +2899,29 @@
 		const debouncedRenderFreeTeacher = debounce(renderFreeTeacherFinder, 300);
 
 		// --- DASHBOARD RENDER ---
-		function renderDashboard() {
+		async function renderDashboard() {
 			try {
 				// Place Live Free Teacher Finder at the very top and remove extra stat cards
-				const html = `
+			// Try to render analytics dashboard if available
+			let analyticsHtml = null;
+			if (window.DashboardAnalytics && window.DashboardAnalytics.FEATURE_FLAGS.feat_dashboard_analytics) {
+				try {
+					analyticsHtml = await window.DashboardAnalytics.renderAnalyticsDashboard(state);
+				} catch (error) {
+					console.warn('Analytics dashboard failed, falling back to classic:', error);
+				}
+			}
+
+			// Build dashboard HTML
+			let html = '';
+
+			// Add analytics section if available
+			if (analyticsHtml) {
+				html += '<div class="card" style="padding: 1.5rem;">' + analyticsHtml + '</div>';
+			}
+
+			// Add Live Free Teacher Finder
+			html += `
 					<div class="card">
 						<h2 style="font-size: 1.25rem; font-weight: 700; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
 							<i data-lucide=\"search\" style=\"width: 20px; height: 20px;\"></i>
@@ -2947,6 +2969,11 @@
 				mainContent.innerHTML = html;
 				renderFreeTeacherFinder();
 				lucide.createIcons();
+
+			// Initialize analytics charts if analytics was rendered
+			if (analyticsHtml && window.DashboardAnalytics) {
+				window.DashboardAnalytics.initializeCharts(state);
+			}
 
 				// Auto-refresh free teachers every 30 seconds
 				if (!window.dashboardInterval) {
@@ -4768,5 +4795,8 @@
 			console.error('Window object not available');
 		}
 	</script>
+
+	<!-- DASHBOARD ANALYTICS MODULE -->
+	<script src="./scripts/dashboard.js"></script>
 </body>
 </html>
