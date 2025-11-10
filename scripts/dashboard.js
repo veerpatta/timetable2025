@@ -151,7 +151,6 @@
 	function generateInsights(state) {
 		const insights = [];
 		const today = getCurrentDay();
-		const teacherDetails = state.allData?.teacherDetails || {};
 		const substitutions = state.substitutions || {};
 		const workloadData = calculateTeacherWorkload(state);
 
@@ -177,8 +176,8 @@
 
 		// Insight 3: Substitution distribution
 		const todaySubs = substitutions[today]?.plan || {};
-		const totalSubsToday = Object.values(todaySubs).reduce((acc, classSubstituions) =>
-			acc + Object.keys(classSubstituions).length, 0
+		const totalSubsToday = Object.values(todaySubs).reduce((acc, classSubstitutions) =>
+			acc + Object.keys(classSubstitutions).length, 0
 		);
 
 		if (totalSubsToday > 5) {
@@ -199,8 +198,8 @@
 		const subFrequency = {};
 		Object.keys(substitutions).forEach(day => {
 			const daySubs = substitutions[day]?.plan || {};
-			Object.values(daySubs).forEach(classSubstituions => {
-				Object.values(classSubstituions).forEach(teacher => {
+			Object.values(daySubs).forEach(classSubstitutions => {
+				Object.values(classSubstitutions).forEach(teacher => {
 					subFrequency[teacher] = (subFrequency[teacher] || 0) + 1;
 				});
 			});
@@ -466,7 +465,6 @@
 	 */
 	function calculateQuickStats(state) {
 		const today = getCurrentDay();
-		const teacherDetails = state.allData?.teacherDetails || {};
 		const substitutions = state.substitutions || {};
 		const workloadData = calculateTeacherWorkload(state);
 
@@ -478,8 +476,8 @@
 
 		// Total substitutions today
 		const todaySubs = substitutions[today]?.plan || {};
-		const totalSubsToday = Object.values(todaySubs).reduce((acc, classSubstituions) =>
-			acc + Object.keys(classSubstituions).length, 0
+		const totalSubsToday = Object.values(todaySubs).reduce((acc, classSubstitutions) =>
+			acc + Object.keys(classSubstitutions).length, 0
 		);
 
 		// Average workload

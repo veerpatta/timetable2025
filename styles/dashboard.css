@@ -255,7 +255,7 @@
 
 /* Insight types */
 .insight-success {
-	background: var(--green-500, #10b981)10;
+	background: #10b9811a;
 	border-left-color: var(--green-500, #10b981);
 }
 
@@ -264,7 +264,7 @@
 }
 
 .insight-warning {
-	background: var(--yellow-500, #f59e0b)10;
+	background: #f59e0b1a;
 	border-left-color: var(--yellow-500, #f59e0b);
 }
 
@@ -273,7 +273,7 @@
 }
 
 .insight-info {
-	background: var(--primary, #2563eb)10;
+	background: #2563eb1a;
 	border-left-color: var(--primary, #2563eb);
 }
 
@@ -282,7 +282,7 @@
 }
 
 .insight-danger {
-	background: var(--red-500, #ef4444)10;
+	background: #ef44441a;
 	border-left-color: var(--red-500, #ef4444);
 }
 

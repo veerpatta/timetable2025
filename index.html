@@ -2117,7 +2117,6 @@
 					}
 
 					timetable[day] = {};
-					let headerProcessed = false;
 					
 					// Process each line for this day
 					for (let lineIndex = 0; lineIndex < dayData.length; lineIndex++) {
@@ -2157,7 +2156,6 @@
 								});
 								console.log(`✅ Headers extracted: ${headers.length} periods`);
 							}
-							headerProcessed = true;
 							continue; // CRITICAL: Skip processing this line as class data
 						}
 						
@@ -3784,7 +3782,7 @@
 
 		// --- FIX SUBSTITUTION VIEW ---
 		function renderSubstitutionView(day = null, absentTeachers = []) {
-			const { teacherNames, periodHeaders, teacherDetails, timetable, days } = state.allData;
+			const { teacherNames, periodHeaders, teacherDetails } = state.allData;
 			// Always default to the current day when none is provided
 			const currentDay = getCurrentDay();
 			const selectedDay = day || currentDay;
@@ -3994,7 +3992,7 @@
 					return;
 				}
 
-				const { teacherDetails, timetable } = state.allData;
+				const { teacherDetails } = state.allData;
 				const vacantSlots = [];
 
 				// Find all slots that need substitution
