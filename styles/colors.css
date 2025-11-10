@@ -1,0 +1,312 @@
+/**
+ * Subject Color Coding System
+ * Veer Patta Public School Timetable Command Center
+ *
+ * All colors meet WCAG AA contrast ratio requirements (≥4.5:1)
+ * Feature Flag: feat_color_coding
+ */
+
+/* ==========================================
+   COLOR CATEGORY VARIABLES
+   ========================================== */
+
+:root {
+	/* Languages - Blue Shades */
+	--color-languages-bg: #dbeafe;
+	--color-languages-text: #1e3a8a;
+	--color-languages-border: #3b82f6;
+	--color-languages-hover: #bfdbfe;
+
+	/* Sciences - Green Shades */
+	--color-sciences-bg: #d1fae5;
+	--color-sciences-text: #065f46;
+	--color-sciences-border: #10b981;
+	--color-sciences-hover: #a7f3d0;
+
+	/* Mathematics - Purple Shades */
+	--color-math-bg: #e9d5ff;
+	--color-math-text: #581c87;
+	--color-math-border: #9333ea;
+	--color-math-hover: #ddd6fe;
+
+	/* Social Studies - Orange Shades */
+	--color-social-bg: #fed7aa;
+	--color-social-text: #7c2d12;
+	--color-social-border: #f97316;
+	--color-social-hover: #fecb95;
+
+	/* Sports & Activities - Red Shades */
+	--color-sports-bg: #fecaca;
+	--color-sports-text: #7f1d1d;
+	--color-sports-border: #ef4444;
+	--color-sports-hover: #fca5a5;
+
+	/* Default/Neutral - Gray Shades */
+	--color-default-bg: #f3f4f6;
+	--color-default-text: #374151;
+	--color-default-border: #9ca3af;
+	--color-default-hover: #e5e7eb;
+}
+
+/* ==========================================
+   SUBJECT COLOR CLASSES
+   ========================================== */
+
+/* Languages Category */
+.subject-color-languages,
+.subject[data-category="languages"] {
+	background-color: var(--color-languages-bg);
+	color: var(--color-languages-text);
+	border-left: 4px solid var(--color-languages-border);
+}
+
+.subject-color-languages:hover,
+.subject[data-category="languages"]:hover {
+	background-color: var(--color-languages-hover);
+}
+
+/* Sciences Category */
+.subject-color-sciences,
+.subject[data-category="sciences"] {
+	background-color: var(--color-sciences-bg);
+	color: var(--color-sciences-text);
+	border-left: 4px solid var(--color-sciences-border);
+}
+
+.subject-color-sciences:hover,
+.subject[data-category="sciences"]:hover {
+	background-color: var(--color-sciences-hover);
+}
+
+/* Mathematics Category */
+.subject-color-math,
+.subject[data-category="math"] {
+	background-color: var(--color-math-bg);
+	color: var(--color-math-text);
+	border-left: 4px solid var(--color-math-border);
+}
+
+.subject-color-math:hover,
+.subject[data-category="math"]:hover {
+	background-color: var(--color-math-hover);
+}
+
+/* Social Studies Category */
+.subject-color-social,
+.subject[data-category="social"] {
+	background-color: var(--color-social-bg);
+	color: var(--color-social-text);
+	border-left: 4px solid var(--color-social-border);
+}
+
+.subject-color-social:hover,
+.subject[data-category="social"]:hover {
+	background-color: var(--color-social-hover);
+}
+
+/* Sports & Activities Category */
+.subject-color-sports,
+.subject[data-category="sports"] {
+	background-color: var(--color-sports-bg);
+	color: var(--color-sports-text);
+	border-left: 4px solid var(--color-sports-border);
+}
+
+.subject-color-sports:hover,
+.subject[data-category="sports"]:hover {
+	background-color: var(--color-sports-hover);
+}
+
+/* Default/Neutral */
+.subject-color-default,
+.subject[data-category="default"] {
+	background-color: var(--color-default-bg);
+	color: var(--color-default-text);
+	border-left: 4px solid var(--color-default-border);
+}
+
+.subject-color-default:hover,
+.subject[data-category="default"]:hover {
+	background-color: var(--color-default-hover);
+}
+
+/* ==========================================
+   COLOR LEGEND COMPONENT
+   ========================================== */
+
+.color-legend {
+	background: white;
+	border-radius: 8px;
+	padding: 16px;
+	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+	margin: 16px 0;
+}
+
+.color-legend-title {
+	font-size: 14px;
+	font-weight: 600;
+	color: var(--gray-900);
+	margin-bottom: 12px;
+	display: flex;
+	align-items: center;
+	gap: 8px;
+}
+
+.color-legend-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+	gap: 8px;
+}
+
+.color-legend-item {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	padding: 8px;
+	border-radius: 6px;
+	font-size: 13px;
+	transition: transform 0.2s ease;
+}
+
+.color-legend-item:hover {
+	transform: translateX(4px);
+}
+
+.color-legend-indicator {
+	width: 24px;
+	height: 24px;
+	border-radius: 4px;
+	border: 2px solid;
+	flex-shrink: 0;
+}
+
+.color-legend-label {
+	font-weight: 500;
+}
+
+/* Specific legend items */
+.color-legend-item.languages {
+	background-color: var(--color-languages-bg);
+	color: var(--color-languages-text);
+}
+
+.color-legend-item.languages .color-legend-indicator {
+	background-color: var(--color-languages-border);
+	border-color: var(--color-languages-text);
+}
+
+.color-legend-item.sciences {
+	background-color: var(--color-sciences-bg);
+	color: var(--color-sciences-text);
+}
+
+.color-legend-item.sciences .color-legend-indicator {
+	background-color: var(--color-sciences-border);
+	border-color: var(--color-sciences-text);
+}
+
+.color-legend-item.math {
+	background-color: var(--color-math-bg);
+	color: var(--color-math-text);
+}
+
+.color-legend-item.math .color-legend-indicator {
+	background-color: var(--color-math-border);
+	border-color: var(--color-math-text);
+}
+
+.color-legend-item.social {
+	background-color: var(--color-social-bg);
+	color: var(--color-social-text);
+}
+
+.color-legend-item.social .color-legend-indicator {
+	background-color: var(--color-social-border);
+	border-color: var(--color-social-text);
+}
+
+.color-legend-item.sports {
+	background-color: var(--color-sports-bg);
+	color: var(--color-sports-text);
+}
+
+.color-legend-item.sports .color-legend-indicator {
+	background-color: var(--color-sports-border);
+	border-color: var(--color-sports-text);
+}
+
+/* ==========================================
+   RESPONSIVE ADJUSTMENTS
+   ========================================== */
+
+@media (max-width: 768px) {
+	.color-legend-grid {
+		grid-template-columns: 1fr;
+		gap: 6px;
+	}
+
+	.color-legend {
+		padding: 12px;
+	}
+
+	.color-legend-item {
+		font-size: 12px;
+		padding: 6px;
+	}
+
+	.color-legend-indicator {
+		width: 20px;
+		height: 20px;
+	}
+}
+
+/* ==========================================
+   PRINT STYLES
+   ========================================== */
+
+@media print {
+	.color-legend {
+		break-inside: avoid;
+		page-break-inside: avoid;
+	}
+
+	/* Ensure colors are visible in print */
+	.subject[data-category] {
+		border-left-width: 3px !important;
+		-webkit-print-color-adjust: exact;
+		print-color-adjust: exact;
+	}
+}
+
+/* ==========================================
+   ACCESSIBILITY ENHANCEMENTS
+   ========================================== */
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+	.subject[data-category] {
+		border-left-width: 5px;
+	}
+
+	.color-legend-indicator {
+		border-width: 3px;
+	}
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+	.color-legend-item {
+		transition: none;
+	}
+
+	.color-legend-item:hover {
+		transform: none;
+	}
+}
+
+/* Focus styles for keyboard navigation */
+.subject[data-category]:focus,
+.color-legend-item:focus {
+	outline: 3px solid currentColor;
+	outline-offset: 2px;
+}

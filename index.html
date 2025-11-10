@@ -29,6 +29,9 @@
 	<!-- THEME SYSTEM -->
 	<link rel="stylesheet" href="./styles/theme.css">
 
+	<!-- COLOR CODING SYSTEM -->
+	<link rel="stylesheet" href="./styles/colors.css">
+
 	<!-- STYLES -->
 	<style>
 		/* CSS Variables for Theme */
@@ -1340,6 +1343,9 @@
 			</button>
 		</nav>
 
+		<!-- Color Legend Container -->
+		<div id="color-legend-container" class="no-print"></div>
+
 		<main id="main-content" class="main-content"></main>
 
 		<footer class="no-print">
@@ -1363,6 +1369,7 @@
 		 */
 		const FEATURE_FLAGS = {
 			feat_dark_mode: true, // Toggle this to enable/disable dark mode
+			feat_color_coding: true, // Toggle this to enable/disable subject color coding
 		};
 
 		/**
@@ -4768,5 +4775,8 @@
 			console.error('Window object not available');
 		}
 	</script>
+
+	<!-- Subject Color Coding System -->
+	<script src="./scripts/colors.js"></script>
 </body>
 </html>
