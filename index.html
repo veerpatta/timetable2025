@@ -1300,6 +1300,65 @@
 			will-change: transform;
 			transform: translateZ(0);
 		}
+
+	/* ========================================
+	   DARK MODE CONTRAST FIXES
+	   ======================================== */
+
+	/* Fix text colors in dark mode for better contrast */
+	[data-theme="dark"] .subject {
+		color: var(--text);
+	}
+
+	[data-theme="dark"] .teacher {
+		color: var(--text-secondary);
+	}
+
+	[data-theme="dark"] .class-name {
+		color: var(--text-secondary);
+	}
+
+	[data-theme="dark"] .stat-card-label {
+		color: var(--text-muted);
+	}
+
+	/* Fix button colors in dark mode */
+	[data-theme="dark"] .button-secondary {
+		background: var(--primary);
+		color: var(--bg);
+		border-color: var(--primary);
+	}
+
+	[data-theme="dark"] .button-secondary:hover {
+		background: var(--primary-hover);
+		border-color: var(--primary-hover);
+	}
+
+	/* Fix dropdown arrow color in dark mode */
+	[data-theme="dark"] select {
+		background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%23e8e8e8' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+	}
+
+	/* Ensure dropdown text and options are visible */
+	[data-theme="dark"] select option {
+		background: var(--bg-secondary);
+		color: var(--text);
+	}
+
+	/* Fix substitute class styling in dark mode */
+	[data-theme="dark"] .substitute {
+		color: var(--primary-text);
+	}
+
+	/* Fix timetable extra info text in dark mode */
+	[data-theme="dark"] .timetable-row .extra {
+		color: var(--text-secondary);
+	}
+
+	/* Fix table header text in dark mode */
+	[data-theme="dark"] th {
+		color: var(--text);
+	}
 	</style>
 </head>
 <body>
