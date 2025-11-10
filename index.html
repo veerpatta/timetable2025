@@ -1322,32 +1322,32 @@
 		color: var(--text-secondary) !important;
 	}
 
-	/* Fix button colors in dark mode - override inline styles */
-	[data-theme="dark"] .button-secondary {
-		background: var(--primary) !important;
-		color: var(--bg) !important;
-		border-color: var(--primary) !important;
-	}
+        /* Fix button colors in dark mode - override inline styles */
+        [data-theme="dark"] .button-secondary {
+                background: var(--primary) !important;
+                color: var(--text-on-primary) !important;
+                border-color: var(--primary) !important;
+        }
 
-	[data-theme="dark"] .button-secondary:hover {
-		background: var(--primary-hover) !important;
-		border-color: var(--primary-hover) !important;
-	}
+        [data-theme="dark"] .button-secondary:hover {
+                background: var(--primary-hover) !important;
+                border-color: var(--primary-hover) !important;
+        }
 
-	[data-theme="dark"] .button-danger {
-		background: var(--red-500) !important;
-		color: var(--text) !important;
-	}
+        [data-theme="dark"] .button-danger {
+                background: var(--red-500) !important;
+                color: var(--bg) !important;
+        }
 
-	[data-theme="dark"] .button-danger:hover {
-		background: var(--red-600) !important;
-	}
+        [data-theme="dark"] .button-danger:hover {
+                background: var(--red-600) !important;
+        }
 
-	/* Fix button text/icons to ensure visibility in dark mode */
-	[data-theme="dark"] .button-secondary span,
-	[data-theme="dark"] .button-secondary i {
-		color: var(--bg) !important;
-	}
+        /* Fix button text/icons to ensure visibility in dark mode */
+        [data-theme="dark"] .button-secondary span,
+        [data-theme="dark"] .button-secondary i {
+                color: var(--text-on-primary) !important;
+        }
 
 	/* Fix dropdown styling in dark mode */
 	[data-theme="dark"] select {
