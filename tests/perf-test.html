@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Performance Test - Virtual Scrolling & Caching</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            color: #2563eb;
+            margin-bottom: 20px;
+        }
+
+        .controls {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #f9fafb;
+            border-radius: 6px;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            padding: 10px 20px;
+            background: #2563eb;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+        }
+
+        button:hover {
+            background: #1d4ed8;
+        }
+
+        button.secondary {
+            background: #6b7280;
+        }
+
+        button.secondary:hover {
+            background: #4b5563;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            padding: 15px;
+            background: #eff6ff;
+            border-radius: 6px;
+            border-left: 4px solid #2563eb;
+        }
+
+        .stat-label {
+            font-size: 0.875rem;
+            color: #6b7280;
+            margin-bottom: 5px;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #1e3a8a;
+        }
+
+        .test-section {
+            margin-bottom: 30px;
+        }
+
+        .test-section h2 {
+            color: #374151;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e5e7eb;
+        }
+
+        .table-container {
+            height: 600px;
+            overflow: auto;
+            border: 2px solid #e5e7eb;
+            border-radius: 6px;
+            margin-bottom: 15px;
+        }
+
+        .table-row {
+            padding: 12px 15px;
+            border-bottom: 1px solid #e5e7eb;
+            display: grid;
+            grid-template-columns: 60px 150px 150px 1fr 100px;
+            gap: 15px;
+            background: white;
+            transition: background 0.15s;
+        }
+
+        .table-row:hover {
+            background: #f9fafb;
+        }
+
+        .table-row.header {
+            background: #1e40af;
+            color: white;
+            font-weight: 600;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .table-row.header:hover {
+            background: #1e40af;
+        }
+
+        .log {
+            background: #1f2937;
+            color: #10b981;
+            padding: 15px;
+            border-radius: 6px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.875rem;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .log-entry {
+            margin-bottom: 5px;
+        }
+
+        .log-entry.success { color: #10b981; }
+        .log-entry.error { color: #ef4444; }
+        .log-entry.info { color: #60a5fa; }
+        .log-entry.warning { color: #f59e0b; }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .badge.success { background: #d1fae5; color: #065f46; }
+        .badge.error { background: #fee2e2; color: #991b1b; }
+        .badge.info { background: #dbeafe; color: #1e40af; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>⚡ Performance Optimization Tests</h1>
+
+        <div class="controls">
+            <button onclick="runVirtualScrollTest()">🚀 Test Virtual Scrolling (500 rows)</button>
+            <button onclick="runCacheTest()">💾 Test Cache System</button>
+            <button onclick="runDebounceTest()">⏱️ Test Debouncing</button>
+            <button onclick="runLazyLoadTest()">📦 Test Lazy Loading</button>
+            <button onclick="clearLogs()" class="secondary">🗑️ Clear Logs</button>
+        </div>
+
+        <div class="stats">
+            <div class="stat-card">
+                <div class="stat-label">Total Rows Rendered</div>
+                <div class="stat-value" id="rows-count">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Render Time</div>
+                <div class="stat-value" id="render-time">0ms</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Virtual Scrolling</div>
+                <div class="stat-value" id="virtual-status">Disabled</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Cache Hits</div>
+                <div class="stat-value" id="cache-hits">0</div>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h2>📊 Virtual Scrolling Test</h2>
+            <div id="table-container" class="table-container"></div>
+            <div id="scroll-info" style="padding: 10px; background: #f9fafb; border-radius: 6px;"></div>
+        </div>
+
+        <div class="test-section">
+            <h2>📝 Test Logs</h2>
+            <div id="log" class="log"></div>
+        </div>
+    </div>
+
+    <!-- Load performance module -->
+    <script src="../scripts/perf.js"></script>
+
+    <script>
+        // Test utilities
+        let testLogs = [];
+        let cacheHits = 0;
+
+        function log(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            testLogs.push({ timestamp, message, type });
+
+            const logDiv = document.getElementById('log');
+            const entry = document.createElement('div');
+            entry.className = `log-entry ${type}`;
+            entry.textContent = `[${timestamp}] ${message}`;
+            logDiv.appendChild(entry);
+            logDiv.scrollTop = logDiv.scrollHeight;
+        }
+
+        function clearLogs() {
+            testLogs = [];
+            document.getElementById('log').innerHTML = '';
+            log('Logs cleared', 'info');
+        }
+
+        function updateStats(stats) {
+            if (stats.rowsCount !== undefined) {
+                document.getElementById('rows-count').textContent = stats.rowsCount;
+            }
+            if (stats.renderTime !== undefined) {
+                document.getElementById('render-time').textContent = stats.renderTime + 'ms';
+            }
+            if (stats.virtualScrolling !== undefined) {
+                const badge = stats.virtualScrolling ?
+                    '<span class="badge success">✅ Enabled</span>' :
+                    '<span class="badge error">❌ Disabled</span>';
+                document.getElementById('virtual-status').innerHTML = badge;
+            }
+            if (stats.cacheHits !== undefined) {
+                document.getElementById('cache-hits').textContent = stats.cacheHits;
+            }
+        }
+
+        // Test 1: Virtual Scrolling with 500+ rows
+        function runVirtualScrollTest() {
+            log('Starting Virtual Scrolling Test...', 'info');
+
+            const container = document.getElementById('table-container');
+            const rowCount = 500;
+
+            // Generate test data
+            const startData = performance.now();
+            const items = Array.from({ length: rowCount }, (_, i) => ({
+                id: i + 1,
+                class: `Class ${(i % 16) + 1}`,
+                teacher: `Teacher ${(i % 30) + 1}`,
+                subject: ['Math', 'Science', 'English', 'Hindi', 'EVS', 'Sports'][i % 6],
+                period: `Period ${(i % 8) + 1}`
+            }));
+            const dataTime = performance.now() - startData;
+            log(`✅ Generated ${rowCount} test rows in ${dataTime.toFixed(2)}ms`, 'success');
+
+            // Render function for each row
+            function renderRow(item, index) {
+                const row = document.createElement('div');
+                row.className = 'table-row';
+                row.innerHTML = `
+                    <div>${item.id}</div>
+                    <div>${item.class}</div>
+                    <div>${item.teacher}</div>
+                    <div>${item.subject}</div>
+                    <div>${item.period}</div>
+                `;
+                return row;
+            }
+
+            // Test without virtual scrolling first
+            const startNormal = performance.now();
+            container.innerHTML = '';
+
+            // Add header
+            const header = document.createElement('div');
+            header.className = 'table-row header';
+            header.innerHTML = `<div>ID</div><div>Class</div><div>Teacher</div><div>Subject</div><div>Period</div>`;
+            container.appendChild(header);
+
+            // Check if virtual scrolling is available
+            if (typeof PerformanceOptimization !== 'undefined' &&
+                PerformanceOptimization.featureFlags.isEnabled('virtual_scrolling')) {
+
+                log('🚀 Virtual Scrolling is enabled!', 'success');
+
+                // Create container for virtual scroller
+                const scrollContainer = document.createElement('div');
+                scrollContainer.style.height = 'calc(100% - 50px)';
+                scrollContainer.style.overflow = 'auto';
+                container.appendChild(scrollContainer);
+
+                // Initialize virtual scroller
+                const scroller = new PerformanceOptimization.VirtualScroller({
+                    container: scrollContainer,
+                    items: items,
+                    rowHeight: 50,
+                    bufferSize: 10,
+                    renderRow: renderRow
+                });
+
+                scroller.init();
+                const renderTime = performance.now() - startNormal;
+
+                log(`✅ Rendered ${rowCount} rows with virtual scrolling in ${renderTime.toFixed(2)}ms`, 'success');
+
+                updateStats({
+                    rowsCount: rowCount,
+                    renderTime: renderTime.toFixed(0),
+                    virtualScrolling: true
+                });
+
+                // Add scroll listener
+                scrollContainer.addEventListener('scroll', () => {
+                    const scrollInfo = document.getElementById('scroll-info');
+                    scrollInfo.textContent = `Scroll Position: ${scrollContainer.scrollTop}px | Visible Items: ~${Math.ceil(scrollContainer.clientHeight / 50)}`;
+                });
+
+            } else {
+                log('⚠️  Virtual Scrolling not available, rendering all rows...', 'warning');
+
+                // Render all rows normally
+                items.forEach((item, index) => {
+                    container.appendChild(renderRow(item, index));
+                });
+
+                const renderTime = performance.now() - startNormal;
+                log(`⏱️  Rendered ${rowCount} rows normally in ${renderTime.toFixed(2)}ms`, 'warning');
+
+                updateStats({
+                    rowsCount: rowCount,
+                    renderTime: renderTime.toFixed(0),
+                    virtualScrolling: false
+                });
+            }
+        }
+
+        // Test 2: Cache System
+        function runCacheTest() {
+            log('Starting Cache System Test...', 'info');
+
+            if (typeof PerformanceOptimization === 'undefined') {
+                log('❌ PerformanceOptimization module not loaded', 'error');
+                return;
+            }
+
+            const cache = PerformanceOptimization.cache;
+
+            // Test 1: Set and get
+            log('Test 1: Set and retrieve data', 'info');
+            const testData = { timetable: 'data', classes: 16, teachers: 30 };
+            cache.set('test_data', testData, 5000); // 5 second TTL
+            log('✅ Data cached successfully', 'success');
+
+            const retrieved = cache.get('test_data');
+            if (JSON.stringify(retrieved) === JSON.stringify(testData)) {
+                log('✅ Data retrieved correctly', 'success');
+                cacheHits++;
+            } else {
+                log('❌ Data retrieval failed', 'error');
+            }
+
+            // Test 2: TTL expiration
+            log('Test 2: TTL expiration (checking immediately)', 'info');
+            cache.set('expiring_data', { test: 'data' }, 100); // 100ms TTL
+            setTimeout(() => {
+                const expired = cache.get('expiring_data');
+                if (expired === null) {
+                    log('✅ TTL expiration works correctly', 'success');
+                } else {
+                    log('⚠️  Data still available after TTL', 'warning');
+                }
+            }, 150);
+
+            // Test 3: Cache stats
+            setTimeout(() => {
+                const stats = cache.getStats();
+                log(`📊 Cache Stats: ${stats.validEntries} valid, ${stats.expiredEntries} expired, ${stats.totalSize} bytes`, 'info');
+                updateStats({ cacheHits: cacheHits });
+            }, 200);
+        }
+
+        // Test 3: Debouncing
+        function runDebounceTest() {
+            log('Starting Debounce Test...', 'info');
+
+            if (typeof PerformanceOptimization === 'undefined') {
+                log('❌ PerformanceOptimization module not loaded', 'error');
+                return;
+            }
+
+            const debounce = PerformanceOptimization.debounce;
+            let callCount = 0;
+
+            const debouncedFunction = debounce(() => {
+                callCount++;
+                log(`✅ Debounced function executed (call ${callCount})`, 'success');
+            }, 300);
+
+            // Simulate rapid calls
+            log('📞 Simulating 10 rapid calls...', 'info');
+            for (let i = 0; i < 10; i++) {
+                debouncedFunction();
+            }
+
+            setTimeout(() => {
+                if (callCount === 1) {
+                    log('✅ Debouncing works correctly - only 1 call executed', 'success');
+                } else {
+                    log(`⚠️  Expected 1 call, got ${callCount}`, 'warning');
+                }
+            }, 500);
+        }
+
+        // Test 4: Lazy Loading
+        async function runLazyLoadTest() {
+            log('Starting Lazy Loading Test...', 'info');
+
+            if (typeof PerformanceOptimization === 'undefined') {
+                log('❌ PerformanceOptimization module not loaded', 'error');
+                return;
+            }
+
+            const lazyLoader = PerformanceOptimization.lazyLoader;
+
+            // Test html2canvas loading
+            log('📦 Testing html2canvas lazy loading...', 'info');
+            try {
+                const start = performance.now();
+                await lazyLoader.loadHtml2Canvas();
+                const time = performance.now() - start;
+
+                if (typeof html2canvas !== 'undefined') {
+                    log(`✅ html2canvas loaded successfully in ${time.toFixed(0)}ms`, 'success');
+                } else {
+                    log('⚠️  html2canvas loaded but not available globally', 'warning');
+                }
+            } catch (error) {
+                log(`❌ Failed to load html2canvas: ${error.message}`, 'error');
+            }
+
+            // Test jsPDF loading
+            log('📦 Testing jsPDF lazy loading...', 'info');
+            try {
+                const start = performance.now();
+                await lazyLoader.loadJsPDF();
+                const time = performance.now() - start;
+
+                if (typeof window.jspdf !== 'undefined') {
+                    log(`✅ jsPDF loaded successfully in ${time.toFixed(0)}ms`, 'success');
+                } else {
+                    log('⚠️  jsPDF loaded but not available globally', 'warning');
+                }
+            } catch (error) {
+                log(`❌ Failed to load jsPDF: ${error.message}`, 'error');
+            }
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            log('🎯 Performance Test Suite Initialized', 'success');
+            log('Click buttons above to run tests', 'info');
+
+            if (typeof PerformanceOptimization !== 'undefined') {
+                const flags = PerformanceOptimization.featureFlags.getAll();
+                log('🚩 Feature Flags:', 'info');
+                Object.entries(flags).forEach(([key, value]) => {
+                    log(`  ${key}: ${value ? '✅ Enabled' : '❌ Disabled'}`, value ? 'success' : 'warning');
+                });
+            } else {
+                log('⚠️  PerformanceOptimization module not found', 'warning');
+            }
+        });
+    </script>
+</body>
+</html>
