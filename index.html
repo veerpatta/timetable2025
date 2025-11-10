@@ -4500,12 +4500,13 @@
 		// New function: Export CSV
 		function handleExportCSV() {
 			try {
-				// Find the current visible table
-				const visibleTable = document.querySelector('.table-container table:not(#print-capture-area table)');
-				if (!visibleTable) {
-					showToast('❌ No table found to export', 3000, 'error');
-					return;
-				}
+                        // Find the current visible table, excluding tables within the print capture area
+                        const tables = document.querySelectorAll('.table-container table');
+                        const visibleTable = Array.from(tables).find(table => !table.closest('#print-capture-area'));
+                        if (!visibleTable) {
+                                showToast('❌ No table found to export', 3000, 'error');
+                                return;
+                        }
 
 				// Convert table to 2D array
 				const data = tableTo2DArray(visibleTable);
