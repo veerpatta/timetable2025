@@ -282,7 +282,7 @@
 }
 
 .insight-danger {
-	background: var(--red-500, #ef4444)10;
+	background: #ef44441a;
 	border-left-color: var(--red-500, #ef4444);
 }
 
