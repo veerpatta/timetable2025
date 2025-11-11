@@ -228,7 +228,7 @@ node build-report.js
 - Gzipped sizes and compression ratios
 - JavaScript complexity metrics
 - Optimization recommendations
-- JSON report: `build-report.json`
+- JSON report: `docs/reports/build-report.json`
 
 ## Acceptance Tests
 

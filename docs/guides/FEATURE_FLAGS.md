@@ -654,7 +654,7 @@ const FUTURE_FLAGS = {
 
 ### Questions?
 - Check this documentation first
-- Review feature-specific docs (PERFORMANCE.md, ACCESSIBILITY_SUMMARY.md, etc.)
+- Review feature-specific docs (`docs/guides/PERFORMANCE.md`, `docs/guides/ACCESSIBILITY_SUMMARY.md`, etc.)
 - Test in browser console
 - Contact development team
 

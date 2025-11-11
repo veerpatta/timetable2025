@@ -575,13 +575,13 @@ This comprehensive checklist ensures the timetable application meets all quality
 
 ### User Documentation
 - [ ] README.md is up-to-date
-- [ ] UPGRADE_NOTES.md is complete
-- [ ] FEATURE_FLAGS.md is accurate
-- [ ] QA_CHECKLIST.md is comprehensive
-- [ ] PERFORMANCE.md is current
-- [ ] ACCESSIBILITY_SUMMARY.md is current
-- [ ] MODERN_UI_GUIDE.md is current
-- [ ] COLOR_CODING_SUMMARY.md is current
+- [ ] docs/guides/UPGRADE_NOTES.md is complete
+- [ ] docs/guides/FEATURE_FLAGS.md is accurate
+- [ ] docs/guides/QA_CHECKLIST.md is comprehensive
+- [ ] docs/guides/PERFORMANCE.md is current
+- [ ] docs/guides/ACCESSIBILITY_SUMMARY.md is current
+- [ ] docs/guides/MODERN_UI_GUIDE.md is current
+- [ ] docs/guides/COLOR_CODING_SUMMARY.md is current
 
 ### Code Documentation
 - [ ] All functions have JSDoc comments

@@ -11,6 +11,7 @@ const { gzipSync } = require('zlib');
 
 // Configuration
 const PROJECT_ROOT = __dirname;
+const REPORT_DIR = path.join(PROJECT_ROOT, 'docs', 'reports');
 const MAX_BUNDLE_SIZE = 500 * 1024; // 500KB target
 const FILES_TO_ANALYZE = [
   'index.html',
@@ -208,9 +209,10 @@ function generateReport() {
   }
 
   // Save report to JSON
-  const reportPath = path.join(PROJECT_ROOT, 'build-report.json');
+  fs.mkdirSync(REPORT_DIR, { recursive: true });
+  const reportPath = path.join(REPORT_DIR, 'build-report.json');
   fs.writeFileSync(reportPath, JSON.stringify(report, null, 2));
-  console.log(`\n📄 Full report saved to: build-report.json`);
+  console.log(`\n📄 Full report saved to: docs/reports/build-report.json`);
 
   console.log('\n' + '═'.repeat(65) + '\n');
 
