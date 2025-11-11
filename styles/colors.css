@@ -11,11 +11,11 @@
    ========================================== */
 
 :root {
-	/* Languages - Blue Shades */
-	--color-languages-bg: #dbeafe;
-	--color-languages-text: #1e3a8a;
-	--color-languages-border: #3b82f6;
-	--color-languages-hover: #bfdbfe;
+        /* Languages - Blue Shades */
+        --color-languages-bg: #dbeafe;
+        --color-languages-text: #1e3a8a;
+        --color-languages-border: #3b82f6;
+        --color-languages-hover: #bfdbfe;
 
 	/* Sciences - Green Shades */
 	--color-sciences-bg: #d1fae5;
@@ -44,8 +44,46 @@
 	/* Default/Neutral - Gray Shades */
 	--color-default-bg: #f3f4f6;
 	--color-default-text: #374151;
-	--color-default-border: #9ca3af;
-	--color-default-hover: #e5e7eb;
+        --color-default-border: #9ca3af;
+        --color-default-hover: #e5e7eb;
+}
+
+[data-theme="dark"] {
+        /* Languages - Blue Shades (Dark Mode) */
+        --color-languages-bg: #10253f;
+        --color-languages-text: #dce9ff;
+        --color-languages-border: #4c91ff;
+        --color-languages-hover: #163257;
+
+        /* Sciences - Green Shades (Dark Mode) */
+        --color-sciences-bg: #0f2b1f;
+        --color-sciences-text: #d6fbe8;
+        --color-sciences-border: #34d399;
+        --color-sciences-hover: #15402c;
+
+        /* Mathematics - Purple Shades (Dark Mode) */
+        --color-math-bg: #201034;
+        --color-math-text: #f1e9ff;
+        --color-math-border: #c084fc;
+        --color-math-hover: #2b1647;
+
+        /* Social Studies - Orange Shades (Dark Mode) */
+        --color-social-bg: #331b07;
+        --color-social-text: #ffe8d0;
+        --color-social-border: #fb923c;
+        --color-social-hover: #44250d;
+
+        /* Sports & Activities - Red Shades (Dark Mode) */
+        --color-sports-bg: #3a0e0e;
+        --color-sports-text: #ffe2e2;
+        --color-sports-border: #f87171;
+        --color-sports-hover: #4c1414;
+
+        /* Default/Neutral (Dark Mode) */
+        --color-default-bg: #252836;
+        --color-default-text: #f4f4f5;
+        --color-default-border: #9ca3af;
+        --color-default-hover: #2f3243;
 }
 
 /* ==========================================
