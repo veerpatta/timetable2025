@@ -14,14 +14,14 @@ const PROJECT_ROOT = __dirname;
 const MAX_BUNDLE_SIZE = 500 * 1024; // 500KB target
 const FILES_TO_ANALYZE = [
   'index.html',
-  'scripts/perf.js',
-  'scripts/a11y.js',
-  'scripts/colors.js',
-  'scripts/ui.js',
-  'styles/theme.css',
-  'styles/a11y.css',
-  'styles/colors.css',
-  'styles/ui.css',
+  'public/assets/scripts/perf.js',
+  'public/assets/scripts/a11y.js',
+  'public/assets/scripts/colors.js',
+  'public/assets/scripts/ui.js',
+  'public/assets/styles/theme.css',
+  'public/assets/styles/a11y.css',
+  'public/assets/styles/colors.css',
+  'public/assets/styles/ui.css',
   'sw.js',
   'manifest.webmanifest'
 ];
@@ -157,7 +157,7 @@ function generateReport() {
   // JavaScript Analysis
   console.log('\n📝 JAVASCRIPT ANALYSIS\n');
 
-  const jsFiles = ['scripts/perf.js', 'scripts/colors.js'];
+  const jsFiles = ['public/assets/scripts/perf.js', 'public/assets/scripts/colors.js'];
   jsFiles.forEach(file => {
     const filePath = path.join(PROJECT_ROOT, file);
     const analysis = analyzeJavaScript(filePath);

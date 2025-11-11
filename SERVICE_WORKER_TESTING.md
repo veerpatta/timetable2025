@@ -33,16 +33,16 @@ const STATIC_CACHE_NAME = 'vpps-static-v2';
 The following assets were added to `STATIC_ASSETS` array:
 
 **JavaScript Modules:**
-- `./scripts/perf.js` - Performance optimizations (18.28 KB)
-- `./scripts/a11y.js` - Accessibility features (14.33 KB)
-- `./scripts/colors.js` - Subject color coding (9.35 KB)
-- `./scripts/ui.js` - Modern UI components (42.46 KB)
+- `./public/assets/scripts/perf.js` - Performance optimizations (18.28 KB)
+- `./public/assets/scripts/a11y.js` - Accessibility features (14.33 KB)
+- `./public/assets/scripts/colors.js` - Subject color coding (9.35 KB)
+- `./public/assets/scripts/ui.js` - Modern UI components (42.46 KB)
 
 **CSS Stylesheets:**
-- `./styles/theme.css` - Dark mode theme (8.89 KB)
-- `./styles/a11y.css` - Accessibility styles (11.96 KB)
-- `./styles/colors.css` - Color coding styles (7.22 KB)
-- `./styles/ui.css` - UI component styles (19.70 KB)
+- `./public/assets/styles/theme.css` - Dark mode theme (8.89 KB)
+- `./public/assets/styles/a11y.css` - Accessibility styles (11.96 KB)
+- `./public/assets/styles/colors.css` - Color coding styles (7.22 KB)
+- `./public/assets/styles/ui.css` - UI component styles (19.70 KB)
 
 **Total New Assets**: 132.19 KB raw / 30.34 KB gzipped
 
@@ -50,7 +50,7 @@ The following assets were added to `STATIC_ASSETS` array:
 - `./` - Root path
 - `./index.html` - Main application
 - `./manifest.webmanifest` - PWA manifest
-- `./icons/icon-512.png` - School logo
+- `./public/assets/icons/icon-512.png` - School logo
 - External CDN resources:
   - html2canvas (1.4.1)
   - jsPDF (2.5.1)
@@ -114,15 +114,15 @@ The following assets were added to `STATIC_ASSETS` array:
 - ✅ All 12 local assets are cached:
   - `/` or `/index.html`
   - `/manifest.webmanifest`
-  - `/icons/icon-512.png`
-  - `/scripts/perf.js`
-  - `/scripts/a11y.js`
-  - `/scripts/colors.js`
-  - `/scripts/ui.js`
-  - `/styles/theme.css`
-  - `/styles/a11y.css`
-  - `/styles/colors.css`
-  - `/styles/ui.css`
+  - `/public/assets/icons/icon-512.png`
+  - `/public/assets/scripts/perf.js`
+  - `/public/assets/scripts/a11y.js`
+  - `/public/assets/scripts/colors.js`
+  - `/public/assets/scripts/ui.js`
+  - `/public/assets/styles/theme.css`
+  - `/public/assets/styles/a11y.css`
+  - `/public/assets/styles/colors.css`
+  - `/public/assets/styles/ui.css`
 - ✅ All 4 CDN resources are cached:
   - html2canvas from cdnjs.cloudflare.com
   - jsPDF from cdnjs.cloudflare.com
@@ -136,15 +136,15 @@ Cache Storage
     ├── http://localhost:8000/
     ├── http://localhost:8000/index.html
     ├── http://localhost:8000/manifest.webmanifest
-    ├── http://localhost:8000/icons/icon-512.png
-    ├── http://localhost:8000/scripts/perf.js
-    ├── http://localhost:8000/scripts/a11y.js
-    ├── http://localhost:8000/scripts/colors.js
-    ├── http://localhost:8000/scripts/ui.js
-    ├── http://localhost:8000/styles/theme.css
-    ├── http://localhost:8000/styles/a11y.css
-    ├── http://localhost:8000/styles/colors.css
-    ├── http://localhost:8000/styles/ui.css
+    ├── http://localhost:8000/public/assets/icons/icon-512.png
+    ├── http://localhost:8000/public/assets/scripts/perf.js
+    ├── http://localhost:8000/public/assets/scripts/a11y.js
+    ├── http://localhost:8000/public/assets/scripts/colors.js
+    ├── http://localhost:8000/public/assets/scripts/ui.js
+    ├── http://localhost:8000/public/assets/styles/theme.css
+    ├── http://localhost:8000/public/assets/styles/a11y.css
+    ├── http://localhost:8000/public/assets/styles/colors.css
+    ├── http://localhost:8000/public/assets/styles/ui.css
     ├── https://cdnjs.cloudflare.com/.../html2canvas.min.js
     ├── https://cdnjs.cloudflare.com/.../jspdf.umd.min.js
     ├── https://cdn.jsdelivr.net/.../lucide.min.js
@@ -227,8 +227,8 @@ caches.keys().then(keys => {
 Network Tab:
 Name            Status  Type        Size                Time
 index.html      200     document    (from ServiceWorker) 5ms
-styles/theme.css 200    stylesheet  (from ServiceWorker) 3ms
-scripts/perf.js 200     script      (from ServiceWorker) 4ms
+public/assets/styles/theme.css 200    stylesheet  (from ServiceWorker) 3ms
+public/assets/scripts/perf.js 200     script      (from ServiceWorker) 4ms
 ```
 
 ---

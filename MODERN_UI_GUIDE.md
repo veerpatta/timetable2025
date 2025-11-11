@@ -36,8 +36,8 @@ The Modern UI Components enhance the timetable application with:
 
 ### Files
 
-- `styles/ui.css` - Modern UI component styles
-- `scripts/ui.js` - Modern UI component logic
+- `public/assets/styles/ui.css` - Modern UI component styles
+- `public/assets/scripts/ui.js` - Modern UI component logic
 
 ---
 
@@ -685,13 +685,13 @@ feat_modern_ui: false, // Disable modern UI
 
 ```bash
 # Remove modern UI files
-rm styles/ui.css
-rm scripts/ui.js
+rm public/assets/styles/ui.css
+rm public/assets/scripts/ui.js
 
 # Remove includes from index.html
-# Line 36: <link rel="stylesheet" href="./styles/ui.css">
+# Line 36: <link rel="stylesheet" href="./public/assets/styles/ui.css">
 # Line 1376: feat_modern_ui: true,
-# Line 4787: <script src="./scripts/ui.js"></script>
+# Line 4787: <script src="./public/assets/scripts/ui.js"></script>
 ```
 
 ### Legacy Fallback
@@ -906,8 +906,8 @@ console.log('Modern UI loaded and ready!')
 
 **Resources:**
 - Feature documentation: This file
-- Code: `scripts/ui.js`
-- Styles: `styles/ui.css`
+- Code: `public/assets/scripts/ui.js`
+- Styles: `public/assets/styles/ui.css`
 - Main app: `index.html`
 
 ---

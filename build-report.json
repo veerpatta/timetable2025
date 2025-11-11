@@ -8,49 +8,49 @@
       "compression": "78.4%"
     },
     {
-      "file": "scripts/perf.js",
+      "file": "public/assets/scripts/perf.js",
       "rawSize": 18718,
       "gzippedSize": 4740,
       "compression": "74.7%"
     },
     {
-      "file": "scripts/a11y.js",
+      "file": "public/assets/scripts/a11y.js",
       "rawSize": 14672,
       "gzippedSize": 4064,
       "compression": "72.3%"
     },
     {
-      "file": "scripts/colors.js",
+      "file": "public/assets/scripts/colors.js",
       "rawSize": 9578,
       "gzippedSize": 2863,
       "compression": "70.1%"
     },
     {
-      "file": "scripts/ui.js",
+      "file": "public/assets/scripts/ui.js",
       "rawSize": 43478,
       "gzippedSize": 8310,
       "compression": "80.9%"
     },
     {
-      "file": "styles/theme.css",
+      "file": "public/assets/styles/theme.css",
       "rawSize": 9105,
       "gzippedSize": 2482,
       "compression": "72.7%"
     },
     {
-      "file": "styles/a11y.css",
+      "file": "public/assets/styles/a11y.css",
       "rawSize": 12250,
       "gzippedSize": 3162,
       "compression": "74.2%"
     },
     {
-      "file": "styles/colors.css",
+      "file": "public/assets/styles/colors.css",
       "rawSize": 7398,
       "gzippedSize": 1766,
       "compression": "76.1%"
     },
     {
-      "file": "styles/ui.css",
+      "file": "public/assets/styles/ui.css",
       "rawSize": 20177,
       "gzippedSize": 3673,
       "compression": "81.8%"
