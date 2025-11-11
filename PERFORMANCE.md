@@ -20,7 +20,7 @@ This document describes the performance optimizations implemented in the Veer Pa
 
 ### 1. JavaScript Module Splitting
 
-**File:** `scripts/perf.js` (18.28 KB → 4.63 KB gzipped)
+**File:** `public/assets/scripts/perf.js` (18.28 KB → 4.63 KB gzipped)
 
 The performance optimization logic has been extracted into a separate module that includes:
 - Feature flag system
@@ -37,7 +37,7 @@ The performance optimization logic has been extracted into a separate module tha
 
 ### 2. Virtual Scrolling
 
-**Implementation:** `VirtualScroller` class in `scripts/perf.js`
+**Implementation:** `VirtualScroller` class in `public/assets/scripts/perf.js`
 
 Efficiently handles rendering of large tables (500+ rows) by only rendering visible items plus a buffer.
 
@@ -68,7 +68,7 @@ scroller.init();
 
 ### 3. Lazy Loading Components
 
-**Implementation:** `LazyLoader` class in `scripts/perf.js`
+**Implementation:** `LazyLoader` class in `public/assets/scripts/perf.js`
 
 Heavy libraries (html2canvas, jsPDF) are loaded on-demand rather than blocking initial page load.
 
@@ -101,7 +101,7 @@ const debouncedSearch = PerformanceOptimization.debounce((query) => {
 
 ### 5. SessionStorage Caching with TTL
 
-**Implementation:** `CacheManager` class in `scripts/perf.js`
+**Implementation:** `CacheManager` class in `public/assets/scripts/perf.js`
 
 Expensive operations (timetable parsing, API results) are cached with Time-To-Live (TTL).
 
@@ -434,7 +434,7 @@ Performance operations log to console:
 
 ## API Reference
 
-See `scripts/perf.js` for full API documentation.
+See `public/assets/scripts/perf.js` for full API documentation.
 
 ### Main Exports
 

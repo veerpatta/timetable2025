@@ -9,15 +9,15 @@ const STATIC_ASSETS = [
   './',
   './index.html',
   './manifest.webmanifest',
-  './icons/icon-512.png',
-  './scripts/perf.js',
-  './scripts/a11y.js',
-  './scripts/colors.js',
-  './scripts/ui.js',
-  './styles/theme.css',
-  './styles/a11y.css',
-  './styles/colors.css',
-  './styles/ui.css',
+  './assets/icons/icon-512.png',
+  './assets/scripts/perf.js',
+  './assets/scripts/a11y.js',
+  './assets/scripts/colors.js',
+  './assets/scripts/ui.js',
+  './assets/styles/theme.css',
+  './assets/styles/a11y.css',
+  './assets/styles/colors.css',
+  './assets/styles/ui.css',
   'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js',
   'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js',
   'https://cdn.jsdelivr.net/npm/lucide@latest/dist/umd/lucide.min.js',
@@ -177,8 +177,8 @@ self.addEventListener('push', event => {
   
   const options = {
     body: event.data ? event.data.text() : 'Timetable update available',
-  icon: './icons/icon-512.png',
-  badge: './icons/icon-512.png',
+  icon: './assets/icons/icon-512.png',
+  badge: './assets/icons/icon-512.png',
     vibrate: [100, 50, 100],
     data: {
       dateOfArrival: Date.now(),
@@ -188,12 +188,12 @@ self.addEventListener('push', event => {
       {
         action: 'explore',
         title: 'View Timetable',
-  icon: './icons/icon-512.png'
+  icon: './assets/icons/icon-512.png'
       },
       {
         action: 'close',
         title: 'Close',
-  icon: './icons/icon-512.png'
+  icon: './assets/icons/icon-512.png'
       }
     ]
   };

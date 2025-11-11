@@ -37,7 +37,7 @@ const FEATURE_FLAGS = {
 
 ### 1. `feat_dark_mode`
 **Status**: ✅ Enabled by default
-**Module**: `styles/theme.css`
+**Module**: `public/assets/styles/theme.css`
 **Size Impact**: 8.89 KB raw / 2.42 KB gzipped
 
 #### Description
@@ -83,7 +83,7 @@ location.reload();
 
 ### 2. `feat_color_coding`
 **Status**: ✅ Enabled by default
-**Module**: `scripts/colors.js`, `styles/colors.css`
+**Module**: `public/assets/scripts/colors.js`, `public/assets/styles/colors.css`
 **Size Impact**: 16.57 KB raw / 4.52 KB gzipped
 
 #### Description
@@ -139,7 +139,7 @@ location.reload();
 
 ### 3. `feat_modern_ui`
 **Status**: ✅ Enabled by default
-**Module**: `scripts/ui.js`, `styles/ui.css`
+**Module**: `public/assets/scripts/ui.js`, `public/assets/styles/ui.css`
 **Size Impact**: 62.16 KB raw / 11.71 KB gzipped
 
 #### Description
@@ -247,7 +247,7 @@ location.reload();
 
 ### 4. `feat_perf_opt`
 **Status**: ✅ Enabled by default
-**Module**: `scripts/perf.js`
+**Module**: `public/assets/scripts/perf.js`
 **Size Impact**: 18.28 KB raw / 4.63 KB gzipped
 
 #### Description
@@ -347,7 +347,7 @@ location.reload();
 
 ### 5. `feat_a11y`
 **Status**: ✅ Enabled by default
-**Module**: `scripts/a11y.js`, `styles/a11y.css`
+**Module**: `public/assets/scripts/a11y.js`, `public/assets/styles/a11y.css`
 **Size Impact**: 26.29 KB raw / 7.06 KB gzipped
 
 #### Description

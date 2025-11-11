@@ -21,7 +21,7 @@ The timetable application has undergone a comprehensive upgrade from a basic HTM
 
 ## 🚀 Major Features Added
 
-### 1. Performance Optimization System (`scripts/perf.js`)
+### 1. Performance Optimization System (`public/assets/scripts/perf.js`)
 **Size**: 18.28 KB raw / 4.63 KB gzipped
 
 #### Features Implemented:
@@ -68,7 +68,7 @@ window.PERF_CONFIG = {
 
 ---
 
-### 2. Accessibility Features (`scripts/a11y.js`, `styles/a11y.css`)
+### 2. Accessibility Features (`public/assets/scripts/a11y.js`, `public/assets/styles/a11y.css`)
 **Size**: 14.33 KB + 11.96 KB = 26.29 KB raw / 7.06 KB gzipped
 
 #### WCAG 2.1 Level AA Compliance:
@@ -121,7 +121,7 @@ window.announceToScreenReader('Timetable updated successfully');
 
 ---
 
-### 3. Subject Color Coding System (`scripts/colors.js`, `styles/colors.css`)
+### 3. Subject Color Coding System (`public/assets/scripts/colors.js`, `public/assets/styles/colors.css`)
 **Size**: 9.35 KB + 7.22 KB = 16.57 KB raw / 4.52 KB gzipped
 
 #### Features:
@@ -159,7 +159,7 @@ window.toggleColorLegend();
 
 ---
 
-### 4. Modern UI Components (`scripts/ui.js`, `styles/ui.css`)
+### 4. Modern UI Components (`public/assets/scripts/ui.js`, `public/assets/styles/ui.css`)
 **Size**: 42.46 KB + 19.70 KB = 62.16 KB raw / 11.71 KB gzipped
 
 #### Components Implemented:
@@ -217,7 +217,7 @@ sheet.show();
 
 ---
 
-### 5. Dark Mode Theme System (`styles/theme.css`)
+### 5. Dark Mode Theme System (`public/assets/styles/theme.css`)
 **Size**: 8.89 KB raw / 2.42 KB gzipped
 
 #### Features:
@@ -299,11 +299,11 @@ const isDark = document.body.classList.contains('dark-mode');
 | File | Raw Size | Gzipped | Compression |
 |------|----------|---------|-------------|
 | index.html | 170.07 KB | 36.67 KB | 78.4% |
-| scripts/ui.js | 42.46 KB | 8.12 KB | 80.9% |
-| scripts/perf.js | 18.28 KB | 4.63 KB | 74.7% |
-| scripts/a11y.js | 14.33 KB | 3.97 KB | 72.3% |
-| styles/ui.css | 19.70 KB | 3.59 KB | 81.8% |
-| styles/a11y.css | 11.96 KB | 3.09 KB | 74.2% |
+| public/assets/scripts/ui.js | 42.46 KB | 8.12 KB | 80.9% |
+| public/assets/scripts/perf.js | 18.28 KB | 4.63 KB | 74.7% |
+| public/assets/scripts/a11y.js | 14.33 KB | 3.97 KB | 72.3% |
+| public/assets/styles/ui.css | 19.70 KB | 3.59 KB | 81.8% |
+| public/assets/styles/a11y.css | 11.96 KB | 3.09 KB | 74.2% |
 | **Total** | **309.34 KB** | **69.32 KB** | **77.6%** |
 
 **Budget Status**: ✅ WITHIN (-190.66 KB remaining)

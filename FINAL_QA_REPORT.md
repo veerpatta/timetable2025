@@ -28,14 +28,14 @@ The Veer Patta Public School Timetable Command Center has successfully completed
 | File | Raw Size | Gzipped | Compression | Category |
 |------|----------|---------|-------------|----------|
 | index.html | 170.07 KB | 36.67 KB | 78.4% | Core |
-| scripts/ui.js | 42.46 KB | 8.12 KB | 80.9% | Modern UI |
-| scripts/perf.js | 18.28 KB | 4.63 KB | 74.7% | Performance |
-| styles/ui.css | 19.70 KB | 3.59 KB | 81.8% | Modern UI |
-| scripts/a11y.js | 14.33 KB | 3.97 KB | 72.3% | Accessibility |
-| styles/a11y.css | 11.96 KB | 3.09 KB | 74.2% | Accessibility |
-| scripts/colors.js | 9.35 KB | 2.80 KB | 70.1% | Color Coding |
-| styles/theme.css | 8.89 KB | 2.42 KB | 72.7% | Dark Mode |
-| styles/colors.css | 7.22 KB | 1.72 KB | 76.1% | Color Coding |
+| public/assets/scripts/ui.js | 42.46 KB | 8.12 KB | 80.9% | Modern UI |
+| public/assets/scripts/perf.js | 18.28 KB | 4.63 KB | 74.7% | Performance |
+| public/assets/styles/ui.css | 19.70 KB | 3.59 KB | 81.8% | Modern UI |
+| public/assets/scripts/a11y.js | 14.33 KB | 3.97 KB | 72.3% | Accessibility |
+| public/assets/styles/a11y.css | 11.96 KB | 3.09 KB | 74.2% | Accessibility |
+| public/assets/scripts/colors.js | 9.35 KB | 2.80 KB | 70.1% | Color Coding |
+| public/assets/styles/theme.css | 8.89 KB | 2.42 KB | 72.7% | Dark Mode |
+| public/assets/styles/colors.css | 7.22 KB | 1.72 KB | 76.1% | Color Coding |
 | sw.js | 6.69 KB | 2.06 KB | 69.1% | Service Worker |
 | manifest.webmanifest | 392 B | 258 B | 34.2% | PWA |
 | **TOTAL** | **309.34 KB** | **69.32 KB** | **77.6%** | |
@@ -70,14 +70,14 @@ The Veer Patta Public School Timetable Command Center has successfully completed
 - `vpps-timetable-v1` → `vpps-timetable-v2`
 
 **New Assets Cached** (8 additional files):
-1. `./scripts/perf.js` - Performance optimizations
-2. `./scripts/a11y.js` - Accessibility features
-3. `./scripts/colors.js` - Subject color coding
-4. `./scripts/ui.js` - Modern UI components
-5. `./styles/theme.css` - Dark mode theme
-6. `./styles/a11y.css` - Accessibility styles
-7. `./styles/colors.css` - Color coding styles
-8. `./styles/ui.css` - UI component styles
+1. `./assets/scripts/perf.js` - Performance optimizations
+2. `./assets/scripts/a11y.js` - Accessibility features
+3. `./assets/scripts/colors.js` - Subject color coding
+4. `./assets/scripts/ui.js` - Modern UI components
+5. `./assets/styles/theme.css` - Dark mode theme
+6. `./assets/styles/a11y.css` - Accessibility styles
+7. `./assets/styles/colors.css` - Color coding styles
+8. `./assets/styles/ui.css` - UI component styles
 
 **Total Cached Assets**: 16 resources
 - 12 local application files

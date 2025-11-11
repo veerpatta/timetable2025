@@ -38,13 +38,13 @@ Automatically categorizes subjects:
 
 ## Files Created
 
-### styles/colors.css (7.4 KB)
+### public/assets/styles/colors.css (7.4 KB)
 - CSS custom properties for all color categories
 - Responsive styles for mobile devices
 - Print-friendly styling
 - Accessibility enhancements (high contrast, reduced motion)
 
-### scripts/colors.js (9.6 KB)
+### public/assets/scripts/colors.js (9.6 KB)
 - Subject categorization logic
 - Color application and removal functions
 - Dynamic observer for new timetable elements

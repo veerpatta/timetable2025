@@ -1,4 +1,4 @@
-Place PNG icons exported from your logo here:
+Place PNG icons exported from your logo in `public/assets/icons/`.
 
 Required files (exact names):
 - icon-32.png   (32x32)  — favicon used in browser tab
