@@ -27,17 +27,17 @@ The Veer Patta Public School Timetable Command Center has successfully completed
 
 | File | Raw Size | Gzipped | Compression | Category |
 |------|----------|---------|-------------|----------|
-| index.html | 170.07 KB | 36.67 KB | 78.4% | Core |
-| scripts/ui.js | 42.46 KB | 8.12 KB | 80.9% | Modern UI |
-| scripts/perf.js | 18.28 KB | 4.63 KB | 74.7% | Performance |
-| styles/ui.css | 19.70 KB | 3.59 KB | 81.8% | Modern UI |
-| scripts/a11y.js | 14.33 KB | 3.97 KB | 72.3% | Accessibility |
-| styles/a11y.css | 11.96 KB | 3.09 KB | 74.2% | Accessibility |
-| scripts/colors.js | 9.35 KB | 2.80 KB | 70.1% | Color Coding |
-| styles/theme.css | 8.89 KB | 2.42 KB | 72.7% | Dark Mode |
-| styles/colors.css | 7.22 KB | 1.72 KB | 76.1% | Color Coding |
-| sw.js | 6.69 KB | 2.06 KB | 69.1% | Service Worker |
-| manifest.webmanifest | 392 B | 258 B | 34.2% | PWA |
+| public/index.html | 170.07 KB | 36.67 KB | 78.4% | Core |
+| public/scripts/ui.js | 42.46 KB | 8.12 KB | 80.9% | Modern UI |
+| public/scripts/perf.js | 18.28 KB | 4.63 KB | 74.7% | Performance |
+| public/styles/ui.css | 19.70 KB | 3.59 KB | 81.8% | Modern UI |
+| public/scripts/a11y.js | 14.33 KB | 3.97 KB | 72.3% | Accessibility |
+| public/styles/a11y.css | 11.96 KB | 3.09 KB | 74.2% | Accessibility |
+| public/scripts/colors.js | 9.35 KB | 2.80 KB | 70.1% | Color Coding |
+| public/styles/theme.css | 8.89 KB | 2.42 KB | 72.7% | Dark Mode |
+| public/styles/colors.css | 7.22 KB | 1.72 KB | 76.1% | Color Coding |
+| public/sw.js | 6.69 KB | 2.06 KB | 69.1% | Service Worker |
+| public/manifest.webmanifest | 392 B | 258 B | 34.2% | PWA |
 | **TOTAL** | **309.34 KB** | **69.32 KB** | **77.6%** | |
 
 ### Budget Compliance
@@ -70,14 +70,14 @@ The Veer Patta Public School Timetable Command Center has successfully completed
 - `vpps-timetable-v1` → `vpps-timetable-v2`
 
 **New Assets Cached** (8 additional files):
-1. `./scripts/perf.js` - Performance optimizations
-2. `./scripts/a11y.js` - Accessibility features
-3. `./scripts/colors.js` - Subject color coding
-4. `./scripts/ui.js` - Modern UI components
-5. `./styles/theme.css` - Dark mode theme
-6. `./styles/a11y.css` - Accessibility styles
-7. `./styles/colors.css` - Color coding styles
-8. `./styles/ui.css` - UI component styles
+1. `./public/scripts/perf.js` - Performance optimizations
+2. `./public/scripts/a11y.js` - Accessibility features
+3. `./public/scripts/colors.js` - Subject color coding
+4. `./public/scripts/ui.js` - Modern UI components
+5. `./public/styles/theme.css` - Dark mode theme
+6. `./public/styles/a11y.css` - Accessibility styles
+7. `./public/styles/colors.css` - Color coding styles
+8. `./public/styles/ui.css` - UI component styles
 
 **Total Cached Assets**: 16 resources
 - 12 local application files
@@ -86,7 +86,7 @@ The Veer Patta Public School Timetable Command Center has successfully completed
 ### Caching Strategy
 
 **Static Cache (Cache-First)**:
-- Application shell (index.html)
+- Application shell (`public/index.html`)
 - All JavaScript modules
 - All CSS stylesheets
 - PWA manifest
@@ -238,7 +238,7 @@ All application routes and features work completely offline:
 10. **COLOR_CODING_SUMMARY.md** - Color coding system guide
 
 ### Build & Test Files
-11. **build-report.js** - Bundle size analysis tool
+11. **tools/build-report.js** - Bundle size analysis tool
 12. **build-report.json** - Current build metrics (JSON)
 13. **FINAL_BUILD_REPORT.txt** - Human-readable build report
 14. **verify-contrast.js** - Color contrast checker
@@ -610,7 +610,7 @@ The Veer Patta Public School Timetable Command Center has successfully completed
 
 ### Code Changes
 - ✅ Service worker updated (sw.js)
-- ✅ Build report updated (build-report.js)
+- ✅ Build report updated (`tools/build-report.js`)
 - ✅ All features tested
 - ✅ No console errors
 - ✅ Ready for commit

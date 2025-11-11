@@ -10,20 +10,20 @@ const path = require('path');
 const { gzipSync } = require('zlib');
 
 // Configuration
-const PROJECT_ROOT = __dirname;
+const PROJECT_ROOT = path.resolve(__dirname, '..');
 const MAX_BUNDLE_SIZE = 500 * 1024; // 500KB target
 const FILES_TO_ANALYZE = [
-  'index.html',
-  'scripts/perf.js',
-  'scripts/a11y.js',
-  'scripts/colors.js',
-  'scripts/ui.js',
-  'styles/theme.css',
-  'styles/a11y.css',
-  'styles/colors.css',
-  'styles/ui.css',
-  'sw.js',
-  'manifest.webmanifest'
+  'public/index.html',
+  'public/scripts/perf.js',
+  'public/scripts/a11y.js',
+  'public/scripts/colors.js',
+  'public/scripts/ui.js',
+  'public/styles/theme.css',
+  'public/styles/a11y.css',
+  'public/styles/colors.css',
+  'public/styles/ui.css',
+  'public/sw.js',
+  'public/manifest.webmanifest'
 ];
 
 /**
@@ -157,7 +157,7 @@ function generateReport() {
   // JavaScript Analysis
   console.log('\n📝 JAVASCRIPT ANALYSIS\n');
 
-  const jsFiles = ['scripts/perf.js', 'scripts/colors.js'];
+  const jsFiles = ['public/scripts/perf.js', 'public/scripts/colors.js'];
   jsFiles.forEach(file => {
     const filePath = path.join(PROJECT_ROOT, file);
     const analysis = analyzeJavaScript(filePath);
@@ -191,9 +191,9 @@ function generateReport() {
     recommendations.push('⚠️  Bundle size exceeds 500KB target - consider minification');
   }
 
-  const indexSize = report.files.find(f => f.file === 'index.html')?.rawSize || 0;
+  const indexSize = report.files.find(f => f.file === 'public/index.html')?.rawSize || 0;
   if (indexSize > 150 * 1024) {
-    recommendations.push('⚠️  index.html is large - consider extracting inline JS to modules');
+    recommendations.push('⚠️  public/index.html is large - consider extracting inline JS to modules');
   }
 
   const compressionRatio = report.totals.gzipped / report.totals.raw;

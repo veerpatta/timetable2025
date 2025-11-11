@@ -21,7 +21,7 @@ The timetable application has undergone a comprehensive upgrade from a basic HTM
 
 ## 🚀 Major Features Added
 
-### 1. Performance Optimization System (`scripts/perf.js`)
+### 1. Performance Optimization System (`public/scripts/perf.js`)
 **Size**: 18.28 KB raw / 4.63 KB gzipped
 
 #### Features Implemented:
@@ -68,7 +68,7 @@ window.PERF_CONFIG = {
 
 ---
 
-### 2. Accessibility Features (`scripts/a11y.js`, `styles/a11y.css`)
+### 2. Accessibility Features (`public/scripts/a11y.js`, `public/styles/a11y.css`)
 **Size**: 14.33 KB + 11.96 KB = 26.29 KB raw / 7.06 KB gzipped
 
 #### WCAG 2.1 Level AA Compliance:
@@ -121,7 +121,7 @@ window.announceToScreenReader('Timetable updated successfully');
 
 ---
 
-### 3. Subject Color Coding System (`scripts/colors.js`, `styles/colors.css`)
+### 3. Subject Color Coding System (`public/scripts/colors.js`, `public/styles/colors.css`)
 **Size**: 9.35 KB + 7.22 KB = 16.57 KB raw / 4.52 KB gzipped
 
 #### Features:
@@ -159,7 +159,7 @@ window.toggleColorLegend();
 
 ---
 
-### 4. Modern UI Components (`scripts/ui.js`, `styles/ui.css`)
+### 4. Modern UI Components (`public/scripts/ui.js`, `public/styles/ui.css`)
 **Size**: 42.46 KB + 19.70 KB = 62.16 KB raw / 11.71 KB gzipped
 
 #### Components Implemented:
@@ -217,7 +217,7 @@ sheet.show();
 
 ---
 
-### 5. Dark Mode Theme System (`styles/theme.css`)
+### 5. Dark Mode Theme System (`public/styles/theme.css`)
 **Size**: 8.89 KB raw / 2.42 KB gzipped
 
 #### Features:
@@ -262,7 +262,7 @@ const isDark = document.body.classList.contains('dark-mode');
 
 **Caching Strategy:**
 - **Static Cache** (`vpps-static-v2`): App shell and assets
-  - index.html
+  - public/index.html
   - All JavaScript modules (perf.js, a11y.js, colors.js, ui.js)
   - All CSS files (theme.css, a11y.css, colors.css, ui.css)
   - manifest.webmanifest
@@ -298,12 +298,12 @@ const isDark = document.body.classList.contains('dark-mode');
 ### Bundle Size Optimization
 | File | Raw Size | Gzipped | Compression |
 |------|----------|---------|-------------|
-| index.html | 170.07 KB | 36.67 KB | 78.4% |
-| scripts/ui.js | 42.46 KB | 8.12 KB | 80.9% |
-| scripts/perf.js | 18.28 KB | 4.63 KB | 74.7% |
-| scripts/a11y.js | 14.33 KB | 3.97 KB | 72.3% |
-| styles/ui.css | 19.70 KB | 3.59 KB | 81.8% |
-| styles/a11y.css | 11.96 KB | 3.09 KB | 74.2% |
+| public/index.html | 170.07 KB | 36.67 KB | 78.4% |
+| public/scripts/ui.js | 42.46 KB | 8.12 KB | 80.9% |
+| public/scripts/perf.js | 18.28 KB | 4.63 KB | 74.7% |
+| public/scripts/a11y.js | 14.33 KB | 3.97 KB | 72.3% |
+| public/styles/ui.css | 19.70 KB | 3.59 KB | 81.8% |
+| public/styles/a11y.css | 11.96 KB | 3.09 KB | 74.2% |
 | **Total** | **309.34 KB** | **69.32 KB** | **77.6%** |
 
 **Budget Status**: ✅ WITHIN (-190.66 KB remaining)
@@ -375,7 +375,7 @@ location.reload();
 
 3. **Build Process**: Run build report before deploying
    ```bash
-   node build-report.js
+   node tools/build-report.js
    ```
 
 4. **Testing**: Use provided test pages
@@ -479,7 +479,7 @@ Run Lighthouse in Chrome DevTools:
 - `QA_CHECKLIST.md` - Quality assurance checklist
 
 ### Testing Tools
-- `build-report.js` - Bundle size analysis
+- `tools/build-report.js` - Bundle size analysis
 - `verify-contrast.js` - Color contrast checker
 - `test-mapping.js` - Subject mapping tests
 - `test-a11y.html` - Accessibility test page

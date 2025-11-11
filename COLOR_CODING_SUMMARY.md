@@ -38,20 +38,20 @@ Automatically categorizes subjects:
 
 ## Files Created
 
-### styles/colors.css (7.4 KB)
+### public/styles/colors.css (7.4 KB)
 - CSS custom properties for all color categories
 - Responsive styles for mobile devices
 - Print-friendly styling
 - Accessibility enhancements (high contrast, reduced motion)
 
-### scripts/colors.js (9.6 KB)
+### public/scripts/colors.js (9.6 KB)
 - Subject categorization logic
 - Color application and removal functions
 - Dynamic observer for new timetable elements
 - Feature flag management
 - Public API for external control
 
-### Integration in index.html
+### Integration in public/index.html
 - CSS link added after theme.css (line 33)
 - Color legend container added (line 1347)
 - Feature flag added to FEATURE_FLAGS (line 1372)
@@ -134,7 +134,7 @@ To disable the color coding feature:
    ```
 
 2. **Via Feature Flag**:
-   Set `FEATURE_FLAGS.feat_color_coding = false` in index.html (line 1372)
+   Set `FEATURE_FLAGS.feat_color_coding = false` in `public/index.html` (line 1372)
 
 3. **Complete Removal**:
    - Remove `<link>` to colors.css (line 33)

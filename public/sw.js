@@ -9,7 +9,7 @@ const STATIC_ASSETS = [
   './',
   './index.html',
   './manifest.webmanifest',
-  './icons/icon-512.png',
+  './assets/icons/icon-512.png',
   './scripts/perf.js',
   './scripts/a11y.js',
   './scripts/colors.js',
@@ -177,8 +177,8 @@ self.addEventListener('push', event => {
   
   const options = {
     body: event.data ? event.data.text() : 'Timetable update available',
-  icon: './icons/icon-512.png',
-  badge: './icons/icon-512.png',
+    icon: './assets/icons/icon-512.png',
+    badge: './assets/icons/icon-512.png',
     vibrate: [100, 50, 100],
     data: {
       dateOfArrival: Date.now(),
@@ -188,12 +188,12 @@ self.addEventListener('push', event => {
       {
         action: 'explore',
         title: 'View Timetable',
-  icon: './icons/icon-512.png'
+    icon: './assets/icons/icon-512.png'
       },
       {
         action: 'close',
         title: 'Close',
-  icon: './icons/icon-512.png'
+    icon: './assets/icons/icon-512.png'
       }
     ]
   };

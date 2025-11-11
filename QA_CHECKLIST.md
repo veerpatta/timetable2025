@@ -93,7 +93,7 @@ This comprehensive checklist ensures the timetable application meets all quality
 
 ### Bundle Size
 - [ ] Total gzipped size ≤ 500KB (target: 69.32 KB)
-- [ ] index.html ≤ 180KB raw (current: 170.07 KB)
+- [ ] public/index.html ≤ 180KB raw (current: 170.07 KB)
 - [ ] All JavaScript ≤ 150KB combined raw
 - [ ] All CSS ≤ 80KB combined raw
 - [ ] No unnecessary files included

@@ -1,75 +1,75 @@
 {
-  "timestamp": "2025-11-10T10:49:26.021Z",
+  "timestamp": "2025-11-11T09:34:51.940Z",
   "files": [
     {
-      "file": "index.html",
-      "rawSize": 174149,
-      "gzippedSize": 37554,
-      "compression": "78.4%"
+      "file": "public/index.html",
+      "rawSize": 179821,
+      "gzippedSize": 38568,
+      "compression": "78.6%"
     },
     {
-      "file": "scripts/perf.js",
+      "file": "public/scripts/perf.js",
       "rawSize": 18718,
       "gzippedSize": 4740,
       "compression": "74.7%"
     },
     {
-      "file": "scripts/a11y.js",
+      "file": "public/scripts/a11y.js",
       "rawSize": 14672,
       "gzippedSize": 4064,
       "compression": "72.3%"
     },
     {
-      "file": "scripts/colors.js",
-      "rawSize": 9578,
-      "gzippedSize": 2863,
-      "compression": "70.1%"
+      "file": "public/scripts/colors.js",
+      "rawSize": 13320,
+      "gzippedSize": 3484,
+      "compression": "73.8%"
     },
     {
-      "file": "scripts/ui.js",
-      "rawSize": 43478,
-      "gzippedSize": 8310,
-      "compression": "80.9%"
+      "file": "public/scripts/ui.js",
+      "rawSize": 43696,
+      "gzippedSize": 8410,
+      "compression": "80.8%"
     },
     {
-      "file": "styles/theme.css",
-      "rawSize": 9105,
-      "gzippedSize": 2482,
-      "compression": "72.7%"
+      "file": "public/styles/theme.css",
+      "rawSize": 9684,
+      "gzippedSize": 2563,
+      "compression": "73.5%"
     },
     {
-      "file": "styles/a11y.css",
+      "file": "public/styles/a11y.css",
       "rawSize": 12250,
       "gzippedSize": 3162,
       "compression": "74.2%"
     },
     {
-      "file": "styles/colors.css",
-      "rawSize": 7398,
-      "gzippedSize": 1766,
-      "compression": "76.1%"
+      "file": "public/styles/colors.css",
+      "rawSize": 8716,
+      "gzippedSize": 2033,
+      "compression": "76.7%"
     },
     {
-      "file": "styles/ui.css",
+      "file": "public/styles/ui.css",
       "rawSize": 20177,
       "gzippedSize": 3673,
       "compression": "81.8%"
     },
     {
-      "file": "sw.js",
-      "rawSize": 6846,
-      "gzippedSize": 2114,
+      "file": "public/sw.js",
+      "rawSize": 6829,
+      "gzippedSize": 2113,
       "compression": "69.1%"
     },
     {
-      "file": "manifest.webmanifest",
-      "rawSize": 392,
-      "gzippedSize": 258,
-      "compression": "34.2%"
+      "file": "public/manifest.webmanifest",
+      "rawSize": 387,
+      "gzippedSize": 253,
+      "compression": "34.6%"
     }
   ],
   "totals": {
-    "raw": 316763,
-    "gzipped": 70986
+    "raw": 328270,
+    "gzipped": 73063
   }
 }

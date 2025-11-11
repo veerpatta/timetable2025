@@ -12,7 +12,7 @@ This document describes the feature flag system used in the timetable applicatio
 ## 🎯 Feature Flag System
 
 ### Location
-Feature flags are defined in the `FEATURE_FLAGS` object at the top of `index.html`:
+Feature flags are defined in the `FEATURE_FLAGS` object at the top of `public/index.html`:
 
 ```javascript
 const FEATURE_FLAGS = {
@@ -37,7 +37,7 @@ const FEATURE_FLAGS = {
 
 ### 1. `feat_dark_mode`
 **Status**: ✅ Enabled by default
-**Module**: `styles/theme.css`
+**Module**: `public/styles/theme.css`
 **Size Impact**: 8.89 KB raw / 2.42 KB gzipped
 
 #### Description
@@ -71,7 +71,7 @@ if (FEATURE_FLAGS.feat_dark_mode) {
 
 #### Rollback Procedure
 ```javascript
-// In index.html or browser console
+// In public/index.html or browser console
 FEATURE_FLAGS.feat_dark_mode = false;
 location.reload();
 ```
@@ -83,7 +83,7 @@ location.reload();
 
 ### 2. `feat_color_coding`
 **Status**: ✅ Enabled by default
-**Module**: `scripts/colors.js`, `styles/colors.css`
+**Module**: `public/scripts/colors.js`, `public/styles/colors.css`
 **Size Impact**: 16.57 KB raw / 4.52 KB gzipped
 
 #### Description
@@ -126,7 +126,7 @@ if (FEATURE_FLAGS.feat_color_coding) {
 
 #### Rollback Procedure
 ```javascript
-// In index.html or browser console
+// In public/index.html or browser console
 FEATURE_FLAGS.feat_color_coding = false;
 location.reload();
 ```
@@ -139,7 +139,7 @@ location.reload();
 
 ### 3. `feat_modern_ui`
 **Status**: ✅ Enabled by default
-**Module**: `scripts/ui.js`, `styles/ui.css`
+**Module**: `public/scripts/ui.js`, `public/styles/ui.css`
 **Size Impact**: 62.16 KB raw / 11.71 KB gzipped
 
 #### Description
@@ -234,7 +234,7 @@ makeCardSwipeable(cardElement, {
 
 #### Rollback Procedure
 ```javascript
-// In index.html or browser console
+// In public/index.html or browser console
 FEATURE_FLAGS.feat_modern_ui = false;
 location.reload();
 ```
@@ -247,7 +247,7 @@ location.reload();
 
 ### 4. `feat_perf_opt`
 **Status**: ✅ Enabled by default
-**Module**: `scripts/perf.js`
+**Module**: `public/scripts/perf.js`
 **Size Impact**: 18.28 KB raw / 4.63 KB gzipped
 
 #### Description
@@ -347,7 +347,7 @@ location.reload();
 
 ### 5. `feat_a11y`
 **Status**: ✅ Enabled by default
-**Module**: `scripts/a11y.js`, `styles/a11y.css`
+**Module**: `public/scripts/a11y.js`, `public/styles/a11y.css`
 **Size Impact**: 26.29 KB raw / 7.06 KB gzipped
 
 #### Description
@@ -438,7 +438,7 @@ body.high-contrast {
 
 #### Rollback Procedure
 ```javascript
-// In index.html or browser console
+// In public/index.html or browser console
 FEATURE_FLAGS.feat_a11y = false;
 location.reload();
 ```
@@ -478,7 +478,7 @@ location.reload();
 ```
 
 ### Persistent Rollback (Source Code Change)
-For permanent rollback, edit `index.html`:
+For permanent rollback, edit `public/index.html`:
 
 ```javascript
 // Before (feature enabled)
@@ -496,7 +496,7 @@ const FEATURE_FLAGS = {
 
 Then commit and deploy:
 ```bash
-git add index.html
+git add public/index.html
 git commit -m "Disable dark mode feature"
 git push
 ```

@@ -16,7 +16,7 @@ This accessibility enhancement module implements WCAG AA-compliant features to e
 
 ## 📦 Deliverables
 
-### 1. **scripts/a11y.js** (15 KB)
+### 1. **public/scripts/a11y.js** (15 KB)
 Main JavaScript module providing:
 - Keyboard shortcuts system
 - ARIA live announcements
@@ -24,7 +24,7 @@ Main JavaScript module providing:
 - Focus management
 - Screen reader optimizations
 
-### 2. **styles/a11y.css** (12 KB)
+### 2. **public/styles/a11y.css** (12 KB)
 Comprehensive styling for:
 - Enhanced focus indicators
 - High contrast mode (WCAG AA)
@@ -238,7 +238,7 @@ The module auto-initializes when the DOM is ready:
 
 ```javascript
 // Automatic initialization
-<script src="./scripts/a11y.js"></script>
+<script src="./public/scripts/a11y.js"></script>
 ```
 
 ### Manual Control
@@ -324,16 +324,16 @@ const flagValue = localStorage.getItem('feat_accessibility');
 
 Remove the overlay features while keeping ARIA improvements:
 
-1. Remove CSS link from `index.html`:
+1. Remove CSS link from `public/index.html`:
    ```html
    <!-- Remove this line -->
-   <link rel="stylesheet" href="./styles/a11y.css">
+   <link rel="stylesheet" href="./public/styles/a11y.css">
    ```
 
-2. Remove JS script from `index.html`:
+2. Remove JS script from `public/index.html`:
    ```html
    <!-- Remove this line -->
-   <script src="./scripts/a11y.js"></script>
+   <script src="./public/scripts/a11y.js"></script>
    ```
 
 3. **Keep:** All ARIA attributes in HTML (they enhance accessibility with no dependencies)
@@ -342,9 +342,9 @@ Remove the overlay features while keeping ARIA improvements:
 
 To completely remove all accessibility enhancements:
 
-1. Delete `scripts/a11y.js`
-2. Delete `styles/a11y.css`
-3. Remove references from `index.html`
+1. Delete `public/scripts/a11y.js`
+2. Delete `public/styles/a11y.css`
+3. Remove references from `public/index.html`
 4. Optionally remove ARIA attributes from HTML
 
 **Note:** Keeping ARIA attributes is recommended as they provide semantic information to assistive technologies with zero overhead.

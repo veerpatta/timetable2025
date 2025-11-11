@@ -8,17 +8,17 @@
 ┌─────────────────────────┬──────────┬──────────┬─────────────┐
 │ File                    │ Raw Size │ Gzipped  │ Compression │
 ├─────────────────────────┼──────────┼──────────┼─────────────┤
-│ index.html              │ 170.07 KB │ 36.67 KB │       78.4% │
-│ scripts/perf.js         │ 18.28 KB │  4.63 KB │       74.7% │
-│ scripts/a11y.js         │ 14.33 KB │  3.97 KB │       72.3% │
-│ scripts/colors.js       │  9.35 KB │   2.8 KB │       70.1% │
-│ scripts/ui.js           │ 42.46 KB │  8.12 KB │       80.9% │
-│ styles/theme.css        │  8.89 KB │  2.42 KB │       72.7% │
-│ styles/a11y.css         │ 11.96 KB │  3.09 KB │       74.2% │
-│ styles/colors.css       │  7.22 KB │  1.72 KB │       76.1% │
-│ styles/ui.css           │  19.7 KB │  3.59 KB │       81.8% │
-│ sw.js                   │  6.69 KB │  2.06 KB │       69.1% │
-│ manifest.webmanifest    │    392 B │    258 B │       34.2% │
+│ public/index.html       │ 170.07 KB │ 36.67 KB │       78.4% │
+│ public/scripts/perf.js  │ 18.28 KB │  4.63 KB │       74.7% │
+│ public/scripts/a11y.js  │ 14.33 KB │  3.97 KB │       72.3% │
+│ public/scripts/colors.js │  9.35 KB │   2.8 KB │       70.1% │
+│ public/scripts/ui.js    │ 42.46 KB │  8.12 KB │       80.9% │
+│ public/styles/theme.css │  8.89 KB │  2.42 KB │       72.7% │
+│ public/styles/a11y.css  │ 11.96 KB │  3.09 KB │       74.2% │
+│ public/styles/colors.css │  7.22 KB │  1.72 KB │       76.1% │
+│ public/styles/ui.css    │  19.7 KB │  3.59 KB │       81.8% │
+│ public/sw.js            │  6.69 KB │  2.06 KB │       69.1% │
+│ public/manifest.webmanifest │    392 B │    258 B │       34.2% │
 └─────────────────────────┴──────────┴──────────┴─────────────┘
 
 📦 BUNDLE SIZE SUMMARY
@@ -31,14 +31,14 @@ Budget Status:        ✅ WITHIN (-190.66 KB)
 
 📝 JAVASCRIPT ANALYSIS
 
-scripts/perf.js:
+public/scripts/perf.js:
   Lines:              708
   Functions:          6
   Classes:            6
   Async Functions:    0
   Comments:           72
 
-scripts/colors.js:
+public/scripts/colors.js:
   Lines:              350
   Functions:          12
   Classes:            0
@@ -56,7 +56,7 @@ scripts/colors.js:
 
 💡 OPTIMIZATION RECOMMENDATIONS
 
-⚠️  index.html is large - consider extracting inline JS to modules
+⚠️  public/index.html is large - consider extracting inline JS to modules
 
 📄 Full report saved to: build-report.json
 

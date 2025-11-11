@@ -33,24 +33,24 @@ const STATIC_CACHE_NAME = 'vpps-static-v2';
 The following assets were added to `STATIC_ASSETS` array:
 
 **JavaScript Modules:**
-- `./scripts/perf.js` - Performance optimizations (18.28 KB)
-- `./scripts/a11y.js` - Accessibility features (14.33 KB)
-- `./scripts/colors.js` - Subject color coding (9.35 KB)
-- `./scripts/ui.js` - Modern UI components (42.46 KB)
+- `./public/scripts/perf.js` - Performance optimizations (18.28 KB)
+- `./public/scripts/a11y.js` - Accessibility features (14.33 KB)
+- `./public/scripts/colors.js` - Subject color coding (9.35 KB)
+- `./public/scripts/ui.js` - Modern UI components (42.46 KB)
 
 **CSS Stylesheets:**
-- `./styles/theme.css` - Dark mode theme (8.89 KB)
-- `./styles/a11y.css` - Accessibility styles (11.96 KB)
-- `./styles/colors.css` - Color coding styles (7.22 KB)
-- `./styles/ui.css` - UI component styles (19.70 KB)
+- `./public/styles/theme.css` - Dark mode theme (8.89 KB)
+- `./public/styles/a11y.css` - Accessibility styles (11.96 KB)
+- `./public/styles/colors.css` - Color coding styles (7.22 KB)
+- `./public/styles/ui.css` - UI component styles (19.70 KB)
 
 **Total New Assets**: 132.19 KB raw / 30.34 KB gzipped
 
 #### Assets Already Cached (v1)
 - `./` - Root path
-- `./index.html` - Main application
-- `./manifest.webmanifest` - PWA manifest
-- `./icons/icon-512.png` - School logo
+- `./public/index.html` - Main application
+- `./public/manifest.webmanifest` - PWA manifest
+- `./public/assets/icons/icon-512.png` - School logo
 - External CDN resources:
   - html2canvas (1.4.1)
   - jsPDF (2.5.1)
@@ -114,7 +114,7 @@ The following assets were added to `STATIC_ASSETS` array:
 - ✅ All 12 local assets are cached:
   - `/` or `/index.html`
   - `/manifest.webmanifest`
-  - `/icons/icon-512.png`
+  - `/assets/icons/icon-512.png`
   - `/scripts/perf.js`
   - `/scripts/a11y.js`
   - `/scripts/colors.js`
@@ -136,7 +136,7 @@ Cache Storage
     ├── http://localhost:8000/
     ├── http://localhost:8000/index.html
     ├── http://localhost:8000/manifest.webmanifest
-    ├── http://localhost:8000/icons/icon-512.png
+    ├── http://localhost:8000/assets/icons/icon-512.png
     ├── http://localhost:8000/scripts/perf.js
     ├── http://localhost:8000/scripts/a11y.js
     ├── http://localhost:8000/scripts/colors.js

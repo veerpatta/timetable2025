@@ -36,8 +36,8 @@ The Modern UI Components enhance the timetable application with:
 
 ### Files
 
-- `styles/ui.css` - Modern UI component styles
-- `scripts/ui.js` - Modern UI component logic
+- `public/styles/ui.css` - Modern UI component styles
+- `public/scripts/ui.js` - Modern UI component logic
 
 ---
 
@@ -64,9 +64,9 @@ ModernUI.disable();
 location.reload();
 ```
 
-### Manual Toggle (index.html)
+### Manual Toggle (`public/index.html`)
 
-Edit `index.html` line 1376:
+Edit `public/index.html` line 1376:
 
 ```javascript
 const FEATURE_FLAGS = {
@@ -675,7 +675,7 @@ location.reload();
 
 ### Method 3: Edit Feature Flag
 
-Edit `index.html` line 1376:
+Edit `public/index.html` line 1376:
 
 ```javascript
 feat_modern_ui: false, // Disable modern UI
@@ -685,13 +685,13 @@ feat_modern_ui: false, // Disable modern UI
 
 ```bash
 # Remove modern UI files
-rm styles/ui.css
-rm scripts/ui.js
+rm public/styles/ui.css
+rm public/scripts/ui.js
 
-# Remove includes from index.html
-# Line 36: <link rel="stylesheet" href="./styles/ui.css">
+# Remove includes from public/index.html
+# Line 36: <link rel="stylesheet" href="./public/styles/ui.css">
 # Line 1376: feat_modern_ui: true,
-# Line 4787: <script src="./scripts/ui.js"></script>
+# Line 4787: <script src="./public/scripts/ui.js"></script>
 ```
 
 ### Legacy Fallback
@@ -906,9 +906,9 @@ console.log('Modern UI loaded and ready!')
 
 **Resources:**
 - Feature documentation: This file
-- Code: `scripts/ui.js`
-- Styles: `styles/ui.css`
-- Main app: `index.html`
+- Code: `public/scripts/ui.js`
+- Styles: `public/styles/ui.css`
+- Main app: `public/index.html`
 
 ---
 

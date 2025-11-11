@@ -4,8 +4,8 @@
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>Accessibility Features Test - VPPS Timetable</title>
-	<link rel="stylesheet" href="./styles/theme.css">
-	<link rel="stylesheet" href="./styles/a11y.css">
+      <link rel="stylesheet" href="./public/styles/theme.css">
+      <link rel="stylesheet" href="./public/styles/a11y.css">
 	<style>
 		body {
 			font-family: system-ui, -apple-system, sans-serif;
@@ -355,8 +355,8 @@ window.A11y.openShortcutsModal();
 			<div class="test-item">
 				<h3>To Rollback:</h3>
 				<ol>
-					<li>Remove <code>&lt;link rel="stylesheet" href="./styles/a11y.css"&gt;</code></li>
-					<li>Remove <code>&lt;script src="./scripts/a11y.js"&gt;&lt;/script&gt;</code></li>
+                                    <li>Remove <code>&lt;link rel="stylesheet" href="./public/styles/a11y.css"&gt;</code></li>
+                                    <li>Remove <code>&lt;script src="./public/scripts/a11y.js"&gt;&lt;/script&gt;</code></li>
 					<li>ARIA attributes in HTML remain (they enhance accessibility with no dependencies)</li>
 				</ol>
 			</div>
@@ -369,7 +369,7 @@ window.A11y.openShortcutsModal();
 	</button>
 
 	<!-- Load Scripts -->
-	<script src="./scripts/a11y.js"></script>
+    <script src="./public/scripts/a11y.js"></script>
 	<script>
 		// Theme toggle functionality
 		const themeToggle = document.getElementById('theme-toggle');
