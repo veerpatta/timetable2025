@@ -241,13 +241,14 @@ All application routes and features work completely offline:
 11. **build-report.js** - Bundle size analysis tool
 12. **docs/reports/build-report.json** - Current build metrics (JSON)
 13. **docs/reports/FINAL_BUILD_REPORT.txt** - Human-readable build report
-14. **verify-contrast.js** - Color contrast checker
-15. **test-mapping.js** - Subject mapping tests
-16. **test-a11y.html** - Accessibility test page
-17. **test-colors.html** - Color system test page
-18. **tests/perf-test.html** - Performance test suite
+14. **tests/README.md** - Test suite documentation
+15. **tests/manual/colors/verify-contrast.js** - Color contrast checker (Node.js)
+16. **tests/manual/test-mapping.js** - Subject mapping tests (Node.js)
+17. **tests/manual/accessibility/test-a11y.html** - Accessibility test page (browser)
+18. **tests/manual/colors/test-colors.html** - Color system test page (browser)
+19. **tests/manual/performance/perf-test.html** - Performance test suite (browser)
 
-**Total Documentation**: 2,500+ lines across 18 files
+**Total Documentation**: 2,500+ lines across 19 files
 
 ---
 
