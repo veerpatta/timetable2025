@@ -12,10 +12,18 @@
 	// Feature flag key
 	const FEATURE_FLAG = 'feat_color_coding';
 
-	/**
-	 * Subject Category Mappings
-	 * Each subject is mapped to a color category
-	 */
+        /**
+         * Check if the document is currently using the dark theme
+         * @returns {boolean}
+         */
+        function isDarkTheme() {
+                return document.documentElement.getAttribute('data-theme') === 'dark';
+        }
+
+        /**
+         * Subject Category Mappings
+         * Each subject is mapped to a color category
+         */
 	const SUBJECT_CATEGORIES = {
 		// Languages - Blue shades
 		languages: [
@@ -110,25 +118,20 @@
 	 * @param {string} subject - The subject name
 	 */
 	function applyColorToElement(element, subject) {
-		if (!element) return;
+                if (!element) return;
 
-		const category = getSubjectCategory(subject);
+                removeColorFromElement(element);
 
-		// Remove any existing category classes
-		element.removeAttribute('data-category');
-		element.classList.remove(
-			'subject-color-languages',
-			'subject-color-sciences',
-			'subject-color-math',
-			'subject-color-social',
-			'subject-color-sports',
-			'subject-color-default'
-		);
+                if (isDarkTheme()) {
+                        return;
+                }
 
-		// Apply new category
-		element.setAttribute('data-category', category);
-		element.classList.add(`subject-color-${category}`);
-	}
+                const category = getSubjectCategory(subject);
+
+                // Apply new category
+                element.setAttribute('data-category', category);
+                element.classList.add(`subject-color-${category}`);
+        }
 
 	/**
 	 * Remove color coding from an element (rollback)
@@ -151,14 +154,20 @@
 	/**
 	 * Apply colors to all subject elements in the document
 	 */
-	function applyColorsToAllSubjects() {
-		const subjectElements = document.querySelectorAll('.subject');
+        function applyColorsToAllSubjects() {
+                const subjectElements = document.querySelectorAll('.subject');
+                const darkTheme = isDarkTheme();
 
-		subjectElements.forEach(element => {
-			const subjectText = element.textContent || element.innerText || '';
-			applyColorToElement(element, subjectText);
-		});
-	}
+                subjectElements.forEach(element => {
+                        if (darkTheme) {
+                                removeColorFromElement(element);
+                                return;
+                        }
+
+                        const subjectText = element.textContent || element.innerText || '';
+                        applyColorToElement(element, subjectText);
+                });
+        }
 
 	/**
 	 * Remove colors from all subject elements (rollback)
@@ -173,11 +182,16 @@
 	 * @param {string} containerId - ID of the container to inject the legend into
 	 */
 	function createColorLegend(containerId = 'color-legend-container') {
-		const container = document.getElementById(containerId);
-		if (!container) {
-			console.warn(`Color legend container #${containerId} not found`);
-			return;
-		}
+                if (isDarkTheme()) {
+                        removeColorLegend(containerId);
+                        return;
+                }
+
+                const container = document.getElementById(containerId);
+                if (!container) {
+                        console.warn(`Color legend container #${containerId} not found`);
+                        return;
+                }
 
 		const legend = document.createElement('div');
 		legend.className = 'color-legend';
@@ -317,28 +331,38 @@
 	function observeDynamicSubjects() {
 		if (!isFeatureEnabled()) return;
 
-		const observer = new MutationObserver(mutations => {
-			if (!isFeatureEnabled()) return;
+                const observer = new MutationObserver(mutations => {
+                        if (!isFeatureEnabled()) return;
 
-			mutations.forEach(mutation => {
-				mutation.addedNodes.forEach(node => {
-					if (node.nodeType === Node.ELEMENT_NODE) {
-						// Check if the added node is a subject element
-						if (node.classList && node.classList.contains('subject')) {
-							const subjectText = node.textContent || node.innerText || '';
-							applyColorToElement(node, subjectText);
-						}
+                        const darkTheme = isDarkTheme();
 
-						// Check for subject elements within the added node
-						const subjectElements = node.querySelectorAll('.subject');
-						subjectElements.forEach(element => {
-							const subjectText = element.textContent || element.innerText || '';
-							applyColorToElement(element, subjectText);
-						});
-					}
-				});
-			});
-		});
+                        mutations.forEach(mutation => {
+                                mutation.addedNodes.forEach(node => {
+                                        if (node.nodeType === Node.ELEMENT_NODE) {
+                                                // Check if the added node is a subject element
+                                                if (node.classList && node.classList.contains('subject')) {
+                                                        if (darkTheme) {
+                                                                removeColorFromElement(node);
+                                                        } else {
+                                                                const subjectText = node.textContent || node.innerText || '';
+                                                                applyColorToElement(node, subjectText);
+                                                        }
+                                                }
+
+                                                // Check for subject elements within the added node
+                                                const subjectElements = node.querySelectorAll('.subject');
+                                                subjectElements.forEach(element => {
+                                                        if (darkTheme) {
+                                                                removeColorFromElement(element);
+                                                        } else {
+                                                                const subjectText = element.textContent || element.innerText || '';
+                                                                applyColorToElement(element, subjectText);
+                                                        }
+                                                });
+                                        }
+                                });
+                        });
+                });
 
 		// Observe the entire document for changes
 		observer.observe(document.body, {
@@ -350,21 +374,40 @@
 	}
 
 	// Public API
-	window.SubjectColorCoding = {
-		init,
-		enable: enableColorCoding,
-		disable: disableColorCoding,
-		isEnabled: isFeatureEnabled,
-		applyToElement: applyColorToElement,
-		removeFromElement: removeColorFromElement,
-		applyToAll: applyColorsToAllSubjects,
-		removeFromAll: removeColorsFromAllSubjects,
-		createLegend: createColorLegend,
-		removeLegend: removeColorLegend,
-		getCategory: getSubjectCategory,
-		observeDynamic: observeDynamicSubjects,
-		FEATURE_FLAG
-	};
+        window.SubjectColorCoding = {
+                init,
+                enable: enableColorCoding,
+                disable: disableColorCoding,
+                isEnabled: isFeatureEnabled,
+                applyToElement: applyColorToElement,
+                removeFromElement: removeColorFromElement,
+                applyToAll: applyColorsToAllSubjects,
+                removeFromAll: removeColorsFromAllSubjects,
+                createLegend: createColorLegend,
+                removeLegend: removeColorLegend,
+                getCategory: getSubjectCategory,
+                observeDynamic: observeDynamicSubjects,
+                isDarkTheme,
+                FEATURE_FLAG
+        };
+
+        function handleThemeChange(event = {}) {
+                const themeDetail = event.detail && event.detail.theme;
+                const theme = themeDetail || (isDarkTheme() ? 'dark' : 'light');
+
+                if (theme === 'dark') {
+                        removeColorsFromAllSubjects();
+                        removeColorLegend();
+                        return;
+                }
+
+                if (theme === 'light' && isFeatureEnabled()) {
+                        applyColorsToAllSubjects();
+                        createColorLegend();
+                }
+        }
+
+        window.addEventListener('themechange', handleThemeChange);
 
 	// Auto-initialize if DOM is ready
 	if (document.readyState === 'loading') {
