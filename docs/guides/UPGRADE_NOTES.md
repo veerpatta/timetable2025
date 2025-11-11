@@ -378,10 +378,10 @@ location.reload();
    node build-report.js
    ```
 
-4. **Testing**: Use provided test pages
-   - `test-a11y.html` - Accessibility testing
-   - `test-colors.html` - Color system testing
-   - `tests/perf-test.html` - Performance testing
+4. **Testing**: Use provided test pages (see `tests/README.md` for details)
+   - `tests/manual/accessibility/test-a11y.html` - Accessibility testing
+   - `tests/manual/colors/test-colors.html` - Color system testing
+   - `tests/manual/performance/perf-test.html` - Performance testing
 
 ---
 
@@ -417,7 +417,7 @@ Run Lighthouse in Chrome DevTools:
 5. Check color contrast with DevTools
 
 ### Performance Testing
-1. Open `tests/perf-test.html`
+1. Open `tests/manual/performance/perf-test.html`
 2. Run all test suites
 3. Verify all tests pass
 4. Check Performance tab in DevTools
@@ -480,11 +480,12 @@ Run Lighthouse in Chrome DevTools:
 
 ### Testing Tools
 - `build-report.js` - Bundle size analysis
-- `verify-contrast.js` - Color contrast checker
-- `test-mapping.js` - Subject mapping tests
-- `test-a11y.html` - Accessibility test page
-- `test-colors.html` - Color system test page
-- `tests/perf-test.html` - Performance test suite
+- `tests/README.md` - Test suite documentation
+- `tests/manual/colors/verify-contrast.js` - Color contrast checker (Node.js)
+- `tests/manual/test-mapping.js` - Subject mapping tests (Node.js)
+- `tests/manual/accessibility/test-a11y.html` - Accessibility test page (browser)
+- `tests/manual/colors/test-colors.html` - Color system test page (browser)
+- `tests/manual/performance/perf-test.html` - Performance test suite (browser)
 
 ### Contact
 For issues, feature requests, or questions, please contact the development team.

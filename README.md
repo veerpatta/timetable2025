@@ -36,7 +36,6 @@ history and operational procedures are documented within the guides collection.
 ## Scripts & Tooling
 
 - [`build-report.js`](build-report.js) — analyzes asset sizes and writes reports to `docs/reports/`.
-- [`verify-contrast.js`](verify-contrast.js) — checks color contrast ratios against WCAG targets.
-- [`test-mapping.js`](test-mapping.js) and the `tests/` directory — provide targeted validation suites.
+- Manual test harnesses are organized in [`tests/manual/`](tests/) with browser-based and Node.js validation suites. See [`tests/README.md`](tests/README.md) for details.
 
 Feel free to open issues or submit pull requests for enhancements, bug fixes, or documentation updates.

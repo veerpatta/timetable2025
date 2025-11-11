@@ -430,7 +430,7 @@ To completely remove all accessibility enhancements:
 ## 📞 Support
 
 For accessibility-related issues or questions:
-1. Check the test page: `test-a11y.html`
+1. Check the test page: `tests/manual/accessibility/test-a11y.html`
 2. Verify feature flag: `localStorage.getItem('feat_accessibility')`
 3. Check browser console for error messages
 4. Test with different assistive technologies

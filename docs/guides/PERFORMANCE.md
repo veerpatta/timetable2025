@@ -195,7 +195,7 @@ if (PerformanceOptimization.isFeatureEnabled('cache_enabled')) {
 
 ### Performance Test Suite
 
-**Location:** `tests/perf-test.html`
+**Location:** `tests/manual/performance/perf-test.html`
 
 Interactive test suite for validating all performance optimizations.
 
@@ -208,11 +208,11 @@ Interactive test suite for validating all performance optimizations.
 **Running Tests:**
 ```bash
 # Open in browser
-open tests/perf-test.html
+open tests/manual/performance/perf-test.html
 
 # Or serve with local server
 python3 -m http.server 8000
-# Navigate to http://localhost:8000/tests/perf-test.html
+# Navigate to http://localhost:8000/tests/manual/performance/perf-test.html
 ```
 
 ### Build Report
@@ -237,7 +237,7 @@ node build-report.js
 **Objective:** Verify virtual scrolling maintains 60fps with 500+ rows
 
 **Steps:**
-1. Open `tests/perf-test.html`
+1. Open `tests/manual/performance/perf-test.html`
 2. Click "Test Virtual Scrolling (500 rows)"
 3. Scroll through the table rapidly
 
@@ -257,7 +257,7 @@ node build-report.js
 **Objective:** Verify sessionStorage caching works with TTL
 
 **Steps:**
-1. Open `tests/perf-test.html`
+1. Open `tests/manual/performance/perf-test.html`
 2. Click "Test Cache System"
 3. Observe logs for:
    - Data set and retrieval
@@ -498,7 +498,7 @@ Potential additional optimizations:
 For issues or questions about performance optimizations:
 
 1. Check console logs for errors
-2. Run test suite: `tests/perf-test.html`
+2. Run test suite: `tests/manual/performance/perf-test.html`
 3. Generate build report: `node build-report.js`
 4. Review feature flags: `PerformanceOptimization.featureFlags.getAll()`
 
