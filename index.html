@@ -1306,9 +1306,9 @@
 	   ======================================== */
 
 	/* Fix text colors in dark mode for better contrast */
-	[data-theme="dark"] .subject {
-		color: var(--text) !important;
-	}
+        [data-theme="dark"] .subject:not([data-category]):not([class*="subject-color-"]) {
+                color: var(--text) !important;
+        }
 
 	[data-theme="dark"] .teacher {
 		color: var(--text-secondary) !important;
