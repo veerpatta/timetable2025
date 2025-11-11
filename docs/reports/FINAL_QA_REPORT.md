@@ -122,7 +122,7 @@ All application routes and features work completely offline:
 - ✅ No console errors during caching
 - ✅ Cache size within browser limits (~69KB)
 
-**Test Documentation**: See `SERVICE_WORKER_TESTING.md` for detailed testing procedures.
+**Test Documentation**: See `docs/guides/SERVICE_WORKER_TESTING.md` for detailed testing procedures.
 
 ---
 
@@ -225,22 +225,22 @@ All application routes and features work completely offline:
 
 ### Core Documentation
 1. **README.md** - Project overview and quick start
-2. **UPGRADE_NOTES.md** - Complete upgrade guide (v1 → v2)
-3. **FEATURE_FLAGS.md** - Feature flag system documentation
-4. **QA_CHECKLIST.md** - Comprehensive testing checklist (400+ checks)
-5. **SERVICE_WORKER_TESTING.md** - Service worker testing guide
+2. **docs/guides/UPGRADE_NOTES.md** - Complete upgrade guide (v1 → v2)
+3. **docs/guides/FEATURE_FLAGS.md** - Feature flag system documentation
+4. **docs/guides/QA_CHECKLIST.md** - Comprehensive testing checklist (400+ checks)
+5. **docs/guides/SERVICE_WORKER_TESTING.md** - Service worker testing guide
 6. **FINAL_QA_REPORT.md** - This document
 
 ### Feature Documentation
-7. **PERFORMANCE.md** - Performance optimization guide
-8. **ACCESSIBILITY_SUMMARY.md** - Accessibility features guide
-9. **MODERN_UI_GUIDE.md** - Modern UI components guide
-10. **COLOR_CODING_SUMMARY.md** - Color coding system guide
+7. **docs/guides/PERFORMANCE.md** - Performance optimization guide
+8. **docs/guides/ACCESSIBILITY_SUMMARY.md** - Accessibility features guide
+9. **docs/guides/MODERN_UI_GUIDE.md** - Modern UI components guide
+10. **docs/guides/COLOR_CODING_SUMMARY.md** - Color coding system guide
 
 ### Build & Test Files
 11. **build-report.js** - Bundle size analysis tool
-12. **build-report.json** - Current build metrics (JSON)
-13. **FINAL_BUILD_REPORT.txt** - Human-readable build report
+12. **docs/reports/build-report.json** - Current build metrics (JSON)
+13. **docs/reports/FINAL_BUILD_REPORT.txt** - Human-readable build report
 14. **verify-contrast.js** - Color contrast checker
 15. **test-mapping.js** - Subject mapping tests
 16. **test-a11y.html** - Accessibility test page
@@ -510,10 +510,10 @@ location.reload();
 ### 3. Documentation Complete & Accurate
 **Status**: ✅ COMPLETE
 **Deliverables**:
-- ✅ UPGRADE_NOTES.md (comprehensive upgrade guide)
-- ✅ FEATURE_FLAGS.md (feature flag documentation)
-- ✅ QA_CHECKLIST.md (400+ test checks)
-- ✅ SERVICE_WORKER_TESTING.md (SW testing guide)
+- ✅ docs/guides/UPGRADE_NOTES.md (comprehensive upgrade guide)
+- ✅ docs/guides/FEATURE_FLAGS.md (feature flag documentation)
+- ✅ docs/guides/QA_CHECKLIST.md (400+ test checks)
+- ✅ docs/guides/SERVICE_WORKER_TESTING.md (SW testing guide)
 - ✅ FINAL_QA_REPORT.md (this document)
 
 ### 4. Feature Flags Documented with Rollback
@@ -588,10 +588,10 @@ The Veer Patta Public School Timetable Command Center has successfully completed
 ## ✅ Deliverables Checklist
 
 ### Documentation
-- ✅ UPGRADE_NOTES.md
-- ✅ FEATURE_FLAGS.md
-- ✅ QA_CHECKLIST.md
-- ✅ SERVICE_WORKER_TESTING.md
+- ✅ docs/guides/UPGRADE_NOTES.md
+- ✅ docs/guides/FEATURE_FLAGS.md
+- ✅ docs/guides/QA_CHECKLIST.md
+- ✅ docs/guides/SERVICE_WORKER_TESTING.md
 - ✅ FINAL_QA_REPORT.md
 
 ### Service Worker
@@ -602,8 +602,8 @@ The Veer Patta Public School Timetable Command Center has successfully completed
 - ✅ Offline mode verified
 
 ### Build Report
-- ✅ FINAL_BUILD_REPORT.txt
-- ✅ build-report.json
+- ✅ docs/reports/FINAL_BUILD_REPORT.txt
+- ✅ docs/reports/build-report.json
 - ✅ All artifact sizes documented
 - ✅ Budget compliance verified
 - ✅ Compression ratios calculated

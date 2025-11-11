@@ -58,7 +58,7 @@ scripts/colors.js:
 
 ⚠️  index.html is large - consider extracting inline JS to modules
 
-📄 Full report saved to: build-report.json
+📄 Full report saved to: docs/reports/build-report.json
 
 ═════════════════════════════════════════════════════════════════
 

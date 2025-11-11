@@ -1,6 +1,6 @@
 # App Icons for Time Table
 
-Please export your logo to the following PNG sizes and place them in `./icons/`:
+Please export your logo to the following PNG sizes and place them in `icons/` (at the project root):
 
 - icon-32.png   (32x32)   — favicon (browser tab)
 - icon-180.png  (180x180) — Apple Touch icon (iOS)

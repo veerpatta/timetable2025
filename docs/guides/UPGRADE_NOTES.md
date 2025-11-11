@@ -471,12 +471,12 @@ Run Lighthouse in Chrome DevTools:
 
 ### Documentation
 - `README.md` - Project overview
-- `PERFORMANCE.md` - Detailed performance guide
-- `ACCESSIBILITY_SUMMARY.md` - Accessibility features
-- `MODERN_UI_GUIDE.md` - UI components guide
-- `COLOR_CODING_SUMMARY.md` - Color system documentation
-- `FEATURE_FLAGS.md` - Feature flag system
-- `QA_CHECKLIST.md` - Quality assurance checklist
+- `docs/guides/PERFORMANCE.md` - Detailed performance guide
+- `docs/guides/ACCESSIBILITY_SUMMARY.md` - Accessibility features
+- `docs/guides/MODERN_UI_GUIDE.md` - UI components guide
+- `docs/guides/COLOR_CODING_SUMMARY.md` - Color system documentation
+- `docs/guides/FEATURE_FLAGS.md` - Feature flag system
+- `docs/guides/QA_CHECKLIST.md` - Quality assurance checklist
 
 ### Testing Tools
 - `build-report.js` - Bundle size analysis
