@@ -1,8 +1,8 @@
 // Service Worker for Veer Patta Public School Timetable
 // Provides offline-first caching for the page shell and timetable data
 
-const CACHE_NAME = 'vpps-timetable-v4';
-const STATIC_CACHE_NAME = 'vpps-static-v4';
+const CACHE_NAME = 'vpps-timetable-v5';
+const STATIC_CACHE_NAME = 'vpps-static-v5';
 
 // Resources to cache on install
 const STATIC_ASSETS = [
