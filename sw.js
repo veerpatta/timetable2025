@@ -1,8 +1,8 @@
 // Service Worker for Veer Patta Public School Timetable
 // Provides offline-first caching for the page shell and timetable data
 
-const CACHE_NAME = 'vpps-timetable-v2';
-const STATIC_CACHE_NAME = 'vpps-static-v2';
+const CACHE_NAME = 'vpps-timetable-v4';
+const STATIC_CACHE_NAME = 'vpps-static-v4';
 
 // Resources to cache on install
 const STATIC_ASSETS = [
@@ -178,7 +178,15 @@ self.addEventListener('push', event => {
   const options = {
     body: event.data ? event.data.text() : 'Timetable update available',
   icon: './icons/icon-512.png',
+  './scripts/perf.js',
+  './scripts/a11y.js',
+  './scripts/colors.js',
+  './scripts/ui.js',
   badge: './icons/icon-512.png',
+  './scripts/perf.js',
+  './scripts/a11y.js',
+  './scripts/colors.js',
+  './scripts/ui.js',
     vibrate: [100, 50, 100],
     data: {
       dateOfArrival: Date.now(),

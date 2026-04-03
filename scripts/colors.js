@@ -35,7 +35,8 @@
 		// Sciences - Green shades
 		sciences: [
 			'science', 'physics', 'chemistry', 'biology',
-			'evs', 'environmental', 'lab', 'practical'
+			'evs', 'environmental', 'lab', 'practical',
+			'robotics'
 		],
 
 		// Mathematics - Purple
