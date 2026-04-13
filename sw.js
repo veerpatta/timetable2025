@@ -1,11 +1,11 @@
 // Service Worker for Veer Patta Public School Timetable
 // Provides offline-first caching for the page shell and timetable data
 
-const CACHE_NAME = 'vpps-timetable-v8';
-const STATIC_CACHE_NAME = 'vpps-static-v8';
+const CACHE_NAME = 'vpps-timetable-v9';
+const STATIC_CACHE_NAME = 'vpps-static-v9';
 
-// Resources to cache on install
-const STATIC_ASSETS = [
+// Core resources required for offline shell
+const CORE_ASSETS = [
   './',
   './index.html',
   './manifest.webmanifest',
@@ -17,7 +17,11 @@ const STATIC_ASSETS = [
   './styles/theme.css',
   './styles/a11y.css',
   './styles/colors.css',
-  './styles/ui.css',
+  './styles/ui.css'
+];
+
+// Optional external resources: cache when available but don't fail install
+const OPTIONAL_EXTERNAL_ASSETS = [
   'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js',
   'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js',
   'https://cdn.jsdelivr.net/npm/lucide@latest/dist/umd/lucide.min.js',
@@ -29,18 +33,31 @@ self.addEventListener('install', event => {
   console.log('Service Worker: Installing...');
   
   event.waitUntil(
-    caches.open(STATIC_CACHE_NAME)
-      .then(cache => {
-        console.log('Service Worker: Caching static assets');
-        return cache.addAll(STATIC_ASSETS);
-      })
-      .then(() => {
-        console.log('Service Worker: Static assets cached successfully');
-        return self.skipWaiting();
-      })
-      .catch(error => {
-        console.error('Service Worker: Failed to cache static assets:', error);
-      })
+    (async () => {
+      try {
+        const cache = await caches.open(STATIC_CACHE_NAME);
+
+        console.log('Service Worker: Caching core assets');
+        await cache.addAll(CORE_ASSETS);
+
+        console.log('Service Worker: Attempting optional external asset cache');
+        const optionalResults = await Promise.allSettled(
+          OPTIONAL_EXTERNAL_ASSETS.map(asset => cache.add(asset))
+        );
+
+        optionalResults.forEach((result, index) => {
+          if (result.status === 'rejected') {
+            console.warn('Service Worker: Optional asset not cached:', OPTIONAL_EXTERNAL_ASSETS[index], result.reason);
+          }
+        });
+
+        console.log('Service Worker: Core assets cached successfully');
+        await self.skipWaiting();
+      } catch (error) {
+        console.error('Service Worker: Failed to cache core assets:', error);
+        throw error;
+      }
+    })()
   );
 });
 

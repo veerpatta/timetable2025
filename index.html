@@ -1792,6 +1792,7 @@
 		// --- ENHANCED GLOBAL STATE ---
 		let state = {
 			currentView: 'Dashboard',
+			currentSubstitutionDay: null,
 			substitutions: {},
 			allData: {},
 			cache: new Map(),
@@ -3387,7 +3388,7 @@
 					`;
 				}
 
-		if (selectedClass && timetable.Monday && timetable.Monday[selectedClass]) {
+		if (!isMobile() && selectedClass && timetable.Monday && timetable.Monday[selectedClass]) {
 			// Highlight current period if today
 			let currentPeriodIdx = -1;
 			let today = getCurrentDay();
@@ -3541,81 +3542,83 @@
 						`;
 					}
 
-		// Highlight current period if today (only when actually live)
-		let currentPeriodIdx = -1;
-		let today = getCurrentDay();
-		if (typeof getActivePeriodIndex === 'function') {
-			currentPeriodIdx = getActivePeriodIndex();
-		}
-		const tableHeader = '<th>Day</th>' + periodHeaders.map((h, idx) => `<th${(today && idx === currentPeriodIdx) ? ' class="highlight-period"' : ''}>${h.name}</th>`).join('');
-		const tableBody = Object.keys(timetable).map(day => {
-			const daySchedule = teacherDetails[selectedTeacher].schedule[day] || [];
-			const daySubs = state.substitutions[day]?.plan || {};
-			return `
-				<tr>
-					<td class="font-bold" data-label="Day">${day}</td>
-					${periodHeaders.map((_, i) => {
-						const originalPeriod = daySchedule[i];
-						const isSubstitutedOut = originalPeriod && daySubs[originalPeriod.className]?.[i];
-						let subPeriodInfo = null;
-						for (const cName in daySubs) {
-							if (daySubs[cName][i] === selectedTeacher) {
-								subPeriodInfo = timetable[day][cName][i];
-								break;
-							}
+					if (!isMobile()) {
+						// Highlight current period if today (only when actually live)
+						let currentPeriodIdx = -1;
+						let today = getCurrentDay();
+						if (typeof getActivePeriodIndex === 'function') {
+							currentPeriodIdx = getActivePeriodIndex();
 						}
-						const label = periodHeaders[i]?.name || `Period ${i+1}`;
-						return `
-							<td data-label="${label}"${(day === today && i === currentPeriodIdx) ? ' class="highlight-period"' : ''}>
-								${originalPeriod ? `
-									<div class="${isSubstitutedOut ? 'line-through' : ''}">
-										<div class="subject">${originalPeriod.subject}</div>
-										<div class="class-name">${originalPeriod.className}</div>
-									</div>
-								` : ''}
-								${subPeriodInfo ? `
-									<div style="margin-top: 0.25rem;">
-										<div class="subject substitute">${subPeriodInfo.subject}</div>
-										<div class="class-name">(Sub for ${subPeriodInfo.teacher})</div>
-										<div class="class-name">${subPeriodInfo.className}</div>
-									</div>
-								` : ''}
-							</td>
-						`;
-					}).join('')}
-				</tr>
-			`;
-		}).join('');
+						const tableHeader = '<th>Day</th>' + periodHeaders.map((h, idx) => `<th${(today && idx === currentPeriodIdx) ? ' class="highlight-period"' : ''}>${h.name}</th>`).join('');
+						const tableBody = Object.keys(timetable).map(day => {
+							const daySchedule = teacherDetails[selectedTeacher].schedule[day] || [];
+							const daySubs = state.substitutions[day]?.plan || {};
+							return `
+								<tr>
+									<td class="font-bold" data-label="Day">${day}</td>
+									${periodHeaders.map((_, i) => {
+										const originalPeriod = daySchedule[i];
+										const isSubstitutedOut = originalPeriod && daySubs[originalPeriod.className]?.[i];
+										let subPeriodInfo = null;
+										for (const cName in daySubs) {
+											if (daySubs[cName][i] === selectedTeacher) {
+												subPeriodInfo = timetable[day][cName][i];
+												break;
+											}
+										}
+										const label = periodHeaders[i]?.name || `Period ${i+1}`;
+										return `
+											<td data-label="${label}"${(day === today && i === currentPeriodIdx) ? ' class="highlight-period"' : ''}>
+												${originalPeriod ? `
+													<div class="${isSubstitutedOut ? 'line-through' : ''}">
+														<div class="subject">${originalPeriod.subject}</div>
+														<div class="class-name">${originalPeriod.className}</div>
+													</div>
+												` : ''}
+												${subPeriodInfo ? `
+													<div style="margin-top: 0.25rem;">
+														<div class="subject substitute">${subPeriodInfo.subject}</div>
+														<div class="class-name">(Sub for ${subPeriodInfo.teacher})</div>
+														<div class="class-name">${subPeriodInfo.className}</div>
+													</div>
+												` : ''}
+											</td>
+										`;
+									}).join('')}
+								</tr>
+							`;
+						}).join('');
 
-					detailsHtml = `
-						<div class="mt-4">
-							<div style="background: var(--primary-50); color: var(--primary-800);
-										font-weight: 600; text-align: center; border-radius: var(--radius);
-										padding: 0.75rem; margin-bottom: 1.5rem;">
-								Total Weekly Periods: ${teacherDetails[selectedTeacher].periodCount}
+						detailsHtml = `
+							<div class="mt-4">
+								<div style="background: var(--primary-50); color: var(--primary-800);
+											font-weight: 600; text-align: center; border-radius: var(--radius);
+											padding: 0.75rem; margin-bottom: 1.5rem;">
+									Total Weekly Periods: ${teacherDetails[selectedTeacher].periodCount}
+								</div>
 							</div>
-						</div>
-						<div class="table-container">
-							<table class="responsive sticky-first-col" role="table" aria-label="${selectedTeacher} weekly timetable">
-								<thead><tr>${tableHeader}</tr></thead>
-								<tbody>${tableBody}</tbody>
-							</table>
-						</div>
-						<div class="flex justify-center gap-4" style="margin-top: 1.5rem;">
-							<button onclick="handlePrint()" class="button button-secondary" style="max-width: 250px;">
-								<i data-lucide="printer"></i> Print ${selectedTeacher} Schedule
-							</button>
-							<button onclick="handleShareScreenshot()" class="button button-whatsapp" style="max-width: 200px;">
-								<i data-lucide="share-2"></i> Share
-							</button>
-							<button onclick="handleShareAsPDF()" class="button button-primary no-capture" style="max-width: 200px;">
-								<i data-lucide="file-text"></i> Share as PDF
-							</button>
-							<button onclick="handleExportCSV()" class="button button-secondary no-capture" style="max-width: 200px;">
-								<i data-lucide="download"></i> Export CSV
-							</button>
-						</div>
-					`;
+							<div class="table-container">
+								<table class="responsive sticky-first-col" role="table" aria-label="${selectedTeacher} weekly timetable">
+									<thead><tr>${tableHeader}</tr></thead>
+									<tbody>${tableBody}</tbody>
+								</table>
+							</div>
+							<div class="flex justify-center gap-4" style="margin-top: 1.5rem;">
+								<button onclick="handlePrint()" class="button button-secondary" style="max-width: 250px;">
+									<i data-lucide="printer"></i> Print ${selectedTeacher} Schedule
+								</button>
+								<button onclick="handleShareScreenshot()" class="button button-whatsapp" style="max-width: 200px;">
+									<i data-lucide="share-2"></i> Share
+								</button>
+								<button onclick="handleShareAsPDF()" class="button button-primary no-capture" style="max-width: 200px;">
+									<i data-lucide="file-text"></i> Share as PDF
+								</button>
+								<button onclick="handleExportCSV()" class="button button-secondary no-capture" style="max-width: 200px;">
+									<i data-lucide="download"></i> Export CSV
+								</button>
+							</div>
+						`;
+					}
 				}
 
 				const html = `
@@ -4032,6 +4035,7 @@
 			// Always default to the current day when none is provided
 			const currentDay = getCurrentDay();
 			const selectedDay = day || currentDay;
+			state.currentSubstitutionDay = selectedDay;
 			document.getElementById('print-header-subtitle').textContent = `Substitution Plan for ${selectedDay}`;
 
 
@@ -4178,7 +4182,7 @@
 		}
 		function handleAbsentTeacherChange(checkbox) {
 			try {
-				const day = getCurrentDay();
+				const day = state.currentSubstitutionDay || getCurrentDay();
 				const selectedCheckboxes = Array.from(document.querySelectorAll('input[type="checkbox"]:checked'));
 				const absentTeachers = selectedCheckboxes.map(cb => cb.value);
 				renderSubstitutionView(day, absentTeachers);
