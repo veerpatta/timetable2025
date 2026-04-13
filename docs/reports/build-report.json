@@ -1,10 +1,10 @@
 {
-  "timestamp": "2026-04-13T11:12:34.582Z",
+  "timestamp": "2026-04-13T11:32:56.864Z",
   "files": [
     {
       "file": "index.html",
-      "rawSize": 185101,
-      "gzippedSize": 39166,
+      "rawSize": 194644,
+      "gzippedSize": 41335,
       "compression": "78.8%"
     },
     {
@@ -63,13 +63,13 @@
     },
     {
       "file": "manifest.webmanifest",
-      "rawSize": 380,
-      "gzippedSize": 248,
-      "compression": "34.7%"
+      "rawSize": 421,
+      "gzippedSize": 272,
+      "compression": "35.4%"
     }
   ],
   "totals": {
-    "raw": 334107,
-    "gzipped": 73899
+    "raw": 343691,
+    "gzipped": 76092
   }
 }

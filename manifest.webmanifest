@@ -1,7 +1,7 @@
 {
-  "name": "Time Table",
-  "short_name": "Time Table",
-  "description": "Veer Patta Public School - Timetable Command Center",
+  "name": "VPPS Timetable 2026-27",
+  "short_name": "VPPS 2026-27",
+  "description": "Veer Patta Public School - Official Timetable Command Center for Session 2026-27",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",

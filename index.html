@@ -3,12 +3,12 @@
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, maximum-scale=5.0">
-	<title>Timetable Command Center - Veer Patta Public School</title>
+	<title>VPPS Timetable 2026-27 - Veer Patta Public School</title>
 	<meta name="theme-color" content="#2563eb">
 	<meta name="apple-mobile-web-app-capable" content="yes">
 	<meta name="apple-mobile-web-app-status-bar-style" content="default">
-	<meta name="apple-mobile-web-app-title" content="Time Table">
-	<meta name="application-name" content="Time Table">
+	<meta name="apple-mobile-web-app-title" content="VPPS 2026-27">
+	<meta name="application-name" content="VPPS 2026-27">
 	<meta name="mobile-web-app-capable" content="yes">
 
 	<!-- PWA Manifest & Icons -->
@@ -53,6 +53,8 @@
 			--primary-700: #1d4ed8;
 			--primary-800: #1e40af;
 			--primary-900: #1e3a8a;
+			--blue-50: #e0f2fe;
+			--blue-500: #0ea5e9;
 
 			--gray-50: #f9fafb;
 			--gray-100: #f3f4f6;
@@ -65,12 +67,16 @@
 			--gray-800: #1f2937;
 			--gray-900: #111827;
 
+                        --green-50: #ecfdf5;
                         --green-500: #10b981;
                         --green-600: #059669;
+                        --green-800: #065f46;
                         --yellow-50: #fffbeb;
                         --yellow-100: #fef3c7;
                         --yellow-500: #f59e0b;
                         --yellow-600: #d97706;
+                        --yellow-800: #92400e;
+                        --red-200: #fecaca;
                         --red-500: #ef4444;
                         --red-600: #dc2626;
 
@@ -97,6 +103,7 @@
 			color: var(--text);
 			min-height: 100vh;
 			line-height: 1.6;
+			scroll-padding-top: 6rem;
 		}
 
 		/* Loading Screen */
@@ -131,13 +138,15 @@
 		.app-container {
 			max-width: 1400px;
 			margin: 0 auto;
-			padding: 0.5rem;
+			padding: 0.75rem;
+			padding-bottom: 5.5rem;
 		}
 		
 		/* Mobile-first approach */
 		@media (min-width: 768px) {
 			.app-container {
 				padding: 1rem;
+				padding-bottom: 2rem;
 			}
 		}
 
@@ -699,6 +708,301 @@
 			padding: 2rem 1rem;
 			color: var(--gray-600);
 			font-size: 0.875rem;
+		}
+
+		/* App Shell Enhancements */
+		header {
+			border: 1px solid var(--border);
+			background:
+				radial-gradient(circle at top left, rgba(37, 99, 235, 0.14), transparent 34%),
+				linear-gradient(135deg, rgba(37, 99, 235, 0.08), rgba(14, 165, 233, 0.04)),
+				var(--card);
+			overflow: hidden;
+		}
+
+		.header-copy {
+			position: relative;
+			z-index: 1;
+			padding-right: 3.25rem;
+		}
+
+		.header-kicker {
+			display: inline-flex;
+			align-items: center;
+			gap: 0.4rem;
+			padding: 0.35rem 0.7rem;
+			margin-bottom: 0.75rem;
+			border-radius: 999px;
+			background: rgba(37, 99, 235, 0.1);
+			color: var(--primary-800);
+			font-size: 0.72rem;
+			font-weight: 700;
+			letter-spacing: 0.08em;
+			text-transform: uppercase;
+		}
+
+		.header-kicker strong {
+			letter-spacing: normal;
+			text-transform: none;
+		}
+
+		.header-status {
+			display: flex;
+			flex-wrap: wrap;
+			justify-content: center;
+			gap: 0.6rem;
+			margin-top: 0.9rem;
+		}
+
+		.status-pill {
+			display: inline-flex;
+			align-items: center;
+			gap: 0.4rem;
+			padding: 0.45rem 0.7rem;
+			border-radius: 999px;
+			background: rgba(255, 255, 255, 0.7);
+			border: 1px solid rgba(37, 99, 235, 0.14);
+			color: var(--gray-700);
+			font-size: 0.78rem;
+			font-weight: 600;
+		}
+
+		.status-pill strong {
+			color: var(--primary-800);
+		}
+
+		#main-nav {
+			position: sticky;
+			top: 0.75rem;
+			z-index: 40;
+			display: grid;
+			grid-template-columns: repeat(2, minmax(0, 1fr));
+			overflow: visible;
+			border: 1px solid var(--border);
+			backdrop-filter: blur(14px);
+			-webkit-backdrop-filter: blur(14px);
+		}
+
+		#main-nav .nav-button {
+			width: 100%;
+			min-width: 0;
+			flex-direction: column;
+			gap: 0.35rem;
+			padding-inline: 0.6rem;
+		}
+
+		.app-shell-note {
+			display: flex;
+			flex-wrap: wrap;
+			align-items: center;
+			justify-content: center;
+			gap: 0.65rem;
+			margin-bottom: 1rem;
+			padding: 0.8rem 1rem;
+			border: 1px solid rgba(37, 99, 235, 0.14);
+			border-radius: var(--radius-lg);
+			background: rgba(255, 255, 255, 0.78);
+			box-shadow: var(--shadow-sm);
+			color: var(--gray-700);
+			font-size: 0.86rem;
+			text-align: center;
+		}
+
+		.app-shell-note strong {
+			color: var(--primary-800);
+		}
+
+		.card {
+			border: 1px solid var(--border);
+		}
+
+		.table-container {
+			border: 1px solid var(--border);
+			border-radius: calc(var(--radius-lg) + 2px);
+			background: var(--card);
+			box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.45);
+			padding: 0.35rem 0.5rem;
+		}
+
+		.section-kicker {
+			display: inline-flex;
+			align-items: center;
+			gap: 0.4rem;
+			font-size: 0.74rem;
+			font-weight: 700;
+			letter-spacing: 0.08em;
+			text-transform: uppercase;
+			color: var(--primary-700);
+			margin-bottom: 0.45rem;
+		}
+
+		.section-title {
+			font-size: 1.2rem;
+			font-weight: 800;
+			line-height: 1.25;
+			color: var(--gray-900);
+			margin-bottom: 0.35rem;
+		}
+
+		.section-subtitle {
+			color: var(--gray-600);
+			font-size: 0.9rem;
+			max-width: 62ch;
+		}
+
+		.hero-grid {
+			display: grid;
+			gap: 1rem;
+			margin-bottom: 1rem;
+		}
+
+		.hero-panel {
+			position: relative;
+			overflow: hidden;
+			background:
+				linear-gradient(135deg, rgba(37, 99, 235, 0.08), rgba(16, 185, 129, 0.05)),
+				var(--card);
+		}
+
+		.hero-panel::after {
+			content: "";
+			position: absolute;
+			inset: auto -3rem -3rem auto;
+			width: 9rem;
+			height: 9rem;
+			border-radius: 50%;
+			background: rgba(14, 165, 233, 0.08);
+			filter: blur(8px);
+			pointer-events: none;
+		}
+
+		.metric-strip {
+			display: grid;
+			grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+			gap: 0.75rem;
+			margin-top: 1rem;
+		}
+
+		.metric-chip {
+			padding: 0.85rem 0.9rem;
+			border-radius: var(--radius-lg);
+			background: rgba(255, 255, 255, 0.84);
+			border: 1px solid rgba(37, 99, 235, 0.12);
+			text-align: left;
+		}
+
+		.metric-chip span {
+			display: block;
+			font-size: 0.72rem;
+			color: var(--gray-500);
+			text-transform: uppercase;
+			letter-spacing: 0.07em;
+			margin-bottom: 0.2rem;
+		}
+
+		.metric-chip strong {
+			font-size: 1.02rem;
+			color: var(--gray-900);
+		}
+
+		.view-shell {
+			display: grid;
+			gap: 1rem;
+		}
+
+		.view-header {
+			display: flex;
+			flex-wrap: wrap;
+			align-items: flex-start;
+			justify-content: space-between;
+			gap: 1rem;
+		}
+
+		.view-actions {
+			display: flex;
+			flex-wrap: wrap;
+			gap: 0.75rem;
+			width: 100%;
+		}
+
+		.view-actions .button {
+			width: auto;
+			flex: 1 1 10rem;
+		}
+
+		.control-shell {
+			display: grid;
+			gap: 0.75rem;
+			padding: 1rem;
+			border-radius: var(--radius-lg);
+			background: linear-gradient(135deg, rgba(37, 99, 235, 0.05), rgba(14, 165, 233, 0.03));
+			border: 1px solid rgba(37, 99, 235, 0.1);
+		}
+
+		.field-block {
+			display: grid;
+			gap: 0.45rem;
+		}
+
+		.field-label {
+			font-size: 0.8rem;
+			font-weight: 700;
+			color: var(--gray-700);
+			text-transform: uppercase;
+			letter-spacing: 0.06em;
+		}
+
+		.field-help {
+			color: var(--gray-600);
+			font-size: 0.84rem;
+		}
+
+		.dashboard-actions {
+			display: grid;
+			grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+			gap: 0.75rem;
+			margin-top: 1rem;
+		}
+
+		.dashboard-actions .button {
+			width: 100%;
+		}
+
+		@media (min-width: 640px) {
+			#main-nav {
+				grid-template-columns: repeat(3, minmax(0, 1fr));
+			}
+		}
+
+		@media (min-width: 768px) {
+			.header-copy {
+				padding-right: 4.25rem;
+			}
+
+			.header-status {
+				justify-content: center;
+			}
+
+			.hero-grid {
+				grid-template-columns: minmax(0, 1.4fr) minmax(280px, 0.9fr);
+				align-items: stretch;
+			}
+
+			.view-actions {
+				width: auto;
+				justify-content: flex-end;
+			}
+
+			#main-nav .nav-button {
+				flex-direction: row;
+				justify-content: center;
+			}
+		}
+
+		@media (min-width: 1024px) {
+			#main-nav {
+				grid-template-columns: repeat(5, minmax(0, 1fr));
+			}
 		}
 
 		/* Mobile Quick Access Button */
@@ -1454,6 +1758,32 @@
 	[data-theme="dark"] .form-label {
 		color: var(--text) !important;
 	}
+
+	[data-theme="dark"] .header-kicker,
+	[data-theme="dark"] .status-pill,
+	[data-theme="dark"] .app-shell-note,
+	[data-theme="dark"] .metric-chip,
+	[data-theme="dark"] .control-shell {
+		background: rgba(15, 23, 42, 0.72);
+		border-color: rgba(148, 163, 184, 0.18);
+		color: var(--text);
+	}
+
+	[data-theme="dark"] header {
+		background:
+			radial-gradient(circle at top left, rgba(74, 124, 126, 0.2), transparent 34%),
+			linear-gradient(135deg, rgba(74, 124, 126, 0.16), rgba(30, 41, 59, 0.32)),
+			var(--card) !important;
+	}
+
+	[data-theme="dark"] .header-kicker strong,
+	[data-theme="dark"] .status-pill strong,
+	[data-theme="dark"] .app-shell-note strong,
+	[data-theme="dark"] .section-kicker,
+	[data-theme="dark"] .section-title,
+	[data-theme="dark"] .field-label {
+		color: var(--text) !important;
+	}
 	</style>
 </head>
 <body>
@@ -1464,7 +1794,7 @@
 	<div id="print-capture-area" style="display: none; background: white; padding: 0;">
 		<div id="print-header">
 			<h1 id="print-header-title">Veer Patta Public School</h1>
-			<h2 id="print-header-subtitle">Timetable</h2>
+			<h2 id="print-header-subtitle">Official Timetable - Session 2026-27</h2>
 			<div style="font-size: 0.95rem; color: #6b7280; margin-top: 0.25rem;">
 				Generated on <span id="print-date"></span> at <span id="print-time"></span>
 			</div>
@@ -1477,8 +1807,15 @@
 			<button id="theme-toggle" aria-label="Toggle dark mode" title="Toggle dark mode">
 				<i data-lucide="sun" id="theme-icon"></i>
 			</button>
-			<h1>📚 Timetable Command Center</h1>
-			<p>Veer Patta Public School, Amet</p>
+			<div class="header-copy">
+				<div class="header-kicker">Official <strong>Session 2026-27</strong></div>
+				<h1>Timetable Command Center</h1>
+				<p>Veer Patta Public School, Amet</p>
+				<div class="header-status">
+					<span class="status-pill"><strong>Updated PDFs</strong> synced</span>
+					<span class="status-pill">ELGA coverage includes <strong>Ravina</strong></span>
+				</div>
+			</div>
 		</header>
 
 		<nav class="no-print" id="main-nav">
@@ -1504,13 +1841,18 @@
 			</button>
 		</nav>
 
+		<div class="app-shell-note no-print">
+			<strong>Official 2026-27 timetable:</strong>
+			<span>web data aligned with the updated class-wise, day-wise, and teacher-wise PDF timetable.</span>
+		</div>
+
 		<!-- Color Legend Container -->
 		<div id="color-legend-container" class="no-print"></div>
 
 		<main id="main-content" class="main-content"></main>
 
 		<footer class="no-print">
-			<p>© 2025 Veer Patta Public School | Developed with ❤️</p>
+			<p>Veer Patta Public School | Official Session 2026-27 timetable</p>
 		</footer>
 	</div>
 
@@ -1680,11 +2022,11 @@
 		// --- ENHANCED DATA STORE ---
 		const rawData = `Monday
 		Class,Assembly<br>8:00 AM - 8:30 AM,Period 1<br>8:30 AM - 9:10 AM,Period 2<br>9:10 AM - 9:50 AM,Period 3<br>9:50 AM - 10:30 AM,Period 4<br>10:30 AM - 11:10 AM,Period 5<br>11:30 AM - 12:10 PM,Period 6<br>12:10 PM - 12:50 PM,Period 7<br>12:50 PM - 01:30 PM,Period 8<br>01:30 PM - 02:10 PM
-		Class 1,Assembly,Maths (Bindu),Sports (Rakesh),ELGA (Bindu Anita Rashmita Kusum),ELGA (Bindu Anita Rashmita Kusum),ELGA (Bindu Anita Rashmita Kusum),Hindi (Anjana),EVS (Ravina),EVS (Ravina)
-		Class 2,Assembly,Maths (Ravina),EVS (Bindu),ELGA (Bindu Anita Rashmita Kusum),ELGA (Bindu Anita Rashmita Kusum),ELGA (Bindu Anita Rashmita Kusum),Hindi (Bindu),Hindi (Bindu),CCS (Maya)
-		Class 3,Assembly,EVS (Rashmita),EVS (Rashmita),ELGA (Bindu Anita Rashmita Kusum),ELGA (Bindu Anita Rashmita Kusum),ELGA (Bindu Anita Rashmita Kusum),Maths (Ravina),Hindi (Kusum),Hindi (Kusum)
-		Class 4,Assembly,Hindi (Kusum),Hindi (Kusum),ELGA (Bindu Anita Rashmita Kusum),ELGA (Bindu Anita Rashmita Kusum),ELGA (Bindu Anita Rashmita Kusum),Maths (Anita),EVS (Rashmita),EVS (Rashmita)
-		Class 5,Assembly,Maths (Nidhika),Maths (Nidhika),ELGA (Bindu Anita Rashmita Kusum),ELGA (Bindu Anita Rashmita Kusum),ELGA (Bindu Anita Rashmita Kusum),Hindi (Kusum),CCS (Maya),EVS (Anita)
+		Class 1,Assembly,Maths (Bindu),Sports (Rakesh),ELGA (Bindu Anita Rashmita Kusum Ravina),ELGA (Bindu Anita Rashmita Kusum Ravina),ELGA (Bindu Anita Rashmita Kusum Ravina),Hindi (Anjana),EVS (Ravina),EVS (Ravina)
+		Class 2,Assembly,Maths (Ravina),EVS (Bindu),ELGA (Bindu Anita Rashmita Kusum Ravina),ELGA (Bindu Anita Rashmita Kusum Ravina),ELGA (Bindu Anita Rashmita Kusum Ravina),Hindi (Bindu),Hindi (Bindu),CCS (Maya)
+		Class 3,Assembly,EVS (Rashmita),EVS (Rashmita),ELGA (Bindu Anita Rashmita Kusum Ravina),ELGA (Bindu Anita Rashmita Kusum Ravina),ELGA (Bindu Anita Rashmita Kusum Ravina),Maths (Ravina),Hindi (Kusum),Hindi (Kusum)
+		Class 4,Assembly,Hindi (Kusum),Hindi (Kusum),ELGA (Bindu Anita Rashmita Kusum Ravina),ELGA (Bindu Anita Rashmita Kusum Ravina),ELGA (Bindu Anita Rashmita Kusum Ravina),Maths (Anita),EVS (Rashmita),EVS (Rashmita)
+		Class 5,Assembly,Maths (Nidhika),Maths (Nidhika),ELGA (Bindu Anita Rashmita Kusum Ravina),ELGA (Bindu Anita Rashmita Kusum Ravina),ELGA (Bindu Anita Rashmita Kusum Ravina),Hindi (Kusum),CCS (Maya),EVS (Anita)
 		Class 6,Assembly,English compulsory (Hemlata),CCS (Maya),Hindi (Jainendra),Sports (Rakesh),NoteBook Checking (Antima),SST (Rashmita),Maths (Nidhika),Maths (Nidhika)
 		Class 7,Assembly,Maths (Anita),Maths (Anita),Sanskrit (Antima),Hindi (Jainendra),SST (Nidhika),English compulsory (Harshita),Sports (Rakesh),NoteBook Checking (Antima)
 		Class 8,Assembly,Sanskrit (Antima),Hindi (Jainendra),English compulsory (Pradhyuman),SST (Harshita),SST (Harshita),CCS (Maya),Maths (Prakash),Maths (Prakash)
@@ -1699,11 +2041,11 @@
 
 		Tuesday
 		Class,Assembly<br>8:00 AM - 8:30 AM,Period 1<br>8:30 AM - 9:10 AM,Period 2<br>9:10 AM - 9:50 AM,Period 3<br>9:50 AM - 10:30 AM,Period 4<br>10:30 AM - 11:10 AM,Period 5<br>11:30 AM - 12:10 PM,Period 6<br>12:10 PM - 12:50 PM,Period 7<br>12:50 PM - 01:30 PM,Period 8<br>01:30 PM - 02:10 PM
-		Class 1,Assembly,Maths (Bindu),Maths (Bindu),ELGA (Bindu Anita Rashmita Kusum),ELGA (Bindu Anita Rashmita Kusum),ELGA (Bindu Anita Rashmita Kusum),Hindi (Anjana),Hindi (Anjana),EVS (Ravina)
-		Class 2,Assembly,Maths (Ravina),Maths (Ravina),ELGA (Bindu Anita Rashmita Kusum),ELGA (Bindu Anita Rashmita Kusum),ELGA (Bindu Anita Rashmita Kusum),Hindi (Bindu),EVS (Bindu),EVS (Bindu)
-		Class 3,Assembly,EVS (Rashmita),Hindi (Kusum),ELGA (Bindu Anita Rashmita Kusum),ELGA (Bindu Anita Rashmita Kusum),ELGA (Bindu Anita Rashmita Kusum),Maths (Ravina),Maths (Ravina),Sports (Rakesh)
-		Class 4,Assembly,Hindi (Kusum),Sports (Rakesh),ELGA (Bindu Anita Rashmita Kusum),ELGA (Bindu Anita Rashmita Kusum),ELGA (Bindu Anita Rashmita Kusum),EVS (Rashmita),Maths (Anita),Maths (Anita)
-		Class 5,Assembly,Maths (Nidhika),Maths (Nidhika),ELGA (Bindu Anita Rashmita Kusum),ELGA (Bindu Anita Rashmita Kusum),ELGA (Bindu Anita Rashmita Kusum),EVS (Anita),Hindi (Kusum),Hindi (Kusum)
+		Class 1,Assembly,Maths (Bindu),Maths (Bindu),ELGA (Bindu Anita Rashmita Kusum Ravina),ELGA (Bindu Anita Rashmita Kusum Ravina),ELGA (Bindu Anita Rashmita Kusum Ravina),Hindi (Anjana),Hindi (Anjana),EVS (Ravina)
+		Class 2,Assembly,Maths (Ravina),Maths (Ravina),ELGA (Bindu Anita Rashmita Kusum Ravina),ELGA (Bindu Anita Rashmita Kusum Ravina),ELGA (Bindu Anita Rashmita Kusum Ravina),Hindi (Bindu),EVS (Bindu),EVS (Bindu)
+		Class 3,Assembly,EVS (Rashmita),Hindi (Kusum),ELGA (Bindu Anita Rashmita Kusum Ravina),ELGA (Bindu Anita Rashmita Kusum Ravina),ELGA (Bindu Anita Rashmita Kusum Ravina),Maths (Ravina),Maths (Ravina),Sports (Rakesh)
+		Class 4,Assembly,Hindi (Kusum),Sports (Rakesh),ELGA (Bindu Anita Rashmita Kusum Ravina),ELGA (Bindu Anita Rashmita Kusum Ravina),ELGA (Bindu Anita Rashmita Kusum Ravina),EVS (Rashmita),Maths (Anita),Maths (Anita)
+		Class 5,Assembly,Maths (Nidhika),Maths (Nidhika),ELGA (Bindu Anita Rashmita Kusum Ravina),ELGA (Bindu Anita Rashmita Kusum Ravina),ELGA (Bindu Anita Rashmita Kusum Ravina),EVS (Anita),Hindi (Kusum),Hindi (Kusum)
 		Class 6,Assembly,English compulsory (Hemlata),Chemistry (Hemlata),Physics (Hemlata),Sanskrit (Jainendra),Sports (Rakesh),Maths (Nidhika),Maths (Nidhika),SST (Rashmita)
 		Class 7,Assembly,Maths (Anita),Maths (Anita),Sanskrit (Antima),Physics (Toshit),SST (Nidhika),Biology (Hemlata),CCS (Maya),English compulsory (Harshita)
 		Class 8,Assembly,Sanskrit (Antima),Hindi (Jainendra),Maths (Prakash),Maths (Prakash),English compulsory (Pradhyuman),SST (Harshita),Chemistry (Toshit),Biology (Hemlata)
@@ -1717,11 +2059,11 @@
 		Class 12 Arts,Assembly,Geography (Prakash),English Literature (Harshita),Political Science (Pradhyuman),CCS (Maya),Hindi (Jainendra),English compulsory (Pradhyuman),English Literature (Harshita),Economics (Prakash)
 		Wednesday
 		Class,Assembly<br>8:00 AM - 8:30 AM,Period 1<br>8:30 AM - 9:10 AM,Period 2<br>9:10 AM - 9:50 AM,Period 3<br>9:50 AM - 10:30 AM,Period 4<br>10:30 AM - 11:10 AM,Period 5<br>11:30 AM - 12:10 PM,Period 6<br>12:10 PM - 12:50 PM,Period 7<br>12:50 PM - 01:30 PM,Period 8<br>01:30 PM - 02:10 PM
-		Class 1,Assembly,Maths (Bindu),EVS (Ravina),ELGA (Bindu Anita Rashmita Kusum),ELGA (Bindu Anita Rashmita Kusum),ELGA (Bindu Anita Rashmita Kusum),Hindi (Anjana),Hindi (Anjana),NoteBook Checking (Antima)
-		Class 2,Assembly,Maths (Ravina),Sports (Rakesh),ELGA (Bindu Anita Rashmita Kusum),ELGA (Bindu Anita Rashmita Kusum),ELGA (Bindu Anita Rashmita Kusum),EVS (Bindu),EVS (Bindu),Hindi (Bindu)
-		Class 3,Assembly,EVS (Rashmita),EVS (Rashmita),ELGA (Bindu Anita Rashmita Kusum),ELGA (Bindu Anita Rashmita Kusum),ELGA (Bindu Anita Rashmita Kusum),Hindi (Kusum),Maths (Ravina),Maths (Ravina)
-		Class 4,Assembly,Hindi (Kusum),Hindi (Kusum),ELGA (Bindu Anita Rashmita Kusum),ELGA (Bindu Anita Rashmita Kusum),ELGA (Bindu Anita Rashmita Kusum),Maths (Anita),Maths (Anita),EVS (Rashmita)
-		Class 5,Assembly,Maths (Nidhika),EVS (Anita),ELGA (Bindu Anita Rashmita Kusum),ELGA (Bindu Anita Rashmita Kusum),ELGA (Bindu Anita Rashmita Kusum),Robotics (Maya),CCS (Maya),Hindi (Kusum)
+		Class 1,Assembly,Maths (Bindu),EVS (Ravina),ELGA (Bindu Anita Rashmita Kusum Ravina),ELGA (Bindu Anita Rashmita Kusum Ravina),ELGA (Bindu Anita Rashmita Kusum Ravina),Hindi (Anjana),Hindi (Anjana),NoteBook Checking (Antima)
+		Class 2,Assembly,Maths (Ravina),Sports (Rakesh),ELGA (Bindu Anita Rashmita Kusum Ravina),ELGA (Bindu Anita Rashmita Kusum Ravina),ELGA (Bindu Anita Rashmita Kusum Ravina),EVS (Bindu),EVS (Bindu),Hindi (Bindu)
+		Class 3,Assembly,EVS (Rashmita),EVS (Rashmita),ELGA (Bindu Anita Rashmita Kusum Ravina),ELGA (Bindu Anita Rashmita Kusum Ravina),ELGA (Bindu Anita Rashmita Kusum Ravina),Hindi (Kusum),Maths (Ravina),Maths (Ravina)
+		Class 4,Assembly,Hindi (Kusum),Hindi (Kusum),ELGA (Bindu Anita Rashmita Kusum Ravina),ELGA (Bindu Anita Rashmita Kusum Ravina),ELGA (Bindu Anita Rashmita Kusum Ravina),Maths (Anita),Maths (Anita),EVS (Rashmita)
+		Class 5,Assembly,Maths (Nidhika),EVS (Anita),ELGA (Bindu Anita Rashmita Kusum Ravina),ELGA (Bindu Anita Rashmita Kusum Ravina),ELGA (Bindu Anita Rashmita Kusum Ravina),Robotics (Maya),CCS (Maya),Hindi (Kusum)
 		Class 6,Assembly,Biology (Hemlata),Sanskrit (Jainendra),Chemistry (Hemlata),Maths (Nidhika),Maths (Nidhika),English compulsory (Hemlata),SST (Rashmita),Hindi (Jainendra)
 		Class 7,Assembly,Maths (Anita),English compulsory (Harshita),Sports (Rakesh),Physics (Toshit),Hindi (Jainendra),Sanskrit (Antima),SST (Nidhika),Robotics (Maya)
 		Class 8,Assembly,Sanskrit (Antima),Biology (Hemlata),English compulsory (Pradhyuman),Hindi (Jainendra),Chemistry (Toshit),Maths (Prakash),SST (Harshita),Physics (Toshit)
@@ -1735,11 +2077,11 @@
 		Class 12 Arts,Assembly,Geography (Prakash),Political Science (Pradhyuman),Economics (Prakash),Geography (Prakash),Economics (Prakash),English compulsory (Pradhyuman),Hindi (Jainendra),English Literature (Harshita)
 		Thursday
 		Class,Assembly<br>8:00 AM - 8:30 AM,Period 1<br>8:30 AM - 9:10 AM,Period 2<br>9:10 AM - 9:50 AM,Period 3<br>9:50 AM - 10:30 AM,Period 4<br>10:30 AM - 11:10 AM,Period 5<br>11:30 AM - 12:10 PM,Period 6<br>12:10 PM - 12:50 PM,Period 7<br>12:50 PM - 01:30 PM,Period 8<br>01:30 PM - 02:10 PM
-		Class 1,Assembly,Maths (Bindu),Maths (Bindu),ELGA (Bindu Anita Rashmita Kusum),ELGA (Bindu Anita Rashmita Kusum),ELGA (Bindu Anita Rashmita Kusum),Hindi (Anjana),EVS (Ravina),EVS (Ravina)
-		Class 2,Assembly,Maths (Ravina),Maths (Ravina),ELGA (Bindu Anita Rashmita Kusum),ELGA (Bindu Anita Rashmita Kusum),ELGA (Bindu Anita Rashmita Kusum),EVS (Bindu),Hindi (Bindu),Hindi (Bindu)
-		Class 3,Assembly,EVS (Rashmita),CCS (Maya),ELGA (Bindu Anita Rashmita Kusum),ELGA (Bindu Anita Rashmita Kusum),ELGA (Bindu Anita Rashmita Kusum),Maths (Ravina),Hindi (Kusum),Hindi (Kusum)
-		Class 4,Assembly,Hindi (Kusum),Maths (Anita),ELGA (Bindu Anita Rashmita Kusum),ELGA (Bindu Anita Rashmita Kusum),ELGA (Bindu Anita Rashmita Kusum),CCS (Maya),EVS (Rashmita),EVS (Rashmita)
-		Class 5,Assembly,Maths (Nidhika),Maths (Nidhika),ELGA (Bindu Anita Rashmita Kusum),ELGA (Bindu Anita Rashmita Kusum),ELGA (Bindu Anita Rashmita Kusum),Hindi (Kusum),EVS (Anita),EVS (Anita)
+		Class 1,Assembly,Maths (Bindu),Maths (Bindu),ELGA (Bindu Anita Rashmita Kusum Ravina),ELGA (Bindu Anita Rashmita Kusum Ravina),ELGA (Bindu Anita Rashmita Kusum Ravina),Hindi (Anjana),EVS (Ravina),EVS (Ravina)
+		Class 2,Assembly,Maths (Ravina),Maths (Ravina),ELGA (Bindu Anita Rashmita Kusum Ravina),ELGA (Bindu Anita Rashmita Kusum Ravina),ELGA (Bindu Anita Rashmita Kusum Ravina),EVS (Bindu),Hindi (Bindu),Hindi (Bindu)
+		Class 3,Assembly,EVS (Rashmita),CCS (Maya),ELGA (Bindu Anita Rashmita Kusum Ravina),ELGA (Bindu Anita Rashmita Kusum Ravina),ELGA (Bindu Anita Rashmita Kusum Ravina),Maths (Ravina),Hindi (Kusum),Hindi (Kusum)
+		Class 4,Assembly,Hindi (Kusum),Maths (Anita),ELGA (Bindu Anita Rashmita Kusum Ravina),ELGA (Bindu Anita Rashmita Kusum Ravina),ELGA (Bindu Anita Rashmita Kusum Ravina),CCS (Maya),EVS (Rashmita),EVS (Rashmita)
+		Class 5,Assembly,Maths (Nidhika),Maths (Nidhika),ELGA (Bindu Anita Rashmita Kusum Ravina),ELGA (Bindu Anita Rashmita Kusum Ravina),ELGA (Bindu Anita Rashmita Kusum Ravina),Hindi (Kusum),EVS (Anita),EVS (Anita)
 		Class 6,Assembly,English compulsory (Hemlata),SST (Rashmita),Maths (Nidhika),CCS (Maya),Hindi (Jainendra),Chemistry (Hemlata),Biology (Hemlata),Robotics (Maya)
 		Class 7,Assembly,Maths (Anita),Hindi (Jainendra),Physics (Toshit),SST (Nidhika),Biology (Hemlata),Sanskrit (Antima),English compulsory (Harshita),Chemistry (Hemlata)
 		Class 8,Assembly,NoteBook Checking (Antima),Biology (Hemlata),CCS (Maya),English compulsory (Pradhyuman),Sports (Rakesh),SST (Harshita),Maths (Prakash),Maths (Prakash)
@@ -2248,7 +2590,7 @@
 			}
 
 			// ELGA periods often contain multiple teacher names separated only by spaces.
-			// Example: "ELGA (Bindu Anita Rashmita Kusum)"
+			// Example: "ELGA (Bindu Anita Rashmita Kusum Ravina)"
 			if ((subjectField || '').trim().toUpperCase() === 'ELGA') {
 				return cleanedTeacherField
 					.split(/\s+/)
@@ -2435,25 +2777,50 @@
 										
 										// Correctly associate data: ensure period index is valid
 										if (periodIndex < teacherDetails[teacherName].schedule[day].length) {
-											teacherDetails[teacherName].schedule[day][periodIndex] = { 
-												subject: subjectForTeacher, 
-												className: className 
-											};
+											const existingSlot = teacherDetails[teacherName].schedule[day][periodIndex];
+											if (!existingSlot) {
+												teacherDetails[teacherName].schedule[day][periodIndex] = { 
+													subject: subjectForTeacher, 
+													className: className 
+												};
+												teacherDetails[teacherName].periodCount++;
+												if (!teacherDetails[teacherName].workload[day]) {
+													teacherDetails[teacherName].workload[day] = 0;
+												}
+												teacherDetails[teacherName].workload[day]++;
+											} else {
+												const mergedClasses = new Set(
+													String(existingSlot.className || '')
+														.split('/')
+														.map(name => name.trim())
+														.filter(Boolean)
+												);
+												mergedClasses.add(className);
+												existingSlot.className = Array.from(mergedClasses)
+													.sort((a, b) => a.localeCompare(b, undefined, { numeric: true }))
+													.join(' / ');
+
+												if (subjectForTeacher && existingSlot.subject !== subjectForTeacher) {
+													const mergedSubjects = new Set(
+														String(existingSlot.subject || '')
+															.split('/')
+															.map(subject => subject.trim())
+															.filter(Boolean)
+													);
+													mergedSubjects.add(subjectForTeacher);
+													existingSlot.subject = Array.from(mergedSubjects).join(' / ');
+												}
+											}
 										}
 										
 									// Update teacher statistics
-									teacherDetails[teacherName].periodCount++;
 									try {
 										teacherDetails[teacherName].subjects.add(subjectForTeacher);
 									} catch (e) {
 										// Fallback if subjects is not a Set
 										console.warn('subjects is not a Set, reinitializing:', teacherName);
 										teacherDetails[teacherName].subjects = new Set([subjectForTeacher]);
-									}										// Calculate daily workload
-										if (!teacherDetails[teacherName].workload[day]) {
-											teacherDetails[teacherName].workload[day] = 0;
-										}
-										teacherDetails[teacherName].workload[day]++;
+									}
 									});
 								}
 							});
@@ -3186,46 +3553,70 @@
 		// --- DASHBOARD RENDER ---
 		function renderDashboard() {
 			try {
-				// Place Live Free Teacher Finder at the very top and remove extra stat cards
+				const { classNames, teacherNames, days } = state.allData;
 				const html = `
-					<div class="card">
-						<h2 style="font-size: 1.25rem; font-weight: 700; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
-							<i data-lucide=\"search\" style=\"width: 20px; height: 20px;\"></i>
-							Live Free Teacher Finder
-						</h2>
-						<div id=\"free-teacher-finder-container\"></div>
-					</div>
+					<div class="hero-grid">
+						<div class="card hero-panel">
+							<div class="section-kicker">Official Session 2026-27</div>
+							<h2 class="section-title">Updated timetable, substitutions, and live teacher availability</h2>
+							<p class="section-subtitle">Synced with the latest class-wise, day-wise, and teacher-wise PDF timetable for the 2026-27 session.</p>
+							<div class="metric-strip">
+								<div class="metric-chip">
+									<span>Classes</span>
+									<strong>${classNames.length}</strong>
+								</div>
+								<div class="metric-chip">
+									<span>Teachers</span>
+									<strong>${teacherNames.length}</strong>
+								</div>
+								<div class="metric-chip">
+									<span>Teaching Days</span>
+									<strong>${days.length}</strong>
+								</div>
+								<div class="metric-chip">
+									<span>Data Sync</span>
+									<strong>Updated PDFs</strong>
+								</div>
+							</div>
+						</div>
 
-					<div class="card">
-						<h2 style="font-size: 1.25rem; font-weight: 700; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
-							<i data-lucide=\"zap\" style=\"width: 20px; height: 20px;\"></i>
-							Quick Actions
-						</h2>
-						<div class="grid grid-cols-1 grid-cols-md-2 gap-4">
-							<button class="button button-primary" onclick="switchView('Day')" style="background: linear-gradient(135deg, var(--primary-600), var(--primary-700));">
-								<i data-lucide="calendar"></i> 
-								<span class="mobile-only">Today's Schedule</span>
-								<span class="desktop-only">View Today's Schedule</span>
-							</button>
-							<button class="button button-primary" onclick="switchView('Substitution')" style="background: linear-gradient(135deg, var(--green-500), var(--green-600));">
-								<i data-lucide="user-cog"></i>
-								<span class="mobile-only">Substitutions</span>
-								<span class="desktop-only">Manage Substitutions</span>
-							</button>
-							<button class="button button-secondary" onclick="switchView('Class')" style="background: linear-gradient(135deg, var(--yellow-500), var(--yellow-600)); color: white;">
-								<i data-lucide="school"></i>
-								<span class="mobile-only">Classes</span>
-								<span class="desktop-only">Browse Classes</span>
-							</button>
-							<button class="button button-secondary" onclick="switchView('Teacher')" style="background: linear-gradient(135deg, var(--red-500), var(--red-600)); color: white;">
-								<i data-lucide="users"></i>
-								<span class="mobile-only">Teachers</span>
-								<span class="desktop-only">Teacher Schedules</span>
-							</button>
+						<div class="card hero-panel">
+							<div class="section-kicker">Start Here</div>
+							<h2 class="section-title">Open the view you need fastest</h2>
+							<p class="section-subtitle">Mobile users get quick day cards, while desktop keeps full weekly grids and wider timetable tables.</p>
+							<div class="dashboard-actions">
+								<button class="button button-primary" onclick="switchView('Day')">
+									<i data-lucide="calendar"></i>
+									View Today's Schedule
+								</button>
+								<button class="button button-primary" onclick="switchView('Substitution')" style="background: linear-gradient(135deg, var(--green-500), var(--green-600));">
+									<i data-lucide="user-cog"></i>
+									Manage Substitutions
+								</button>
+								<button class="button button-secondary" onclick="switchView('Class')">
+									<i data-lucide="school"></i>
+									Browse Classes
+								</button>
+								<button class="button button-secondary" onclick="switchView('Teacher')">
+									<i data-lucide="users"></i>
+									Teacher Schedules
+								</button>
+							</div>
 						</div>
 					</div>
 
-					<div class="flex justify-center gap-4" style="margin-top: 1.5rem;">
+					<div class="card view-shell">
+						<div class="view-header">
+							<div>
+								<div class="section-kicker">Live Availability</div>
+								<h2 class="section-title">Free Teacher Finder</h2>
+								<p class="section-subtitle">Check who is free right now, or switch to any day and period manually for quick substitution decisions.</p>
+							</div>
+						</div>
+						<div id="free-teacher-finder-container"></div>
+					</div>
+
+					<div class="view-actions" style="margin-top: 0;">
 						<button onclick="handlePrint()" class="button button-secondary" style="max-width:250px;">
 							<i data-lucide="printer"></i> Print Complete Timetable
 						</button>
@@ -3315,25 +3706,25 @@
 				}).filter(row => row).join('');
 
 				const html = `
-					<div class="card">
-						<div class="flex items-center justify-between flex-wrap gap-4">
-							<h2 style="font-size: 1.25rem; font-weight: 700; display: flex; align-items: center; gap: 0.5rem;">
-								<i data-lucide="calendar-days"></i>
-								${selectedDay} Schedule
-								${selectedDay === getCurrentDay() && currentPeriodIdx !== -1 ? '<span style="color: var(--red-500); font-size: 0.75rem;">● LIVE</span>' : ''}
-							</h2>
-							<div class="flex gap-2">
-								<button onclick="handlePrint()" class="button button-secondary" style="width: auto; font-size: 0.75rem; padding: 0.5rem 0.75rem;">
+					<div class="card view-shell">
+						<div class="view-header">
+							<div>
+								<div class="section-kicker">Day View</div>
+								<h2 class="section-title">${selectedDay} Schedule ${selectedDay === getCurrentDay() && currentPeriodIdx !== -1 ? '<span style="color: var(--red-500); font-size: 0.8rem;">● LIVE</span>' : ''}</h2>
+								<p class="section-subtitle">Updated against the official 2026-27 day-wise PDF timetable.</p>
+							</div>
+							<div class="view-actions">
+								<button onclick="handlePrint()" class="button button-secondary">
 									<i data-lucide="printer"></i> Print ${selectedDay}
 								</button>
-								<button onclick="handleShareScreenshot()" class="button button-whatsapp" style="width: auto;">
-									<i data-lucide="share-2"></i>
+								<button onclick="handleShareScreenshot()" class="button button-whatsapp">
+									<i data-lucide="share-2"></i> Share Image
 								</button>
-								<button onclick="handleShareAsPDF()" class="button button-primary no-capture" style="width: auto; font-size: 0.75rem; padding: 0.5rem 0.75rem;">
-									<i data-lucide="file-text"></i> PDF
+								<button onclick="handleShareAsPDF()" class="button button-primary no-capture">
+									<i data-lucide="file-text"></i> Share as PDF
 								</button>
-								<button onclick="handleExportCSV()" class="button button-secondary no-capture" style="width: auto; font-size: 0.75rem; padding: 0.5rem 0.75rem;">
-									<i data-lucide="download"></i> CSV
+								<button onclick="handleExportCSV()" class="button button-secondary no-capture">
+									<i data-lucide="download"></i> Export CSV
 								</button>
 							</div>
 						</div>
@@ -3450,17 +3841,17 @@
 								<tbody>${tableBody}</tbody>
 							</table>
 						</div>
-						<div class="flex justify-center gap-4" style="margin-top: 1.5rem;">
-							<button onclick="handlePrint()" class="button button-secondary" style="max-width: 250px;">
+						<div class="view-actions" style="margin-top: 1.5rem;">
+							<button onclick="handlePrint()" class="button button-secondary">
 								<i data-lucide="printer"></i> Print ${selectedClass} Schedule
 							</button>
-							<button onclick="handleShareScreenshot()" class="button button-whatsapp" style="max-width: 200px;">
+							<button onclick="handleShareScreenshot()" class="button button-whatsapp">
 								<i data-lucide="share-2"></i> Share
 							</button>
-							<button onclick="handleShareAsPDF()" class="button button-primary no-capture" style="max-width: 200px;">
+							<button onclick="handleShareAsPDF()" class="button button-primary no-capture">
 								<i data-lucide="file-text"></i> Share as PDF
 							</button>
-							<button onclick="handleExportCSV()" class="button button-secondary no-capture" style="max-width: 200px;">
+							<button onclick="handleExportCSV()" class="button button-secondary no-capture">
 								<i data-lucide="download"></i> Export CSV
 							</button>
 						</div>
@@ -3468,11 +3859,21 @@
 				}
 
 				const html = `
-					<div class="card">
-						<h2 style="font-size: 1.25rem; font-weight: 700; margin-bottom: 1rem;">
-							🏫 View by Class
-						</h2>
-						<select onchange="renderClassView(this.value)">${classOptions}</select>
+					<div class="card view-shell">
+						<div class="view-header">
+							<div>
+								<div class="section-kicker">Class View</div>
+								<h2 class="section-title">Browse by class</h2>
+								<p class="section-subtitle">Choose a class to see the weekly grid on desktop or the focused day cards on mobile.</p>
+							</div>
+						</div>
+						<div class="control-shell">
+							<label class="field-block">
+								<span class="field-label">Class</span>
+								<select onchange="renderClassView(this.value)">${classOptions}</select>
+							</label>
+							<p class="field-help">Data is aligned with the official 2026-27 class-wise PDF timetable.</p>
+						</div>
 						${tableHtml}
 					</div>
 				`;
@@ -3617,17 +4018,17 @@
 									<tbody>${tableBody}</tbody>
 								</table>
 							</div>
-							<div class="flex justify-center gap-4" style="margin-top: 1.5rem;">
-								<button onclick="handlePrint()" class="button button-secondary" style="max-width: 250px;">
+							<div class="view-actions" style="margin-top: 1.5rem;">
+								<button onclick="handlePrint()" class="button button-secondary">
 									<i data-lucide="printer"></i> Print ${selectedTeacher} Schedule
 								</button>
-								<button onclick="handleShareScreenshot()" class="button button-whatsapp" style="max-width: 200px;">
+								<button onclick="handleShareScreenshot()" class="button button-whatsapp">
 									<i data-lucide="share-2"></i> Share
 								</button>
-								<button onclick="handleShareAsPDF()" class="button button-primary no-capture" style="max-width: 200px;">
+								<button onclick="handleShareAsPDF()" class="button button-primary no-capture">
 									<i data-lucide="file-text"></i> Share as PDF
 								</button>
-								<button onclick="handleExportCSV()" class="button button-secondary no-capture" style="max-width: 200px;">
+								<button onclick="handleExportCSV()" class="button button-secondary no-capture">
 									<i data-lucide="download"></i> Export CSV
 								</button>
 							</div>
@@ -3636,11 +4037,21 @@
 				}
 
 				const html = `
-					<div class="card">
-						<h2 style="font-size: 1.25rem; font-weight: 700; margin-bottom: 1rem;">
-							👨‍🏫 View by Teacher
-						</h2>
-						<select onchange="renderTeacherView(this.value)">${teacherOptions}</select>
+					<div class="card view-shell">
+						<div class="view-header">
+							<div>
+								<div class="section-kicker">Teacher View</div>
+								<h2 class="section-title">Browse by teacher</h2>
+								<p class="section-subtitle">Open one teacher at a time to review weekly load, day cards on mobile, and substitutions in context.</p>
+							</div>
+						</div>
+						<div class="control-shell">
+							<label class="field-block">
+								<span class="field-label">Teacher</span>
+								<select onchange="renderTeacherView(this.value)">${teacherOptions}</select>
+							</label>
+							<p class="field-help">Teacher schedules are generated directly from the official 2026-27 timetable data.</p>
+						</div>
 						<div id="teacher-details-container">${detailsHtml}</div>
 					</div>
 				`;
@@ -3682,8 +4093,8 @@
 						<div class="timetable-row ${i===activeIdx?'is-current':''}" data-period-index="${i}" id="row-p${i}" role="button" tabindex="0" onclick="this.classList.toggle('expanded')" onkeypress="if(event.key==='Enter') this.click()">
 							<div class="period-col">${h.name}<div style="font-weight:500; color: var(--gray-500); font-size: 0.75rem;">${h.time||''}</div></div>
 							<div class="subject-col">${p ? p.subject : ''}</div>
-							<div class="teacher-col">${selectedTeacher}</div>
-							<div class="extra">${p ? ('Class: ' + p.className) : ''}</div>
+							<div class="teacher-col">${p ? p.className : 'Free period'}</div>
+							<div class="extra">${p ? ('Teacher: ' + selectedTeacher) : ''}</div>
 						</div>`;
 				}).join('');
 				container.innerHTML = `<div class="timetable-list" aria-label="${selectedTeacher} - ${day}">${list}</div>`;
