@@ -1971,58 +1971,52 @@
 			return 'Monday';
 		}
 
-		function getCurrentPeriod() {
-			const now = new Date();
-			const hour = now.getHours();
-			const minute = now.getMinutes();
-			const timeInMinutes = hour * 60 + minute;
-
-			// Winter School time periods in minutes from midnight
-			// Recess: 11:40 AM - 12:00 PM (between Period 4 and 5)
-			const periods = [
-				{ start: 9 * 60 + 0, end: 9 * 60 + 40 },     // 9:00-9:40
-				{ start: 9 * 60 + 40, end: 10 * 60 + 20 },    // 9:40-10:20
-				{ start: 10 * 60 + 20, end: 11 * 60 + 0 },    // 10:20-11:00
-				{ start: 11 * 60 + 0, end: 11 * 60 + 40 },    // 11:00-11:40
-				{ start: 12 * 60 + 0, end: 12 * 60 + 40 },    // 12:00-12:40
-				{ start: 12 * 60 + 40, end: 13 * 60 + 20 },   // 12:40-1:20
-				{ start: 13 * 60 + 20, end: 13 * 60 + 55 },   // 1:20-1:55
-				{ start: 13 * 60 + 55, end: 14 * 60 + 35 }    // 1:55-2:35
+		function getWinterTimeSlots() {
+			return [
+				{ name: 'Assembly', start: 8 * 60 + 0, end: 8 * 60 + 30 },
+				{ name: 'Period 1', start: 8 * 60 + 30, end: 9 * 60 + 10 },
+				{ name: 'Period 2', start: 9 * 60 + 10, end: 9 * 60 + 50 },
+				{ name: 'Period 3', start: 9 * 60 + 50, end: 10 * 60 + 30 },
+				{ name: 'Period 4', start: 10 * 60 + 30, end: 11 * 60 + 10 },
+				{ name: 'Period 5', start: 11 * 60 + 30, end: 12 * 60 + 10 },
+				{ name: 'Period 6', start: 12 * 60 + 10, end: 12 * 60 + 50 },
+				{ name: 'Period 7', start: 12 * 60 + 50, end: 13 * 60 + 30 },
+				{ name: 'Period 8', start: 13 * 60 + 30, end: 14 * 60 + 10 }
 			];
+		}
 
-			for (let i = 0; i < periods.length; i++) {
-				if (timeInMinutes >= periods[i].start && timeInMinutes <= periods[i].end) {
+		function getCurrentTimeInMinutes() {
+			const now = new Date();
+			return now.getHours() * 60 + now.getMinutes();
+		}
+
+		function getFallbackPeriod() {
+			const slots = getWinterTimeSlots();
+			const timeInMinutes = getCurrentTimeInMinutes();
+			if (timeInMinutes < slots[0].start) return 1;
+			return slots.length;
+		}
+
+		function getCurrentPeriod() {
+			const slots = getWinterTimeSlots();
+			const timeInMinutes = getCurrentTimeInMinutes();
+
+			for (let i = 0; i < slots.length; i++) {
+				if (timeInMinutes >= slots[i].start && timeInMinutes < slots[i].end) {
 					return i + 1;
 				}
 			}
 
-			// If outside school hours, return appropriate period
-			if (timeInMinutes < periods[0].start) return 1;
-			return Math.min(9, periods.length);
+			return null;
 		}
 
 		// Returns the zero-based index of the CURRENTLY ACTIVE period, or -1 if none
 		function getActivePeriodIndex() {
-			const now = new Date();
-			const hour = now.getHours();
-			const minute = now.getMinutes();
-			const timeInMinutes = hour * 60 + minute;
+			const slots = getWinterTimeSlots();
+			const timeInMinutes = getCurrentTimeInMinutes();
 
-			// Winter timings; half-open intervals [start, end)
-			const periods = [
-				{ start: 9 * 60 + 0, end: 9 * 60 + 40 },     // 9:00-9:40
-				{ start: 9 * 60 + 40, end: 10 * 60 + 20 },    // 9:40-10:20
-				{ start: 10 * 60 + 20, end: 11 * 60 + 0 },    // 10:20-11:00
-				{ start: 11 * 60 + 0, end: 11 * 60 + 40 },    // 11:00-11:40
-				{ start: 12 * 60 + 0, end: 12 * 60 + 40 },    // 12:00-12:40
-				{ start: 12 * 60 + 40, end: 13 * 60 + 20 },   // 12:40-1:20
-				{ start: 13 * 60 + 20, end: 13 * 60 + 55 },   // 1:20-1:55
-				{ start: 13 * 60 + 55, end: 14 * 60 + 35 }    // 1:55-2:35
-			];
-
-			for (let i = 0; i < periods.length; i++) {
-				// Use half-open interval [start, end) to avoid double-highlighting at exact boundaries
-				if (timeInMinutes >= periods[i].start && timeInMinutes < periods[i].end) {
+			for (let i = 0; i < slots.length; i++) {
+				if (timeInMinutes >= slots[i].start && timeInMinutes < slots[i].end) {
 					return i;
 				}
 			}
@@ -2157,7 +2151,7 @@
 				if (!timetable || !periodHeaders || !days) return { ok: false, errors: ['Data not initialized'], warnings };
 
 				// Check period headers length and ascending times
-				if (periodHeaders.length !== 9) warnings.push(`Expected 8 periods, found ${periodHeaders.length}`);
+				if (periodHeaders.length !== 9) warnings.push(`Expected 9 timetable slots, found ${periodHeaders.length}`);
 				const parseTime = t => {
 					// t: "h:mm AM - h:mm PM"
 					const [start, end] = t.split('-').map(s => s.trim());
@@ -2183,14 +2177,19 @@
 					lastEnd = e || lastEnd;
 				});
 
-				// Check per-day, per-period teacher double-booking (including substitutions)
+				// Check per-day, per-period teacher overlaps.
+				// Shared-stream rows and multi-teacher cells are ambiguous in the source data,
+				// so surface these as warnings instead of blocking validation.
 				days.forEach(day => {
-					const busy = Array(9).fill(0).map(() => new Set());
+					const busy = Array(periodHeaders.length).fill(0).map(() => new Map());
 					Object.keys(timetable[day]||{}).forEach(cName => {
 						(timetable[day][cName]||[]).forEach((p, i) => {
 							if (p && p.teacher) {
-								if (busy[i].has(p.teacher)) errors.push(`Double-booked regular teacher ${p.teacher} on ${day} P${i+1}`);
-								busy[i].add(p.teacher);
+								const teacherNames = splitTeacherNames(p.teacher, p.subject);
+								if (teacherNames.length !== 1) return;
+								const teacherName = teacherNames[0];
+								if (!busy[i].has(teacherName)) busy[i].set(teacherName, []);
+								busy[i].get(teacherName).push(cName);
 							}
 						});
 					});
@@ -2200,8 +2199,15 @@
 							const i = parseInt(k,10);
 							const t = daySubs[cName][i];
 							if (!t) return;
-							if (busy[i].has(t)) errors.push(`Double-booked substitute ${t} on ${day} P${i+1}`);
-							busy[i].add(t);
+							if (!busy[i].has(t)) busy[i].set(t, []);
+							busy[i].get(t).push(`${cName} (substitution)`);
+						});
+					});
+					busy.forEach((teacherMap, i) => {
+						teacherMap.forEach((classes, teacherName) => {
+							if (classes.length > 1) {
+								warnings.push(`Potential overlap for ${teacherName} on ${day} ${periodHeaders[i]?.name || `P${i + 1}`}: ${classes.join(', ')}`);
+							}
 						});
 					});
 				});
@@ -2965,8 +2971,16 @@
 
 				// Smart defaults based on current time
 				const currentDay = day || getCurrentDay();
-				const currentPeriod = period || getCurrentPeriod();
+				const livePeriod = getCurrentPeriod();
+				const hasExplicitPeriod = period != null;
+				const currentPeriod = period || livePeriod || getFallbackPeriod();
 				const periodIndex = currentPeriod - 1;
+				const isLivePeriod = !hasExplicitPeriod && livePeriod === currentPeriod;
+				const statusText = (hasExplicitPeriod || isLivePeriod)
+					? `Showing free teachers for ${currentDay}, ${state.allData.periodHeaders[periodIndex]?.name || `Period ${currentPeriod}`}`
+					: `No live period right now. Showing ${currentDay}, ${state.allData.periodHeaders[periodIndex]?.name || `Period ${currentPeriod}`}`;
+				const statusLabel = isLivePeriod ? 'Live Updates' : (hasExplicitPeriod ? 'Manual Selection' : 'Outside School Hours');
+				const statusColor = isLivePeriod ? 'var(--green-500)' : 'var(--yellow-500)';
 
 				// Validate that the selected day exists
 				if (!state.allData.days.includes(currentDay)) {
@@ -3068,12 +3082,12 @@
 								<strong style="color: var(--primary-700);">Current Time: ${currentTime}</strong>
 							</div>
 							<div style="display: flex; align-items: center; gap: 0.5rem;">
-								<div style="width: 8px; height: 8px; background: var(--green-500); border-radius: 50%; animation: pulse 2s infinite;"></div>
-								<small style="color: var(--primary-600); font-weight: 500;">Live Updates</small>
+								<div style="width: 8px; height: 8px; background: ${statusColor}; border-radius: 50%; animation: pulse 2s infinite;"></div>
+								<small style="color: var(--primary-600); font-weight: 500;">${statusLabel}</small>
 							</div>
 						</div>
 						<small style="color: var(--primary-600);">
-							Showing free teachers for ${currentDay}, Period ${currentPeriod}
+							${statusText}
 						</small>
 					</div>
 					
@@ -3099,7 +3113,7 @@
 								border: 1px solid var(--gray-200);">
 						<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
 							<h4 style="color: var(--gray-700); margin: 0;">
-								<i data-lucide="users-check" style="width: 18px; height: 18px; display: inline; margin-right: 0.5rem;"></i>
+								<i data-lucide="users" style="width: 18px; height: 18px; display: inline; margin-right: 0.5rem;"></i>
 								Smart Teacher Recommendations
 							</h4>
 							<span style="background: var(--primary-600); color: white; padding: 0.25rem 0.5rem; 
