@@ -3049,9 +3049,7 @@
 					
 					// Skip special cases or unavailable teachers
 					if (teacher === 'Gyan' || teacher === 'Phy') continue;
-					
-					// Anjana only available after period 4
-					if (teacher === 'Anjana' && periodIndex < 4) continue;
+					if (isTeacherUnavailableForPeriod(teacher, periodIndex)) continue;
 
 					// Check if teacher has a regular class this period
 					const teacherSchedule = state.allData.teacherDetails[teacher]?.schedule[day];
@@ -3311,6 +3309,12 @@
 			}
 			
 			return Math.max(0, Math.min(15, bonus)); // Cap between 0-15
+		}
+
+		function isTeacherUnavailableForPeriod(teacher, periodIndex) {
+			if (teacher === 'Mahesh' && periodIndex < 3) return true;
+			if (teacher === 'Anjana' && periodIndex < 4) return true;
+			return false;
 		}
 
 		// --- ENHANCED FREE TEACHER FINDER RENDER ---
