@@ -2222,6 +2222,36 @@
 		}
 
 		// --- ENHANCED DATA PARSING ---
+		const splitTeacherNames = (teacherField, subjectField = '') => {
+			if (!teacherField || typeof teacherField !== 'string') return [];
+
+			const cleanedTeacherField = teacherField
+				.replace(/^\s*-\s*/, '')
+				.replace(/\s+/g, ' ')
+				.trim();
+			if (!cleanedTeacherField) return [];
+
+			// Common multi-teacher delimiters used in timetable cells
+			const explicitDelimiter = /[\/,&;+]|(?:\s+-\s+)/;
+			if (explicitDelimiter.test(cleanedTeacherField)) {
+				return cleanedTeacherField
+					.split(/[\/,&;+]|(?:\s+-\s+)/)
+					.map(name => name.trim())
+					.filter(Boolean);
+			}
+
+			// ELGA periods often contain multiple teacher names separated only by spaces.
+			// Example: "ELGA (Bindu Anita Rashmita Kusum)"
+			if ((subjectField || '').trim().toUpperCase() === 'ELGA') {
+				return cleanedTeacherField
+					.split(/\s+/)
+					.map(name => name.trim())
+					.filter(Boolean);
+			}
+
+			return [cleanedTeacherField];
+		};
+
 		const parseTimetableData = () => {
 			const timetable = {};
 			const teacherDetails = {};
@@ -2372,7 +2402,7 @@
 
 								// Track teacher details for enhanced scheduling
 								if (entry.teacher) {
-									const teachersInCell = entry.teacher.split('/').map(t => t.trim());
+									const teachersInCell = splitTeacherNames(entry.teacher, entry.subject);
 									const subjectsInCell = entry.subject.split('/').map(s => s.trim());
 
 									teachersInCell.forEach((teacherName, teacherIndex) => {
