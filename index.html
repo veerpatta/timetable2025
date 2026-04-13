@@ -916,7 +916,7 @@
 			table {
 				width: 100% !important;
 				border-collapse: collapse !important;
-				font-size: 8pt !important;
+				font-size: 0.95rem !important;
 				margin: 0 !important;
 				page-break-inside: avoid !important;
 			}
@@ -925,7 +925,7 @@
 				background: #f3f4f6 !important;
 				color: #374151 !important;
 				font-weight: bold !important;
-				font-size: 7pt !important;
+				font-size: 0.85rem !important;
 				padding: 4px 6px !important;
 				border: 1px solid #d1d5db !important;
 				text-align: center !important;
@@ -935,7 +935,7 @@
 			td {
 				padding: 4px 6px !important;
 				border: 1px solid #d1d5db !important;
-				font-size: 7pt !important;
+				font-size: 0.85rem !important;
 				line-height: 1.2 !important;
 				vertical-align: top !important;
 				text-align: center !important;
@@ -943,21 +943,21 @@
 			
 			/* Content within cells */
 			.subject {
-				font-size: 7pt !important;
+				font-size: 0.85rem !important;
 				font-weight: bold !important;
 				margin: 0 0 1px 0 !important;
 				color: #111827 !important;
 			}
 			
 			.teacher {
-				font-size: 6pt !important;
+				font-size: 0.75rem !important;
 				color: #6b7280 !important;
 				margin: 0 !important;
 				line-height: 1.1 !important;
 			}
 			
 			.substitute {
-				font-size: 6pt !important;
+				font-size: 0.75rem !important;
 				color: #2563eb !important;
 				font-weight: bold !important;
 				margin: 0 !important;
@@ -1465,7 +1465,7 @@
 		<div id="print-header">
 			<h1 id="print-header-title">Veer Patta Public School</h1>
 			<h2 id="print-header-subtitle">Timetable</h2>
-			<div style="font-size: 8pt; color: #6b7280; margin-top: 0.25rem;">
+			<div style="font-size: 0.95rem; color: #6b7280; margin-top: 0.25rem;">
 				Generated on <span id="print-date"></span> at <span id="print-time"></span>
 			</div>
 		</div>
@@ -3650,13 +3650,13 @@
 			
 			let html = `
 				<div style="page-break-inside: avoid;">
-					<table style="width: 100%; font-size: 8pt; border-collapse: collapse;">
+					<table style="width: 100%; font-size: 0.95rem; border-collapse: collapse;">
 						<thead>
 							<tr style="background: #f3f4f6;">
 								<th style="border: 1px solid #d1d5db; padding: 4px 6px; font-weight: bold;">Class</th>
 								${periodHeaders.map(h => 
 									`<th style="border: 1px solid #d1d5db; padding: 4px 6px; font-weight: bold; text-align: center;">
-										${h.name}<br><span style="font-size: 6pt;">${h.time}</span>
+										${h.name}<br><span style="font-size: 0.75rem;">${h.time}</span>
 									</th>`
 								).join('')}
 							</tr>
@@ -3671,9 +3671,9 @@
 											const substitute = daySubs[cName]?.[i];
 											return `
 												<td style="border: 1px solid #d1d5db; padding: 4px 6px; text-align: center;">
-													<div style="font-size: 7pt; font-weight: bold; margin-bottom: 1px;">${period.subject || ''}</div>
-													${period.teacher ? `<div style="font-size: 6pt; ${substitute ? 'text-decoration: line-through; opacity: 0.6;' : ''}">${period.teacher}</div>` : ''}
-													${substitute ? `<div style="font-size: 6pt; color: #2563eb; font-weight: bold;">Sub: ${substitute}</div>` : ''}
+													<div style="font-size: 0.85rem; font-weight: bold; margin-bottom: 1px;">${period.subject || ''}</div>
+													${period.teacher ? `<div style="font-size: 0.75rem; ${substitute ? 'text-decoration: line-through; opacity: 0.6;' : ''}">${period.teacher}</div>` : ''}
+													${substitute ? `<div style="font-size: 0.75rem; color: #2563eb; font-weight: bold;">Sub: ${substitute}</div>` : ''}
 												</td>
 											`;
 										}).join('')}
@@ -3692,13 +3692,13 @@
 			
 			let html = `
 				<div style="page-break-inside: avoid;">
-					<table style="width: 100%; font-size: 8pt; border-collapse: collapse;">
+					<table style="width: 100%; font-size: 0.95rem; border-collapse: collapse;">
 						<thead>
 							<tr style="background: #f3f4f6;">
 								<th style="border: 1px solid #d1d5db; padding: 4px 6px; font-weight: bold;">Day</th>
 								${periodHeaders.map(h => 
 									`<th style="border: 1px solid #d1d5db; padding: 4px 6px; font-weight: bold; text-align: center;">
-										${h.name}<br><span style="font-size: 6pt;">${h.time}</span>
+										${h.name}<br><span style="font-size: 0.75rem;">${h.time}</span>
 									</th>`
 								).join('')}
 							</tr>
@@ -3714,8 +3714,8 @@
 											return `
 												<td style="border: 1px solid #d1d5db; padding: 4px 6px; text-align: center;">
 													${period ? `
-														<div style="font-size: 7pt; font-weight: bold; margin-bottom: 1px;">${period.subject}</div>
-														<div style="font-size: 6pt;">${period.teacher || ''}</div>
+														<div style="font-size: 0.85rem; font-weight: bold; margin-bottom: 1px;">${period.subject}</div>
+														<div style="font-size: 0.75rem;">${period.teacher || ''}</div>
 													` : ''}
 												</td>
 											`;
@@ -3741,10 +3741,10 @@
 					<h3 style="text-align: center; margin: 0 0 1rem 0; font-size: 1.2em; color: #2563eb;">
 						Weekly Schedule - ${selectedTeacher}
 					</h3>
-					<div style="text-align: center; margin-bottom: 1rem; font-size: 8pt; color: #6b7280;">
+					<div style="text-align: center; margin-bottom: 1rem; font-size: 0.95rem; color: #6b7280;">
 						Total Weekly Periods: ${teacherData.periodCount}
 					</div>
-					<table style="width: 100%; font-size: 8pt; border-collapse: collapse;">
+					<table style="width: 100%; font-size: 0.95rem; border-collapse: collapse;">
 						<thead>
 							<tr style="background: #f3f4f6;">
 								<th style="border: 1px solid #d1d5db; padding: 4px 6px; font-weight: bold;">Day</th>
@@ -3764,8 +3764,8 @@
 											return `
 												<td style="border: 1px solid #d1d5db; padding: 4px 6px; text-align: center;">
 													${period ? `
-														<div style="font-size: 7pt; font-weight: bold; margin-bottom: 1px;">${period.subject}</div>
-														<div style="font-size: 6pt;">${period.className}</div>
+														<div style="font-size: 0.85rem; font-weight: bold; margin-bottom: 1px;">${period.subject}</div>
+														<div style="font-size: 0.75rem;">${period.className}</div>
 													` : ''}
 												</td>
 											`;
@@ -3787,13 +3787,13 @@
 				html += `
 					<div style="${dayIndex > 0 ? 'page-break-before: always;' : ''} page-break-inside: avoid;">
 						<h3 style="text-align: center; margin: 0 0 1rem 0; font-size: 1.1em; color: #2563eb;">${day}</h3>
-						<table style="width: 100%; font-size: 7pt; border-collapse: collapse;">
+						<table style="width: 100%; font-size: 0.85rem; border-collapse: collapse;">
 							<thead>
 								<tr style="background: #f3f4f6;">
 									<th style="border: 1px solid #d1d5db; padding: 3px 4px; font-weight: bold;">Class</th>
 									${periodHeaders.map(h => 
 										`<th style="border: 1px solid #d1d5db; padding: 3px 4px; font-weight: bold; text-align: center;">
-											${h.name}<br><span style="font-size: 5pt;">${h.time}</span>
+											${h.name}<br><span style="font-size: 0.75rem;">${h.time}</span>
 										</th>`
 									).join('')}
 								</tr>
@@ -3806,8 +3806,8 @@
 											<td style="border: 1px solid #d1d5db; padding: 3px 4px; font-weight: bold; background: #f9fafb;">${cName}</td>
 											${timetable[day][cName].map(period => `
 												<td style="border: 1px solid #d1d5db; padding: 3px 4px; text-align: center;">
-													<div style="font-size: 6pt; font-weight: bold; margin-bottom: 1px;">${period.subject || ''}</div>
-													${period.teacher ? `<div style="font-size: 5pt;">${period.teacher}</div>` : ''}
+													<div style="font-size: 0.75rem; font-weight: bold; margin-bottom: 1px;">${period.subject || ''}</div>
+													${period.teacher ? `<div style="font-size: 0.75rem;">${period.teacher}</div>` : ''}
 												</td>
 											`).join('')}
 										</tr>
