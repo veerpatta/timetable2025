@@ -2389,6 +2389,31 @@
 			return candidates && candidates.length ? candidates[0].teacher : null;
 		}
 
+		const TEACHER_AVAILABILITY_RULES = {
+			Mahesh: {
+				allowedPeriodIndexes: [1, 2, 3],
+				windowLabel: 'Periods 1-3 only'
+			},
+			Anjana: {
+				allowedPeriodIndexes: [5, 6, 7, 8],
+				windowLabel: 'Periods 5-8 only'
+			}
+		};
+
+		function getTeacherAvailabilityRule(teacher) {
+			return TEACHER_AVAILABILITY_RULES[teacher] || null;
+		}
+
+		function getTeacherAvailabilityWindowLabel(teacher) {
+			return getTeacherAvailabilityRule(teacher)?.windowLabel || '';
+		}
+
+		function isTeacherAvailableForPeriod(teacher, periodIndex) {
+			const rule = getTeacherAvailabilityRule(teacher);
+			if (!rule) return true;
+			return rule.allowedPeriodIndexes.includes(periodIndex);
+		}
+
 		function ensureSubstitutionStructures(day, className) {
 			if (!state.substitutions[day]) state.substitutions[day] = { plan: {}, absentTeachers: [] };
 			if (!state.substitutions[day].plan[className]) state.substitutions[day].plan[className] = {};
@@ -3312,9 +3337,7 @@
 		}
 
 		function isTeacherUnavailableForPeriod(teacher, periodIndex) {
-			if (teacher === 'Mahesh' && periodIndex < 3) return true;
-			if (teacher === 'Anjana' && periodIndex < 4) return true;
-			return false;
+			return !isTeacherAvailableForPeriod(teacher, periodIndex);
 		}
 
 		// --- ENHANCED FREE TEACHER FINDER RENDER ---
@@ -3930,6 +3953,14 @@
 		function renderTeacherView(selectedTeacher = '') {
 			try {
 				const { teacherDetails, teacherNames, periodHeaders, timetable } = state.allData;
+				const teacherAvailabilityRule = getTeacherAvailabilityRule(selectedTeacher);
+				const availabilityNoteHtml = teacherAvailabilityRule ? `
+					<div style="background: var(--yellow-50); color: var(--yellow-800);
+								border: 1px solid var(--yellow-200); border-radius: var(--radius);
+								padding: 0.75rem 1rem; margin-bottom: 1rem; font-size: 0.9rem;">
+						<strong>Availability:</strong> ${teacherAvailabilityRule.windowLabel}
+					</div>
+				` : '';
 				document.getElementById('print-header-subtitle').textContent =
 					selectedTeacher ? `Weekly Schedule for ${selectedTeacher}` : 'Teacher Timetables';
 
@@ -3950,6 +3981,7 @@
 						`).join('');
 						detailsHtml = `
 							<div class="mt-4">
+								${availabilityNoteHtml}
 								<div style="background: var(--primary-50); color: var(--primary-800); font-weight: 600; text-align: center; border-radius: var(--radius); padding: 0.5rem; margin-bottom: 0.75rem;">
 									Total Weekly Periods: ${teacherDetails[selectedTeacher].periodCount}
 								</div>
@@ -3985,6 +4017,7 @@
 												break;
 											}
 										}
+										const isUnavailableWindow = !originalPeriod && !subPeriodInfo && isTeacherUnavailableForPeriod(selectedTeacher, i);
 										const label = periodHeaders[i]?.name || `Period ${i+1}`;
 										return `
 											<td data-label="${label}"${(day === today && i === currentPeriodIdx) ? ' class="highlight-period"' : ''}>
@@ -4001,6 +4034,10 @@
 														<div class="class-name">${subPeriodInfo.className}</div>
 													</div>
 												` : ''}
+												${isUnavailableWindow ? `
+													<div style="font-size: 0.78rem; font-weight: 600; color: var(--yellow-800);">Unavailable</div>
+													<div class="class-name">${getTeacherAvailabilityWindowLabel(selectedTeacher)}</div>
+												` : ''}
 											</td>
 										`;
 									}).join('')}
@@ -4010,6 +4047,7 @@
 
 						detailsHtml = `
 							<div class="mt-4">
+								${availabilityNoteHtml}
 								<div style="background: var(--primary-50); color: var(--primary-800);
 											font-weight: 600; text-align: center; border-radius: var(--radius);
 											padding: 0.75rem; margin-bottom: 1.5rem;">
@@ -4093,12 +4131,13 @@
 				const activeIdx = day === today ? getActivePeriodIndex() : -1;
 				const list = periodHeaders.map((h, i) => {
 					const p = daySchedule[i];
+					const isUnavailableWindow = !p && isTeacherUnavailableForPeriod(selectedTeacher, i);
 					return `
 						<div class="timetable-row ${i===activeIdx?'is-current':''}" data-period-index="${i}" id="row-p${i}" role="button" tabindex="0" onclick="this.classList.toggle('expanded')" onkeypress="if(event.key==='Enter') this.click()">
 							<div class="period-col">${h.name}<div style="font-weight:500; color: var(--gray-500); font-size: 0.75rem;">${h.time||''}</div></div>
-							<div class="subject-col">${p ? p.subject : ''}</div>
-							<div class="teacher-col">${p ? p.className : 'Free period'}</div>
-							<div class="extra">${p ? ('Teacher: ' + selectedTeacher) : ''}</div>
+							<div class="subject-col">${p ? p.subject : (isUnavailableWindow ? 'Unavailable' : '')}</div>
+							<div class="teacher-col">${p ? p.className : (isUnavailableWindow ? getTeacherAvailabilityWindowLabel(selectedTeacher) : 'Free period')}</div>
+							<div class="extra">${p ? ('Teacher: ' + selectedTeacher) : (isUnavailableWindow ? 'Not available for substitutions in this slot' : '')}</div>
 						</div>`;
 				}).join('');
 				container.innerHTML = `<div class="timetable-list" aria-label="${selectedTeacher} - ${day}">${list}</div>`;
@@ -4223,11 +4262,16 @@
 										<td style="border: 1px solid #d1d5db; padding: 4px 6px; font-weight: bold; background: #f9fafb;">${day}</td>
 										${periodHeaders.map((_, i) => {
 											const period = daySchedule[i];
+											const isUnavailableWindow = !period && isTeacherUnavailableForPeriod(selectedTeacher, i);
 											return `
 												<td style="border: 1px solid #d1d5db; padding: 4px 6px; text-align: center;">
 													${period ? `
 														<div style="font-size: 0.85rem; font-weight: bold; margin-bottom: 1px;">${period.subject}</div>
 														<div style="font-size: 0.75rem;">${period.className}</div>
+													` : ''}
+													${isUnavailableWindow ? `
+														<div style="font-size: 0.78rem; font-weight: bold; color: #92400e;">Unavailable</div>
+														<div style="font-size: 0.72rem; color: #92400e;">${getTeacherAvailabilityWindowLabel(selectedTeacher)}</div>
 													` : ''}
 												</td>
 											`;
