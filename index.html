@@ -2777,6 +2777,15 @@
 				width: 100%;
 			}
 
+			.substitution-plan-actions--sticky {
+				position: static;
+				top: auto;
+				padding: 0;
+				border: none;
+				background: transparent;
+				backdrop-filter: none;
+			}
+
 			.substitution-selected-panel,
 			.substitution-plan-card {
 				padding: 0.95rem;
@@ -6583,6 +6592,7 @@
 
 				closeSubstitutionAssignmentSheet();
 				renderSubstitutionView(day, absentTeachers);
+				requestAnimationFrame(() => focusSubstitutionShareActions());
 				showToast(`Assigned ${teacher} to ${className}.`, 2600, 'success');
 			} catch (error) {
 				console.error('Error applying substitution assignment:', error);
@@ -7313,12 +7323,12 @@
 								</div>
 								${planEntries.length > 0 ? `<span class="finder-pill finder-pill--accent">${overview.uncoveredCount > 0 ? `${overview.uncoveredCount} open` : 'Ready to share'}</span>` : ''}
 							</div>
+							${planActionsHtml}
 							${openSlotChipsHtml}
 							<div id="substitution-plan-content" class="substitution-plan-shell">
 								<div id="plan-container" class="substitution-plan-grid">
 									${planCardsHtml}
 								</div>
-								${planActionsHtml}
 								${hasAnySavedPlan ? `
 									<button id="reset-plan-btn" class="button button-danger">
 										<i data-lucide="rotate-ccw"></i>
@@ -7335,6 +7345,13 @@
 			mainContent.innerHTML = html;
 			attachSubstitutionEventListeners(selectedDay, selectedAbsentTeachers);
 			lucide.createIcons();
+		}
+
+		function focusSubstitutionShareActions() {
+			const actions = document.querySelector('.substitution-plan-actions--sticky');
+			if (!actions) return;
+
+			actions.scrollIntoView({ block: 'nearest', inline: 'nearest', behavior: 'smooth' });
 		}
 
 		// --- EVENT HANDLERS & LOGIC ---
@@ -7446,6 +7463,10 @@
 					break;
 				default:
 					renderDashboard();
+			}
+
+			if (view === 'Substitution') {
+				window.scrollTo({ top: 0, behavior: 'auto' });
 			}
 
 			// Update print content when view changes
@@ -7999,11 +8020,47 @@
 			}
 		}
 
+		function buildAssignedSubstitutionPlanPrintMarkup(day) {
+			const assignedSlots = getSortedSubstitutionShareEntries(day).filter(slot => slot.substitute);
+			if (assignedSlots.length === 0) {
+				return '';
+			}
+
+			const rows = assignedSlots.map(slot => `
+				<tr>
+					<td>${escapeHtml(slot.periodName || '--')}</td>
+					<td>${escapeHtml(slot.periodTime || '--')}</td>
+					<td>${escapeHtml(slot.className || '--')}</td>
+					<td>${escapeHtml(slot.subject || '--')}</td>
+					<td>${escapeHtml(slot.originalTeacher || '--')}</td>
+					<td>${escapeHtml(slot.substitute || '--')}</td>
+				</tr>
+			`).join('');
+
+			return `
+				<div class="table-container">
+					<table>
+						<thead>
+							<tr>
+								<th>Period</th>
+								<th>Time</th>
+								<th>Class</th>
+								<th>Subject</th>
+								<th>Absent Teacher</th>
+								<th>Substitute</th>
+							</tr>
+						</thead>
+						<tbody>${rows}</tbody>
+					</table>
+				</div>
+			`;
+		}
+
 		async function handlePrintSubstitutionPlan(day) {
 			try {
-				const planContent = document.getElementById('substitution-plan-content');
-				if (!planContent) {
-					showToast('âš ï¸ No substitution plan to print', 3000, 'warning');
+				const printMarkup = buildAssignedSubstitutionPlanPrintMarkup(day);
+				if (!printMarkup) {
+					showToast('No assigned substitutions to print for this day', 3200, 'warning');
 					return;
 				}
 
@@ -8012,8 +8069,8 @@
 				const prevContent = document.getElementById('print-content').innerHTML;
 				const prevSubtitle = document.getElementById('print-header-subtitle').textContent;
 
-				document.getElementById('print-header-subtitle').textContent = `Substitution Plan - ${day}`;
-				document.getElementById('print-content').innerHTML = planContent.innerHTML;
+				document.getElementById('print-header-subtitle').textContent = `Substitution Plan (${day}) - Assigned Slots Only`;
+				document.getElementById('print-content').innerHTML = printMarkup;
 
 				const prevDisplay = captureElement.style.display;
 				captureElement.style.display = 'block';
