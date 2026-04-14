@@ -533,7 +533,7 @@
 		}
 
 		.highlight-period::after {
-			content: "🔴 LIVE";
+			content: "ðŸ”´ LIVE";
 			position: absolute;
 			top: 2px;
 			right: 2px;
@@ -546,7 +546,7 @@
 
 		@media (max-width: 768px) {
 			.highlight-period::after {
-				content: "🔴";
+				content: "ðŸ”´";
 				font-size: 0.7rem;
 			}
 		}
@@ -968,6 +968,606 @@
 			width: 100%;
 		}
 
+		.dashboard-shell {
+			display: grid;
+			gap: 1rem;
+		}
+
+		.dashboard-shell > * {
+			opacity: 0;
+			animation: dashboard-enter 0.45s ease forwards;
+		}
+
+		.dashboard-shell > *:nth-child(2) {
+			animation-delay: 0.06s;
+		}
+
+		.dashboard-shell > *:nth-child(3) {
+			animation-delay: 0.12s;
+		}
+
+		.dashboard-hero {
+			display: grid;
+			gap: 1rem;
+		}
+
+		.dashboard-spotlight {
+			display: grid;
+			gap: 1rem;
+			padding-block: 1.15rem;
+			background:
+				radial-gradient(circle at top right, rgba(16, 185, 129, 0.18), transparent 28%),
+				linear-gradient(135deg, rgba(37, 99, 235, 0.12), rgba(14, 165, 233, 0.05)),
+				var(--card);
+		}
+
+		.dashboard-status-row {
+			display: flex;
+			flex-wrap: wrap;
+			align-items: center;
+			justify-content: space-between;
+			gap: 0.75rem;
+		}
+
+		.dashboard-live-pill,
+		.dashboard-time-chip,
+		.finder-pill {
+			display: inline-flex;
+			align-items: center;
+			gap: 0.45rem;
+			padding: 0.45rem 0.75rem;
+			border-radius: 999px;
+			font-size: 0.78rem;
+			font-weight: 700;
+			letter-spacing: 0.01em;
+			border: 1px solid rgba(37, 99, 235, 0.12);
+			background: rgba(255, 255, 255, 0.82);
+			color: var(--gray-800);
+		}
+
+		.dashboard-live-pill--live {
+			color: var(--green-800);
+			background: rgba(236, 253, 245, 0.94);
+			border-color: rgba(16, 185, 129, 0.24);
+		}
+
+		.dashboard-live-pill--upcoming,
+		.dashboard-live-pill--break {
+			color: var(--primary-800);
+			background: rgba(239, 246, 255, 0.94);
+			border-color: rgba(37, 99, 235, 0.22);
+		}
+
+		.dashboard-live-pill--complete {
+			color: var(--yellow-800);
+			background: rgba(255, 251, 235, 0.94);
+			border-color: rgba(245, 158, 11, 0.24);
+		}
+
+		.dashboard-live-dot {
+			width: 0.6rem;
+			height: 0.6rem;
+			border-radius: 50%;
+			background: currentColor;
+			box-shadow: 0 0 0 0 currentColor;
+			animation: dashboard-beacon 1.8s infinite;
+			flex-shrink: 0;
+		}
+
+		.dashboard-time-chip svg,
+		.finder-pill svg {
+			width: 0.95rem;
+			height: 0.95rem;
+		}
+
+		.dashboard-hero-title {
+			font-size: clamp(1.55rem, 4vw, 2.3rem);
+			font-weight: 800;
+			line-height: 1.08;
+			letter-spacing: -0.03em;
+			color: var(--gray-900);
+			margin: 0;
+		}
+
+		.dashboard-hero-copy {
+			max-width: 56ch;
+		}
+
+		.dashboard-glance-grid {
+			display: grid;
+			grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+			gap: 0.75rem;
+		}
+
+		.dashboard-glance-card {
+			display: grid;
+			gap: 0.3rem;
+			padding: 0.95rem;
+			border-radius: var(--radius-lg);
+			border: 1px solid rgba(37, 99, 235, 0.12);
+			background: rgba(255, 255, 255, 0.82);
+			backdrop-filter: blur(8px);
+			-webkit-backdrop-filter: blur(8px);
+			box-shadow: var(--shadow-sm);
+		}
+
+		.dashboard-glance-card span {
+			font-size: 0.73rem;
+			font-weight: 700;
+			letter-spacing: 0.08em;
+			text-transform: uppercase;
+			color: var(--gray-500);
+		}
+
+		.dashboard-glance-card strong {
+			font-size: 1.1rem;
+			line-height: 1.2;
+			color: var(--gray-900);
+		}
+
+		.dashboard-glance-card small {
+			font-size: 0.82rem;
+			color: var(--gray-600);
+			line-height: 1.35;
+		}
+
+		.dashboard-primary-actions,
+		.dashboard-footer-actions {
+			display: grid;
+			gap: 0.75rem;
+		}
+
+		.dashboard-side-stack {
+			display: grid;
+			gap: 1rem;
+		}
+
+		.dashboard-quick-panel,
+		.dashboard-metrics-panel,
+		.dashboard-finder-card {
+			display: grid;
+			gap: 1rem;
+		}
+
+		.dashboard-quick-grid {
+			display: grid;
+			gap: 0.75rem;
+		}
+
+		.dashboard-quick-card {
+			display: grid;
+			gap: 0.85rem;
+			width: 100%;
+			padding: 1rem;
+			text-align: left;
+			border-radius: var(--radius-lg);
+			border: 1px solid rgba(37, 99, 235, 0.12);
+			background:
+				linear-gradient(135deg, rgba(255, 255, 255, 0.94), rgba(239, 246, 255, 0.74)),
+				var(--card);
+			color: var(--gray-900);
+			cursor: pointer;
+			transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease;
+			-webkit-tap-highlight-color: transparent;
+		}
+
+		.dashboard-quick-card:hover {
+			transform: translateY(-2px);
+			box-shadow: var(--shadow-lg);
+			border-color: rgba(37, 99, 235, 0.28);
+		}
+
+		.dashboard-quick-card:active {
+			transform: translateY(0) scale(0.99);
+		}
+
+		.dashboard-quick-card-row {
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+			gap: 0.75rem;
+		}
+
+		.dashboard-quick-icon {
+			display: inline-flex;
+			align-items: center;
+			justify-content: center;
+			width: 2.8rem;
+			height: 2.8rem;
+			border-radius: 1rem;
+			background: linear-gradient(135deg, var(--primary-600), var(--primary-700));
+			color: white;
+			box-shadow: 0 10px 18px -12px rgba(37, 99, 235, 0.75);
+			flex-shrink: 0;
+		}
+
+		.dashboard-quick-icon svg {
+			width: 1.2rem;
+			height: 1.2rem;
+		}
+
+		.dashboard-quick-tag {
+			display: inline-flex;
+			align-items: center;
+			padding: 0.3rem 0.6rem;
+			border-radius: 999px;
+			background: rgba(37, 99, 235, 0.1);
+			color: var(--primary-800);
+			font-size: 0.74rem;
+			font-weight: 700;
+		}
+
+		.dashboard-quick-copy {
+			display: grid;
+			gap: 0.28rem;
+		}
+
+		.dashboard-quick-copy strong {
+			font-size: 1rem;
+			color: var(--gray-900);
+		}
+
+		.dashboard-quick-copy p {
+			font-size: 0.85rem;
+			line-height: 1.45;
+			color: var(--gray-600);
+		}
+
+		.dashboard-quick-link {
+			display: inline-flex;
+			align-items: center;
+			gap: 0.4rem;
+			font-size: 0.84rem;
+			font-weight: 700;
+			color: var(--primary-700);
+		}
+
+		.dashboard-quick-link svg {
+			width: 1rem;
+			height: 1rem;
+		}
+
+		.dashboard-metric-strip {
+			margin-top: 0;
+		}
+
+		.finder-shell {
+			display: grid;
+			gap: 1rem;
+		}
+
+		.finder-status-banner {
+			display: grid;
+			gap: 1rem;
+			padding: 1rem;
+			border-radius: var(--radius-lg);
+			border: 1px solid rgba(37, 99, 235, 0.14);
+			background:
+				linear-gradient(135deg, rgba(239, 246, 255, 0.96), rgba(255, 255, 255, 0.92)),
+				var(--card);
+		}
+
+		.finder-status-banner--live {
+			border-color: rgba(16, 185, 129, 0.2);
+			background:
+				linear-gradient(135deg, rgba(236, 253, 245, 0.96), rgba(255, 255, 255, 0.9)),
+				var(--card);
+		}
+
+		.finder-status-banner--manual {
+			border-color: rgba(37, 99, 235, 0.22);
+		}
+
+		.finder-status-banner--complete {
+			border-color: rgba(245, 158, 11, 0.22);
+			background:
+				linear-gradient(135deg, rgba(255, 251, 235, 0.96), rgba(255, 255, 255, 0.92)),
+				var(--card);
+		}
+
+		.finder-status-top {
+			display: flex;
+			flex-wrap: wrap;
+			align-items: flex-start;
+			justify-content: space-between;
+			gap: 1rem;
+		}
+
+		.finder-status-title {
+			font-size: 1.15rem;
+			font-weight: 800;
+			color: var(--gray-900);
+			margin: 0;
+		}
+
+		.finder-status-copy {
+			margin-top: 0.35rem;
+			font-size: 0.9rem;
+			color: var(--gray-600);
+			max-width: 58ch;
+		}
+
+		.finder-status-badges {
+			display: flex;
+			flex-wrap: wrap;
+			gap: 0.5rem;
+		}
+
+		.finder-pill--accent {
+			background: var(--primary-600);
+			color: white;
+			border-color: transparent;
+		}
+
+		.finder-highlight {
+			display: grid;
+			grid-template-columns: auto 1fr;
+			gap: 0.75rem;
+			padding: 0.85rem 0.95rem;
+			border-radius: var(--radius-lg);
+			background: rgba(37, 99, 235, 0.08);
+			border: 1px solid rgba(37, 99, 235, 0.12);
+		}
+
+		.finder-highlight svg {
+			width: 1.1rem;
+			height: 1.1rem;
+			color: var(--primary-700);
+			margin-top: 0.1rem;
+		}
+
+		.finder-highlight strong {
+			color: var(--gray-900);
+		}
+
+		.finder-highlight span {
+			display: block;
+			margin-top: 0.15rem;
+			font-size: 0.84rem;
+			color: var(--gray-600);
+		}
+
+		.finder-controls {
+			display: grid;
+			gap: 0.75rem;
+		}
+
+		.finder-field {
+			display: grid;
+			gap: 0.45rem;
+		}
+
+		.finder-field label {
+			display: inline-flex;
+			align-items: center;
+			gap: 0.4rem;
+			font-size: 0.82rem;
+			font-weight: 700;
+			text-transform: uppercase;
+			letter-spacing: 0.06em;
+			color: var(--gray-700);
+		}
+
+		.finder-field label svg {
+			width: 0.95rem;
+			height: 0.95rem;
+		}
+
+		.finder-banner-actions {
+			display: flex;
+			flex-wrap: wrap;
+			gap: 0.75rem;
+		}
+
+		.finder-banner-actions .button {
+			width: 100%;
+		}
+
+		.finder-results-panel {
+			display: grid;
+			gap: 0.9rem;
+			padding: 1rem;
+			border-radius: var(--radius-lg);
+			background: var(--gray-50);
+			border: 1px solid var(--gray-200);
+		}
+
+		.finder-results-header {
+			display: flex;
+			flex-wrap: wrap;
+			align-items: center;
+			justify-content: space-between;
+			gap: 0.75rem;
+		}
+
+		.finder-results-header h4 {
+			font-size: 1rem;
+			color: var(--gray-900);
+			margin: 0;
+		}
+
+		.finder-results-header p {
+			margin-top: 0.2rem;
+			font-size: 0.84rem;
+			color: var(--gray-600);
+		}
+
+		.finder-results-list {
+			display: grid;
+			gap: 0.75rem;
+			max-height: 24rem;
+			overflow-y: auto;
+			padding-right: 0.15rem;
+		}
+
+		.finder-card {
+			display: grid;
+			gap: 0.75rem;
+			padding: 0.95rem;
+			border-radius: var(--radius-lg);
+			border: 1px solid var(--gray-200);
+			border-left: 4px solid var(--gray-300);
+			background: var(--card);
+			box-shadow: var(--shadow-sm);
+			transition: transform 0.2s ease, box-shadow 0.2s ease;
+		}
+
+		.finder-card:hover {
+			transform: translateY(-1px);
+			box-shadow: var(--shadow-md);
+		}
+
+		.finder-card--best {
+			border-left-color: var(--green-500);
+			background: linear-gradient(135deg, rgba(236, 253, 245, 0.7), rgba(255, 255, 255, 0.92));
+		}
+
+		.finder-card--strong {
+			border-left-color: var(--primary-500);
+			background: linear-gradient(135deg, rgba(239, 246, 255, 0.7), rgba(255, 255, 255, 0.92));
+		}
+
+		.finder-card--backup {
+			border-left-color: var(--yellow-500);
+			background: linear-gradient(135deg, rgba(255, 251, 235, 0.7), rgba(255, 255, 255, 0.92));
+		}
+
+		.finder-card-header {
+			display: flex;
+			flex-wrap: wrap;
+			align-items: flex-start;
+			justify-content: space-between;
+			gap: 0.75rem;
+		}
+
+		.finder-teacher-block {
+			display: grid;
+			grid-template-columns: auto 1fr;
+			gap: 0.75rem;
+			align-items: start;
+		}
+
+		.finder-rank-badge {
+			display: inline-flex;
+			align-items: center;
+			justify-content: center;
+			min-width: 2rem;
+			height: 2rem;
+			padding: 0 0.45rem;
+			border-radius: 999px;
+			background: var(--gray-900);
+			color: white;
+			font-size: 0.85rem;
+			font-weight: 800;
+			box-shadow: var(--shadow-sm);
+		}
+
+		.finder-teacher-copy {
+			display: grid;
+			gap: 0.25rem;
+		}
+
+		.finder-teacher-row {
+			display: flex;
+			flex-wrap: wrap;
+			align-items: center;
+			gap: 0.5rem;
+		}
+
+		.finder-teacher-row strong {
+			font-size: 1rem;
+			color: var(--gray-900);
+		}
+
+		.finder-teacher-copy p {
+			font-size: 0.85rem;
+			color: var(--gray-600);
+			line-height: 1.4;
+		}
+
+		.finder-meta-block {
+			display: grid;
+			justify-items: end;
+			gap: 0.4rem;
+		}
+
+		.finder-workload {
+			font-size: 0.8rem;
+			color: var(--gray-500);
+		}
+
+		.finder-breakdown {
+			display: flex;
+			flex-wrap: wrap;
+			gap: 0.5rem;
+		}
+
+		.finder-breakdown span {
+			display: inline-flex;
+			align-items: center;
+			padding: 0.3rem 0.55rem;
+			border-radius: 999px;
+			background: rgba(17, 24, 39, 0.06);
+			color: var(--gray-700);
+			font-size: 0.75rem;
+			font-weight: 600;
+		}
+
+		.finder-empty {
+			display: grid;
+			justify-items: center;
+			gap: 0.45rem;
+			padding: 1.4rem 1rem;
+			text-align: center;
+			border-radius: var(--radius-lg);
+			border: 2px dashed var(--gray-300);
+			background: rgba(255, 255, 255, 0.78);
+			color: var(--gray-600);
+		}
+
+		.finder-empty svg {
+			width: 1.5rem;
+			height: 1.5rem;
+			color: var(--gray-400);
+		}
+
+		.finder-empty strong {
+			color: var(--gray-900);
+		}
+
+		.finder-empty--error {
+			border-color: var(--red-200);
+			color: var(--red-600);
+		}
+
+		.finder-empty--error svg,
+		.finder-empty--error strong {
+			color: var(--red-600);
+		}
+
+		@keyframes dashboard-enter {
+			from {
+				opacity: 0;
+				transform: translateY(14px);
+			}
+			to {
+				opacity: 1;
+				transform: translateY(0);
+			}
+		}
+
+		@keyframes dashboard-beacon {
+			0% {
+				box-shadow: 0 0 0 0 currentColor;
+			}
+			70% {
+				box-shadow: 0 0 0 0.45rem rgba(0, 0, 0, 0);
+			}
+			100% {
+				box-shadow: 0 0 0 0 rgba(0, 0, 0, 0);
+			}
+		}
+
 		@media (min-width: 640px) {
 			#main-nav {
 				grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -988,6 +1588,29 @@
 				align-items: stretch;
 			}
 
+			.dashboard-hero {
+				grid-template-columns: minmax(0, 1.2fr) minmax(320px, 0.95fr);
+				align-items: start;
+			}
+
+			.dashboard-primary-actions {
+				grid-template-columns: repeat(2, minmax(0, 1fr));
+			}
+
+			.finder-controls {
+				grid-template-columns: repeat(2, minmax(0, 1fr));
+			}
+
+			.finder-banner-actions .button,
+			.dashboard-footer-actions .button {
+				width: auto;
+				max-width: 280px;
+			}
+
+			.finder-banner-actions {
+				justify-content: flex-start;
+			}
+
 			.view-actions {
 				width: auto;
 				justify-content: flex-end;
@@ -1002,6 +1625,10 @@
 		@media (min-width: 1024px) {
 			#main-nav {
 				grid-template-columns: repeat(5, minmax(0, 1fr));
+			}
+
+			.dashboard-spotlight {
+				padding: 1.4rem;
 			}
 		}
 
@@ -1382,6 +2009,29 @@
 			.card .grid {
 				grid-template-columns: 1fr;
 				gap: 0.75rem;
+			}
+
+			.dashboard-glance-grid {
+				grid-template-columns: repeat(2, minmax(0, 1fr));
+			}
+
+			.dashboard-glance-card {
+				min-height: 7.2rem;
+			}
+
+			.dashboard-quick-card,
+			.finder-status-banner,
+			.finder-results-panel {
+				padding: 0.95rem;
+			}
+
+			.finder-meta-block {
+				width: 100%;
+				justify-items: start;
+			}
+
+			.finder-results-list {
+				max-height: none;
 			}
 
 			.flex.gap-4 {
@@ -1784,6 +2434,83 @@
 	[data-theme="dark"] .field-label {
 		color: var(--text) !important;
 	}
+
+	[data-theme="dark"] .dashboard-spotlight,
+	[data-theme="dark"] .dashboard-quick-card,
+	[data-theme="dark"] .dashboard-glance-card,
+	[data-theme="dark"] .dashboard-live-pill,
+	[data-theme="dark"] .dashboard-time-chip,
+	[data-theme="dark"] .finder-pill,
+	[data-theme="dark"] .finder-status-banner,
+	[data-theme="dark"] .finder-results-panel,
+	[data-theme="dark"] .finder-card,
+	[data-theme="dark"] .finder-empty {
+		background: rgba(15, 23, 42, 0.78);
+		border-color: rgba(148, 163, 184, 0.2);
+		color: var(--text);
+	}
+
+	[data-theme="dark"] .dashboard-spotlight {
+		background:
+			radial-gradient(circle at top right, rgba(52, 211, 153, 0.12), transparent 28%),
+			linear-gradient(135deg, rgba(74, 124, 126, 0.2), rgba(22, 33, 62, 0.82)),
+			var(--card);
+	}
+
+	[data-theme="dark"] .dashboard-live-pill--live,
+	[data-theme="dark"] .finder-status-banner--live {
+		background: rgba(6, 95, 70, 0.34);
+		border-color: rgba(52, 211, 153, 0.24);
+		color: #d1fae5;
+	}
+
+	[data-theme="dark"] .dashboard-live-pill--upcoming,
+	[data-theme="dark"] .dashboard-live-pill--break,
+	[data-theme="dark"] .finder-status-banner--manual {
+		background: rgba(30, 58, 138, 0.3);
+		border-color: rgba(96, 165, 250, 0.28);
+		color: #dbeafe;
+	}
+
+	[data-theme="dark"] .dashboard-live-pill--complete,
+	[data-theme="dark"] .finder-status-banner--complete {
+		background: rgba(146, 64, 14, 0.3);
+		border-color: rgba(251, 191, 36, 0.28);
+		color: #fde68a;
+	}
+
+	[data-theme="dark"] .dashboard-quick-tag,
+	[data-theme="dark"] .finder-highlight,
+	[data-theme="dark"] .finder-breakdown span {
+		background: rgba(255, 255, 255, 0.08);
+		color: var(--text);
+	}
+
+	[data-theme="dark"] .finder-pill--accent {
+		background: var(--primary-600);
+		color: var(--text-on-primary);
+	}
+
+	[data-theme="dark"] .dashboard-hero-title,
+	[data-theme="dark"] .dashboard-glance-card strong,
+	[data-theme="dark"] .dashboard-quick-copy strong,
+	[data-theme="dark"] .finder-status-title,
+	[data-theme="dark"] .finder-results-header h4,
+	[data-theme="dark"] .finder-teacher-row strong,
+	[data-theme="dark"] .finder-empty strong {
+		color: var(--text);
+	}
+
+	[data-theme="dark"] .dashboard-glance-card small,
+	[data-theme="dark"] .dashboard-quick-copy p,
+	[data-theme="dark"] .finder-status-copy,
+	[data-theme="dark"] .finder-highlight span,
+	[data-theme="dark"] .finder-results-header p,
+	[data-theme="dark"] .finder-teacher-copy p,
+	[data-theme="dark"] .finder-workload,
+	[data-theme="dark"] .finder-empty p {
+		color: var(--text-secondary);
+	}
 	</style>
 </head>
 <body>
@@ -2136,6 +2863,11 @@
 			currentView: 'Dashboard',
 			currentSubstitutionDay: null,
 			substitutions: {},
+			dashboardFinder: {
+				day: null,
+				period: null,
+				manual: false
+			},
 			allData: {},
 			cache: new Map(),
 			lastUpdate: null,
@@ -2199,7 +2931,7 @@
 			try {
 				const idx = getActivePeriodIndex();
 				if (idx === -1) {
-					showToast('ℹ️ No live period right now', 2000, 'info');
+					showToast('â„¹ï¸ No live period right now', 2000, 'info');
 					return;
 				}
 				const container = document.querySelector(containerSelector) || document;
@@ -2215,7 +2947,7 @@
 					row.classList.add('is-current');
 					setTimeout(() => row.classList.remove('is-current'), 2000);
 				} else {
-					showToast('⚠️ Current period not visible here', 2500, 'warning');
+					showToast('âš ï¸ Current period not visible here', 2500, 'warning');
 				}
 			} catch (e) { console.error(e); }
 		}
@@ -2281,7 +3013,7 @@
 				}
 			} catch (error) {
 				console.error('Error switching day:', error);
-				showToast('❌ Error switching day', 2000, 'error');
+				showToast('âŒ Error switching day', 2000, 'error');
 			}
 		}
 
@@ -2363,6 +3095,250 @@
 				}
 			}
 			return -1; // Before first, after last, or break
+		}
+
+		function formatMinutesToTimeLabel(totalMinutes) {
+			const hours24 = Math.floor(totalMinutes / 60);
+			const minutes = totalMinutes % 60;
+			const suffix = hours24 >= 12 ? 'PM' : 'AM';
+			const hours12 = hours24 % 12 || 12;
+			return `${hours12}:${String(minutes).padStart(2, '0')} ${suffix}`;
+		}
+
+		function getNextScheduledSlotIndex() {
+			const slots = getWinterTimeSlots();
+			const timeInMinutes = getCurrentTimeInMinutes();
+
+			for (let i = 0; i < slots.length; i++) {
+				if (timeInMinutes < slots[i].start) {
+					return i;
+				}
+			}
+
+			return null;
+		}
+
+		function getNextSchoolDay(currentDay) {
+			const days = state.allData?.days || [];
+			if (!days.length) return 'Monday';
+
+			const currentIndex = days.indexOf(currentDay);
+			if (currentIndex === -1) return days[0];
+
+			return days[(currentIndex + 1) % days.length];
+		}
+
+		function getDashboardSlotDetails(index) {
+			if (index == null || index < 0) return null;
+
+			const winterSlot = getWinterTimeSlots()[index];
+			const parsedSlot = state.allData?.periodHeaders?.[index];
+			const timeLabel = parsedSlot?.time || (winterSlot ? `${formatMinutesToTimeLabel(winterSlot.start)} - ${formatMinutesToTimeLabel(winterSlot.end)}` : '');
+
+			return {
+				name: parsedSlot?.name || winterSlot?.name || `Period ${index + 1}`,
+				time: timeLabel,
+				startLabel: winterSlot ? formatMinutesToTimeLabel(winterSlot.start) : (timeLabel ? timeLabel.split(' - ')[0] : ''),
+				endLabel: winterSlot ? formatMinutesToTimeLabel(winterSlot.end) : (timeLabel ? timeLabel.split(' - ')[1] || '' : '')
+			};
+		}
+
+		function getDashboardFinderSelection(day = null, period = null) {
+			const liveDay = getCurrentDay();
+			const livePeriod = getCurrentPeriod();
+			const nextSlotIndex = getNextScheduledSlotIndex();
+			const autoPeriod = livePeriod || (nextSlotIndex != null ? nextSlotIndex + 1 : getFallbackPeriod());
+			const hasExplicitSelection = day != null || period != null;
+
+			if (hasExplicitSelection) {
+				state.dashboardFinder = {
+					day: day || state.dashboardFinder.day || liveDay,
+					period: Number(period || state.dashboardFinder.period || autoPeriod),
+					manual: true
+				};
+			}
+
+			if (state.dashboardFinder.manual && state.dashboardFinder.day && state.dashboardFinder.period) {
+				return {
+					day: state.dashboardFinder.day,
+					period: Number(state.dashboardFinder.period),
+					liveDay,
+					livePeriod,
+					manual: true
+				};
+			}
+
+			return {
+				day: liveDay,
+				period: autoPeriod,
+				liveDay,
+				livePeriod,
+				manual: false
+			};
+		}
+
+		function resetDashboardFinderSelection() {
+			state.dashboardFinder = {
+				day: null,
+				period: null,
+				manual: false
+			};
+
+			if (state.currentView === 'Dashboard') {
+				renderFreeTeacherFinder();
+			}
+		}
+
+		function getDashboardOverview() {
+			const currentDay = getCurrentDay();
+			const currentTimeLabel = new Date().toLocaleTimeString('en-US', {
+				hour: '2-digit',
+				minute: '2-digit',
+				hour12: true
+			});
+			const liveIndex = getActivePeriodIndex();
+			const nextSlotIndex = getNextScheduledSlotIndex();
+			const classesToday = Object.keys(state.allData?.timetable?.[currentDay] || {}).length || state.allData?.classNames?.length || 0;
+			const hasSchoolStarted = getCurrentTimeInMinutes() >= getWinterTimeSlots()[0].start;
+			const referenceIndex = liveIndex !== -1 ? liveIndex : nextSlotIndex;
+			const availabilityCandidates = referenceIndex != null
+				? findFreeTeachers(currentDay, referenceIndex, [], {})
+				: [];
+			const topTeacher = availabilityCandidates[0] || null;
+			const slotDetails = getDashboardSlotDetails(liveIndex !== -1 ? liveIndex : nextSlotIndex);
+
+			let mode = 'complete';
+			let statusLabel = 'Classes finished';
+			let headline = `${currentDay} classes are over`;
+			let message = `Use Day View to review today or switch to ${getNextSchoolDay(currentDay)} for the next school day.`;
+			let slotCard = {
+				label: 'Next school day',
+				value: getNextSchoolDay(currentDay),
+				meta: getDashboardSlotDetails(0)?.time || 'Assembly starts at 8:00 AM'
+			};
+			let bestTeacherCard = {
+				label: 'Best available',
+				value: 'Open finder',
+				meta: 'Choose any day and period below'
+			};
+			let availabilityCard = {
+				label: 'Availability',
+				value: 'Manual lookup',
+				meta: 'Finder stays ready below'
+			};
+
+			if (liveIndex !== -1 && slotDetails) {
+				const nextLiveSlot = getDashboardSlotDetails(liveIndex + 1);
+				mode = 'live';
+				statusLabel = 'Live school day';
+				headline = `${currentDay} is in ${slotDetails.name}`;
+				message = `${slotDetails.time} is active now.${nextLiveSlot ? ` Next: ${nextLiveSlot.name} at ${nextLiveSlot.startLabel}.` : ' This is the last slot of the day.'}`;
+				slotCard = {
+					label: 'Current slot',
+					value: slotDetails.name,
+					meta: slotDetails.time || 'In progress now'
+				};
+				bestTeacherCard = topTeacher
+					? {
+						label: 'Best available',
+						value: topTeacher.teacher,
+						meta: topTeacher.reason
+					}
+					: {
+						label: 'Best available',
+						value: 'No free teacher',
+						meta: 'Check substitutions below'
+					};
+				availabilityCard = {
+					label: 'Free now',
+					value: `${availabilityCandidates.length} teachers`,
+					meta: availabilityCandidates.length ? 'Ranked for quick substitution' : 'No one is free in this slot'
+				};
+			} else if (slotDetails) {
+				mode = hasSchoolStarted ? 'break' : 'upcoming';
+				statusLabel = hasSchoolStarted ? 'Short break' : 'Before school';
+				headline = hasSchoolStarted ? `Break before ${slotDetails.name}` : `${currentDay} starts with ${slotDetails.name}`;
+				message = hasSchoolStarted
+					? `${slotDetails.name} begins at ${slotDetails.startLabel}. The finder below is already set to the next useful slot.`
+					: `School starts at ${slotDetails.startLabel}. Open Day View for the full plan or use the finder to prepare early.`;
+				slotCard = {
+					label: 'Next slot',
+					value: slotDetails.name,
+					meta: slotDetails.time || `Starts at ${slotDetails.startLabel}`
+				};
+				bestTeacherCard = topTeacher
+					? {
+						label: 'Best next option',
+						value: topTeacher.teacher,
+						meta: topTeacher.reason
+					}
+					: {
+						label: 'Best next option',
+						value: 'Finder ready',
+						meta: 'Recommendations update below'
+					};
+				availabilityCard = {
+					label: 'Free next',
+					value: `${availabilityCandidates.length} teachers`,
+					meta: availabilityCandidates.length ? 'Prepared for the next slot' : 'Open the finder for manual review'
+				};
+			}
+
+			return {
+				mode,
+				statusLabel,
+				currentDay,
+				currentTimeLabel,
+				headline,
+				message,
+				cards: [
+					{
+						label: 'Today',
+						value: currentDay,
+						meta: `${classesToday} classes scheduled`
+					},
+					slotCard,
+					bestTeacherCard,
+					availabilityCard
+				]
+			};
+		}
+
+		function renderDashboardSummaryMarkup(overview) {
+			return `
+				<div class="dashboard-status-row">
+					<div class="dashboard-live-pill dashboard-live-pill--${overview.mode}">
+						<span class="dashboard-live-dot"></span>
+						${overview.statusLabel}
+					</div>
+					<span class="dashboard-time-chip">
+						<i data-lucide="clock-3"></i>
+						${overview.currentTimeLabel}
+					</span>
+				</div>
+				<div class="section-kicker">Today At A Glance</div>
+				<h2 class="dashboard-hero-title">${overview.headline}</h2>
+				<p class="section-subtitle dashboard-hero-copy">${overview.message}</p>
+				<div class="dashboard-glance-grid">
+					${overview.cards.map(card => `
+						<div class="dashboard-glance-card">
+							<span>${card.label}</span>
+							<strong>${card.value}</strong>
+							<small>${card.meta}</small>
+						</div>
+					`).join('')}
+				</div>
+				<div class="dashboard-primary-actions">
+					<button class="button button-primary" onclick="switchView('Day')">
+						<i data-lucide="calendar-days"></i>
+						Open Day View
+					</button>
+					<button class="button button-secondary" onclick="switchView('Substitution')">
+						<i data-lucide="user-cog"></i>
+						Plan Substitutions
+					</button>
+				</div>
+			`;
 		}
 
 		// --- WINTER SCHEDULE HELPERS ---
@@ -2715,7 +3691,7 @@
 						);
 						
 						if (isHeaderRow) {
-							console.log(`🚫 SKIPPING HEADER: ${day} - "${line.substring(0, 100)}..."`);
+							console.log(`ðŸš« SKIPPING HEADER: ${day} - "${line.substring(0, 100)}..."`);
 							
 							// Process headers only once across all days
 							if (headers.length === 0 && line.includes('Period 1')) {
@@ -2726,7 +3702,7 @@
 										time: parts[1]?.trim() || '' 
 									};
 								});
-								console.log(`✅ Headers extracted: ${headers.length} periods`);
+								console.log(`âœ… Headers extracted: ${headers.length} periods`);
 							}
 							headerProcessed = true;
 							continue; // CRITICAL: Skip processing this line as class data
@@ -2737,11 +3713,11 @@
 						    firstColumn !== 'Class' && 
 						    !firstColumn.toLowerCase().includes('period')) {
 							const className = firstColumn;
-							console.log(`✅ PROCESSING CLASS: ${day} - "${className}" with ${columns.length-1} periods`);
+							console.log(`âœ… PROCESSING CLASS: ${day} - "${className}" with ${columns.length-1} periods`);
 							
 							// Ensure we have enough columns for all periods
 							if (columns.length < 2) {
-								console.warn(`⚠️ Insufficient data for ${className} on ${day}`);
+								console.warn(`âš ï¸ Insufficient data for ${className} on ${day}`);
 								continue;
 							}
 							
@@ -2851,7 +3827,7 @@
 							});
 						} else {
 							// Debug: Log any unprocessed lines
-							console.log(`❓ UNPROCESSED LINE: ${day} - "${line.substring(0, 100)}..."`);
+							console.log(`â“ UNPROCESSED LINE: ${day} - "${line.substring(0, 100)}..."`);
 							console.log(`   First column: "${firstColumn}"`);
 							console.log(`   Starts with 'Class ': ${firstColumn.startsWith('Class ')}`);
 							console.log(`   Not 'Class': ${firstColumn !== 'Class'}`);
@@ -2859,7 +3835,7 @@
 						}
 					}
 					
-					console.log(`✅ Processed ${day}: ${Object.keys(timetable[day]).length} classes`);
+					console.log(`âœ… Processed ${day}: ${Object.keys(timetable[day]).length} classes`);
 				}
 
 				// Validate and clean up the parsed data
@@ -2873,8 +3849,8 @@
 					cleanTimetable[day] = timetable[day];
 				});
 				
-				console.log(`🧹 Cleaned timetable - Valid days: ${validDays.join(', ')}`);
-				console.log(`🧹 Removed invalid days: ${Object.keys(timetable).filter(d => !validDays.includes(d)).join(', ') || 'none'}`);
+				console.log(`ðŸ§¹ Cleaned timetable - Valid days: ${validDays.join(', ')}`);
+				console.log(`ðŸ§¹ Removed invalid days: ${Object.keys(timetable).filter(d => !validDays.includes(d)).join(', ') || 'none'}`);
 				
 				// Update timetable reference
 				Object.keys(timetable).forEach(key => delete timetable[key]);
@@ -2977,12 +3953,12 @@
 			// Try to get from cache
 			const cached = cache.get(cacheKey);
 			if (cached) {
-				console.log('📦 Using cached timetable data');
+				console.log('ðŸ“¦ Using cached timetable data');
 				return cached;
 			}
 
 			// Parse and cache
-			console.log('🔄 Parsing timetable data...');
+			console.log('ðŸ”„ Parsing timetable data...');
 			const data = parseTimetableData();
 			cache.set(cacheKey, data, 10 * 60 * 1000); // Cache for 10 minutes
 			return data;
@@ -3022,7 +3998,7 @@
 			});
 
 			virtualScroller.init();
-			console.log(`✅ Virtual scrolling enabled for ${items.length} items`);
+			console.log(`âœ… Virtual scrolling enabled for ${items.length} items`);
 			return virtualScroller;
 		}
 
@@ -3033,7 +4009,7 @@
 		function initDebouncedFunctions() {
 			if (FEATURE_FLAGS.feat_perf_opt && typeof PerformanceOptimization !== 'undefined') {
 				// Will be initialized when render functions are defined
-				console.log('✅ Debouncing enabled for render functions');
+				console.log('âœ… Debouncing enabled for render functions');
 			}
 		}
 
@@ -3340,48 +4316,58 @@
 			return !isTeacherAvailableForPeriod(teacher, periodIndex);
 		}
 
-		// --- ENHANCED FREE TEACHER FINDER RENDER ---
 		function renderFreeTeacherFinder(day = null, period = null) {
-			try {
-				const container = document.getElementById('free-teacher-finder-container');
-				if (!container) {
-					console.error('Free teacher finder container not found');
-					return;
-				}
+			const container = document.getElementById('free-teacher-finder-container');
+			if (!container) {
+				console.error('Free teacher finder container not found');
+				return;
+			}
 
-				// Ensure we have data
+			try {
 				if (!state.allData || !state.allData.days || state.allData.days.length === 0) {
 					container.innerHTML = `
-						<div style="color: var(--red-500); padding: 2rem; text-align: center; border: 2px dashed var(--red-200); border-radius: var(--radius);">
-							<i data-lucide="alert-circle" style="width: 24px; height: 24px; margin-bottom: 0.5rem;"></i><br>
-							Data not loaded yet. Please wait...
+						<div class="finder-empty finder-empty--error">
+							<i data-lucide="alert-circle"></i>
+							<strong>Data not loaded yet</strong>
+							<p>Please wait a moment and try again.</p>
 						</div>
 					`;
-					if (typeof lucide !== 'undefined' && lucide.createIcons) {
-						lucide.createIcons();
-					}
+					lucide.createIcons();
 					return;
 				}
 
-				// Smart defaults based on current time
-				const currentDay = day || getCurrentDay();
-				const livePeriod = getCurrentPeriod();
-				const hasExplicitPeriod = period != null;
-				const currentPeriod = period || livePeriod || getFallbackPeriod();
+				const selection = getDashboardFinderSelection(day, period);
+				const currentDay = selection.day;
+				const livePeriod = selection.livePeriod;
+				const currentPeriod = Number(selection.period);
 				const periodIndex = currentPeriod - 1;
-				const isLivePeriod = !hasExplicitPeriod && livePeriod === currentPeriod;
-				const statusText = (hasExplicitPeriod || isLivePeriod)
-					? `Showing free teachers for ${currentDay}, ${state.allData.periodHeaders[periodIndex]?.name || `Period ${currentPeriod}`}`
-					: `No live period right now. Showing ${currentDay}, ${state.allData.periodHeaders[periodIndex]?.name || `Period ${currentPeriod}`}`;
-				const statusLabel = isLivePeriod ? 'Live Updates' : (hasExplicitPeriod ? 'Manual Selection' : 'Outside School Hours');
-				const statusColor = isLivePeriod ? 'var(--green-500)' : 'var(--yellow-500)';
+				const slotDetails = getDashboardSlotDetails(periodIndex);
+				const nextSlotIndex = getNextScheduledSlotIndex();
+				const isBeforeSchool = getCurrentTimeInMinutes() < getWinterTimeSlots()[0].start;
+				const isLivePeriod = !selection.manual && livePeriod === currentPeriod;
+				const hasUpcomingSlot = nextSlotIndex != null;
+				const statusTone = isLivePeriod ? 'live' : selection.manual ? 'manual' : hasUpcomingSlot ? 'upcoming' : 'complete';
+				const statusLabel = isLivePeriod
+					? 'Live updates'
+					: selection.manual
+						? 'Manual selection'
+						: hasUpcomingSlot
+							? (isBeforeSchool ? 'Before school' : 'Short break')
+							: 'After school';
+				const statusText = isLivePeriod
+					? `Showing free teachers for ${currentDay}, ${slotDetails?.name || `Period ${currentPeriod}`}. The ranking refreshes automatically.`
+					: selection.manual
+						? `Manual lookup for ${currentDay}, ${slotDetails?.name || `Period ${currentPeriod}`}. Your selected slot stays in place while the dashboard refreshes.`
+						: hasUpcomingSlot
+							? `No class is live right now. The finder is prepared for ${currentDay}, ${slotDetails?.name || `Period ${currentPeriod}`}.`
+							: 'The school day is over. Choose any day and period to plan ahead.';
 
-				// Validate that the selected day exists
 				if (!state.allData.days.includes(currentDay)) {
 					container.innerHTML = `
-						<div style="color: var(--red-500); padding: 2rem; text-align: center; border: 2px dashed var(--red-200); border-radius: var(--radius);">
-							<i data-lucide="alert-circle" style="width: 24px; height: 24px; margin-bottom: 0.5rem;"></i><br>
-							Day "${currentDay}" not found in timetable data.
+						<div class="finder-empty finder-empty--error">
+							<i data-lucide="alert-circle"></i>
+							<strong>Day not found</strong>
+							<p>${currentDay} is not available in the timetable data.</p>
 						</div>
 					`;
 					lucide.createIcons();
@@ -3389,14 +4375,18 @@
 				}
 
 				const freeTeachers = findFreeTeachers(currentDay, periodIndex, [], {});
-
+				const currentTime = new Date().toLocaleTimeString('en-US', {
+					hour: '2-digit',
+					minute: '2-digit',
+					hour12: true
+				});
 				const dayOptions = state.allData.days.map(d =>
 					`<option value="${d}" ${d === currentDay ? 'selected' : ''}>${d}</option>`
 				).join('');
-
 				const periodOptions = state.allData.periodHeaders.map((p, i) =>
-					`<option value="${i+1}" ${i+1 == currentPeriod ? 'selected' : ''}>${p.name} ${p.time ? `(${p.time})` : ''}</option>`
+					`<option value="${i + 1}" ${i + 1 === currentPeriod ? 'selected' : ''}>${p.name}${p.time ? ` (${p.time})` : ''}</option>`
 				).join('');
+				const leadingTeacher = freeTeachers[0];
 
 				const freeTeachersList = freeTeachers.length > 0
 					? freeTeachers.map((teacherObj, index) => {
@@ -3404,142 +4394,140 @@
 						const workload = state.allData.teacherDetails[teacher]?.workload[currentDay] || 0;
 						const substitutionWorkload = calculateSubstitutionWorkload(teacher, currentDay, {});
 						const totalWorkload = workload + substitutionWorkload;
-						
-						// Color coding based on score
-						let borderColor = 'var(--gray-400)';
-						let bgColor = 'var(--gray-50)';
-						let textColor = 'var(--gray-800)';
-						
+						let toneClass = 'finder-card--balanced';
+
 						if (teacherObj.score >= 35) {
-							borderColor = 'var(--green-500)';
-							bgColor = 'var(--green-50)';
-							textColor = 'var(--green-800)';
+							toneClass = 'finder-card--best';
 						} else if (teacherObj.score >= 20) {
-							borderColor = 'var(--primary-500)';
-							bgColor = 'var(--primary-50)';
-							textColor = 'var(--primary-800)';
+							toneClass = 'finder-card--strong';
 						} else if (teacherObj.score >= 10) {
-							borderColor = 'var(--yellow-500)';
-							bgColor = 'var(--yellow-50)';
-							textColor = 'var(--yellow-800)';
+							toneClass = 'finder-card--backup';
 						}
 
-						const rankIcon = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : `${index + 1}.`;
-
 						return `
-							<div style="background: ${bgColor}; color: ${textColor}; padding: 0.875rem;
-										border-radius: var(--radius); font-size: 0.875rem;
-										border-left: 4px solid ${borderColor}; margin-bottom: 0.5rem;
-										box-shadow: var(--shadow-sm);">
-								<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
-									<div style="display: flex; align-items: center; gap: 0.5rem;">
-										<span style="font-weight: 600;">${rankIcon} ${teacher}</span>
-										<span style="background: rgba(255,255,255,0.7); padding: 0.2rem 0.4rem; border-radius: var(--radius); font-size: 0.75rem; font-weight: 600;">
-											Score: ${teacherObj.score}
-										</span>
+							<article class="finder-card ${toneClass}">
+								<div class="finder-card-header">
+									<div class="finder-teacher-block">
+										<span class="finder-rank-badge">${index + 1}</span>
+										<div class="finder-teacher-copy">
+											<div class="finder-teacher-row">
+												<strong>${teacher}</strong>
+												${index === 0 ? '<span class="finder-pill finder-pill--accent">Top match</span>' : ''}
+											</div>
+											<p>${teacherObj.reason}</p>
+										</div>
 									</div>
-									<small style="opacity: 0.8; font-size: 0.75rem;">
-										${totalWorkload} periods today
-									</small>
-								</div>
-								<div style="font-size: 0.75rem; opacity: 0.9; margin-bottom: 0.25rem;">
-									<strong>Reason:</strong> ${teacherObj.reason}
+									<div class="finder-meta-block">
+										<span class="finder-pill">Score ${teacherObj.score}</span>
+										<span class="finder-workload">${totalWorkload} periods today</span>
+									</div>
 								</div>
 								${teacherObj.breakdown ? `
-									<div style="font-size: 0.7rem; opacity: 0.7; display: flex; gap: 1rem; flex-wrap: wrap;">
-										${teacherObj.breakdown.subjectMatch > 0 ? `<span>Subject: +${teacherObj.breakdown.subjectMatch}</span>` : ''}
-										${teacherObj.breakdown.gradeMatch > 0 ? `<span>Grade: +${teacherObj.breakdown.gradeMatch}</span>` : ''}
-										${teacherObj.breakdown.workloadBonus > 0 ? `<span>Workload: +${teacherObj.breakdown.workloadBonus}</span>` : ''}
-										${teacherObj.breakdown.availabilityBonus > 0 ? `<span>Availability: +${teacherObj.breakdown.availabilityBonus}</span>` : ''}
+									<div class="finder-breakdown">
+										${teacherObj.breakdown.subjectMatch > 0 ? `<span>Subject +${teacherObj.breakdown.subjectMatch}</span>` : ''}
+										${teacherObj.breakdown.gradeMatch > 0 ? `<span>Grade +${teacherObj.breakdown.gradeMatch}</span>` : ''}
+										${teacherObj.breakdown.workloadBonus > 0 ? `<span>Workload +${teacherObj.breakdown.workloadBonus}</span>` : ''}
+										${teacherObj.breakdown.availabilityBonus > 0 ? `<span>Availability +${teacherObj.breakdown.availabilityBonus}</span>` : ''}
 									</div>
 								` : ''}
-							</div>
+							</article>
 						`;
 					}).join('')
-					: `<div style="color: var(--gray-500); padding: 2rem; text-align: center; border: 2px dashed var(--gray-200); border-radius: var(--radius);">
-					   <i data-lucide="user-x" style="width: 24px; height: 24px; margin-bottom: 0.5rem; color: var(--gray-400);"></i><br>
-					   No teachers are free for this slot.
-				   </div>`;
+					: `
+						<div class="finder-empty">
+							<i data-lucide="user-x"></i>
+							<strong>No teachers are free for this slot</strong>
+							<p>Try another period or switch to substitutions for a broader plan.</p>
+						</div>
+					`;
 
-				const currentTime = new Date().toLocaleTimeString('en-US', { 
-					hour: '2-digit', 
-					minute: '2-digit',
-					hour12: true
-				});
+				container.innerHTML = `
+					<div class="finder-shell">
+						<div class="finder-status-banner finder-status-banner--${statusTone}">
+							<div class="finder-status-top">
+								<div>
+									<div class="section-kicker">Availability Snapshot</div>
+									<h3 class="finder-status-title">${currentDay}, ${slotDetails?.name || `Period ${currentPeriod}`}</h3>
+									<p class="finder-status-copy">${statusText}</p>
+								</div>
+								<div class="finder-status-badges">
+									<span class="finder-pill">
+										<i data-lucide="clock-3"></i>
+										${currentTime}
+									</span>
+									<span class="finder-pill">
+										<span class="dashboard-live-dot"></span>
+										${statusLabel}
+									</span>
+									<span class="finder-pill finder-pill--accent">${freeTeachers.length} available</span>
+								</div>
+							</div>
 
-				const html = `
-					<div style="background: linear-gradient(135deg, var(--primary-50) 0%, var(--blue-50) 100%); 
-								padding: 1rem; border-radius: var(--radius-lg); margin-bottom: 1rem;
-								border: 1px solid var(--primary-200);">
-						<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
-							<div>
-								<strong style="color: var(--primary-700);">Current Time: ${currentTime}</strong>
+							${leadingTeacher ? `
+								<div class="finder-highlight">
+									<i data-lucide="sparkles"></i>
+									<div>
+										<strong>Best suggestion:</strong> ${leadingTeacher.teacher}
+										<span>${leadingTeacher.reason}</span>
+									</div>
+								</div>
+							` : ''}
+
+							<div class="finder-controls">
+								<div class="finder-field">
+									<label for="finder-day-select">
+										<i data-lucide="calendar"></i>
+										Day
+									</label>
+									<select id="finder-day-select">${dayOptions}</select>
+								</div>
+								<div class="finder-field">
+									<label for="finder-period-select">
+										<i data-lucide="clock"></i>
+										Period
+									</label>
+									<select id="finder-period-select">${periodOptions}</select>
+								</div>
 							</div>
-							<div style="display: flex; align-items: center; gap: 0.5rem;">
-								<div style="width: 8px; height: 8px; background: ${statusColor}; border-radius: 50%; animation: pulse 2s infinite;"></div>
-								<small style="color: var(--primary-600); font-weight: 500;">${statusLabel}</small>
+
+							<div class="finder-banner-actions">
+								${selection.manual ? `
+									<button class="button button-secondary" onclick="resetDashboardFinderSelection()">
+										<i data-lucide="radio"></i>
+										Use Live Slot
+									</button>
+								` : `
+									<button class="button button-secondary" onclick="switchView('Substitution')">
+										<i data-lucide="user-cog"></i>
+										Open Substitution View
+									</button>
+								`}
 							</div>
 						</div>
-						<small style="color: var(--primary-600);">
-							${statusText}
-						</small>
-					</div>
-					
-					<div class="grid grid-cols-1 grid-cols-md-2 gap-4 mb-4">
-						<div>
-							<label style="display: block; font-weight: 600; margin-bottom: 0.5rem; color: var(--gray-700);">
-								<i data-lucide="calendar" style="width: 16px; height: 16px; display: inline; margin-right: 0.25rem;"></i>
-								Day
-							</label>
-							<select id="finder-day-select" style="border: 2px solid var(--primary-200);">${dayOptions}</select>
-						</div>
-						<div>
-							<label style="display: block; font-weight: 600; margin-bottom: 0.5rem; color: var(--gray-700);">
-								<i data-lucide="clock" style="width: 16px; height: 16px; display: inline; margin-right: 0.25rem;"></i>
-								Period
-							</label>
-							<select id="finder-period-select" style="border: 2px solid var(--primary-200);">${periodOptions}</select>
-						</div>
-					</div>
-					
-					<div style="max-height: 20rem; overflow-y: auto; padding: 0.5rem;
-								background: var(--gray-50); border-radius: var(--radius-lg);
-								border: 1px solid var(--gray-200);">
-						<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
-							<h4 style="color: var(--gray-700); margin: 0;">
-								<i data-lucide="users" style="width: 18px; height: 18px; display: inline; margin-right: 0.5rem;"></i>
-								Smart Teacher Recommendations
-							</h4>
-							<span style="background: var(--primary-600); color: white; padding: 0.25rem 0.5rem; 
-									 border-radius: var(--radius); font-size: 0.75rem; font-weight: 600;">
-							${freeTeachers.length} available
-						</span>
-						</div>
-						${freeTeachers.length > 0 ? `
-							<div style="background: var(--blue-50); padding: 0.5rem; border-radius: var(--radius); margin-bottom: 0.75rem; border-left: 3px solid var(--blue-500);">
-								<p style="font-size: 0.75rem; color: var(--blue-800); margin: 0;">
-									<i data-lucide="info" style="width: 12px; height: 12px; display: inline; margin-right: 0.25rem;"></i>
-									Teachers ranked by: Subject expertise → Grade familiarity → Workload balance → Availability
-								</p>
+
+						<div class="finder-results-panel">
+							<div class="finder-results-header">
+								<div>
+									<h4>Smart Teacher Recommendations</h4>
+									<p>Teachers are ranked by subject match, grade familiarity, workload, and availability.</p>
+								</div>
+								<span class="finder-pill finder-pill--accent">${freeTeachers.length} listed</span>
 							</div>
-						` : ''}
-						<div style="display: flex; flex-direction: column; gap: 0.5rem;">
-							${freeTeachersList}
+							<div class="finder-results-list">
+								${freeTeachersList}
+							</div>
 						</div>
 					</div>
 				`;
 
-				container.innerHTML = html;
-
-				// Enhanced event listeners with error handling
 				const daySelect = document.getElementById('finder-day-select');
 				const periodSelect = document.getElementById('finder-period-select');
-				
+
 				if (daySelect) {
-					daySelect.addEventListener('change', (e) => {
+					daySelect.addEventListener('change', (event) => {
 						try {
-							const newDay = e.target.value;
-							const newPeriod = document.getElementById('finder-period-select')?.value || period;
+							const newDay = event.target.value;
+							const newPeriod = document.getElementById('finder-period-select')?.value || currentPeriod;
 							renderFreeTeacherFinder(newDay, newPeriod);
 						} catch (error) {
 							console.error('Error in day select change:', error);
@@ -3548,10 +4536,10 @@
 				}
 
 				if (periodSelect) {
-					periodSelect.addEventListener('change', (e) => {
+					periodSelect.addEventListener('change', (event) => {
 						try {
-							const newDay = document.getElementById('finder-day-select')?.value || day;
-							const newPeriod = e.target.value;
+							const newDay = document.getElementById('finder-day-select')?.value || currentDay;
+							const newPeriod = event.target.value;
 							renderFreeTeacherFinder(newDay, newPeriod);
 						} catch (error) {
 							console.error('Error in period select change:', error);
@@ -3562,13 +4550,13 @@
 				if (typeof lucide !== 'undefined' && lucide.createIcons) {
 					lucide.createIcons();
 				}
-
 			} catch (error) {
 				console.error('Error rendering free teacher finder:', error);
 				container.innerHTML = `
-					<div style="color: var(--red-500); padding: 2rem; text-align: center; border: 2px dashed var(--red-200); border-radius: var(--radius);">
-						<i data-lucide="alert-circle" style="width: 24px; height: 24px; margin-bottom: 0.5rem;"></i><br>
-						Error loading free teacher finder. Please refresh the page.
+					<div class="finder-empty finder-empty--error">
+						<i data-lucide="alert-circle"></i>
+						<strong>Error loading free teacher finder</strong>
+						<p>Please refresh the page and try again.</p>
 					</div>
 				`;
 				lucide.createIcons();
@@ -3577,84 +4565,124 @@
 
 		const debouncedRenderFreeTeacher = debounce(renderFreeTeacherFinder, 300);
 
-		// --- DASHBOARD RENDER ---
 		function renderDashboard() {
 			try {
 				const { classNames, teacherNames, days } = state.allData;
-				const html = `
-					<div class="hero-grid">
-						<div class="card hero-panel">
-							<div class="section-kicker">Official Session 2026-27</div>
-							<h2 class="section-title">Updated timetable, substitutions, and live teacher availability</h2>
-							<p class="section-subtitle">Synced with the latest class-wise, day-wise, and teacher-wise PDF timetable for the 2026-27 session.</p>
-							<div class="metric-strip">
-								<div class="metric-chip">
-									<span>Classes</span>
-									<strong>${classNames.length}</strong>
+				const overview = getDashboardOverview();
+				const quickActions = [
+					{
+						view: 'Day',
+						icon: 'calendar-days',
+						title: 'See today first',
+						description: 'Open the live day view with the current slot highlighted.',
+						tag: 'Most used'
+					},
+					{
+						view: 'Substitution',
+						icon: 'user-cog',
+						title: 'Handle absences fast',
+						description: 'Find the best available teacher and review planned substitutions.',
+						tag: 'Urgent'
+					},
+					{
+						view: 'Class',
+						icon: 'school',
+						title: 'Open one class',
+						description: 'Check the weekly plan for a single class with less clutter.',
+						tag: 'Parents and office'
+					},
+					{
+						view: 'Teacher',
+						icon: 'users',
+						title: 'Open one teacher',
+						description: 'Review one teacher schedule without scanning the full timetable.',
+						tag: 'Staff view'
+					}
+				];
+
+				mainContent.innerHTML = `
+					<div class="dashboard-shell">
+						<section class="dashboard-hero">
+							<div class="card hero-panel dashboard-spotlight">
+								${renderDashboardSummaryMarkup(overview)}
+							</div>
+
+							<div class="dashboard-side-stack">
+								<div class="card dashboard-quick-panel">
+									<div class="section-kicker">Start Here</div>
+									<h2 class="section-title">Open the clearest route</h2>
+									<p class="section-subtitle">The dashboard now starts with the most common tasks so non-technical users do not need to guess where to go.</p>
+									<div class="dashboard-quick-grid">
+										${quickActions.map(action => `
+											<button class="dashboard-quick-card" onclick="switchView('${action.view}')">
+												<div class="dashboard-quick-card-row">
+													<span class="dashboard-quick-icon">
+														<i data-lucide="${action.icon}"></i>
+													</span>
+													<span class="dashboard-quick-tag">${action.tag}</span>
+												</div>
+												<div class="dashboard-quick-copy">
+													<strong>${action.title}</strong>
+													<p>${action.description}</p>
+												</div>
+												<span class="dashboard-quick-link">
+													Open ${action.view}
+													<i data-lucide="arrow-right"></i>
+												</span>
+											</button>
+										`).join('')}
+									</div>
 								</div>
-								<div class="metric-chip">
-									<span>Teachers</span>
-									<strong>${teacherNames.length}</strong>
-								</div>
-								<div class="metric-chip">
-									<span>Teaching Days</span>
-									<strong>${days.length}</strong>
-								</div>
-								<div class="metric-chip">
-									<span>Data Sync</span>
-									<strong>Updated PDFs</strong>
+
+								<div class="card dashboard-metrics-panel">
+									<div class="section-kicker">Official Data</div>
+									<h2 class="section-title">Session coverage</h2>
+									<p class="section-subtitle">Counts stay visible here so the operational cards above can focus on what matters right now.</p>
+									<div class="metric-strip dashboard-metric-strip">
+										<div class="metric-chip">
+											<span>Classes</span>
+											<strong>${classNames.length}</strong>
+										</div>
+										<div class="metric-chip">
+											<span>Teachers</span>
+											<strong>${teacherNames.length}</strong>
+										</div>
+										<div class="metric-chip">
+											<span>Teaching Days</span>
+											<strong>${days.length}</strong>
+										</div>
+										<div class="metric-chip">
+											<span>Data Sync</span>
+											<strong>Updated PDFs</strong>
+										</div>
+									</div>
 								</div>
 							</div>
-						</div>
+						</section>
 
-						<div class="card hero-panel">
-							<div class="section-kicker">Start Here</div>
-							<h2 class="section-title">Open the view you need fastest</h2>
-							<p class="section-subtitle">Mobile users get quick day cards, while desktop keeps full weekly grids and wider timetable tables.</p>
-							<div class="dashboard-actions">
-								<button class="button button-primary" onclick="switchView('Day')">
-									<i data-lucide="calendar"></i>
-									View Today's Schedule
-								</button>
-								<button class="button button-primary" onclick="switchView('Substitution')" style="background: linear-gradient(135deg, var(--green-500), var(--green-600));">
-									<i data-lucide="user-cog"></i>
-									Manage Substitutions
-								</button>
-								<button class="button button-secondary" onclick="switchView('Class')">
-									<i data-lucide="school"></i>
-									Browse Classes
-								</button>
-								<button class="button button-secondary" onclick="switchView('Teacher')">
-									<i data-lucide="users"></i>
-									Teacher Schedules
-								</button>
+						<div class="card view-shell dashboard-finder-card">
+							<div class="view-header">
+								<div>
+									<div class="section-kicker">Live Availability</div>
+									<h2 class="section-title">Free Teacher Finder</h2>
+									<p class="section-subtitle">The most important substitution information now sits directly on the dashboard with larger touch targets and clearer ranking.</p>
+								</div>
 							</div>
+							<div id="free-teacher-finder-container"></div>
 						</div>
-					</div>
 
-					<div class="card view-shell">
-						<div class="view-header">
-							<div>
-								<div class="section-kicker">Live Availability</div>
-								<h2 class="section-title">Free Teacher Finder</h2>
-								<p class="section-subtitle">Check who is free right now, or switch to any day and period manually for quick substitution decisions.</p>
-							</div>
+						<div class="dashboard-footer-actions">
+							<button onclick="handlePrint()" class="button button-secondary">
+								<i data-lucide="printer"></i>
+								Print Complete Timetable
+							</button>
 						</div>
-						<div id="free-teacher-finder-container"></div>
-					</div>
-
-					<div class="view-actions" style="margin-top: 0;">
-						<button onclick="handlePrint()" class="button button-secondary" style="max-width:250px;">
-							<i data-lucide="printer"></i> Print Complete Timetable
-						</button>
 					</div>
 				`;
 
-				mainContent.innerHTML = html;
 				renderFreeTeacherFinder();
 				lucide.createIcons();
 
-				// Auto-refresh free teachers every 30 seconds
 				if (!window.dashboardInterval) {
 					window.dashboardInterval = setInterval(() => {
 						if (state.currentView === 'Dashboard') {
@@ -3662,7 +4690,6 @@
 						}
 					}, 30000);
 				}
-
 			} catch (error) {
 				console.error('Error rendering dashboard:', error);
 				mainContent.innerHTML = `
@@ -3687,7 +4714,7 @@
 				// Validate that the selected day exists in timetable
 				if (!timetable[selectedDay]) {
 					console.error(`Day ${selectedDay} not found in timetable`);
-					showToast(`❌ No timetable data found for ${selectedDay}`);
+					showToast(`âŒ No timetable data found for ${selectedDay}`);
 					return;
 				}
 
@@ -3737,7 +4764,7 @@
 						<div class="view-header">
 							<div>
 								<div class="section-kicker">Day View</div>
-								<h2 class="section-title">${selectedDay} Schedule ${selectedDay === getCurrentDay() && currentPeriodIdx !== -1 ? '<span style="color: var(--red-500); font-size: 0.8rem;">● LIVE</span>' : ''}</h2>
+								<h2 class="section-title">${selectedDay} Schedule ${selectedDay === getCurrentDay() && currentPeriodIdx !== -1 ? '<span style="color: var(--red-500); font-size: 0.8rem;">â— LIVE</span>' : ''}</h2>
 								<p class="section-subtitle">Updated against the official 2026-27 day-wise PDF timetable.</p>
 							</div>
 							<div class="view-actions">
@@ -3918,7 +4945,7 @@
 
 			} catch (error) {
 				console.error('Error rendering class view:', error);
-				showToast('❌ Error loading class view');
+				showToast('âŒ Error loading class view');
 			}
 		}
 
@@ -4113,7 +5140,7 @@
 
 			} catch (error) {
 				console.error('Error rendering teacher view:', error);
-				showToast('❌ Error loading teacher view');
+				showToast('âŒ Error loading teacher view');
 			}
 		}
 
@@ -4362,7 +5389,7 @@
 							printContent = renderClassTimetableForPrint(classSelect);
 							title = `Weekly Schedule - ${classSelect}`;
 						} else {
-							showToast('⚠️ Please select a class first', 3000, 'warning');
+							showToast('âš ï¸ Please select a class first', 3000, 'warning');
 							return false;
 						}
 						break;
@@ -4373,7 +5400,7 @@
 							printContent = renderTeacherTimetableForPrint(teacherSelect);
 							title = `Weekly Schedule - ${teacherSelect}`;
 						} else {
-							showToast('⚠️ Please select a teacher first', 3000, 'warning');
+							showToast('âš ï¸ Please select a teacher first', 3000, 'warning');
 							return false;
 						}
 						break;
@@ -4467,9 +5494,9 @@
 				
 				if (isMobile) {
 					const userChoice = confirm(
-						"📱 Mobile Print Options:\n\n" +
-						"✅ OK = Print (may need landscape orientation)\n" +
-						"❌ Cancel = Share as image instead\n\n" +
+						"ðŸ“± Mobile Print Options:\n\n" +
+						"âœ… OK = Print (may need landscape orientation)\n" +
+						"âŒ Cancel = Share as image instead\n\n" +
 						"Tip: For best mobile printing, rotate to landscape!"
 					);
 					
@@ -4479,7 +5506,7 @@
 					}
 					
 					// Show mobile print tip
-					showToast("💡 Tip: Rotate to landscape for better mobile printing!", 4000, 'info');
+					showToast("ðŸ’¡ Tip: Rotate to landscape for better mobile printing!", 4000, 'info');
 				}
 				
 				if (preparePrintContent()) {
@@ -4492,13 +5519,13 @@
 					window.print();
 					// Hide the print area again after printing
 					captureElement.style.display = previousDisplay || 'none';
-					showToast(isMobile ? "📱 Mobile print dialog opened" : "📄 Print dialog opened", 2000, 'info');
+					showToast(isMobile ? "ðŸ“± Mobile print dialog opened" : "ðŸ“„ Print dialog opened", 2000, 'info');
 				} else {
-					showToast("⚠️ No printable content available.", 3000, 'warning');
+					showToast("âš ï¸ No printable content available.", 3000, 'warning');
 				}
 			} catch (error) {
 				console.error('Print error:', error);
-				showToast("❌ Print failed. Try sharing as image instead.", 3000, 'error');
+				showToast("âŒ Print failed. Try sharing as image instead.", 3000, 'error');
 			}
 		}
 
@@ -4556,7 +5583,7 @@
 			<div style="margin-top: 2rem;">
 				<div id="substitution-plan-content">
 					<h3 style="text-align: center; margin-bottom: 1rem; font-size: 1.25rem;">
-						📋 Substitution Plan: ${selectedDay}
+						ðŸ“‹ Substitution Plan: ${selectedDay}
 					</h3>
 					<div class="table-container">
 						<table>
@@ -4634,7 +5661,7 @@
 							handleGeneratePlan(day, absentTeachers);
 						} catch (error) {
 							console.error('Error in generate plan button:', error);
-							showToast('❌ Error generating plan', 3000, 'error');
+							showToast('âŒ Error generating plan', 3000, 'error');
 						}
 					});
 				}
@@ -4645,7 +5672,7 @@
 							handleResetPlan(day);
 						} catch (error) {
 							console.error('Error in reset plan button:', error);
-							showToast('❌ Error resetting plan', 3000, 'error');
+							showToast('âŒ Error resetting plan', 3000, 'error');
 						}
 					});
 				}
@@ -4661,7 +5688,7 @@
 				renderSubstitutionView(day, absentTeachers);
 			} catch (error) {
 				console.error('Error handling absent teacher change:', error);
-				showToast('❌ Error updating teacher selection', 3000, 'error');
+				showToast('âŒ Error updating teacher selection', 3000, 'error');
 			}
 		}
 
@@ -4676,6 +5703,11 @@
 			// Swipe handlers cleanup removed
 
 			state.currentView = view;
+
+			const fab = document.getElementById('fab-go-now');
+			if (fab) {
+				fab.style.display = view === 'Dashboard' ? 'none' : 'flex';
+			}
 			
 			// Update navigation
 			document.querySelectorAll('.nav-button').forEach(btn => btn.classList.remove('active'));
@@ -4711,7 +5743,7 @@
 		function handleGeneratePlan(day, absentTeachers) {
 			try {
 				if (!day || !absentTeachers || absentTeachers.length === 0) {
-					showToast('⚠️ Please select at least one absent teacher', 3000, 'warning');
+					showToast('âš ï¸ Please select at least one absent teacher', 3000, 'warning');
 					return;
 				}
 
@@ -4773,24 +5805,24 @@
 
 				// Save updated plan
 				state.substitutions[day].plan = newPlan;
-				showToast('✅ Substitution plan generated successfully!', 3000, 'success');
+				showToast('âœ… Substitution plan generated successfully!', 3000, 'success');
 				renderSubstitutionView(day, absentTeachers);
 				
 			} catch (error) {
 				console.error('Error generating substitution plan:', error);
-				showToast('❌ Failed to generate substitution plan', 3000, 'error');
+				showToast('âŒ Failed to generate substitution plan', 3000, 'error');
 			}
 		}
 
 		function handleResetPlan(day) {
 			try {
 				if (!day) {
-					showToast('⚠️ No day selected', 3000, 'warning');
+					showToast('âš ï¸ No day selected', 3000, 'warning');
 					return;
 				}
 
 				if (!state.substitutions[day] || !state.substitutions[day].plan) {
-					showToast('ℹ️ No substitution plan exists for this day', 3000, 'info');
+					showToast('â„¹ï¸ No substitution plan exists for this day', 3000, 'info');
 					return;
 				}
 
@@ -4800,12 +5832,12 @@
 				const absentTeachers = state.substitutions[day].absentTeachers || [];
 				state.substitutions[day] = { plan: {}, absentTeachers };
 				
-				showToast('✅ Substitution plan reset successfully', 3000, 'success');
+				showToast('âœ… Substitution plan reset successfully', 3000, 'success');
 				renderSubstitutionView(day, absentTeachers);
 				
 			} catch (error) {
 				console.error('Error resetting substitution plan:', error);
-				showToast('❌ Failed to reset substitution plan', 3000, 'error');
+				showToast('âŒ Failed to reset substitution plan', 3000, 'error');
 			}
 		}
 
@@ -4814,27 +5846,27 @@
 				const captureElement = document.getElementById('print-capture-area');
 				
 				if (!captureElement) {
-					showToast('❌ Required elements not found', 3000, 'error');
+					showToast('âŒ Required elements not found', 3000, 'error');
 					return;
 				}
 
 				// Lazy load html2canvas if feat_perf_opt is enabled
 				if (FEATURE_FLAGS.feat_perf_opt && typeof PerformanceOptimization !== 'undefined') {
 					try {
-						showToast('⏳ Loading screenshot library...', 2000, 'info');
+						showToast('â³ Loading screenshot library...', 2000, 'info');
 						await PerformanceOptimization.lazyLoader.loadHtml2Canvas();
 					} catch (error) {
-						showToast('❌ Failed to load screenshot library', 3000, 'error');
+						showToast('âŒ Failed to load screenshot library', 3000, 'error');
 						return;
 					}
 				} else if (typeof html2canvas === 'undefined') {
-					showToast('❌ Screenshot library not loaded', 3000, 'error');
+					showToast('âŒ Screenshot library not loaded', 3000, 'error');
 					return;
 				}
 				
 				// 1. Populate print content using existing preparePrintContent()
 				if (!preparePrintContent()) {
-					showToast('❌ Failed to prepare print content', 3000, 'error');
+					showToast('âŒ Failed to prepare print content', 3000, 'error');
 					return;
 				}
 				
@@ -4875,22 +5907,22 @@
 										title: 'Veer Patta Public School Timetable',
 										text: 'Check out our school timetable!'
 									});
-									showToast('✅ Timetable shared successfully', 3000, 'success');
+									showToast('âœ… Timetable shared successfully', 3000, 'success');
 								} catch (shareError) {
 									if (shareError.name !== 'AbortError') {
 										console.warn('Share failed, falling back to download:', shareError);
 										downloadImage(blob, 'timetable.png');
-										showToast('⚠️ Sharing failed. Image downloaded instead.', 3000, 'warning');
+										showToast('âš ï¸ Sharing failed. Image downloaded instead.', 3000, 'warning');
 									}
 								}
 							} else {
 								// Fallback to download if sharing not supported
 								downloadImage(blob, 'timetable.png');
-								showToast('✅ Timetable image downloaded', 3000, 'success');
+								showToast('âœ… Timetable image downloaded', 3000, 'success');
 							}
 						} catch (error) {
 							console.error('Error processing image blob:', error);
-							showToast('❌ Failed to process image', 3000, 'error');
+							showToast('âŒ Failed to process image', 3000, 'error');
 						}
 					}, 'image/png', 0.95);
 					
@@ -4901,7 +5933,7 @@
 				
 			} catch (error) {
 				console.error('Screenshot capture error:', error);
-				showToast('❌ Failed to capture screenshot', 3000, 'error');
+				showToast('âŒ Failed to capture screenshot', 3000, 'error');
 				
 				// Ensure cleanup even on error
 				const captureElement = document.getElementById('print-capture-area');
@@ -4917,33 +5949,33 @@
 				// Lazy load jsPDF and html2canvas if feat_perf_opt is enabled
 				if (FEATURE_FLAGS.feat_perf_opt && typeof PerformanceOptimization !== 'undefined') {
 					try {
-						showToast('⏳ Loading PDF libraries...', 2000, 'info');
+						showToast('â³ Loading PDF libraries...', 2000, 'info');
 						await Promise.all([
 							PerformanceOptimization.lazyLoader.loadJsPDF(),
 							PerformanceOptimization.lazyLoader.loadHtml2Canvas()
 						]);
 					} catch (error) {
-						showToast('❌ Failed to load PDF libraries', 3000, 'error');
+						showToast('âŒ Failed to load PDF libraries', 3000, 'error');
 						return;
 					}
 				} else if (!window.jspdf || typeof window.jspdf.jsPDF === 'undefined') {
-					showToast('❌ PDF library not loaded', 3000, 'error');
+					showToast('âŒ PDF library not loaded', 3000, 'error');
 					return;
 				}
 
 				const captureElement = document.getElementById('print-capture-area');
 				if (!captureElement) {
-					showToast('❌ Required elements not found', 3000, 'error');
+					showToast('âŒ Required elements not found', 3000, 'error');
 					return;
 				}
 
 				// Prepare print content
 				if (!preparePrintContent()) {
-					showToast('❌ Failed to prepare print content', 3000, 'error');
+					showToast('âŒ Failed to prepare print content', 3000, 'error');
 					return;
 				}
 
-				showToast('📄 Generating PDF...', 2000, 'info');
+				showToast('ðŸ“„ Generating PDF...', 2000, 'info');
 
 				const originalDisplay = captureElement.style.display;
 				captureElement.style.display = 'block';
@@ -4992,7 +6024,7 @@
 
 					// Save PDF
 					pdf.save(filename);
-					showToast('✅ PDF saved successfully!', 3000, 'success');
+					showToast('âœ… PDF saved successfully!', 3000, 'success');
 
 				} finally {
 					captureElement.style.display = originalDisplay;
@@ -5000,7 +6032,7 @@
 
 			} catch (error) {
 				console.error('PDF generation error:', error);
-				showToast('❌ Failed to generate PDF', 3000, 'error');
+				showToast('âŒ Failed to generate PDF', 3000, 'error');
 			}
 		}
 
@@ -5011,14 +6043,14 @@
                         const tables = document.querySelectorAll('.table-container table');
                         const visibleTable = Array.from(tables).find(table => !table.closest('#print-capture-area'));
                         if (!visibleTable) {
-                                showToast('❌ No table found to export', 3000, 'error');
+                                showToast('âŒ No table found to export', 3000, 'error');
                                 return;
                         }
 
 				// Convert table to 2D array
 				const data = tableTo2DArray(visibleTable);
 				if (data.length === 0) {
-					showToast('❌ No data found in table', 3000, 'error');
+					showToast('âŒ No data found in table', 3000, 'error');
 					return;
 				}
 
@@ -5044,11 +6076,11 @@
 				document.body.removeChild(link);
 				URL.revokeObjectURL(url);
 
-				showToast('✅ CSV exported successfully!', 3000, 'success');
+				showToast('âœ… CSV exported successfully!', 3000, 'success');
 
 			} catch (error) {
 				console.error('CSV export error:', error);
-				showToast('❌ Failed to export CSV', 3000, 'error');
+				showToast('âŒ Failed to export CSV', 3000, 'error');
 			}
 		}
 
@@ -5064,7 +6096,7 @@
 				URL.revokeObjectURL(url);
 			} catch (error) {
 				console.error('Error downloading image:', error);
-				showToast('❌ Failed to download image', 3000, 'error');
+				showToast('âŒ Failed to download image', 3000, 'error');
 			}
 		}
 
@@ -5072,7 +6104,7 @@
 			try {
 				const planContent = document.getElementById('substitution-plan-content');
 				if (!planContent) {
-					showToast('⚠️ No substitution plan to share', 3000, 'warning');
+					showToast('âš ï¸ No substitution plan to share', 3000, 'warning');
 					return;
 				}
 
@@ -5114,10 +6146,10 @@
 							const file = new File([blob], fileName, { type: 'image/png' });
 							
 							// Generate WhatsApp sharing text
-							const whatsappText = `📋 *Substitution Plan - ${day}*\n\n` +
-								`🏫 *Veer Patta Public School*\n` +
-								`📅 Date: ${new Date().toLocaleDateString('en-GB')}\n` +
-								`⏰ Generated: ${new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}\n\n` +
+							const whatsappText = `ðŸ“‹ *Substitution Plan - ${day}*\n\n` +
+								`ðŸ« *Veer Patta Public School*\n` +
+								`ðŸ“… Date: ${new Date().toLocaleDateString('en-GB')}\n` +
+								`â° Generated: ${new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}\n\n` +
 								`Please see the attached image for detailed substitution assignments.`;
 							
 							// Check if Web Share API is available
@@ -5127,7 +6159,7 @@
 									title: `Substitution Plan - ${day}`,
 									text: whatsappText
 								}).then(() => {
-									showToast('✅ Substitution plan shared successfully!', 3000, 'success');
+									showToast('âœ… Substitution plan shared successfully!', 3000, 'success');
 								}).catch(err => {
 									console.error('Share failed:', err);
 									// Fallback to download
@@ -5139,18 +6171,18 @@
 							}
 						} catch (error) {
 							console.error('Error sharing substitution plan:', error);
-							showToast('❌ Failed to share substitution plan', 3000, 'error');
+							showToast('âŒ Failed to share substitution plan', 3000, 'error');
 						}
 					});
 				}).catch(error => {
 					document.body.removeChild(tempContainer);
 					console.error('Error capturing substitution plan:', error);
-					showToast('❌ Failed to capture substitution plan', 3000, 'error');
+					showToast('âŒ Failed to capture substitution plan', 3000, 'error');
 				});
 				
 			} catch (error) {
 				console.error('Error in handleShareSubstitutionPlan:', error);
-				showToast('❌ Failed to share substitution plan', 3000, 'error');
+				showToast('âŒ Failed to share substitution plan', 3000, 'error');
 			}
 		}
 
@@ -5165,9 +6197,9 @@
 			
 			// Copy WhatsApp text to clipboard
 			navigator.clipboard.writeText(whatsappText).then(() => {
-				showToast('✅ Plan downloaded & text copied to clipboard!', 4000, 'success');
+				showToast('âœ… Plan downloaded & text copied to clipboard!', 4000, 'success');
 			}).catch(() => {
-				showToast('✅ Substitution plan downloaded successfully!', 3000, 'success');
+				showToast('âœ… Substitution plan downloaded successfully!', 3000, 'success');
 			});
 		}
 
@@ -5190,7 +6222,7 @@
 				}
 				
 				if (slots.length === 0) {
-					showToast('⚠️ No substitution plan to share', 3000, 'warning');
+					showToast('âš ï¸ No substitution plan to share', 3000, 'warning');
 					return;
 				}
 				
@@ -5198,10 +6230,10 @@
 				slots.sort((a, b) => a.periodIndex - b.periodIndex || a.className.localeCompare(b.className));
 				
 				// Build text summary
-				let text = `📋 Substitution Plan - ${day}\n`;
-				text += `🏫 Veer Patta Public School\n`;
-				text += `📅 Date: ${new Date().toLocaleDateString('en-GB')}\n`;
-				text += `⏰ Generated: ${new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}\n\n`;
+				let text = `ðŸ“‹ Substitution Plan - ${day}\n`;
+				text += `ðŸ« Veer Patta Public School\n`;
+				text += `ðŸ“… Date: ${new Date().toLocaleDateString('en-GB')}\n`;
+				text += `â° Generated: ${new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}\n\n`;
 				text += `Period | Class | Substitute\n`;
 				text += `-----------------------------\n`;
 				
@@ -5212,14 +6244,14 @@
 				
 				// Copy to clipboard
 				navigator.clipboard.writeText(text).then(() => {
-					showToast('✅ Text plan copied to clipboard!', 3000, 'success');
+					showToast('âœ… Text plan copied to clipboard!', 3000, 'success');
 				}).catch(() => {
-					showToast('⚠️ Failed to copy text plan', 3000, 'warning');
+					showToast('âš ï¸ Failed to copy text plan', 3000, 'warning');
 				});
 				
 			} catch (error) {
 				console.error('Error sharing text substitution plan:', error);
-				showToast('❌ Failed to share text plan', 3000, 'error');
+				showToast('âŒ Failed to share text plan', 3000, 'error');
 			}
 		}
 
@@ -5227,7 +6259,7 @@
 			try {
 				const planContent = document.getElementById('substitution-plan-content');
 				if (!planContent) {
-					showToast('⚠️ No substitution plan to print', 3000, 'warning');
+					showToast('âš ï¸ No substitution plan to print', 3000, 'warning');
 					return;
 				}
 
@@ -5250,7 +6282,7 @@
 				document.getElementById('print-header-subtitle').textContent = prevSubtitle;
 			} catch (error) {
 				console.error('Error printing substitution plan:', error);
-				showToast('❌ Failed to print substitution plan', 3000, 'error');
+				showToast('âŒ Failed to print substitution plan', 3000, 'error');
 			}
 		}
 
@@ -5274,12 +6306,12 @@
 				const winterReport = validateTimetable();
 				if (!winterReport.ok) {
 					console.warn('Winter validation issues:', winterReport);
-					showToast(`⚠️ Validation: ${winterReport.errors.length} errors, ${winterReport.warnings.length} warnings`, 4500, 'warning');
+					showToast(`âš ï¸ Validation: ${winterReport.errors.length} errors, ${winterReport.warnings.length} warnings`, 4500, 'warning');
 				} else {
 					if (winterReport.warnings.length) {
 						console.info('Winter warnings:', winterReport.warnings);
 					}
-					showToast('❄️ Winter schedule active: timings updated & sports substitutions applied', 3500, 'success');
+					showToast('â„ï¸ Winter schedule active: timings updated & sports substitutions applied', 3500, 'success');
 				}
 				
 				// Validate parsed data
@@ -5399,14 +6431,14 @@
 						switch(state.currentView) {
 							case 'Dashboard':
 								renderDashboard();
-								showToast('🔄 Dashboard refreshed!', 2000, 'success');
+								showToast('ðŸ”„ Dashboard refreshed!', 2000, 'success');
 								break;
 							case 'Day':
 								renderDayView();
-								showToast('🔄 Day view refreshed!', 2000, 'success');
+								showToast('ðŸ”„ Day view refreshed!', 2000, 'success');
 								break;
 							default:
-								showToast('🔄 View refreshed!', 2000, 'success');
+								showToast('ðŸ”„ View refreshed!', 2000, 'success');
 						}
 					}
 					pullStartY = 0;
@@ -5434,7 +6466,7 @@
 								renderTeacherView();
 								break;
 						}
-						showToast('📱 Layout optimized for new orientation', 2000, 'info');
+						showToast('ðŸ“± Layout optimized for new orientation', 2000, 'info');
 					}, 100);
 				});
 
@@ -5452,13 +6484,13 @@
 				// Initialize lazy image loading (Performance Optimization)
 				if (FEATURE_FLAGS.feat_perf_opt && typeof PerformanceOptimization !== 'undefined') {
 					PerformanceOptimization.lazyImageLoader.observe();
-					console.log('✅ Lazy image loading initialized');
+					console.log('âœ… Lazy image loading initialized');
 				}
 
 				// Pre-render print content on load
 				updatePrintContent();
 
-				showToast('📱 Mobile-optimized Timetable Command Center loaded!', 2500, 'success');
+				showToast('ðŸ“± Mobile-optimized Timetable Command Center loaded!', 2500, 'success');
 			}, 300);
 			
 			} catch (error) {
@@ -5466,7 +6498,7 @@
 				
 				// Try to safely show error toast
 				try {
-					showToast('❌ Failed to load timetable data', 5000, 'error');
+					showToast('âŒ Failed to load timetable data', 5000, 'error');
 				} catch (toastError) {
 					console.error('Failed to show error toast:', toastError);
 				}
