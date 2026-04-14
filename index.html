@@ -2567,7 +2567,7 @@
 		#print-capture-area {
 			--export-page-width: 1123px;
 			--export-page-height: 794px;
-			--export-page-padding: 40px;
+			--export-page-padding: 20px;
 			position: absolute;
 			left: -9999px;
 			top: -9999px;
@@ -2588,6 +2588,38 @@
 
 		#print-content {
 			width: 100%;
+			font-family: Arial, sans-serif;
+			color: #111827;
+		}
+
+		#print-header {
+			text-align: center;
+			margin-bottom: 0.5rem;
+			padding-bottom: 0.35rem;
+			border-bottom: 2px solid #2563eb;
+		}
+
+		#print-header h1 {
+			font-size: 1.3rem;
+			font-weight: 800;
+			color: #2563eb;
+			margin: 0 0 0.1rem 0;
+			line-height: 1.1;
+		}
+
+		#print-header-subtitle {
+			font-size: 0.95rem;
+			font-weight: 700;
+			color: #374151;
+			margin: 0.1rem 0;
+			line-height: 1.2;
+		}
+
+		#print-header div {
+			font-size: 0.72rem !important;
+			color: #6b7280;
+			margin-top: 0.15rem !important;
+			line-height: 1.2;
 		}
 
 		.print-export-shell {
@@ -2600,15 +2632,19 @@
 
 		.print-export-viewport {
 			width: 100%;
+			display: flex;
+			align-items: flex-start;
+			justify-content: center;
 		}
 
 		.print-export-shell--single-page .print-export-viewport {
 			overflow: hidden;
+			min-height: 0;
 		}
 
 		.print-export-fit {
 			display: inline-block;
-			min-width: 100%;
+			min-width: 0;
 			transform-origin: top left;
 		}
 
@@ -2620,6 +2656,14 @@
 		@media print {
 		@page {
 			size: A4 landscape;
+			margin: 0;
+		}
+		@page export-landscape {
+			size: A4 landscape;
+			margin: 0;
+		}
+		@page export-portrait {
+			size: A4 portrait;
 			margin: 0;
 		}
 		/* --- Print fix: Disable sticky headers, force thead/tfoot repeat, allow table page breaks ---
@@ -2689,39 +2733,46 @@
 				width: 297mm !important;
 				min-height: 210mm !important;
 				max-width: none !important;
-				padding: 10mm !important;
+				padding: 6mm !important;
 				box-sizing: border-box !important;
 				margin: 0 !important;
 				background: white !important;
 				page-break-inside: avoid !important;
 				overflow: hidden !important;
+				page: export-landscape;
 			}
 
 			#print-capture-area[data-page-orientation="portrait"] {
 				width: 210mm !important;
 				min-height: 297mm !important;
+				page: export-portrait;
 			}
 			
 			/* Print Header Styling */
 			#print-header {
 				text-align: center !important;
-				margin-bottom: 1rem !important;
-				padding-bottom: 0.5rem !important;
+				margin-bottom: 0.5rem !important;
+				padding-bottom: 0.35rem !important;
 				border-bottom: 2px solid #2563eb !important;
 			}
 			
 			#print-header h1 {
-				font-size: 16pt !important;
+				font-size: 14pt !important;
 				font-weight: bold !important;
 				color: #2563eb !important;
-				margin: 0 0 0.25rem 0 !important;
+				margin: 0 0 0.1rem 0 !important;
 			}
 			
 			#print-header-subtitle {
-				font-size: 12pt !important;
+				font-size: 10pt !important;
 				font-weight: 600 !important;
 				color: #374151 !important;
-				margin: 0.25rem 0 !important;
+				margin: 0.1rem 0 !important;
+			}
+
+			#print-header div {
+				font-size: 8pt !important;
+				margin-top: 0.15rem !important;
 			}
 			
 			#print-header img {
@@ -6259,10 +6310,10 @@
 
 		function getPrintCaptureMetrics(orientation = 'landscape') {
 			if (orientation === 'portrait') {
-				return { width: 794, height: 1123, padding: 40 };
+				return { width: 794, height: 1123, padding: 20 };
 			}
 
-			return { width: 1123, height: 794, padding: 40 };
+			return { width: 1123, height: 794, padding: 20 };
 		}
 
 		function wrapPrintExportMarkup(content, options = {}) {
@@ -6293,7 +6344,7 @@
 						content: renderDayTimetableForPrint(targetDay),
 						fileBase: `day-${slugifyFilePart(targetDay)}`,
 						singlePage: true,
-						orientation: 'landscape'
+						orientation: 'portrait'
 					};
 				}
 
@@ -6393,7 +6444,7 @@
 			}
 		}
 
-		function fitPreparedExportToSinglePage() {
+		function fitPreparedExportToSinglePage(options = {}) {
 			const captureElement = document.getElementById('print-capture-area');
 			if (!captureElement || captureElement.dataset.singlePage !== 'true') {
 				return 1;
@@ -6408,12 +6459,16 @@
 			const orientation = captureElement.dataset.pageOrientation || 'landscape';
 			const metrics = getPrintCaptureMetrics(orientation);
 			const header = document.getElementById('print-header');
+			const trimToContent = options.trimToContent === true;
 
 			captureElement.style.width = `${metrics.width}px`;
 			captureElement.style.minHeight = `${metrics.height}px`;
+			captureElement.style.height = `${metrics.height}px`;
+			captureElement.style.padding = `${metrics.padding}px`;
 
 			viewport.style.height = '';
 			fitTarget.style.width = 'auto';
+			fitTarget.style.height = 'auto';
 			fitTarget.style.transform = 'none';
 
 			const availableHeight = Math.max(
@@ -6430,13 +6485,20 @@
 			}
 
 			const scale = Math.min(
-				1,
 				viewport.clientWidth / contentWidth,
 				availableHeight / contentHeight
 			);
+			const usedWidth = contentWidth * scale;
+			const usedHeight = contentHeight * scale;
 
 			fitTarget.style.width = `${contentWidth}px`;
+			fitTarget.style.height = `${contentHeight}px`;
 			fitTarget.style.transform = `scale(${scale})`;
+			viewport.style.height = `${trimToContent ? Math.ceil(usedHeight) : Math.max(availableHeight, usedHeight)}px`;
+			if (trimToContent) {
+				captureElement.style.minHeight = `${Math.ceil((header ? header.offsetHeight : 0) + usedHeight + (metrics.padding * 2))}px`;
+				captureElement.style.height = captureElement.style.minHeight;
+			}
 			return scale;
 		}
 
@@ -6634,7 +6696,7 @@
 			return html;
 		}
 
-		function preparePrintContent() {
+		function legacyPreparePrintContent() {
 			try {
 				let printContent = '';
 				let title = '';
@@ -6702,7 +6764,7 @@
 		}
 
 		// Pre-render print content and keep updated
-		function updatePrintContent() {
+		function legacyUpdatePrintContent() {
 			try {
 				// Always keep the print content updated in background
 				preparePrintContent();
@@ -6754,10 +6816,10 @@
 			return Math.min(devicePixelRatio, 2); // Cap at 2 for performance
 		}
 
-		async function capturePreparedExportCanvas(captureElement) {
+		async function capturePreparedExportCanvas(captureElement, options = {}) {
 			await ensureFontsLoaded();
 			await waitForRender();
-			fitPreparedExportToSinglePage();
+			fitPreparedExportToSinglePage(options);
 			await waitForRender();
 
 			return html2canvas(captureElement, {
@@ -8010,7 +8072,7 @@
 			}
 		}
 
-		async function handleShareScreenshot() {
+		async function legacyHandleShareScreenshot() {
 			try {
 				const captureElement = document.getElementById('print-capture-area');
 				
@@ -8113,7 +8175,7 @@
 		}
 
 		// New function: Share as PDF
-		async function handleShareAsPDF() {
+		async function legacyHandleShareAsPDF() {
 			try {
 				// Lazy load jsPDF and html2canvas if feat_perf_opt is enabled
 				if (FEATURE_FLAGS.feat_perf_opt && typeof PerformanceOptimization !== 'undefined') {
@@ -8426,7 +8488,7 @@
 			}
 		}
 
-		function buildAssignedSubstitutionPlanPrintMarkup(day) {
+		function legacyBuildAssignedSubstitutionPlanPrintMarkup(day) {
 			const assignedSlots = getSortedSubstitutionShareEntries(day).filter(slot => slot.substitute);
 			if (assignedSlots.length === 0) {
 				return '';
@@ -8462,9 +8524,9 @@
 			`;
 		}
 
-		async function handlePrintSubstitutionPlan(day) {
+		async function legacyHandlePrintSubstitutionPlanAssigned(day) {
 			try {
-				const printMarkup = buildAssignedSubstitutionPlanPrintMarkup(day);
+				const printMarkup = legacyBuildAssignedSubstitutionPlanPrintMarkup(day);
 				if (!printMarkup) {
 					showToast('No assigned substitutions to print for this day', 3200, 'warning');
 					return;
@@ -8647,7 +8709,7 @@
 			return lines.join('\n');
 		}
 
-		function buildSubstitutionPlanExportMarkup(day) {
+		function legacyBuildSubstitutionPlanExportMarkup(day) {
 			const absentTeachers = getSavedAbsentTeachers(day);
 			const slots = getSortedSubstitutionShareEntries(day)
 				.filter(slot => slot.substitute);
@@ -8774,9 +8836,9 @@
 			}
 		}
 
-		async function handleShareSubstitutionPlan(day) {
+		async function legacyHandleShareSubstitutionPlan(day) {
 			try {
-				const exportMarkup = buildSubstitutionPlanExportMarkup(day);
+				const exportMarkup = legacyBuildSubstitutionPlanExportMarkup(day);
 				if (!exportMarkup) {
 					showToast('No assigned substitutions to share', 3000, 'warning');
 					return;
@@ -8945,7 +9007,7 @@
 			`;
 		}
 
-		function buildAssignedSubstitutionPlanPrintMarkup(day) {
+		function legacyBuildAssignedSubstitutionPlanPrintMarkup(day) {
 			return buildSubstitutionPlanExportMarkup(day);
 		}
 
@@ -9021,7 +9083,7 @@
 				}
 
 				await runPreparedExport(descriptor, async captureElement => {
-					const canvas = await capturePreparedExportCanvas(captureElement);
+					const canvas = await capturePreparedExportCanvas(captureElement, { trimToContent: true });
 					const blob = await canvasToBlob(canvas);
 					const fileName = `${descriptor.fileBase}-${getExportDateStamp()}.png`;
 					const file = new File([blob], fileName, { type: 'image/png' });
@@ -9163,7 +9225,7 @@
 				};
 
 				await runPreparedExport(descriptor, async captureElement => {
-					const canvas = await capturePreparedExportCanvas(captureElement);
+					const canvas = await capturePreparedExportCanvas(captureElement, { trimToContent: true });
 					const blob = await canvasToBlob(canvas);
 					const fileName = `${descriptor.fileBase}-${getExportDateStamp()}.png`;
 					const file = new File([blob], fileName, { type: 'image/png' });
