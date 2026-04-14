@@ -1625,6 +1625,17 @@
 			gap: 0.75rem;
 		}
 
+		.substitution-plan-actions--sticky {
+			position: sticky;
+			top: 5.1rem;
+			z-index: 16;
+			padding: 0.7rem;
+			border-radius: var(--radius-lg);
+			border: 1px solid rgba(37, 99, 235, 0.14);
+			background: rgba(255, 255, 255, 0.96);
+			backdrop-filter: blur(4px);
+		}
+
 		.substitution-layout {
 			display: grid;
 			gap: 1rem;
@@ -7152,14 +7163,14 @@
 
 			const planActionsHtml = planEntries.length > 0 && overview.coveredCount > 0
 				? `
-					<div class="substitution-plan-actions">
+					<div class="substitution-plan-actions substitution-plan-actions--sticky">
 						<button onclick='handleQuickShareSubstitutionPlan(${JSON.stringify(selectedDay)})' class="button button-whatsapp">
 							<i data-lucide="share-2"></i>
-							Share
+							Share Image
 						</button>
 						<button onclick='handleShareSubstitutionPlanText(${JSON.stringify(selectedDay)})' class="button button-secondary">
 							<i data-lucide="clipboard"></i>
-							Copy Text
+							Share Text Only
 						</button>
 						<button onclick='handlePrintSubstitutionPlan(${JSON.stringify(selectedDay)})' class="button button-secondary">
 							<i data-lucide="printer"></i>
@@ -7195,7 +7206,11 @@
 							</button>
 							<button class="button button-whatsapp" onclick='handleQuickShareSubstitutionPlan(${JSON.stringify(selectedDay)})' ${planEntries.length === 0 ? 'disabled' : ''}>
 								<i data-lucide="share-2"></i>
-								Share
+								Image
+							</button>
+							<button class="button button-secondary" onclick='handleShareSubstitutionPlanText(${JSON.stringify(selectedDay)})' ${planEntries.length === 0 ? 'disabled' : ''}>
+								<i data-lucide="clipboard"></i>
+								Text
 							</button>
 						</div>
 					</div>
@@ -8145,26 +8160,34 @@
 		}
 
 		function buildSubstitutionPlanShareText(day) {
-			const { periodHeaders } = state.allData;
 			const slots = getSortedSubstitutionShareEntries(day);
 
 			if (slots.length === 0) {
 				return '';
 			}
 
-			let text = `Substitution Plan - ${day}\n`;
-			text += 'Veer Patta Public School\n';
-			text += `Date: ${new Date().toLocaleDateString('en-GB')}\n`;
-			text += `Generated: ${new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true })}\n\n`;
-			text += 'Period | Class | Absent | Substitute\n';
-			text += '-------------------------------------\n';
+			const generatedAt = new Date();
+			const lines = [
+				`Substitution Plan - ${day}`,
+				'Veer Patta Public School',
+				`Date: ${generatedAt.toLocaleDateString('en-GB')}`,
+				`Generated: ${generatedAt.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true })}`,
+				'',
+				'Please follow these class substitutions:',
+				''
+			];
 
-			slots.forEach(slot => {
-				const periodName = periodHeaders[slot.periodIndex]?.name || `P${slot.periodIndex + 1}`;
-				text += `${periodName} | ${slot.className} | ${slot.originalTeacher || '--'} | ${slot.substitute || 'Not assigned'}\n`;
+			slots.forEach((slot, index) => {
+				const timeLabel = slot.periodTime || '--';
+				const substituteLabel = slot.substitute || 'Not assigned yet';
+				lines.push(`${index + 1}. ${slot.periodName} (${timeLabel}) - ${slot.className}`);
+				lines.push(`   Absent: ${slot.originalTeacher || '--'}`);
+				lines.push(`   Subject: ${slot.subject || '--'}`);
+				lines.push(`   Substitute: ${substituteLabel}`);
+				lines.push('');
 			});
 
-			return text;
+			return lines.join('\n').trim();
 		}
 
 		function buildSubstitutionPlanExportMarkup(day) {
@@ -8314,7 +8337,7 @@
 			try {
 				const exportMarkup = buildSubstitutionPlanExportMarkup(day);
 				if (!exportMarkup) {
-					showToast('No substitution plan to share', 3000, 'warning');
+					showToast('No substitution plan image to share', 3000, 'warning');
 					return;
 				}
 
@@ -8323,11 +8346,11 @@
 						await PerformanceOptimization.lazyLoader.loadHtml2Canvas();
 					} catch (loadError) {
 						console.warn('Failed to load html2canvas for substitution share.', loadError);
-						await shareSubstitutionPlanText(day, { preferNativeShare: true });
+						showToast('Image sharing is unavailable right now. Use Share Text Only.', 3600, 'warning');
 						return;
 					}
 				} else if (typeof html2canvas === 'undefined') {
-					await shareSubstitutionPlanText(day, { preferNativeShare: true });
+					showToast('Image sharing is unavailable right now. Use Share Text Only.', 3600, 'warning');
 					return;
 				}
 
@@ -8377,7 +8400,7 @@
 								title: `Substitution Plan - ${day}`,
 								text: shareText
 							});
-							showToast('Substitution plan shared successfully', 3000, 'success');
+							showToast('Substitution plan image shared successfully', 3000, 'success');
 							return;
 						} catch (error) {
 							if (error.name === 'AbortError') {
@@ -8388,19 +8411,8 @@
 						}
 					}
 
-					if (navigator.share) {
-						const textShare = await shareSubstitutionPlanText(day, {
-							preferNativeShare: true,
-							silent: true
-						});
-
-						if (textShare.ok) {
-							showToast('Text plan shared successfully', 3000, 'success');
-							return;
-						}
-					}
-
-					await downloadSubstitutionPlan(blob, fileName, shareText);
+					downloadImage(blob, fileName);
+					showToast('Substitution plan image downloaded successfully', 3200, 'success');
 				} finally {
 					if (tempContainer.parentNode) {
 						tempContainer.parentNode.removeChild(tempContainer);
@@ -8408,20 +8420,8 @@
 				}
 			} catch (error) {
 				console.error('Error in handleShareSubstitutionPlan:', error);
-				showToast('Failed to share substitution plan', 3000, 'error');
+				showToast('Failed to share substitution plan image', 3000, 'error');
 			}
-		}
-
-		async function downloadSubstitutionPlan(blob, fileName, shareText) {
-			downloadImage(blob, fileName);
-
-			const copied = await copyTextToClipboard(shareText);
-			if (copied) {
-				showToast('Plan downloaded and share text copied to clipboard', 4000, 'success');
-				return;
-			}
-
-			showToast('Substitution plan downloaded successfully', 3000, 'success');
 		}
 
 		async function handleShareSubstitutionPlanText(day) {
