@@ -1545,6 +1545,356 @@
 			color: var(--red-600);
 		}
 
+		.button:disabled {
+			opacity: 0.58;
+			cursor: not-allowed;
+			box-shadow: none;
+			transform: none;
+		}
+
+		.substitution-shell {
+			display: grid;
+			gap: 1rem;
+		}
+
+		.substitution-shell > * {
+			opacity: 0;
+			animation: dashboard-enter 0.45s ease forwards;
+		}
+
+		.substitution-shell > *:nth-child(2) {
+			animation-delay: 0.06s;
+		}
+
+		.substitution-shell > *:nth-child(3) {
+			animation-delay: 0.12s;
+		}
+
+		.substitution-hero,
+		.substitution-selector-panel,
+		.substitution-plan-panel {
+			display: grid;
+			gap: 1rem;
+		}
+
+		.substitution-day-tabs {
+			margin-top: 0.1rem;
+		}
+
+		.substitution-metric-strip,
+		.substitution-plan-strip {
+			margin-top: 0;
+		}
+
+		.substitution-hero-actions,
+		.substitution-plan-actions {
+			display: grid;
+			gap: 0.75rem;
+		}
+
+		.substitution-layout {
+			display: grid;
+			gap: 1rem;
+		}
+
+		.substitution-search {
+			position: relative;
+		}
+
+		.substitution-search svg {
+			position: absolute;
+			left: 0.85rem;
+			top: 50%;
+			width: 1rem;
+			height: 1rem;
+			transform: translateY(-50%);
+			color: var(--gray-400);
+			pointer-events: none;
+		}
+
+		.substitution-search input {
+			padding-left: 2.7rem;
+			border: 1px solid rgba(37, 99, 235, 0.16);
+			background: rgba(255, 255, 255, 0.9);
+		}
+
+		.substitution-selected-panel {
+			display: grid;
+			gap: 0.6rem;
+			padding: 0.85rem 0.95rem;
+			border-radius: var(--radius-lg);
+			border: 1px solid rgba(37, 99, 235, 0.12);
+			background: rgba(239, 246, 255, 0.62);
+		}
+
+		.substitution-selected-list {
+			display: flex;
+			flex-wrap: wrap;
+			gap: 0.5rem;
+		}
+
+		.substitution-selected-chip,
+		.substitution-mini-pill {
+			display: inline-flex;
+			align-items: center;
+			gap: 0.35rem;
+			padding: 0.35rem 0.65rem;
+			border-radius: 999px;
+			background: rgba(17, 24, 39, 0.06);
+			color: var(--gray-700);
+			font-size: 0.75rem;
+			font-weight: 700;
+		}
+
+		.substitution-selected-chip svg {
+			width: 0.9rem;
+			height: 0.9rem;
+		}
+
+		.substitution-selected-empty {
+			font-size: 0.84rem;
+			color: var(--gray-600);
+		}
+
+		.substitution-mini-pill--soft {
+			background: rgba(37, 99, 235, 0.08);
+			color: var(--primary-800);
+		}
+
+		.substitution-mini-pill--active {
+			background: rgba(16, 185, 129, 0.14);
+			color: var(--green-800);
+		}
+
+		.substitution-teacher-grid {
+			display: grid;
+			gap: 0.75rem;
+			max-height: 28rem;
+			overflow-y: auto;
+			padding-right: 0.15rem;
+		}
+
+		.substitution-teacher-card {
+			display: grid;
+			gap: 0.8rem;
+			padding: 0.95rem;
+			border-radius: var(--radius-lg);
+			border: 1px solid rgba(37, 99, 235, 0.12);
+			background: linear-gradient(135deg, rgba(255, 255, 255, 0.92), rgba(248, 250, 252, 0.9));
+			cursor: pointer;
+			transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+		}
+
+		.substitution-teacher-card:hover {
+			transform: translateY(-1px);
+			box-shadow: var(--shadow-md);
+			border-color: rgba(37, 99, 235, 0.22);
+		}
+
+		.substitution-teacher-card--selected {
+			border-color: rgba(37, 99, 235, 0.34);
+			background: linear-gradient(135deg, rgba(239, 246, 255, 0.95), rgba(224, 242, 254, 0.92));
+			box-shadow: var(--shadow-md);
+		}
+
+		.substitution-teacher-toggle {
+			display: grid;
+			grid-template-columns: auto 1fr;
+			align-items: start;
+			gap: 0.75rem;
+		}
+
+		.substitution-teacher-toggle input {
+			width: 1.1rem;
+			height: 1.1rem;
+			margin-top: 0.2rem;
+			accent-color: var(--primary-600);
+		}
+
+		.substitution-teacher-copy {
+			display: grid;
+			gap: 0.22rem;
+		}
+
+		.substitution-teacher-copy strong {
+			font-size: 1rem;
+			color: var(--gray-900);
+		}
+
+		.substitution-teacher-copy p {
+			font-size: 0.84rem;
+			line-height: 1.4;
+			color: var(--gray-600);
+		}
+
+		.substitution-teacher-meta {
+			display: flex;
+			flex-wrap: wrap;
+			gap: 0.5rem;
+		}
+
+		.substitution-plan-shell {
+			display: grid;
+			gap: 1rem;
+		}
+
+		.substitution-plan-grid {
+			display: grid;
+			gap: 0.75rem;
+		}
+
+		.substitution-plan-card {
+			display: grid;
+			gap: 0.85rem;
+			padding: 1rem;
+			border-radius: var(--radius-lg);
+			border: 1px solid var(--gray-200);
+			border-left: 4px solid var(--gray-300);
+			background: var(--card);
+			box-shadow: var(--shadow-sm);
+		}
+
+		.substitution-plan-card--covered {
+			border-left-color: var(--green-500);
+			background: linear-gradient(135deg, rgba(236, 253, 245, 0.82), rgba(255, 255, 255, 0.96));
+		}
+
+		.substitution-plan-card--open {
+			border-left-color: var(--yellow-500);
+			background: linear-gradient(135deg, rgba(255, 251, 235, 0.84), rgba(255, 255, 255, 0.96));
+		}
+
+		.substitution-plan-top {
+			display: flex;
+			flex-wrap: wrap;
+			align-items: flex-start;
+			justify-content: space-between;
+			gap: 0.75rem;
+		}
+
+		.substitution-plan-slot-block {
+			display: grid;
+			gap: 0.25rem;
+		}
+
+		.substitution-plan-slot {
+			display: inline-flex;
+			align-items: center;
+			padding: 0.35rem 0.65rem;
+			border-radius: 999px;
+			background: rgba(17, 24, 39, 0.08);
+			color: var(--gray-800);
+			font-size: 0.76rem;
+			font-weight: 800;
+		}
+
+		.substitution-plan-slot-block small {
+			font-size: 0.82rem;
+			color: var(--gray-500);
+		}
+
+		.substitution-plan-status {
+			display: inline-flex;
+			align-items: center;
+			gap: 0.35rem;
+			padding: 0.4rem 0.7rem;
+			border-radius: 999px;
+			font-size: 0.75rem;
+			font-weight: 800;
+		}
+
+		.substitution-plan-status svg {
+			width: 0.95rem;
+			height: 0.95rem;
+		}
+
+		.substitution-plan-status--covered {
+			background: rgba(16, 185, 129, 0.14);
+			color: var(--green-800);
+		}
+
+		.substitution-plan-status--open {
+			background: rgba(245, 158, 11, 0.16);
+			color: var(--yellow-800);
+		}
+
+		.substitution-plan-copy {
+			display: grid;
+			gap: 0.24rem;
+		}
+
+		.substitution-plan-copy strong {
+			font-size: 1rem;
+			color: var(--gray-900);
+		}
+
+		.substitution-plan-copy p {
+			font-size: 0.86rem;
+			color: var(--gray-600);
+		}
+
+		.substitution-plan-people {
+			display: grid;
+			grid-template-columns: repeat(2, minmax(0, 1fr));
+			gap: 0.75rem;
+		}
+
+		.substitution-plan-person {
+			display: grid;
+			gap: 0.28rem;
+			padding: 0.85rem 0.9rem;
+			border-radius: var(--radius-lg);
+			border: 1px solid rgba(148, 163, 184, 0.18);
+			background: rgba(255, 255, 255, 0.82);
+		}
+
+		.substitution-plan-person span {
+			font-size: 0.72rem;
+			font-weight: 700;
+			letter-spacing: 0.08em;
+			text-transform: uppercase;
+			color: var(--gray-500);
+		}
+
+		.substitution-plan-person strong {
+			font-size: 0.96rem;
+			color: var(--gray-900);
+		}
+
+		.substitution-plan-person--absent strong {
+			color: var(--red-700);
+		}
+
+		.substitution-plan-person--substitute strong {
+			color: var(--green-700);
+		}
+
+		.substitution-empty {
+			display: grid;
+			justify-items: center;
+			gap: 0.45rem;
+			padding: 1.5rem 1rem;
+			text-align: center;
+			border-radius: var(--radius-lg);
+			border: 2px dashed var(--gray-300);
+			background: rgba(255, 255, 255, 0.8);
+			color: var(--gray-600);
+		}
+
+		.substitution-empty--inline {
+			padding: 1.1rem 0.95rem;
+		}
+
+		.substitution-empty svg {
+			width: 1.45rem;
+			height: 1.45rem;
+			color: var(--gray-400);
+		}
+
+		.substitution-empty strong {
+			color: var(--gray-900);
+		}
+
 		@keyframes dashboard-enter {
 			from {
 				opacity: 0;
@@ -1601,8 +1951,22 @@
 				grid-template-columns: repeat(2, minmax(0, 1fr));
 			}
 
+			.substitution-layout {
+				grid-template-columns: minmax(320px, 0.95fr) minmax(0, 1.15fr);
+				align-items: start;
+			}
+
+			.substitution-hero-actions {
+				grid-template-columns: repeat(2, minmax(0, 1fr));
+			}
+
+			.substitution-plan-actions {
+				grid-template-columns: repeat(3, minmax(0, 1fr));
+			}
+
 			.finder-banner-actions .button,
-			.dashboard-footer-actions .button {
+			.dashboard-footer-actions .button,
+			.substitution-clear-btn {
 				width: auto;
 				max-width: 280px;
 			}
@@ -1629,6 +1993,10 @@
 
 			.dashboard-spotlight {
 				padding: 1.4rem;
+			}
+
+			.substitution-teacher-grid {
+				grid-template-columns: repeat(2, minmax(0, 1fr));
 			}
 		}
 
@@ -2032,6 +2400,26 @@
 
 			.finder-results-list {
 				max-height: none;
+			}
+
+			.substitution-teacher-grid {
+				grid-template-columns: 1fr;
+				max-height: none;
+			}
+
+			.substitution-plan-people {
+				grid-template-columns: 1fr;
+			}
+
+			.substitution-hero-actions .button,
+			.substitution-plan-actions .button,
+			.substitution-clear-btn {
+				width: 100%;
+			}
+
+			.substitution-selected-panel,
+			.substitution-plan-card {
+				padding: 0.95rem;
 			}
 
 			.flex.gap-4 {
@@ -2444,7 +2832,12 @@
 	[data-theme="dark"] .finder-status-banner,
 	[data-theme="dark"] .finder-results-panel,
 	[data-theme="dark"] .finder-card,
-	[data-theme="dark"] .finder-empty {
+	[data-theme="dark"] .finder-empty,
+	[data-theme="dark"] .substitution-selected-panel,
+	[data-theme="dark"] .substitution-teacher-card,
+	[data-theme="dark"] .substitution-plan-card,
+	[data-theme="dark"] .substitution-plan-person,
+	[data-theme="dark"] .substitution-empty {
 		background: rgba(15, 23, 42, 0.78);
 		border-color: rgba(148, 163, 184, 0.2);
 		color: var(--text);
@@ -2481,7 +2874,10 @@
 
 	[data-theme="dark"] .dashboard-quick-tag,
 	[data-theme="dark"] .finder-highlight,
-	[data-theme="dark"] .finder-breakdown span {
+	[data-theme="dark"] .finder-breakdown span,
+	[data-theme="dark"] .substitution-selected-chip,
+	[data-theme="dark"] .substitution-mini-pill,
+	[data-theme="dark"] .substitution-plan-slot {
 		background: rgba(255, 255, 255, 0.08);
 		color: var(--text);
 	}
@@ -2497,7 +2893,11 @@
 	[data-theme="dark"] .finder-status-title,
 	[data-theme="dark"] .finder-results-header h4,
 	[data-theme="dark"] .finder-teacher-row strong,
-	[data-theme="dark"] .finder-empty strong {
+	[data-theme="dark"] .finder-empty strong,
+	[data-theme="dark"] .substitution-teacher-copy strong,
+	[data-theme="dark"] .substitution-plan-copy strong,
+	[data-theme="dark"] .substitution-plan-person strong,
+	[data-theme="dark"] .substitution-empty strong {
 		color: var(--text);
 	}
 
@@ -2508,8 +2908,50 @@
 	[data-theme="dark"] .finder-results-header p,
 	[data-theme="dark"] .finder-teacher-copy p,
 	[data-theme="dark"] .finder-workload,
-	[data-theme="dark"] .finder-empty p {
+	[data-theme="dark"] .finder-empty p,
+	[data-theme="dark"] .substitution-selected-empty,
+	[data-theme="dark"] .substitution-teacher-copy p,
+	[data-theme="dark"] .substitution-plan-copy p,
+	[data-theme="dark"] .substitution-plan-slot-block small,
+	[data-theme="dark"] .substitution-empty p {
 		color: var(--text-secondary);
+	}
+
+	[data-theme="dark"] .substitution-teacher-card--selected {
+		background: linear-gradient(135deg, rgba(30, 58, 138, 0.34), rgba(15, 23, 42, 0.82));
+		border-color: rgba(96, 165, 250, 0.32);
+	}
+
+	[data-theme="dark"] .substitution-plan-card--covered {
+		background: linear-gradient(135deg, rgba(6, 95, 70, 0.34), rgba(15, 23, 42, 0.84));
+		border-left-color: rgba(52, 211, 153, 0.75);
+	}
+
+	[data-theme="dark"] .substitution-plan-card--open {
+		background: linear-gradient(135deg, rgba(146, 64, 14, 0.3), rgba(15, 23, 42, 0.84));
+		border-left-color: rgba(251, 191, 36, 0.75);
+	}
+
+	[data-theme="dark"] .substitution-mini-pill--soft {
+		background: rgba(59, 130, 246, 0.18);
+		color: #dbeafe;
+	}
+
+	[data-theme="dark"] .substitution-mini-pill--active,
+	[data-theme="dark"] .substitution-plan-status--covered {
+		background: rgba(16, 185, 129, 0.2);
+		color: #d1fae5;
+	}
+
+	[data-theme="dark"] .substitution-plan-status--open {
+		background: rgba(245, 158, 11, 0.2);
+		color: #fde68a;
+	}
+
+	[data-theme="dark"] .substitution-search input {
+		background: rgba(15, 23, 42, 0.88);
+		color: var(--text);
+		border-color: rgba(148, 163, 184, 0.24);
 	}
 	</style>
 </head>
@@ -2859,6 +3301,7 @@
 			currentView: 'Dashboard',
 			currentSubstitutionDay: null,
 			substitutions: {},
+			substitutionTeacherSearch: '',
 			dashboardFinder: {
 				day: null,
 				period: null,
@@ -5525,8 +5968,112 @@
 			}
 		}
 
+		function getSavedAbsentTeachers(day) {
+			return [...(state.substitutions?.[day]?.absentTeachers || [])];
+		}
+
+		function persistAbsentTeachers(day, absentTeachers = []) {
+			if (!day) return;
+			if (!state.substitutions[day]) {
+				state.substitutions[day] = { plan: {}, absentTeachers: [] };
+			}
+			state.substitutions[day].absentTeachers = [...absentTeachers];
+		}
+
+		function getTeacherLoadForDay(teacher, day) {
+			const schedule = state.allData?.teacherDetails?.[teacher]?.schedule?.[day] || [];
+			return schedule.filter(Boolean).length;
+		}
+
+		function getSubstitutionVacantSlots(day, absentTeachers = []) {
+			const teacherDetails = state.allData?.teacherDetails || {};
+			const periodHeaders = state.allData?.periodHeaders || [];
+			const vacantSlots = [];
+
+			absentTeachers.forEach(absentTeacher => {
+				const schedule = teacherDetails[absentTeacher]?.schedule?.[day];
+				if (!schedule) return;
+
+				schedule.forEach((period, periodIndex) => {
+					if (!period) return;
+
+					vacantSlots.push({
+						...period,
+						periodIndex,
+						originalTeacher: absentTeacher,
+						periodName: periodHeaders[periodIndex]?.name || `Period ${periodIndex + 1}`,
+						periodTime: periodHeaders[periodIndex]?.time || ''
+					});
+				});
+			});
+
+			return vacantSlots.sort((a, b) => (
+				a.periodIndex - b.periodIndex ||
+				a.className.localeCompare(b.className) ||
+				a.subject.localeCompare(b.subject)
+			));
+		}
+
+		function getSubstitutionPlanEntries(day, absentTeachers = []) {
+			const daySubsData = state.substitutions[day]?.plan || {};
+			return getSubstitutionVacantSlots(day, absentTeachers).map(slot => ({
+				...slot,
+				substitute: daySubsData[slot.className]?.[slot.periodIndex] || ''
+			}));
+		}
+
+		function getSubstitutionOverview(day, absentTeachers = [], planEntries = []) {
+			const affectedClasses = new Set(planEntries.map(entry => entry.className)).size;
+			const touchedPeriods = new Set(planEntries.map(entry => entry.periodIndex)).size;
+			const coveredCount = planEntries.filter(entry => entry.substitute).length;
+			const uncoveredCount = Math.max(0, planEntries.length - coveredCount);
+			const supportingTeachers = new Set(planEntries.filter(entry => entry.substitute).map(entry => entry.substitute)).size;
+			const isToday = day === getCurrentDay();
+
+			let mode = 'upcoming';
+			let statusLabel = isToday ? 'Today' : 'Planning ahead';
+			let headline = `Plan substitutions for ${day}`;
+			let message = 'Select absent teachers to preview affected classes and generate a smart coverage plan.';
+
+			if (absentTeachers.length === 0) {
+				statusLabel = 'Setup needed';
+			} else if (planEntries.length === 0) {
+				mode = 'complete';
+				statusLabel = 'Nothing to cover';
+				headline = `${day} has no classes to cover`;
+				message = 'The selected teachers do not have scheduled periods on this day.';
+			} else if (coveredCount === planEntries.length) {
+				mode = 'live';
+				statusLabel = 'Plan ready';
+				headline = `${coveredCount} substitution slots covered`;
+				message = `Review the assignments below, then share or print the final plan for ${day}.`;
+			} else if (coveredCount > 0) {
+				mode = 'break';
+				statusLabel = 'Needs review';
+				headline = `${coveredCount} covered, ${uncoveredCount} still open`;
+				message = 'Most classes are covered. Check the open slots below before sharing the plan.';
+			} else {
+				mode = 'upcoming';
+				statusLabel = 'Ready to generate';
+				headline = `${planEntries.length} slots need coverage`;
+				message = 'Generate the smart plan to assign the best available teachers for each affected class.';
+			}
+
+			return {
+				mode,
+				statusLabel,
+				headline,
+				message,
+				affectedClasses,
+				touchedPeriods,
+				coveredCount,
+				uncoveredCount,
+				supportingTeachers
+			};
+		}
+
 		// --- FIX SUBSTITUTION VIEW ---
-		function renderSubstitutionView(day = null, absentTeachers = []) {
+		function renderSubstitutionViewLegacy(day = null, absentTeachers = []) {
 			const { teacherNames, periodHeaders, teacherDetails, timetable, days } = state.allData;
 			// Always default to the current day when none is provided
 			const currentDay = getCurrentDay();
@@ -5645,6 +6192,276 @@
 			lucide.createIcons();
 		}
 
+		function renderSubstitutionView(day = null, absentTeachers = []) {
+			const { teacherNames, days } = state.allData;
+			const currentDay = getCurrentDay();
+			const selectedDay = day || state.currentSubstitutionDay || currentDay;
+			const hasExplicitAbsentTeachers = arguments.length >= 2;
+			const selectedAbsentTeachers = hasExplicitAbsentTeachers ? absentTeachers : getSavedAbsentTeachers(selectedDay);
+			const currentTimeLabel = new Date().toLocaleTimeString('en-US', {
+				hour: '2-digit',
+				minute: '2-digit',
+				hour12: true
+			});
+			const searchValue = state.substitutionTeacherSearch
+				.replace(/&/g, '&amp;')
+				.replace(/"/g, '&quot;')
+				.replace(/</g, '&lt;');
+
+			persistAbsentTeachers(selectedDay, selectedAbsentTeachers);
+			state.currentSubstitutionDay = selectedDay;
+			document.getElementById('print-header-subtitle').textContent = `Substitution Plan for ${selectedDay}`;
+
+			const planEntries = getSubstitutionPlanEntries(selectedDay, selectedAbsentTeachers);
+			const overview = getSubstitutionOverview(selectedDay, selectedAbsentTeachers, planEntries);
+			const hasAnySavedPlan = Object.values(state.substitutions[selectedDay]?.plan || {}).some(classPlan => Object.keys(classPlan).length > 0);
+			const filteredTeacherNames = teacherNames.filter(teacher =>
+				!state.substitutionTeacherSearch.trim() ||
+				teacher.toLowerCase().includes(state.substitutionTeacherSearch.trim().toLowerCase())
+			);
+
+			const dayTabsHtml = days.map(d => `
+				<button class="day-tab ${d === selectedDay ? 'active' : ''}" role="tab" aria-selected="${d === selectedDay}" data-day="${d}" onclick="renderSubstitutionView('${d}')">
+					${d.slice(0, 3)}
+				</button>
+			`).join('');
+
+			const teacherOptionsHtml = filteredTeacherNames.length > 0
+				? filteredTeacherNames.map(teacher => {
+					const isSelected = selectedAbsentTeachers.includes(teacher);
+					const dayLoad = getTeacherLoadForDay(teacher, selectedDay);
+					const availabilityWindow = getTeacherAvailabilityWindowLabel(teacher);
+					const teacherMessage = dayLoad
+						? `${dayLoad} scheduled periods on ${selectedDay}`
+						: `No scheduled periods on ${selectedDay}`;
+
+					return `
+						<label class="substitution-teacher-card ${isSelected ? 'substitution-teacher-card--selected' : ''}">
+							<div class="substitution-teacher-toggle">
+								<input type="checkbox" value="${teacher}" ${isSelected ? 'checked' : ''} onchange="handleAbsentTeacherChange(this)">
+								<div class="substitution-teacher-copy">
+									<strong>${teacher}</strong>
+									<p>${teacherMessage}</p>
+								</div>
+							</div>
+							<div class="substitution-teacher-meta">
+								<span class="substitution-mini-pill">${dayLoad || 0} periods</span>
+								${availabilityWindow ? `<span class="substitution-mini-pill substitution-mini-pill--soft">${availabilityWindow}</span>` : ''}
+								${isSelected ? '<span class="substitution-mini-pill substitution-mini-pill--active">Selected</span>' : ''}
+							</div>
+						</label>
+					`;
+				}).join('')
+				: `
+					<div class="substitution-empty substitution-empty--inline">
+						<i data-lucide="search-x"></i>
+						<strong>No teacher matches this search</strong>
+						<p>Try a shorter name or clear the filter.</p>
+					</div>
+				`;
+
+			const selectedTeacherChips = selectedAbsentTeachers.length > 0
+				? selectedAbsentTeachers.map(teacher => `
+					<span class="substitution-selected-chip">
+						<i data-lucide="user-minus"></i>
+						${teacher}
+					</span>
+				`).join('')
+				: `
+					<span class="substitution-selected-empty">No absent teachers selected yet.</span>
+				`;
+
+			const planCardsHtml = planEntries.length > 0
+				? planEntries.map(entry => {
+					const isCovered = Boolean(entry.substitute);
+					const statusLabel = isCovered ? 'Assigned' : 'Needs attention';
+					const statusIcon = isCovered ? 'badge-check' : 'alert-triangle';
+
+					return `
+						<article class="substitution-plan-card substitution-plan-card--${isCovered ? 'covered' : 'open'}">
+							<div class="substitution-plan-top">
+								<div class="substitution-plan-slot-block">
+									<span class="substitution-plan-slot">${entry.periodName}</span>
+									<small>${entry.periodTime || 'Time not available'}</small>
+								</div>
+								<span class="substitution-plan-status substitution-plan-status--${isCovered ? 'covered' : 'open'}">
+									<i data-lucide="${statusIcon}"></i>
+									${statusLabel}
+								</span>
+							</div>
+							<div class="substitution-plan-copy">
+								<strong>${entry.className}</strong>
+								<p>${entry.subject}</p>
+							</div>
+							<div class="substitution-plan-people">
+								<div class="substitution-plan-person substitution-plan-person--absent">
+									<span>Absent Teacher</span>
+									<strong>${entry.originalTeacher}</strong>
+								</div>
+								<div class="substitution-plan-person substitution-plan-person--substitute">
+									<span>Assigned Substitute</span>
+									<strong>${entry.substitute || 'Not assigned yet'}</strong>
+								</div>
+							</div>
+						</article>
+					`;
+				}).join('')
+				: `
+					<div class="substitution-empty">
+						<i data-lucide="clipboard-list"></i>
+						<strong>No affected classes yet</strong>
+						<p>Select absent teachers to preview affected periods and build the plan here.</p>
+					</div>
+				`;
+
+			const planActionsHtml = planEntries.length > 0 && overview.coveredCount > 0
+				? `
+					<div class="substitution-plan-actions">
+						<button onclick="handleShareSubstitutionPlan('${selectedDay}')" class="button button-whatsapp">
+							<i data-lucide="share-2"></i>
+							Share Plan Image
+						</button>
+						<button onclick="handleShareSubstitutionPlanText('${selectedDay}')" class="button button-secondary">
+							<i data-lucide="clipboard"></i>
+							Copy Text Plan
+						</button>
+						<button onclick="handlePrintSubstitutionPlan('${selectedDay}')" class="button button-secondary">
+							<i data-lucide="printer"></i>
+							Print Plan
+						</button>
+					</div>
+				`
+				: '';
+
+			const html = `
+				<div class="substitution-shell">
+					<section class="card hero-panel substitution-hero">
+						<div class="dashboard-status-row">
+							<div class="dashboard-live-pill dashboard-live-pill--${overview.mode}">
+								<span class="dashboard-live-dot"></span>
+								${overview.statusLabel}
+							</div>
+							<span class="dashboard-time-chip">
+								<i data-lucide="clock-3"></i>
+								${currentTimeLabel}
+							</span>
+						</div>
+						<div class="section-kicker">Substitution Desk</div>
+						<h2 class="dashboard-hero-title">${overview.headline}</h2>
+						<p class="section-subtitle dashboard-hero-copy">${overview.message}</p>
+						<div class="day-tabs substitution-day-tabs" role="tablist" aria-label="Select substitution day">
+							${dayTabsHtml}
+						</div>
+						<div class="metric-strip substitution-metric-strip">
+							<div class="metric-chip">
+								<span>Absent Staff</span>
+								<strong>${selectedAbsentTeachers.length}</strong>
+							</div>
+							<div class="metric-chip">
+								<span>Classes Affected</span>
+								<strong>${overview.affectedClasses}</strong>
+							</div>
+							<div class="metric-chip">
+								<span>Slots To Cover</span>
+								<strong>${planEntries.length}</strong>
+							</div>
+							<div class="metric-chip">
+								<span>Coverage Status</span>
+								<strong>${overview.coveredCount}/${planEntries.length || 0}</strong>
+							</div>
+						</div>
+						<div class="substitution-hero-actions">
+							<button id="generate-plan-btn" class="button button-primary" ${selectedAbsentTeachers.length === 0 ? 'disabled' : ''}>
+								<i data-lucide="wand-2"></i>
+								Generate Smart Plan
+							</button>
+							<button id="reset-plan-btn" class="button button-danger" ${hasAnySavedPlan ? '' : 'disabled'}>
+								<i data-lucide="rotate-ccw"></i>
+								Reset ${selectedDay} Plan
+							</button>
+						</div>
+					</section>
+
+					<div class="substitution-layout">
+						<section class="card substitution-selector-panel">
+							<div class="view-header">
+								<div>
+									<div class="section-kicker">Absence Input</div>
+									<h2 class="section-title">Choose absent teachers</h2>
+									<p class="section-subtitle">Selections stay attached to ${selectedDay} so you can move between views without losing context.</p>
+								</div>
+								<button class="button button-secondary substitution-clear-btn" onclick="clearSubstitutionTeacherSelection()" ${selectedAbsentTeachers.length === 0 ? 'disabled' : ''}>
+									<i data-lucide="x"></i>
+									Clear Selection
+								</button>
+							</div>
+							<div class="substitution-search">
+								<i data-lucide="search"></i>
+								<input type="search" id="substitution-teacher-search" value="${searchValue}" placeholder="Search teacher name" oninput="handleSubstitutionTeacherSearch(this.value)">
+							</div>
+							<div class="substitution-selected-panel">
+								<div class="section-kicker">Selected Teachers</div>
+								<div class="substitution-selected-list">
+									${selectedTeacherChips}
+								</div>
+							</div>
+							<div id="substitution-teacher-list" class="substitution-teacher-grid">
+								${teacherOptionsHtml}
+							</div>
+						</section>
+
+						<section class="card substitution-plan-panel">
+							<div class="view-header">
+								<div>
+									<div class="section-kicker">Coverage Plan</div>
+									<h2 class="section-title">${planEntries.length > 0 ? 'Review affected classes' : 'Plan preview appears here'}</h2>
+									<p class="section-subtitle">${planEntries.length > 0 ? 'Each card shows the class, absent teacher, and assigned replacement in period order.' : 'Once absent teachers are selected, the plan area will show the classes and periods that need action.'}</p>
+								</div>
+								${planEntries.length > 0 ? `<span class="finder-pill finder-pill--accent">${overview.uncoveredCount > 0 ? `${overview.uncoveredCount} open` : 'All covered'}</span>` : ''}
+							</div>
+							<div id="substitution-plan-content" class="substitution-plan-shell">
+								${planEntries.length > 0 ? `
+									<div class="metric-strip substitution-plan-strip">
+										<div class="metric-chip">
+											<span>Periods Touched</span>
+											<strong>${overview.touchedPeriods}</strong>
+										</div>
+										<div class="metric-chip">
+											<span>Support Teachers</span>
+											<strong>${overview.supportingTeachers}</strong>
+										</div>
+										<div class="metric-chip">
+											<span>Covered</span>
+											<strong>${overview.coveredCount}</strong>
+										</div>
+										<div class="metric-chip">
+											<span>Need Review</span>
+											<strong>${overview.uncoveredCount}</strong>
+										</div>
+									</div>
+								` : ''}
+								<div id="plan-container" class="substitution-plan-grid">
+									${planCardsHtml}
+								</div>
+								${planActionsHtml}
+							</div>
+						</section>
+					</div>
+
+					<div class="dashboard-footer-actions">
+						<button onclick="handlePrint()" class="button button-secondary">
+							<i data-lucide="printer"></i>
+							Print Full Timetable
+						</button>
+					</div>
+				</div>
+			`;
+
+			mainContent.innerHTML = html;
+			attachSubstitutionEventListeners(selectedDay, selectedAbsentTeachers);
+			lucide.createIcons();
+		}
+
 		// --- EVENT HANDLERS & LOGIC ---
 		function attachSubstitutionEventListeners(day, absentTeachers) {
 			try {
@@ -5676,11 +6493,33 @@
 				console.error('Error attaching substitution event listeners:', error);
 			}
 		}
+		function handleSubstitutionTeacherSearch(query) {
+			try {
+				state.substitutionTeacherSearch = query || '';
+				const day = state.currentSubstitutionDay || getCurrentDay();
+				renderSubstitutionView(day, getSavedAbsentTeachers(day));
+			} catch (error) {
+				console.error('Error updating substitution teacher search:', error);
+			}
+		}
+
+		function clearSubstitutionTeacherSelection() {
+			try {
+				const day = state.currentSubstitutionDay || getCurrentDay();
+				persistAbsentTeachers(day, []);
+				renderSubstitutionView(day, []);
+			} catch (error) {
+				console.error('Error clearing substitution teacher selection:', error);
+				showToast('❌ Error clearing teacher selection', 3000, 'error');
+			}
+		}
+
 		function handleAbsentTeacherChange(checkbox) {
 			try {
 				const day = state.currentSubstitutionDay || getCurrentDay();
-				const selectedCheckboxes = Array.from(document.querySelectorAll('input[type="checkbox"]:checked'));
+				const selectedCheckboxes = Array.from(document.querySelectorAll('#substitution-teacher-list input[type="checkbox"]:checked'));
 				const absentTeachers = selectedCheckboxes.map(cb => cb.value);
+				persistAbsentTeachers(day, absentTeachers);
 				renderSubstitutionView(day, absentTeachers);
 			} catch (error) {
 				console.error('Error handling absent teacher change:', error);
@@ -5743,7 +6582,7 @@
 					return;
 				}
 
-				const { teacherDetails, timetable } = state.allData;
+				const { teacherDetails } = state.allData;
 				const vacantSlots = [];
 
 				// Find all slots that need substitution
@@ -5761,6 +6600,12 @@
 						});
 					}
 				});
+
+				if (vacantSlots.length === 0) {
+					showToast('ℹ️ The selected teachers have no classes to cover on this day', 3000, 'info');
+					renderSubstitutionView(day, absentTeachers);
+					return;
+				}
 
 				// Initialize substitution structure if needed
 				if (!state.substitutions[day]) {
@@ -6217,6 +7062,8 @@
 					}
 				}
 				
+				slots = getSubstitutionPlanEntries(day, getSavedAbsentTeachers(day));
+
 				if (slots.length === 0) {
 					showToast('âš ï¸ No substitution plan to share', 3000, 'warning');
 					return;
@@ -6230,12 +7077,12 @@
 				text += `ðŸ« Veer Patta Public School\n`;
 				text += `ðŸ“… Date: ${new Date().toLocaleDateString('en-GB')}\n`;
 				text += `â° Generated: ${new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}\n\n`;
-				text += `Period | Class | Substitute\n`;
-				text += `-----------------------------\n`;
+				text += `Period | Class | Absent | Substitute\n`;
+				text += `-------------------------------------\n`;
 				
 				slots.forEach(slot => {
 					const periodName = periodHeaders[slot.periodIndex]?.name || `P${slot.periodIndex+1}`;
-					text += `${periodName} | ${slot.className} | ${slot.substitute || '--'}\n`;
+					text += `${periodName} | ${slot.className} | ${slot.originalTeacher || '--'} | ${slot.substitute || '--'}\n`;
 				});
 				
 				// Copy to clipboard
