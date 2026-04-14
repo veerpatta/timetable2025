@@ -1,11 +1,11 @@
 {
-  "timestamp": "2026-04-14T08:45:09.715Z",
+  "timestamp": "2026-04-14T10:59:14.901Z",
   "files": [
     {
       "file": "index.html",
-      "rawSize": 293510,
-      "gzippedSize": 58492,
-      "compression": "80.1%"
+      "rawSize": 317546,
+      "gzippedSize": 62119,
+      "compression": "80.4%"
     },
     {
       "file": "scripts/perf.js",
@@ -69,7 +69,7 @@
     }
   ],
   "totals": {
-    "raw": 442557,
-    "gzipped": 93250
+    "raw": 466593,
+    "gzipped": 96877
   }
 }

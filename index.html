@@ -2565,13 +2565,51 @@
 
 		/* Capture and Export Enhancements */
 		#print-capture-area {
+			--export-page-width: 1123px;
+			--export-page-height: 794px;
+			--export-page-padding: 40px;
 			position: absolute;
 			left: -9999px;
 			top: -9999px;
-			max-width: 900px;
+			width: var(--export-page-width);
+			min-height: var(--export-page-height);
+			padding: var(--export-page-padding);
+			box-sizing: border-box;
+			overflow: hidden;
 			margin: 0 auto;
-			background: var(--bg);
+			background: #ffffff;
 			display: none;
+		}
+
+		#print-capture-area[data-page-orientation="portrait"] {
+			--export-page-width: 794px;
+			--export-page-height: 1123px;
+		}
+
+		#print-content {
+			width: 100%;
+		}
+
+		.print-export-shell {
+			width: 100%;
+		}
+
+		.print-export-shell--single-page {
+			height: 100%;
+		}
+
+		.print-export-viewport {
+			width: 100%;
+		}
+
+		.print-export-shell--single-page .print-export-viewport {
+			overflow: hidden;
+		}
+
+		.print-export-fit {
+			display: inline-block;
+			min-width: 100%;
+			transform-origin: top left;
 		}
 
 		.no-capture {
@@ -2580,6 +2618,10 @@
 
 		/* Print Styles */
 		@media print {
+		@page {
+			size: A4 landscape;
+			margin: 0;
+		}
 		/* --- Print fix: Disable sticky headers, force thead/tfoot repeat, allow table page breaks ---
 		   Test: Open print preview in Chrome and Firefox to verify header repeats and no sticky issues. */
 		th {
@@ -2644,12 +2686,20 @@
 				position: static !important;
 				left: auto !important;
 				top: auto !important;
-				width: 100% !important;
+				width: 297mm !important;
+				min-height: 210mm !important;
 				max-width: none !important;
-				padding: 0.75rem !important;
+				padding: 10mm !important;
+				box-sizing: border-box !important;
 				margin: 0 !important;
 				background: white !important;
 				page-break-inside: avoid !important;
+				overflow: hidden !important;
+			}
+
+			#print-capture-area[data-page-orientation="portrait"] {
+				width: 210mm !important;
+				min-height: 297mm !important;
 			}
 			
 			/* Print Header Styling */
@@ -5870,8 +5920,8 @@
 							<td class="font-bold" data-label="Day">${day}</td>
 						${periodHeaders.map((_, i) => {
 							const originalPeriod = daySchedule[i];
-							const isSubstitutedOut = originalPeriod && daySubs[originalPeriod.className]?.[i];
-							const substitute = originalPeriod ? (daySubs[originalPeriod.className]?.[i] || null) : null;
+							const substitute = getClassSubstitute(day, selectedClass, i);
+							const isSubstitutedOut = Boolean(originalPeriod && substitute);
 							const label = periodHeaders[i]?.name || `Period ${i+1}`;
 							return `
 								<td data-label="${label}"${(day === today && i === currentPeriodIdx) ? ' class="highlight-period"' : ''}>
@@ -5967,11 +6017,13 @@
 				const list = periods.map((p, i) => {
 					const label = periodHeaders[i]?.name || `P${i+1}`;
 					const time = periodHeaders[i]?.time || '';
+					const substitute = getClassSubstitute(day, selectedClass, i);
 					return `
 						<div class="timetable-row ${i===activeIdx?'is-current':''}" data-period-index="${i}" id="row-p${i}" role="button" tabindex="0" onclick="this.classList.toggle('expanded')" onkeypress="if(event.key==='Enter') this.click()">
 							<div class="period-col">${label}<div style="font-weight:500; color: var(--gray-500); font-size: 0.75rem;">${time}</div></div>
 							<div class="subject-col">${p?.subject || ''}</div>
-							<div class="teacher-col">${p?.teacher || ''}</div>
+							<div class="teacher-col ${substitute ? 'line-through' : ''}">${p?.teacher || ''}</div>
+							<div class="extra">${substitute ? `Sub: ${substitute}` : ''}</div>
 						</div>`;
 				}).join('');
 				container.innerHTML = `<div class="timetable-list" aria-label="${selectedClass} - ${day}">${list}</div>`;
@@ -6037,14 +6089,9 @@
 									<td class="font-bold" data-label="Day">${day}</td>
 									${periodHeaders.map((_, i) => {
 										const originalPeriod = daySchedule[i];
-										const isSubstitutedOut = originalPeriod && daySubs[originalPeriod.className]?.[i];
-										let subPeriodInfo = null;
-										for (const cName in daySubs) {
-											if (daySubs[cName][i] === selectedTeacher) {
-												subPeriodInfo = timetable[day][cName][i];
-												break;
-											}
-										}
+										const substitute = originalPeriod ? getClassSubstitute(day, originalPeriod.className, i) : '';
+										const isSubstitutedOut = Boolean(originalPeriod && substitute);
+										const subPeriodInfo = getTeacherSubstitutionCoverage(day, selectedTeacher, i);
 										const isUnavailableWindow = !originalPeriod && !subPeriodInfo && isTeacherUnavailableForPeriod(selectedTeacher, i);
 										const label = periodHeaders[i]?.name || `Period ${i+1}`;
 										return `
@@ -6058,7 +6105,7 @@
 												${subPeriodInfo ? `
 													<div style="margin-top: 0.25rem;">
 														<div class="subject substitute">${subPeriodInfo.subject}</div>
-														<div class="class-name">(Sub for ${subPeriodInfo.teacher})</div>
+														<div class="class-name">(Sub for ${subPeriodInfo.originalTeacher || subPeriodInfo.teacher})</div>
 														<div class="class-name">${subPeriodInfo.className}</div>
 													</div>
 												` : ''}
@@ -6159,33 +6206,253 @@
 				const activeIdx = day === today ? getActivePeriodIndex() : -1;
 				const list = periodHeaders.map((h, i) => {
 					const p = daySchedule[i];
-					const isUnavailableWindow = !p && isTeacherUnavailableForPeriod(selectedTeacher, i);
+					const substitute = p ? getClassSubstitute(day, p.className, i) : '';
+					const subPeriodInfo = getTeacherSubstitutionCoverage(day, selectedTeacher, i);
+					const isUnavailableWindow = !p && !subPeriodInfo && isTeacherUnavailableForPeriod(selectedTeacher, i);
 					return `
 						<div class="timetable-row ${i===activeIdx?'is-current':''}" data-period-index="${i}" id="row-p${i}" role="button" tabindex="0" onclick="this.classList.toggle('expanded')" onkeypress="if(event.key==='Enter') this.click()">
 							<div class="period-col">${h.name}<div style="font-weight:500; color: var(--gray-500); font-size: 0.75rem;">${h.time||''}</div></div>
-							<div class="subject-col">${p ? p.subject : (isUnavailableWindow ? 'Unavailable' : '')}</div>
-							<div class="teacher-col">${p ? p.className : (isUnavailableWindow ? getTeacherAvailabilityWindowLabel(selectedTeacher) : 'Free period')}</div>
-							<div class="extra">${p ? ('Teacher: ' + selectedTeacher) : (isUnavailableWindow ? 'Not available for substitutions in this slot' : '')}</div>
+							<div class="subject-col">${p ? `<span class="${substitute ? 'line-through' : ''}">${p.subject}</span>` : (subPeriodInfo ? subPeriodInfo.subject : (isUnavailableWindow ? 'Unavailable' : ''))}</div>
+							<div class="teacher-col">${p ? p.className : (subPeriodInfo ? subPeriodInfo.className : (isUnavailableWindow ? getTeacherAvailabilityWindowLabel(selectedTeacher) : 'Free period'))}</div>
+							<div class="extra">${subPeriodInfo ? `Sub for ${subPeriodInfo.originalTeacher || subPeriodInfo.teacher}` : (substitute ? `Covered by ${substitute}` : (p ? ('Teacher: ' + selectedTeacher) : (isUnavailableWindow ? 'Not available for substitutions in this slot' : '')))}</div>
 						</div>`;
 				}).join('');
 				container.innerHTML = `<div class="timetable-list" aria-label="${selectedTeacher} - ${day}">${list}</div>`;
 			} catch (e) { console.error(e); }
 		}
 
+		function getClassSubstitute(day, className, periodIndex) {
+			return state.substitutions?.[day]?.plan?.[className]?.[periodIndex] || '';
+		}
+
+		function getTeacherSubstitutionCoverage(day, teacher, periodIndex) {
+			const daySubs = state.substitutions?.[day]?.plan || {};
+			const absentTeachers = getSavedAbsentTeachers(day);
+
+			for (const [className, classPlan] of Object.entries(daySubs)) {
+				if (classPlan[periodIndex] !== teacher) continue;
+
+				const period = state.allData?.timetable?.[day]?.[className]?.[periodIndex];
+				if (!period) continue;
+
+				const planEntry = getSubstitutionPlanEntry(day, className, periodIndex, absentTeachers);
+				return {
+					...period,
+					className,
+					originalTeacher: planEntry?.originalTeacher || period.teacher || ''
+				};
+			}
+
+			return null;
+		}
+
+		function getExportDateStamp() {
+			return new Date().toISOString().split('T')[0];
+		}
+
+		function slugifyFilePart(value = '') {
+			return String(value)
+				.toLowerCase()
+				.replace(/[^a-z0-9]+/g, '-')
+				.replace(/^-+|-+$/g, '') || 'timetable';
+		}
+
+		function getPrintCaptureMetrics(orientation = 'landscape') {
+			if (orientation === 'portrait') {
+				return { width: 794, height: 1123, padding: 40 };
+			}
+
+			return { width: 1123, height: 794, padding: 40 };
+		}
+
+		function wrapPrintExportMarkup(content, options = {}) {
+			const shellClass = options.singlePage
+				? 'print-export-shell print-export-shell--single-page'
+				: 'print-export-shell';
+
+			return `
+				<div class="${shellClass}" data-export-shell>
+					<div class="print-export-viewport" data-export-viewport>
+						<div class="print-export-fit" data-export-fit>
+							${content}
+						</div>
+					</div>
+				</div>
+			`;
+		}
+
+		function getCurrentExportDescriptor(options = {}) {
+			const silent = options.silent === true;
+
+			switch (state.currentView) {
+				case 'Day': {
+					const activeDayTab = document.querySelector('#main-content .day-tab.active, #main-content .day-tab[aria-selected="true"]');
+					const targetDay = activeDayTab?.dataset?.day || getCurrentDay();
+					return {
+						title: `Daily Schedule - ${targetDay}`,
+						content: renderDayTimetableForPrint(targetDay),
+						fileBase: `day-${slugifyFilePart(targetDay)}`,
+						singlePage: true,
+						orientation: 'landscape'
+					};
+				}
+
+				case 'Class': {
+					const selectedClass = document.querySelector('#main-content select')?.value || '';
+					if (!selectedClass) {
+						if (!silent) {
+							showToast('Please select a class first', 3000, 'warning');
+						}
+						return null;
+					}
+
+					return {
+						title: `Weekly Schedule - ${selectedClass}`,
+						content: renderClassTimetableForPrint(selectedClass),
+						fileBase: `class-${slugifyFilePart(selectedClass)}`,
+						singlePage: true,
+						orientation: 'landscape'
+					};
+				}
+
+				case 'Teacher': {
+					const selectedTeacher = document.querySelector('#main-content select')?.value || '';
+					if (!selectedTeacher) {
+						if (!silent) {
+							showToast('Please select a teacher first', 3000, 'warning');
+						}
+						return null;
+					}
+
+					return {
+						title: `Weekly Schedule - ${selectedTeacher}`,
+						content: renderTeacherTimetableForPrint(selectedTeacher),
+						fileBase: `teacher-${slugifyFilePart(selectedTeacher)}`,
+						singlePage: true,
+						orientation: 'landscape'
+					};
+				}
+
+				case 'Substitution': {
+					const selectedDay = state.currentSubstitutionDay || getCurrentDay();
+					const content = buildSubstitutionPlanExportMarkup(selectedDay);
+					if (!content) {
+						if (!silent) {
+							showToast('No assigned substitutions to export for this day', 3200, 'warning');
+						}
+						return null;
+					}
+
+					return {
+						title: `Substitution Plan - ${selectedDay}`,
+						content,
+						fileBase: `substitution-plan-${slugifyFilePart(selectedDay)}`,
+						singlePage: true,
+						orientation: 'landscape'
+					};
+				}
+
+				case 'Dashboard':
+				default:
+					return {
+						title: 'Complete School Timetable',
+						content: renderFullTimetableForPrint(),
+						fileBase: 'complete-school-timetable',
+						singlePage: false,
+						orientation: 'landscape'
+					};
+			}
+		}
+
+		function prepareExportContent(descriptor) {
+			try {
+				if (!descriptor) return false;
+
+				const captureElement = document.getElementById('print-capture-area');
+				const printContentElement = document.getElementById('print-content');
+				if (!captureElement || !printContentElement) {
+					return false;
+				}
+
+				const now = new Date();
+				document.getElementById('print-date').textContent = now.toLocaleDateString('en-GB');
+				document.getElementById('print-time').textContent = now.toLocaleTimeString('en-US', {
+					hour: '2-digit',
+					minute: '2-digit',
+					hour12: true
+				});
+				document.getElementById('print-header-subtitle').textContent = descriptor.title;
+
+				captureElement.dataset.pageOrientation = descriptor.orientation || 'landscape';
+				captureElement.dataset.singlePage = descriptor.singlePage ? 'true' : 'false';
+				printContentElement.innerHTML = wrapPrintExportMarkup(descriptor.content, descriptor);
+				return true;
+			} catch (error) {
+				console.error('Error preparing export content:', error);
+				return false;
+			}
+		}
+
+		function fitPreparedExportToSinglePage() {
+			const captureElement = document.getElementById('print-capture-area');
+			if (!captureElement || captureElement.dataset.singlePage !== 'true') {
+				return 1;
+			}
+
+			const viewport = captureElement.querySelector('[data-export-viewport]');
+			const fitTarget = captureElement.querySelector('[data-export-fit]');
+			if (!viewport || !fitTarget) {
+				return 1;
+			}
+
+			const orientation = captureElement.dataset.pageOrientation || 'landscape';
+			const metrics = getPrintCaptureMetrics(orientation);
+			const header = document.getElementById('print-header');
+
+			captureElement.style.width = `${metrics.width}px`;
+			captureElement.style.minHeight = `${metrics.height}px`;
+
+			viewport.style.height = '';
+			fitTarget.style.width = 'auto';
+			fitTarget.style.transform = 'none';
+
+			const availableHeight = Math.max(
+				160,
+				metrics.height - (metrics.padding * 2) - (header ? header.offsetHeight : 0) - 12
+			);
+
+			viewport.style.height = `${availableHeight}px`;
+
+			const contentWidth = fitTarget.scrollWidth;
+			const contentHeight = fitTarget.scrollHeight;
+			if (!contentWidth || !contentHeight) {
+				return 1;
+			}
+
+			const scale = Math.min(
+				1,
+				viewport.clientWidth / contentWidth,
+				availableHeight / contentHeight
+			);
+
+			fitTarget.style.width = `${contentWidth}px`;
+			fitTarget.style.transform = `scale(${scale})`;
+			return scale;
+		}
+
 		// --- OPTIMIZED PRINT FUNCTIONS ---
 		function renderDayTimetableForPrint(selectedDay) {
 			const { timetable, classNames, periodHeaders } = state.allData;
-			const daySubs = state.substitutions[selectedDay]?.plan || {};
 			
 			let html = `
 				<div style="page-break-inside: avoid;">
-					<table style="width: 100%; font-size: 0.95rem; border-collapse: collapse;">
+					<table style="width: 100%; font-size: 0.82rem; border-collapse: collapse; table-layout: fixed;">
 						<thead>
 							<tr style="background: #f3f4f6;">
-								<th style="border: 1px solid #d1d5db; padding: 4px 6px; font-weight: bold;">Class</th>
+								<th style="border: 1px solid #d1d5db; padding: 4px 6px; font-weight: bold; width: 12%;">Class</th>
 								${periodHeaders.map(h => 
 									`<th style="border: 1px solid #d1d5db; padding: 4px 6px; font-weight: bold; text-align: center;">
-										${h.name}<br><span style="font-size: 0.75rem;">${h.time}</span>
+										${escapeHtml(h.name)}<br><span style="font-size: 0.68rem;">${escapeHtml(h.time)}</span>
 									</th>`
 								).join('')}
 							</tr>
@@ -6195,14 +6462,14 @@
 								if (!timetable[selectedDay][cName]) return '';
 								return `
 									<tr>
-										<td style="border: 1px solid #d1d5db; padding: 4px 6px; font-weight: bold; background: #f9fafb;">${cName}</td>
+										<td style="border: 1px solid #d1d5db; padding: 4px 6px; font-weight: bold; background: #f9fafb;">${escapeHtml(cName)}</td>
 										${timetable[selectedDay][cName].map((period, i) => {
-											const substitute = daySubs[cName]?.[i];
+											const substitute = getClassSubstitute(selectedDay, cName, i);
 											return `
 												<td style="border: 1px solid #d1d5db; padding: 4px 6px; text-align: center;">
-													<div style="font-size: 0.85rem; font-weight: bold; margin-bottom: 1px;">${period.subject || ''}</div>
-													${period.teacher ? `<div style="font-size: 0.75rem; ${substitute ? 'text-decoration: line-through; opacity: 0.6;' : ''}">${period.teacher}</div>` : ''}
-													${substitute ? `<div style="font-size: 0.75rem; color: #2563eb; font-weight: bold;">Sub: ${substitute}</div>` : ''}
+													<div style="font-size: 0.78rem; font-weight: bold; margin-bottom: 1px;">${escapeHtml(period.subject || '')}</div>
+													${period.teacher ? `<div style="font-size: 0.68rem; ${substitute ? 'text-decoration: line-through; opacity: 0.6;' : ''}">${escapeHtml(period.teacher)}</div>` : ''}
+													${substitute ? `<div style="font-size: 0.68rem; color: #2563eb; font-weight: bold;">Sub: ${escapeHtml(substitute)}</div>` : ''}
 												</td>
 											`;
 										}).join('')}
@@ -6221,13 +6488,13 @@
 			
 			let html = `
 				<div style="page-break-inside: avoid;">
-					<table style="width: 100%; font-size: 0.95rem; border-collapse: collapse;">
+					<table style="width: 100%; font-size: 0.82rem; border-collapse: collapse; table-layout: fixed;">
 						<thead>
 							<tr style="background: #f3f4f6;">
-								<th style="border: 1px solid #d1d5db; padding: 4px 6px; font-weight: bold;">Day</th>
+								<th style="border: 1px solid #d1d5db; padding: 4px 6px; font-weight: bold; width: 12%;">Day</th>
 								${periodHeaders.map(h => 
 									`<th style="border: 1px solid #d1d5db; padding: 4px 6px; font-weight: bold; text-align: center;">
-										${h.name}<br><span style="font-size: 0.75rem;">${h.time}</span>
+										${escapeHtml(h.name)}<br><span style="font-size: 0.68rem;">${escapeHtml(h.time)}</span>
 									</th>`
 								).join('')}
 							</tr>
@@ -6237,14 +6504,16 @@
 								const daySchedule = timetable[day][selectedClass] || [];
 								return `
 									<tr>
-										<td style="border: 1px solid #d1d5db; padding: 4px 6px; font-weight: bold; background: #f9fafb;">${day}</td>
+										<td style="border: 1px solid #d1d5db; padding: 4px 6px; font-weight: bold; background: #f9fafb;">${escapeHtml(day)}</td>
 										${periodHeaders.map((_, i) => {
 											const period = daySchedule[i];
+											const substitute = getClassSubstitute(day, selectedClass, i);
 											return `
 												<td style="border: 1px solid #d1d5db; padding: 4px 6px; text-align: center;">
 													${period ? `
-														<div style="font-size: 0.85rem; font-weight: bold; margin-bottom: 1px;">${period.subject}</div>
-														<div style="font-size: 0.75rem;">${period.teacher || ''}</div>
+														<div style="font-size: 0.78rem; font-weight: bold; margin-bottom: 1px;">${escapeHtml(period.subject)}</div>
+														<div style="font-size: 0.68rem; ${substitute ? 'text-decoration: line-through; opacity: 0.6;' : ''}">${escapeHtml(period.teacher || '')}</div>
+														${substitute ? `<div style="font-size: 0.68rem; color: #2563eb; font-weight: bold;">Sub: ${escapeHtml(substitute)}</div>` : ''}
 													` : ''}
 												</td>
 											`;
@@ -6268,17 +6537,17 @@
 			let html = `
 				<div style="page-break-inside: avoid;">
 					<h3 style="text-align: center; margin: 0 0 1rem 0; font-size: 1.2em; color: #2563eb;">
-						Weekly Schedule - ${selectedTeacher}
+						Weekly Schedule - ${escapeHtml(selectedTeacher)}
 					</h3>
 					<div style="text-align: center; margin-bottom: 1rem; font-size: 0.95rem; color: #6b7280;">
 						Total Weekly Periods: ${teacherData.periodCount}
 					</div>
-					<table style="width: 100%; font-size: 0.95rem; border-collapse: collapse;">
+					<table style="width: 100%; font-size: 0.82rem; border-collapse: collapse; table-layout: fixed;">
 						<thead>
 							<tr style="background: #f3f4f6;">
-								<th style="border: 1px solid #d1d5db; padding: 4px 6px; font-weight: bold;">Day</th>
+								<th style="border: 1px solid #d1d5db; padding: 4px 6px; font-weight: bold; width: 12%;">Day</th>
 								${periodHeaders.map(h => 
-									`<th style="border: 1px solid #d1d5db; padding: 4px 6px; font-weight: bold; text-align: center;">${h.name}</th>`
+									`<th style="border: 1px solid #d1d5db; padding: 4px 6px; font-weight: bold; text-align: center;">${escapeHtml(h.name)}</th>`
 								).join('')}
 							</tr>
 						</thead>
@@ -6287,19 +6556,29 @@
 								const daySchedule = teacherData.schedule[day] || [];
 								return `
 									<tr>
-										<td style="border: 1px solid #d1d5db; padding: 4px 6px; font-weight: bold; background: #f9fafb;">${day}</td>
+										<td style="border: 1px solid #d1d5db; padding: 4px 6px; font-weight: bold; background: #f9fafb;">${escapeHtml(day)}</td>
 										${periodHeaders.map((_, i) => {
 											const period = daySchedule[i];
-											const isUnavailableWindow = !period && isTeacherUnavailableForPeriod(selectedTeacher, i);
+											const substitute = period ? getClassSubstitute(day, period.className, i) : '';
+											const substitutionCover = getTeacherSubstitutionCoverage(day, selectedTeacher, i);
+											const isUnavailableWindow = !period && !substitutionCover && isTeacherUnavailableForPeriod(selectedTeacher, i);
 											return `
 												<td style="border: 1px solid #d1d5db; padding: 4px 6px; text-align: center;">
 													${period ? `
-														<div style="font-size: 0.85rem; font-weight: bold; margin-bottom: 1px;">${period.subject}</div>
-														<div style="font-size: 0.75rem;">${period.className}</div>
+														<div style="font-size: 0.78rem; font-weight: bold; margin-bottom: 1px; ${substitute ? 'text-decoration: line-through; opacity: 0.6;' : ''}">${escapeHtml(period.subject)}</div>
+														<div style="font-size: 0.68rem; ${substitute ? 'text-decoration: line-through; opacity: 0.6;' : ''}">${escapeHtml(period.className)}</div>
+														${substitute ? `<div style="font-size: 0.68rem; color: #2563eb; font-weight: bold;">Covered by ${escapeHtml(substitute)}</div>` : ''}
+													` : ''}
+													${substitutionCover ? `
+														<div style="margin-top: 0.2rem;">
+															<div style="font-size: 0.74rem; font-weight: 700; color: #2563eb;">${escapeHtml(substitutionCover.subject)}</div>
+															<div style="font-size: 0.68rem; color: #1d4ed8;">${escapeHtml(substitutionCover.className)}</div>
+															<div style="font-size: 0.66rem; color: #475569;">Sub for ${escapeHtml(substitutionCover.originalTeacher || substitutionCover.teacher || '')}</div>
+														</div>
 													` : ''}
 													${isUnavailableWindow ? `
 														<div style="font-size: 0.78rem; font-weight: bold; color: #92400e;">Unavailable</div>
-														<div style="font-size: 0.72rem; color: #92400e;">${getTeacherAvailabilityWindowLabel(selectedTeacher)}</div>
+														<div style="font-size: 0.72rem; color: #92400e;">${escapeHtml(getTeacherAvailabilityWindowLabel(selectedTeacher))}</div>
 													` : ''}
 												</td>
 											`;
@@ -6432,6 +6711,21 @@
 			}
 		}
 
+		function preparePrintContent() {
+			const descriptor = getCurrentExportDescriptor();
+			return prepareExportContent(descriptor);
+		}
+
+		function updatePrintContent() {
+			try {
+				const descriptor = getCurrentExportDescriptor({ silent: true });
+				if (!descriptor) return;
+				prepareExportContent(descriptor);
+			} catch (error) {
+				console.error('Error updating print content:', error);
+			}
+		}
+
 		// Wait for DOM rendering using requestAnimationFrame
 		function waitForRender() {
 			return new Promise(resolve => {
@@ -6458,6 +6752,23 @@
 		function getOptimalScale() {
 			const devicePixelRatio = window.devicePixelRatio || 1;
 			return Math.min(devicePixelRatio, 2); // Cap at 2 for performance
+		}
+
+		async function capturePreparedExportCanvas(captureElement) {
+			await ensureFontsLoaded();
+			await waitForRender();
+			fitPreparedExportToSinglePage();
+			await waitForRender();
+
+			return html2canvas(captureElement, {
+				backgroundColor: '#fff',
+				scale: getOptimalScale(),
+				useCORS: true,
+				allowTaint: false,
+				foreignObjectRendering: false,
+				imageTimeout: 15000,
+				removeContainer: false
+			});
 		}
 
 		// Pure function: Convert table data to 2D array for CSV export
@@ -8585,6 +8896,337 @@
 				captureElement.style.display = prevDisplay;
 				document.getElementById('print-content').innerHTML = prevContent;
 				document.getElementById('print-header-subtitle').textContent = prevSubtitle;
+			} catch (error) {
+				console.error('Error printing substitution plan:', error);
+				showToast('Failed to print substitution plan', 3000, 'error');
+			}
+		}
+
+		function buildSubstitutionPlanExportMarkup(day) {
+			const absentTeachers = getSavedAbsentTeachers(day);
+			const slots = getSortedSubstitutionShareEntries(day)
+				.filter(slot => slot.substitute);
+			const overview = getSubstitutionOverview(day, absentTeachers, slots);
+
+			if (slots.length === 0) {
+				return '';
+			}
+
+			const rows = slots.map(slot => `
+				<tr>
+					<td style="padding: 0.65rem 0.55rem; border-bottom: 1px solid #e5e7eb; font-weight: 700;">${escapeHtml(slot.periodName)}</td>
+					<td style="padding: 0.65rem 0.55rem; border-bottom: 1px solid #e5e7eb;">${escapeHtml(slot.periodTime || '--')}</td>
+					<td style="padding: 0.65rem 0.55rem; border-bottom: 1px solid #e5e7eb;">${escapeHtml(slot.className)}</td>
+					<td style="padding: 0.65rem 0.55rem; border-bottom: 1px solid #e5e7eb;">${escapeHtml(slot.subject)}</td>
+					<td style="padding: 0.65rem 0.55rem; border-bottom: 1px solid #e5e7eb; color: #b91c1c; font-weight: 700;">${escapeHtml(slot.originalTeacher || '--')}</td>
+					<td style="padding: 0.65rem 0.55rem; border-bottom: 1px solid #e5e7eb; color: #065f46; font-weight: 800;">${escapeHtml(slot.substitute)}</td>
+				</tr>
+			`).join('');
+
+			return `
+				<div style="font-family: Inter, system-ui, sans-serif; color: #111827; background: #ffffff; padding: 0.25rem 0;">
+					<div style="margin-bottom: 0.9rem; color: #4b5563; font-size: 0.82rem; text-align: center;">
+						Assigned slots only | ${slots.length} substitution${slots.length === 1 ? '' : 's'} | ${absentTeachers.length} absent teacher${absentTeachers.length === 1 ? '' : 's'} | ${overview.affectedClasses} class${overview.affectedClasses === 1 ? '' : 'es'} covered
+					</div>
+					<table style="width: 100%; border-collapse: collapse; border: 1px solid #e5e7eb; table-layout: fixed;">
+						<thead>
+							<tr style="background: #eff6ff; color: #1e3a8a;">
+								<th style="padding: 0.65rem 0.55rem; text-align: left; font-size: 0.72rem; letter-spacing: 0.04em; text-transform: uppercase;">Period</th>
+								<th style="padding: 0.65rem 0.55rem; text-align: left; font-size: 0.72rem; letter-spacing: 0.04em; text-transform: uppercase;">Time</th>
+								<th style="padding: 0.65rem 0.55rem; text-align: left; font-size: 0.72rem; letter-spacing: 0.04em; text-transform: uppercase;">Class</th>
+								<th style="padding: 0.65rem 0.55rem; text-align: left; font-size: 0.72rem; letter-spacing: 0.04em; text-transform: uppercase;">Subject</th>
+								<th style="padding: 0.65rem 0.55rem; text-align: left; font-size: 0.72rem; letter-spacing: 0.04em; text-transform: uppercase;">Absent</th>
+								<th style="padding: 0.65rem 0.55rem; text-align: left; font-size: 0.72rem; letter-spacing: 0.04em; text-transform: uppercase;">Substitute</th>
+							</tr>
+						</thead>
+						<tbody>${rows}</tbody>
+					</table>
+				</div>
+			`;
+		}
+
+		function buildAssignedSubstitutionPlanPrintMarkup(day) {
+			return buildSubstitutionPlanExportMarkup(day);
+		}
+
+		async function ensureHtml2CanvasReady(failureMessage = 'Image sharing is unavailable right now.') {
+			if (FEATURE_FLAGS.feat_perf_opt && typeof PerformanceOptimization !== 'undefined') {
+				try {
+					await PerformanceOptimization.lazyLoader.loadHtml2Canvas();
+				} catch (error) {
+					console.warn('Failed to load html2canvas.', error);
+					showToast(failureMessage, 3600, 'warning');
+					return false;
+				}
+			} else if (typeof html2canvas === 'undefined') {
+				showToast(failureMessage, 3600, 'warning');
+				return false;
+			}
+
+			return true;
+		}
+
+		async function ensurePdfLibrariesReady() {
+			if (FEATURE_FLAGS.feat_perf_opt && typeof PerformanceOptimization !== 'undefined') {
+				try {
+					await Promise.all([
+						PerformanceOptimization.lazyLoader.loadJsPDF(),
+						PerformanceOptimization.lazyLoader.loadHtml2Canvas()
+					]);
+				} catch (error) {
+					showToast('Failed to load PDF libraries', 3000, 'error');
+					return false;
+				}
+			} else if (!window.jspdf || typeof window.jspdf.jsPDF === 'undefined' || typeof html2canvas === 'undefined') {
+				showToast('PDF library not loaded', 3000, 'error');
+				return false;
+			}
+
+			return true;
+		}
+
+		async function runPreparedExport(descriptor, task) {
+			const captureElement = document.getElementById('print-capture-area');
+			if (!captureElement) {
+				showToast('Required export area not found', 3000, 'error');
+				return false;
+			}
+
+			if (!prepareExportContent(descriptor)) {
+				return false;
+			}
+
+			const previousDisplay = captureElement.style.display;
+			captureElement.style.display = 'block';
+
+			try {
+				await task(captureElement);
+				return true;
+			} finally {
+				captureElement.style.display = previousDisplay || 'none';
+				updatePrintContent();
+			}
+		}
+
+		async function handleShareScreenshot() {
+			try {
+				if (!await ensureHtml2CanvasReady('Image sharing is unavailable right now.')) {
+					return;
+				}
+
+				const descriptor = getCurrentExportDescriptor();
+				if (!descriptor) {
+					showToast('Failed to prepare export content', 3000, 'error');
+					return;
+				}
+
+				await runPreparedExport(descriptor, async captureElement => {
+					const canvas = await capturePreparedExportCanvas(captureElement);
+					const blob = await canvasToBlob(canvas);
+					const fileName = `${descriptor.fileBase}-${getExportDateStamp()}.png`;
+					const file = new File([blob], fileName, { type: 'image/png' });
+
+					let shared = false;
+					if (navigator.share) {
+						try {
+							const canShare = navigator.canShare ? navigator.canShare({ files: [file] }) : true;
+							if (canShare) {
+								await navigator.share({
+									files: [file],
+									title: descriptor.title,
+									text: descriptor.title
+								});
+								shared = true;
+							}
+						} catch (error) {
+							if (error.name === 'AbortError') {
+								return;
+							}
+
+							console.warn('Native image share failed, falling back to download.', error);
+						}
+					}
+
+					if (shared) {
+						showToast('Timetable image shared successfully', 3000, 'success');
+						return;
+					}
+
+					downloadImage(blob, fileName);
+					showToast('Timetable image downloaded', 3000, 'success');
+				});
+			} catch (error) {
+				console.error('Screenshot capture error:', error);
+				showToast('Failed to capture screenshot', 3000, 'error');
+			}
+		}
+
+		async function handleShareAsPDF() {
+			try {
+				if (!await ensurePdfLibrariesReady()) {
+					return;
+				}
+
+				const descriptor = getCurrentExportDescriptor();
+				if (!descriptor) {
+					showToast('Failed to prepare print content', 3000, 'error');
+					return;
+				}
+
+				showToast('Generating PDF...', 2000, 'info');
+
+				await runPreparedExport(descriptor, async captureElement => {
+					const canvas = await capturePreparedExportCanvas(captureElement);
+					const { jsPDF } = window.jspdf;
+					const orientation = descriptor.orientation === 'portrait' ? 'portrait' : 'landscape';
+					const pdf = new jsPDF({
+						orientation,
+						unit: 'mm',
+						format: 'a4'
+					});
+
+					const pdfWidth = pdf.internal.pageSize.getWidth();
+					const pdfHeight = pdf.internal.pageSize.getHeight();
+					const ratio = Math.min(pdfWidth / canvas.width, pdfHeight / canvas.height);
+					const imgWidth = canvas.width * ratio;
+					const imgHeight = canvas.height * ratio;
+					const x = (pdfWidth - imgWidth) / 2;
+					const y = (pdfHeight - imgHeight) / 2;
+
+					pdf.addImage(canvas.toDataURL('image/png'), 'PNG', x, y, imgWidth, imgHeight);
+					pdf.save(`${descriptor.fileBase}-${getExportDateStamp()}.pdf`);
+					showToast('PDF saved successfully', 3000, 'success');
+				});
+			} catch (error) {
+				console.error('PDF generation error:', error);
+				showToast('Failed to generate PDF', 3000, 'error');
+			}
+		}
+
+		async function handlePrint() {
+			try {
+				const isMobile = window.innerWidth <= 768;
+				if (isMobile) {
+					const userChoice = confirm(
+						"Mobile Print Options:\n\n" +
+						"OK = Print the fitted A4 page\n" +
+						"Cancel = Share as image instead"
+					);
+
+					if (!userChoice) {
+						await handleShareScreenshot();
+						return;
+					}
+
+					showToast('Tip: rotate to landscape for the cleanest preview', 3500, 'info');
+				}
+
+				const descriptor = getCurrentExportDescriptor();
+				if (!descriptor) {
+					showToast('No printable content available.', 3000, 'warning');
+					return;
+				}
+
+				await runPreparedExport(descriptor, async () => {
+					await ensureFontsLoaded();
+					await waitForRender();
+					fitPreparedExportToSinglePage();
+					await waitForRender();
+					window.print();
+				});
+
+				showToast(isMobile ? 'Mobile print dialog opened' : 'Print dialog opened', 2000, 'info');
+			} catch (error) {
+				console.error('Print error:', error);
+				showToast('Print failed. Try sharing as image instead.', 3000, 'error');
+			}
+		}
+
+		async function handleShareSubstitutionPlan(day) {
+			try {
+				if (!await ensureHtml2CanvasReady('Image sharing is unavailable right now. Use Share Text Only.')) {
+					return;
+				}
+
+				const exportMarkup = buildSubstitutionPlanExportMarkup(day);
+				if (!exportMarkup) {
+					showToast('No assigned substitutions to share', 3000, 'warning');
+					return;
+				}
+
+				const descriptor = {
+					title: `Substitution Plan - ${day}`,
+					content: exportMarkup,
+					fileBase: `substitution-plan-${slugifyFilePart(day)}`,
+					singlePage: true,
+					orientation: 'landscape'
+				};
+
+				await runPreparedExport(descriptor, async captureElement => {
+					const canvas = await capturePreparedExportCanvas(captureElement);
+					const blob = await canvasToBlob(canvas);
+					const fileName = `${descriptor.fileBase}-${getExportDateStamp()}.png`;
+					const file = new File([blob], fileName, { type: 'image/png' });
+					const shareText = buildSubstitutionPlanShareText(day);
+
+					let shared = false;
+					if (navigator.share) {
+						try {
+							const canShare = navigator.canShare ? navigator.canShare({ files: [file] }) : true;
+							if (canShare) {
+								await navigator.share({
+									files: [file],
+									title: descriptor.title,
+									text: shareText
+								});
+								shared = true;
+							}
+						} catch (error) {
+							if (error.name === 'AbortError') {
+								return;
+							}
+
+							console.warn('File share failed, falling back to download.', error);
+						}
+					}
+
+					if (shared) {
+						showToast('Substitution plan image shared successfully', 3000, 'success');
+						return;
+					}
+
+					downloadImage(blob, fileName);
+					showToast('Substitution plan image downloaded successfully', 3200, 'success');
+				});
+			} catch (error) {
+				console.error('Error in handleShareSubstitutionPlan:', error);
+				showToast('Failed to share substitution plan image', 3000, 'error');
+			}
+		}
+
+		async function handlePrintSubstitutionPlan(day) {
+			try {
+				const exportMarkup = buildSubstitutionPlanExportMarkup(day);
+				if (!exportMarkup) {
+					showToast('No assigned substitutions to print for this day', 3200, 'warning');
+					return;
+				}
+
+				const descriptor = {
+					title: `Substitution Plan - ${day}`,
+					content: exportMarkup,
+					fileBase: `substitution-plan-${slugifyFilePart(day)}`,
+					singlePage: true,
+					orientation: 'landscape'
+				};
+
+				await runPreparedExport(descriptor, async () => {
+					await ensureFontsLoaded();
+					await waitForRender();
+					fitPreparedExportToSinglePage();
+					await waitForRender();
+					window.print();
+				});
 			} catch (error) {
 				console.error('Error printing substitution plan:', error);
 				showToast('Failed to print substitution plan', 3000, 'error');
