@@ -1586,6 +1586,31 @@
 			margin-top: 0;
 		}
 
+		.substitution-toolbar {
+			display: grid;
+			gap: 0.85rem;
+		}
+
+		.substitution-toolbar-top {
+			display: flex;
+			flex-wrap: wrap;
+			align-items: flex-start;
+			justify-content: space-between;
+			gap: 0.85rem;
+		}
+
+		.substitution-toolbar-copy {
+			display: grid;
+			gap: 0.3rem;
+			flex: 1 1 18rem;
+		}
+
+		.substitution-toolbar-actions {
+			display: grid;
+			gap: 0.65rem;
+			width: min(100%, 22rem);
+		}
+
 		.substitution-step-grid {
 			display: grid;
 			gap: 0.75rem;
@@ -1872,6 +1897,71 @@
 		.substitution-plan-shell {
 			display: grid;
 			gap: 1rem;
+		}
+
+		.substitution-plan-table {
+			margin-top: 0;
+		}
+
+		.substitution-plan-table th,
+		.substitution-plan-table td {
+			text-align: left;
+			vertical-align: middle;
+		}
+
+		.substitution-plan-row--covered {
+			background: rgba(236, 253, 245, 0.55);
+		}
+
+		.substitution-plan-row--open {
+			background: rgba(255, 251, 235, 0.7);
+		}
+
+		.substitution-plan-row--focused {
+			animation: substitution-slot-focus 1.8s ease;
+		}
+
+		.substitution-table-substitute {
+			display: grid;
+			gap: 0.2rem;
+		}
+
+		.substitution-table-substitute strong {
+			color: var(--gray-900);
+		}
+
+		.substitution-table-substitute small {
+			color: var(--gray-600);
+			line-height: 1.4;
+		}
+
+		.substitution-table-status {
+			display: inline-flex;
+			align-items: center;
+			justify-content: center;
+			width: fit-content;
+			padding: 0.3rem 0.55rem;
+			border-radius: 999px;
+			font-size: 0.7rem;
+			font-weight: 800;
+			letter-spacing: 0.04em;
+			text-transform: uppercase;
+		}
+
+		.substitution-table-status--covered {
+			background: rgba(16, 185, 129, 0.14);
+			color: var(--green-800);
+		}
+
+		.substitution-table-status--open {
+			background: rgba(245, 158, 11, 0.16);
+			color: var(--yellow-800);
+		}
+
+		.substitution-table-actions {
+			display: grid;
+			gap: 0.5rem;
+			min-width: 10rem;
 		}
 
 		.substitution-plan-grid {
@@ -2265,6 +2355,18 @@
 			}
 		}
 
+		@keyframes substitution-slot-focus {
+			0% {
+				box-shadow: inset 0 0 0 0 rgba(37, 99, 235, 0.28);
+			}
+			35% {
+				box-shadow: inset 0 0 0 999px rgba(37, 99, 235, 0.14);
+			}
+			100% {
+				box-shadow: inset 0 0 0 0 rgba(37, 99, 235, 0);
+			}
+		}
+
 		@media (min-width: 640px) {
 			#main-nav {
 				grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -2305,6 +2407,11 @@
 			.substitution-layout {
 				grid-template-columns: minmax(320px, 0.95fr) minmax(0, 1.15fr);
 				align-items: start;
+			}
+
+			.substitution-toolbar-actions {
+				grid-template-columns: repeat(3, minmax(0, 1fr));
+				width: auto;
 			}
 
 			.substitution-hero-actions {
@@ -2771,6 +2878,7 @@
 				grid-template-columns: 1fr;
 			}
 
+			.substitution-toolbar-actions .button,
 			.substitution-hero-actions .button,
 			.substitution-plan-actions .button,
 			.substitution-clear-btn {
@@ -3309,6 +3417,14 @@
 		border-color: rgba(148, 163, 184, 0.2);
 	}
 
+	[data-theme="dark"] .substitution-plan-row--covered {
+		background: rgba(6, 95, 70, 0.22);
+	}
+
+	[data-theme="dark"] .substitution-plan-row--open {
+		background: rgba(146, 64, 14, 0.22);
+	}
+
 	[data-theme="dark"] .substitution-plan-recommendation--empty {
 		background: rgba(30, 41, 59, 0.7);
 	}
@@ -3366,10 +3482,28 @@
 		color: #fde68a;
 	}
 
+	[data-theme="dark"] .substitution-table-status--covered {
+		background: rgba(16, 185, 129, 0.2);
+		color: #d1fae5;
+	}
+
+	[data-theme="dark"] .substitution-table-status--open {
+		background: rgba(245, 158, 11, 0.2);
+		color: #fde68a;
+	}
+
 	[data-theme="dark"] .substitution-search input {
 		background: rgba(15, 23, 42, 0.88);
 		color: var(--text);
 		border-color: rgba(148, 163, 184, 0.24);
+	}
+
+	[data-theme="dark"] .substitution-table-substitute strong {
+		color: var(--text);
+	}
+
+	[data-theme="dark"] .substitution-table-substitute small {
+		color: var(--text-secondary);
 	}
 	</style>
 </head>
@@ -3430,7 +3564,7 @@
 		</div>
 
 		<!-- Color Legend Container -->
-		<div id="color-legend-container" class="no-print"></div>
+		<div id="color-legend-container" class="no-print" hidden></div>
 
 		<main id="main-content" class="main-content"></main>
 
@@ -6592,7 +6726,7 @@
 
 				closeSubstitutionAssignmentSheet();
 				renderSubstitutionView(day, absentTeachers);
-				requestAnimationFrame(() => focusSubstitutionShareActions());
+				requestAnimationFrame(() => focusSubstitutionPlanRow(day, className, periodIndex));
 				showToast(`Assigned ${teacher} to ${className}.`, 2600, 'success');
 			} catch (error) {
 				console.error('Error applying substitution assignment:', error);
@@ -7050,12 +7184,13 @@
 					return a.localeCompare(b);
 				});
 			const visibleSearchResults = normalizedQuery ? filteredTeacherNames.slice(0, 6) : [];
-			const openEntries = planEntries.filter(entry => !entry.substitute);
 			const heroMessage = selectedAbsentTeachers.length === 0
-				? 'Search a teacher, tap the name, then assign or share.'
-				: openEntries.length > 0
-					? `${openEntries.length} open slots are ready for quick assignment.`
-					: 'Everything is ready. Share the plan when you are done.';
+				? 'Add absent teachers, then use Auto Assign or choose substitutes directly from the table.'
+				: planEntries.length === 0
+					? 'The selected teachers do not have scheduled classes on this day.'
+					: overview.uncoveredCount > 0
+						? `${overview.uncoveredCount} slot${overview.uncoveredCount === 1 ? '' : 's'} still need attention.`
+						: 'Every visible slot is assigned and ready to share.';
 
 			const dayTabsHtml = days.map(d => `
 				<button class="day-tab ${d === selectedDay ? 'active' : ''}" role="tab" aria-selected="${d === selectedDay}" data-day="${d}" onclick="renderSubstitutionView('${d}')">
@@ -7067,120 +7202,125 @@
 				? selectedAbsentTeachers.map(teacher => `
 					<button type="button" class="substitution-selected-chip" onclick='removeAbsentTeacherFromSelection(${JSON.stringify(selectedDay)}, ${JSON.stringify(teacher)})'>
 						<i data-lucide="user-minus"></i>
-						<span>${teacher}</span>
+						<span>${escapeHtml(teacher)}</span>
 						<i data-lucide="x"></i>
 					</button>
 				`).join('')
 				: `
-					<span class="substitution-selected-empty">No absent teachers selected yet.</span>
+					<span class="substitution-selected-empty">No absent teachers selected.</span>
 				`;
 
-			const searchResultsHtml = visibleSearchResults.length > 0
-				? `
-					<div class="substitution-search-results">
-						${visibleSearchResults.map(teacher => {
-							const isSelected = selectedAbsentTeachers.includes(teacher);
-							const dayLoad = getTeacherLoadForDay(teacher, selectedDay);
-							const availabilityWindow = getTeacherAvailabilityWindowLabel(teacher);
+			const searchResultsHtml = normalizedQuery
+				? visibleSearchResults.length > 0
+					? `
+						<div class="substitution-search-results">
+							${visibleSearchResults.map(teacher => {
+								const isSelected = selectedAbsentTeachers.includes(teacher);
+								const dayLoad = getTeacherLoadForDay(teacher, selectedDay);
+								const availabilityWindow = getTeacherAvailabilityWindowLabel(teacher);
 
-							return `
-								<button type="button" class="substitution-teacher-suggestion ${isSelected ? 'substitution-teacher-suggestion--selected' : ''}" onclick='toggleAbsentTeacherSelection(${JSON.stringify(selectedDay)}, ${JSON.stringify(teacher)})'>
-									<div class="substitution-teacher-suggestion-copy">
-										<strong>${teacher}</strong>
-										<p>${dayLoad ? `${dayLoad} periods on ${selectedDay}` : `No periods on ${selectedDay}`}</p>
-									</div>
-									<span class="substitution-mini-pill ${isSelected ? 'substitution-mini-pill--active' : ''}">
-										${isSelected ? 'Selected' : (availabilityWindow || 'Tap to add')}
-									</span>
-								</button>
-							`;
-						}).join('')}
-					</div>
-				`
-				: `
-					<div class="substitution-search-empty">
-						${normalizedQuery ? 'No teacher matches this search.' : 'Teacher search stays here so you can add absences without scrolling through the full list.'}
-					</div>
-				`;
-
-			const openSlotChipsHtml = openEntries.length > 0
-				? `
-					<div class="substitution-open-strip">
-						${openEntries.map(entry => `
-							<button type="button" class="substitution-open-chip" onclick='openSubstitutionAssignmentSheet(${JSON.stringify(selectedDay)}, ${JSON.stringify(entry.className)}, ${entry.periodIndex})'>
-								<strong>${entry.periodName}</strong>
-								<span>${entry.className}</span>
-							</button>
-						`).join('')}
-					</div>
-				`
+								return `
+									<button type="button" class="substitution-teacher-suggestion ${isSelected ? 'substitution-teacher-suggestion--selected' : ''}" onclick='toggleAbsentTeacherSelection(${JSON.stringify(selectedDay)}, ${JSON.stringify(teacher)})'>
+										<div class="substitution-teacher-suggestion-copy">
+											<strong>${escapeHtml(teacher)}</strong>
+											<p>${escapeHtml(dayLoad ? `${dayLoad} periods on ${selectedDay}` : `No periods on ${selectedDay}`)}</p>
+										</div>
+										<span class="substitution-mini-pill ${isSelected ? 'substitution-mini-pill--active' : ''}">
+											${escapeHtml(isSelected ? 'Selected' : (availabilityWindow || 'Tap to add'))}
+										</span>
+									</button>
+								`;
+							}).join('')}
+						</div>
+					`
+					: `
+						<div class="substitution-search-empty">No teacher matches this search.</div>
+					`
 				: '';
 
-			const planCardsHtml = planEntries.length > 0
-				? planEntries.map(entry => {
-					const isCovered = Boolean(entry.substitute);
-					const statusLabel = isCovered ? 'Assigned' : 'Open';
-					const statusIcon = isCovered ? 'badge-check' : 'alert-triangle';
-					const topCandidate = getRecommendedSubstitutionCandidates(selectedDay, entry, selectedAbsentTeachers, 1)[0] || null;
-					const quickAssignButton = topCandidate && (!isCovered || topCandidate.teacher !== entry.substitute)
-						? `
-							<button class="button button-primary substitution-inline-button" onclick='handleQuickAssignSuggestion(${JSON.stringify(selectedDay)}, ${JSON.stringify(entry.className)}, ${entry.periodIndex})'>
-								<i data-lucide="sparkles"></i>
-								${isCovered ? `Use ${topCandidate.teacher}` : `Assign ${topCandidate.teacher}`}
-							</button>
-						`
-						: '';
+			const planTableHtml = planEntries.length > 0
+				? `
+					<div class="table-container substitution-plan-table">
+						<table>
+							<thead>
+								<tr>
+									<th>Slot</th>
+									<th>Class</th>
+									<th>Subject</th>
+									<th>Absent</th>
+									<th>Substitute</th>
+									<th>Action</th>
+								</tr>
+							</thead>
+							<tbody>
+								${planEntries.map(entry => {
+									const isCovered = Boolean(entry.substitute);
+									const topCandidate = getRecommendedSubstitutionCandidates(selectedDay, entry, selectedAbsentTeachers, 1)[0] || null;
+									const slotKey = encodeURIComponent(`${selectedDay}|${entry.className}|${entry.periodIndex}`);
+									const suggestionText = topCandidate
+										? `Best free: ${topCandidate.teacher}`
+										: 'No free teacher available';
+									const quickAssignButton = topCandidate && (!isCovered || topCandidate.teacher !== entry.substitute)
+										? `
+											<button class="button button-primary substitution-inline-button" onclick='handleQuickAssignSuggestion(${JSON.stringify(selectedDay)}, ${JSON.stringify(entry.className)}, ${entry.periodIndex})' title="${escapeHtml(topCandidate.reason)}">
+												<i data-lucide="sparkles"></i>
+												Use ${escapeHtml(topCandidate.teacher)}
+											</button>
+										`
+										: '';
 
-					return `
-						<article class="substitution-plan-card substitution-plan-card--${isCovered ? 'covered' : 'open'}">
-							<div class="substitution-plan-top">
-								<div class="substitution-plan-slot-block">
-									<span class="substitution-plan-slot">${entry.periodName}</span>
-									<small>${entry.periodTime || 'Time not available'}</small>
-								</div>
-								<span class="substitution-plan-status substitution-plan-status--${isCovered ? 'covered' : 'open'}">
-									<i data-lucide="${statusIcon}"></i>
-									${statusLabel}
-								</span>
-							</div>
-							<div class="substitution-plan-copy">
-								<strong>${entry.className}</strong>
-								<p>${entry.subject}</p>
-							</div>
-							<div class="substitution-plan-detail-strip">
-								<span class="substitution-mini-pill substitution-mini-pill--soft">Absent: ${entry.originalTeacher}</span>
-								<span class="substitution-mini-pill ${isCovered ? 'substitution-mini-pill--active' : ''}">${isCovered ? `Sub: ${entry.substitute}` : 'Sub: Not assigned'}</span>
-								${topCandidate ? `<span class="substitution-mini-pill">AI: ${topCandidate.teacher}</span>` : ''}
-							</div>
-							<p class="substitution-plan-note">${topCandidate ? topCandidate.reason : 'No free teacher is currently available for this slot.'}</p>
-							<div class="substitution-plan-card-actions">
-								${quickAssignButton}
-								<button class="button button-secondary substitution-inline-button" onclick='openSubstitutionAssignmentSheet(${JSON.stringify(selectedDay)}, ${JSON.stringify(entry.className)}, ${entry.periodIndex})'>
-									<i data-lucide="user-cog"></i>
-									${isCovered ? 'Change' : 'Choose'}
-								</button>
-							</div>
-						</article>
-					`;
-				}).join('')
+									return `
+										<tr class="substitution-plan-row substitution-plan-row--${isCovered ? 'covered' : 'open'}" data-plan-key="${slotKey}">
+											<td>
+												<div class="substitution-plan-slot-block">
+													<span class="substitution-plan-slot">${escapeHtml(entry.periodName)}</span>
+													<small>${escapeHtml(entry.periodTime || 'Time not available')}</small>
+												</div>
+											</td>
+											<td><strong>${escapeHtml(entry.className)}</strong></td>
+											<td>${escapeHtml(entry.subject || '--')}</td>
+											<td>${escapeHtml(entry.originalTeacher || '--')}</td>
+											<td>
+												<div class="substitution-table-substitute">
+													<span class="substitution-table-status substitution-table-status--${isCovered ? 'covered' : 'open'}">${escapeHtml(isCovered ? 'Assigned' : 'Open')}</span>
+													<strong>${escapeHtml(entry.substitute || 'Not assigned')}</strong>
+													<small>${escapeHtml(isCovered ? 'Tap change if needed.' : suggestionText)}</small>
+												</div>
+											</td>
+											<td>
+												<div class="substitution-table-actions">
+													${quickAssignButton}
+													<button class="button button-secondary substitution-inline-button" onclick='openSubstitutionAssignmentSheet(${JSON.stringify(selectedDay)}, ${JSON.stringify(entry.className)}, ${entry.periodIndex})'>
+														<i data-lucide="user-cog"></i>
+														${isCovered ? 'Change' : 'Choose'}
+													</button>
+												</div>
+											</td>
+										</tr>
+									`;
+								}).join('')}
+							</tbody>
+						</table>
+					</div>
+				`
 				: `
 					<div class="substitution-empty">
 						<i data-lucide="clipboard-list"></i>
 						<strong>No affected classes yet</strong>
-						<p>Select absent teachers to preview affected periods.</p>
+						<p>Add absent teachers to build the coverage table.</p>
 					</div>
 				`;
 
 			const planActionsHtml = planEntries.length > 0 && overview.coveredCount > 0
 				? `
-					<div class="substitution-plan-actions substitution-plan-actions--sticky">
+					<div class="substitution-plan-actions">
 						<button onclick='handleQuickShareSubstitutionPlan(${JSON.stringify(selectedDay)})' class="button button-whatsapp">
 							<i data-lucide="share-2"></i>
 							Share Image
 						</button>
 						<button onclick='handleShareSubstitutionPlanText(${JSON.stringify(selectedDay)})' class="button button-secondary">
 							<i data-lucide="clipboard"></i>
-							Share Text Only
+							Share Table
 						</button>
 						<button onclick='handlePrintSubstitutionPlan(${JSON.stringify(selectedDay)})' class="button button-secondary">
 							<i data-lucide="printer"></i>
@@ -7190,45 +7330,8 @@
 				`
 				: '';
 
-			const mobileSummaryTitle = selectedAbsentTeachers.length === 0
-				? 'Start with teacher search'
-				: overview.coveredCount > 0
-					? `${overview.coveredCount} slots ready for ${selectedDay}`
-					: `${planEntries.length} slots waiting for assignment`;
-			const mobileSummaryText = selectedAbsentTeachers.length === 0
-				? 'Search a teacher name above.'
-				: planEntries.length === 0
-					? 'The selected teachers have no classes to cover on this day.'
-					: overview.uncoveredCount > 0
-						? `${overview.uncoveredCount} slots still need attention.`
-						: 'Everything is assigned. Share the plan from here.';
-			const mobileBarHtml = selectedAbsentTeachers.length > 0
-				? `
-					<div class="substitution-mobile-bar no-print">
-						<div class="substitution-mobile-summary">
-							<strong>${mobileSummaryTitle}</strong>
-							<p>${mobileSummaryText}</p>
-						</div>
-						<div class="substitution-mobile-actions">
-							<button class="button button-primary" onclick='handlePrimarySubstitutionAction(${JSON.stringify(selectedDay)})' ${selectedAbsentTeachers.length === 0 ? 'disabled' : ''}>
-								<i data-lucide="wand-2"></i>
-								Assign
-							</button>
-							<button class="button button-whatsapp" onclick='handleQuickShareSubstitutionPlan(${JSON.stringify(selectedDay)})' ${planEntries.length === 0 ? 'disabled' : ''}>
-								<i data-lucide="share-2"></i>
-								Image
-							</button>
-							<button class="button button-secondary" onclick='handleShareSubstitutionPlanText(${JSON.stringify(selectedDay)})' ${planEntries.length === 0 ? 'disabled' : ''}>
-								<i data-lucide="clipboard"></i>
-								Text
-							</button>
-						</div>
-					</div>
-				`
-				: '';
-
 			const html = `
-				<div class="substitution-shell ${selectedAbsentTeachers.length > 0 ? 'substitution-shell--with-mobile-bar' : ''}">
+				<div class="substitution-shell">
 					<section class="card hero-panel substitution-hero">
 						<div class="dashboard-status-row">
 							<div class="dashboard-live-pill dashboard-live-pill--${overview.mode}">
@@ -7240,106 +7343,83 @@
 								${currentTimeLabel}
 							</span>
 						</div>
-						<div class="section-kicker">Substitution Desk</div>
-						<h2 class="dashboard-hero-title">${overview.headline}</h2>
-						<p class="section-subtitle dashboard-hero-copy">${heroMessage}</p>
-						<div class="day-tabs substitution-day-tabs" role="tablist" aria-label="Select substitution day">
-							${dayTabsHtml}
-						</div>
-						<div class="metric-strip substitution-metric-strip">
-							<div class="metric-chip">
-								<span>Absent Staff</span>
-								<strong>${selectedAbsentTeachers.length}</strong>
-							</div>
-							<div class="metric-chip">
-								<span>Classes Affected</span>
-								<strong>${overview.affectedClasses}</strong>
-							</div>
-							<div class="metric-chip">
-								<span>Open Slots</span>
-								<strong>${overview.uncoveredCount}</strong>
-							</div>
-							<div class="metric-chip">
-								<span>Covered</span>
-								<strong>${overview.coveredCount}</strong>
-							</div>
-						</div>
-						<div class="substitution-hero-actions">
-							<button id="generate-plan-btn" class="button button-primary" ${selectedAbsentTeachers.length === 0 ? 'disabled' : ''}>
-								<i data-lucide="wand-2"></i>
-								Assign
-							</button>
-							<button class="button button-secondary" onclick='openAbsentTeacherPicker(${JSON.stringify(selectedDay)})'>
-								<i data-lucide="users"></i>
-								Browse Teachers
-							</button>
-						</div>
-					</section>
-
-					<div class="substitution-layout">
-						<section class="card substitution-selector-panel substitution-selector-panel--compact">
-							<div class="substitution-search-toolbar">
-								<div class="substitution-search-toolbar-top">
-									<div>
-										<div class="section-kicker">Teacher Search</div>
-										<h2 class="section-title">Find absent teacher fast</h2>
-									</div>
+						<div class="substitution-toolbar">
+							<div class="substitution-toolbar-top">
+								<div class="substitution-toolbar-copy">
+									<h2 class="dashboard-hero-title">${escapeHtml(overview.headline)}</h2>
+									<p class="section-subtitle dashboard-hero-copy">${escapeHtml(heroMessage)}</p>
+								</div>
+								<div class="substitution-toolbar-actions">
+									<button id="generate-plan-btn" class="button button-primary" ${selectedAbsentTeachers.length === 0 ? 'disabled' : ''}>
+										<i data-lucide="wand-2"></i>
+										Auto Assign
+									</button>
+									<button class="button button-secondary" onclick='openAbsentTeacherPicker(${JSON.stringify(selectedDay)})'>
+										<i data-lucide="users"></i>
+										Browse Teachers
+									</button>
 									<button class="button button-secondary substitution-clear-btn" onclick="clearSubstitutionTeacherSelection()" ${selectedAbsentTeachers.length === 0 ? 'disabled' : ''}>
 										<i data-lucide="x"></i>
 										Clear
 									</button>
 								</div>
-								<div class="substitution-search substitution-search--prominent">
-									<i data-lucide="search"></i>
-									<input type="search" id="substitution-teacher-search" value="${searchValue}" placeholder="Search teacher name" oninput="handleSubstitutionTeacherSearch(this.value)">
-								</div>
-								<div class="substitution-search-actions">
-									<button class="button button-secondary" onclick='openAbsentTeacherPicker(${JSON.stringify(selectedDay)})'>
-										<i data-lucide="users"></i>
-										Browse All
-									</button>
-									${normalizedQuery ? `
-										<button class="button button-secondary" onclick="handleSubstitutionTeacherSearch('')">
-											<i data-lucide="rotate-ccw"></i>
-											Clear Search
-										</button>
-									` : ''}
-								</div>
-								<div class="substitution-selected-panel">
-									<div class="section-kicker">Selected Teachers</div>
-									<div class="substitution-selected-list">
-										${selectedTeacherChips}
-									</div>
-								</div>
-								${searchResultsHtml}
 							</div>
-						</section>
+							<div class="day-tabs substitution-day-tabs" role="tablist" aria-label="Select substitution day">
+								${dayTabsHtml}
+							</div>
+							<div class="metric-strip substitution-metric-strip">
+								<div class="metric-chip">
+									<span>Absent</span>
+									<strong>${selectedAbsentTeachers.length}</strong>
+								</div>
+								<div class="metric-chip">
+									<span>Open</span>
+									<strong>${overview.uncoveredCount}</strong>
+								</div>
+								<div class="metric-chip">
+									<span>Covered</span>
+									<strong>${overview.coveredCount}</strong>
+								</div>
+							</div>
+							<div class="substitution-search substitution-search--prominent">
+								<i data-lucide="search"></i>
+								<input type="search" id="substitution-teacher-search" value="${searchValue}" placeholder="Search teacher name" oninput="handleSubstitutionTeacherSearch(this.value)">
+							</div>
+							<div class="substitution-selected-panel">
+								<div class="substitution-selected-list">
+									${selectedTeacherChips}
+								</div>
+							</div>
+							${searchResultsHtml}
+						</div>
+					</section>
 
-						<section class="card substitution-plan-panel">
-							<div class="view-header">
-								<div>
-									<div class="section-kicker">Coverage Plan</div>
-									<h2 class="section-title">${planEntries.length > 0 ? 'Tap an open slot or scroll the compact list' : 'Plan preview appears here'}</h2>
-								</div>
-								${planEntries.length > 0 ? `<span class="finder-pill finder-pill--accent">${overview.uncoveredCount > 0 ? `${overview.uncoveredCount} open` : 'Ready to share'}</span>` : ''}
+					<section class="card substitution-plan-panel" id="substitution-plan-panel">
+						<div class="view-header">
+							<div>
+								<h2 class="section-title">Coverage Plan</h2>
+								<p class="section-subtitle">${planEntries.length > 0
+									? (overview.uncoveredCount > 0
+										? 'Use Quick for the best available teacher, or open a row to choose manually.'
+										: 'All current slots are assigned and ready to share.')
+									: 'The coverage table appears here after you add absent teachers.'}</p>
 							</div>
-							${planActionsHtml}
-							${openSlotChipsHtml}
-							<div id="substitution-plan-content" class="substitution-plan-shell">
-								<div id="plan-container" class="substitution-plan-grid">
-									${planCardsHtml}
-								</div>
-								${hasAnySavedPlan ? `
-									<button id="reset-plan-btn" class="button button-danger">
-										<i data-lucide="rotate-ccw"></i>
-										Reset ${selectedDay} Plan
-									</button>
-								` : ''}
+							${planEntries.length > 0 ? `<span class="finder-pill finder-pill--accent">${overview.uncoveredCount > 0 ? `${overview.uncoveredCount} open` : 'Ready to share'}</span>` : ''}
+						</div>
+						${planActionsHtml}
+						<div id="substitution-plan-content" class="substitution-plan-shell">
+							<div id="plan-container">
+								${planTableHtml}
 							</div>
-						</section>
-					</div>
+							${hasAnySavedPlan ? `
+								<button id="reset-plan-btn" class="button button-danger">
+									<i data-lucide="rotate-ccw"></i>
+									Reset ${selectedDay} Plan
+								</button>
+							` : ''}
+						</div>
+					</section>
 				</div>
-				${mobileBarHtml}
 			`;
 
 			mainContent.innerHTML = html;
@@ -7347,11 +7427,26 @@
 			lucide.createIcons();
 		}
 
-		function focusSubstitutionShareActions() {
-			const actions = document.querySelector('.substitution-plan-actions--sticky');
-			if (!actions) return;
+		function focusSubstitutionPlanRow(day, className = '', periodIndex = -1) {
+			const planPanel = document.getElementById('substitution-plan-panel');
+			const planKey = className ? encodeURIComponent(`${day}|${className}|${periodIndex}`) : '';
+			const targetRow = planKey ? document.querySelector(`[data-plan-key="${planKey}"]`) : null;
+			const target = targetRow || planPanel;
 
-			actions.scrollIntoView({ block: 'nearest', inline: 'nearest', behavior: 'smooth' });
+			if (!target) return;
+
+			if (targetRow) {
+				targetRow.classList.add('substitution-plan-row--focused');
+				setTimeout(() => {
+					targetRow.classList.remove('substitution-plan-row--focused');
+				}, 1800);
+			}
+
+			target.scrollIntoView({
+				block: targetRow ? 'center' : 'start',
+				inline: 'nearest',
+				behavior: 'smooth'
+			});
 		}
 
 		// --- EVENT HANDLERS & LOGIC ---
@@ -8163,6 +8258,9 @@
 					showToast('Substitution plan generated successfully', 3000, 'success');
 				}
 				renderSubstitutionView(day, absentTeachers);
+				if (!silent) {
+					requestAnimationFrame(() => focusSubstitutionPlanRow(day));
+				}
 			} catch (error) {
 				console.error('Error generating substitution plan:', error);
 				if (!options?.silent) {
@@ -8217,39 +8315,31 @@
 		}
 
 		function buildSubstitutionPlanShareText(day) {
-			const slots = getSortedSubstitutionShareEntries(day);
+			const slots = getSortedSubstitutionShareEntries(day)
+				.filter(slot => slot.substitute);
 
 			if (slots.length === 0) {
 				return '';
 			}
 
-			const generatedAt = new Date();
 			const lines = [
-				`Substitution Plan - ${day}`,
-				'Veer Patta Public School',
-				`Date: ${generatedAt.toLocaleDateString('en-GB')}`,
-				`Generated: ${generatedAt.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true })}`,
-				'',
-				'Please follow these class substitutions:',
-				''
+				`${day} substitutions`,
+				'Period | Class | Substitute'
 			];
 
-			slots.forEach((slot, index) => {
-				const timeLabel = slot.periodTime || '--';
-				const substituteLabel = slot.substitute || 'Not assigned yet';
-				lines.push(`${index + 1}. ${slot.periodName} (${timeLabel}) - ${slot.className}`);
-				lines.push(`   Absent: ${slot.originalTeacher || '--'}`);
-				lines.push(`   Subject: ${slot.subject || '--'}`);
-				lines.push(`   Substitute: ${substituteLabel}`);
-				lines.push('');
+			slots.forEach(slot => {
+				const compactPeriod = (slot.periodName || '--').replace(/^Period\s+/i, 'P');
+				const compactClass = (slot.className || '--').replace(/^Class\s+/i, '');
+				lines.push(`${compactPeriod} | ${compactClass} | ${slot.substitute}`);
 			});
 
-			return lines.join('\n').trim();
+			return lines.join('\n');
 		}
 
 		function buildSubstitutionPlanExportMarkup(day) {
 			const absentTeachers = getSavedAbsentTeachers(day);
-			const slots = getSortedSubstitutionShareEntries(day);
+			const slots = getSortedSubstitutionShareEntries(day)
+				.filter(slot => slot.substitute);
 			const overview = getSubstitutionOverview(day, absentTeachers, slots);
 
 			if (slots.length === 0) {
@@ -8260,44 +8350,27 @@
 			const rows = slots.map(slot => `
 				<tr>
 					<td style="padding: 0.85rem 0.75rem; border-bottom: 1px solid #e5e7eb; font-weight: 700;">${escapeHtml(slot.periodName)}</td>
-					<td style="padding: 0.85rem 0.75rem; border-bottom: 1px solid #e5e7eb; color: #6b7280;">${escapeHtml(slot.periodTime || '--')}</td>
 					<td style="padding: 0.85rem 0.75rem; border-bottom: 1px solid #e5e7eb;">${escapeHtml(slot.className)}</td>
 					<td style="padding: 0.85rem 0.75rem; border-bottom: 1px solid #e5e7eb;">${escapeHtml(slot.subject)}</td>
 					<td style="padding: 0.85rem 0.75rem; border-bottom: 1px solid #e5e7eb; color: #b91c1c; font-weight: 700;">${escapeHtml(slot.originalTeacher || '--')}</td>
-					<td style="padding: 0.85rem 0.75rem; border-bottom: 1px solid #e5e7eb; color: ${slot.substitute ? '#065f46' : '#92400e'}; font-weight: 800;">${escapeHtml(slot.substitute || 'Not assigned')}</td>
+					<td style="padding: 0.85rem 0.75rem; border-bottom: 1px solid #e5e7eb; color: #065f46; font-weight: 800;">${escapeHtml(slot.substitute)}</td>
 				</tr>
 			`).join('');
 
 			return `
-				<div style="font-family: Inter, system-ui, sans-serif; color: #111827; background: #ffffff;">
-					<div style="text-align: center; margin-bottom: 1.75rem; border-bottom: 2px solid #2563eb; padding-bottom: 1rem;">
+				<div style="font-family: Inter, system-ui, sans-serif; color: #111827; background: #ffffff; padding: 0.5rem 0;">
+					<div style="text-align: center; margin-bottom: 1.25rem; border-bottom: 2px solid #2563eb; padding-bottom: 0.9rem;">
 						<h1 style="color: #2563eb; font-size: 1.6rem; margin: 0;">Veer Patta Public School</h1>
 						<p style="color: #374151; font-size: 1rem; margin: 0.55rem 0 0;">Substitution Plan - ${escapeHtml(day)}</p>
-						<small style="color: #6b7280;">Generated on ${generatedDate.toLocaleDateString('en-GB')} at ${generatedDate.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true })}</small>
+						<small style="color: #6b7280;">Assigned slots only | ${slots.length} substitutions | Generated on ${generatedDate.toLocaleDateString('en-GB')} at ${generatedDate.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true })}</small>
 					</div>
-					<div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0.75rem; margin-bottom: 1.25rem;">
-						<div style="padding: 0.9rem; border-radius: 0.75rem; border: 1px solid #dbeafe; background: #eff6ff;">
-							<div style="font-size: 0.75rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: #1d4ed8;">Absent Staff</div>
-							<div style="font-size: 1.3rem; font-weight: 800; color: #111827;">${absentTeachers.length}</div>
-						</div>
-						<div style="padding: 0.9rem; border-radius: 0.75rem; border: 1px solid #dbeafe; background: #eff6ff;">
-							<div style="font-size: 0.75rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: #1d4ed8;">Classes Affected</div>
-							<div style="font-size: 1.3rem; font-weight: 800; color: #111827;">${overview.affectedClasses}</div>
-						</div>
-						<div style="padding: 0.9rem; border-radius: 0.75rem; border: 1px solid #dbeafe; background: #eff6ff;">
-							<div style="font-size: 0.75rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: #1d4ed8;">Covered</div>
-							<div style="font-size: 1.3rem; font-weight: 800; color: #111827;">${overview.coveredCount}</div>
-						</div>
-						<div style="padding: 0.9rem; border-radius: 0.75rem; border: 1px solid #dbeafe; background: #eff6ff;">
-							<div style="font-size: 0.75rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: #1d4ed8;">Need Review</div>
-							<div style="font-size: 1.3rem; font-weight: 800; color: #111827;">${overview.uncoveredCount}</div>
-						</div>
+					<div style="margin-bottom: 1rem; color: #4b5563; font-size: 0.9rem; text-align: center;">
+						${absentTeachers.length} absent teacher${absentTeachers.length === 1 ? '' : 's'} | ${overview.affectedClasses} class${overview.affectedClasses === 1 ? '' : 'es'} covered
 					</div>
 					<table style="width: 100%; border-collapse: collapse; border: 1px solid #e5e7eb; border-radius: 0.75rem; overflow: hidden;">
 						<thead>
 							<tr style="background: #eff6ff; color: #1e3a8a;">
 								<th style="padding: 0.85rem 0.75rem; text-align: left; font-size: 0.75rem; letter-spacing: 0.08em; text-transform: uppercase;">Period</th>
-								<th style="padding: 0.85rem 0.75rem; text-align: left; font-size: 0.75rem; letter-spacing: 0.08em; text-transform: uppercase;">Time</th>
 								<th style="padding: 0.85rem 0.75rem; text-align: left; font-size: 0.75rem; letter-spacing: 0.08em; text-transform: uppercase;">Class</th>
 								<th style="padding: 0.85rem 0.75rem; text-align: left; font-size: 0.75rem; letter-spacing: 0.08em; text-transform: uppercase;">Subject</th>
 								<th style="padding: 0.85rem 0.75rem; text-align: left; font-size: 0.75rem; letter-spacing: 0.08em; text-transform: uppercase;">Absent</th>
@@ -8315,7 +8388,7 @@
 
 			if (!text) {
 				if (!options.silent) {
-					showToast('No substitution plan to share', 3000, 'warning');
+					showToast('No assigned substitutions to share', 3000, 'warning');
 				}
 
 				return { ok: false };
@@ -8394,7 +8467,7 @@
 			try {
 				const exportMarkup = buildSubstitutionPlanExportMarkup(day);
 				if (!exportMarkup) {
-					showToast('No substitution plan image to share', 3000, 'warning');
+					showToast('No assigned substitutions to share', 3000, 'warning');
 					return;
 				}
 
