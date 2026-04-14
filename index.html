@@ -1651,6 +1651,86 @@
 			background: rgba(255, 255, 255, 0.9);
 		}
 
+		.substitution-search--prominent input {
+			min-height: 3.2rem;
+			font-size: 1rem;
+			font-weight: 600;
+			box-shadow: var(--shadow-sm);
+		}
+
+		.substitution-selector-panel--compact {
+			gap: 0.85rem;
+			position: sticky;
+			top: 5rem;
+			z-index: 20;
+		}
+
+		.substitution-search-toolbar {
+			display: grid;
+			gap: 0.85rem;
+		}
+
+		.substitution-search-toolbar-top,
+		.substitution-search-actions {
+			display: flex;
+			flex-wrap: wrap;
+			align-items: center;
+			justify-content: space-between;
+			gap: 0.65rem;
+		}
+
+		.substitution-search-actions .button {
+			flex: 1 1 0;
+		}
+
+		.substitution-search-results {
+			display: grid;
+			gap: 0.55rem;
+			max-height: 16rem;
+			overflow-y: auto;
+			padding-right: 0.1rem;
+		}
+
+		.substitution-search-empty {
+			padding: 0.7rem 0.1rem 0.1rem;
+			font-size: 0.84rem;
+			color: var(--gray-600);
+		}
+
+		.substitution-teacher-suggestion {
+			display: flex;
+			align-items: flex-start;
+			justify-content: space-between;
+			gap: 0.75rem;
+			width: 100%;
+			padding: 0.8rem 0.9rem;
+			border: 1px solid rgba(37, 99, 235, 0.12);
+			border-radius: var(--radius-lg);
+			background: linear-gradient(135deg, rgba(255, 255, 255, 0.96), rgba(248, 250, 252, 0.94));
+			cursor: pointer;
+			text-align: left;
+		}
+
+		.substitution-teacher-suggestion--selected {
+			border-color: rgba(16, 185, 129, 0.22);
+			background: linear-gradient(135deg, rgba(236, 253, 245, 0.9), rgba(255, 255, 255, 0.98));
+		}
+
+		.substitution-teacher-suggestion-copy {
+			display: grid;
+			gap: 0.18rem;
+		}
+
+		.substitution-teacher-suggestion-copy strong {
+			font-size: 0.94rem;
+			color: var(--gray-900);
+		}
+
+		.substitution-teacher-suggestion-copy p {
+			font-size: 0.8rem;
+			color: var(--gray-600);
+		}
+
 		.substitution-selected-panel {
 			display: grid;
 			gap: 0.6rem;
@@ -1875,6 +1955,48 @@
 
 		.substitution-plan-copy p {
 			font-size: 0.86rem;
+			color: var(--gray-600);
+		}
+
+		.substitution-plan-detail-strip {
+			display: flex;
+			flex-wrap: wrap;
+			gap: 0.45rem;
+		}
+
+		.substitution-plan-note {
+			font-size: 0.82rem;
+			line-height: 1.45;
+			color: var(--gray-600);
+		}
+
+		.substitution-open-strip {
+			display: flex;
+			gap: 0.55rem;
+			overflow-x: auto;
+			padding-bottom: 0.1rem;
+			-webkit-overflow-scrolling: touch;
+		}
+
+		.substitution-open-chip {
+			display: grid;
+			gap: 0.1rem;
+			min-width: 7.5rem;
+			padding: 0.7rem 0.85rem;
+			border: 1px solid rgba(245, 158, 11, 0.18);
+			border-radius: var(--radius-lg);
+			background: linear-gradient(135deg, rgba(255, 251, 235, 0.94), rgba(255, 255, 255, 0.98));
+			color: var(--gray-800);
+			cursor: pointer;
+			text-align: left;
+		}
+
+		.substitution-open-chip strong {
+			font-size: 0.82rem;
+		}
+
+		.substitution-open-chip span {
+			font-size: 0.76rem;
 			color: var(--gray-600);
 		}
 
@@ -2185,6 +2307,10 @@
 			.substitution-plan-card-actions,
 			.substitution-sheet-footer {
 				grid-template-columns: repeat(3, minmax(0, 1fr));
+			}
+
+			.substitution-search-actions .button {
+				flex: 0 0 auto;
 			}
 
 			.finder-banner-actions .button,
@@ -3153,6 +3279,8 @@
 	}
 
 	[data-theme="dark"] .substitution-step-card,
+	[data-theme="dark"] .substitution-teacher-suggestion,
+	[data-theme="dark"] .substitution-open-chip,
 	[data-theme="dark"] .substitution-plan-recommendation,
 	[data-theme="dark"] .substitution-sheet-summary,
 	[data-theme="dark"] .substitution-sheet-current,
@@ -3181,12 +3309,25 @@
 	}
 
 	[data-theme="dark"] .substitution-step-card strong,
+	[data-theme="dark"] .substitution-teacher-suggestion-copy strong,
 	[data-theme="dark"] .substitution-plan-recommendation strong,
 	[data-theme="dark"] .substitution-sheet-summary strong,
 	[data-theme="dark"] .substitution-sheet-current strong,
 	[data-theme="dark"] .substitution-sheet-option-copy strong,
 	[data-theme="dark"] .substitution-mobile-summary strong {
 		color: var(--text);
+	}
+
+	[data-theme="dark"] .substitution-search-empty,
+	[data-theme="dark"] .substitution-teacher-suggestion-copy p,
+	[data-theme="dark"] .substitution-open-chip span,
+	[data-theme="dark"] .substitution-plan-note {
+		color: var(--text-secondary);
+	}
+
+	[data-theme="dark"] .substitution-teacher-suggestion--selected {
+		background: linear-gradient(135deg, rgba(6, 95, 70, 0.32), rgba(15, 23, 42, 0.82));
+		border-color: rgba(52, 211, 153, 0.3);
 	}
 
 	[data-theme="dark"] .substitution-mini-pill--soft {
@@ -6466,10 +6607,133 @@
 				const nextAbsentTeachers = getSavedAbsentTeachers(day).filter(name => name !== teacher);
 				persistAbsentTeachers(day, nextAbsentTeachers);
 				closeSubstitutionAssignmentSheet();
+
+				if (nextAbsentTeachers.length > 0) {
+					handleGeneratePlan(day, nextAbsentTeachers, { silent: true });
+					return;
+				}
+
 				renderSubstitutionView(day, nextAbsentTeachers);
 			} catch (error) {
 				console.error('Error removing absent teacher:', error);
 				showToast('Failed to update the absent teacher list.', 3000, 'error');
+			}
+		}
+
+		function toggleAbsentTeacherSelection(day, teacher) {
+			try {
+				const currentTeachers = getSavedAbsentTeachers(day);
+				const nextTeachers = currentTeachers.includes(teacher)
+					? currentTeachers.filter(name => name !== teacher)
+					: [...currentTeachers, teacher];
+
+				persistAbsentTeachers(day, nextTeachers);
+				closeSubstitutionAssignmentSheet();
+
+				if (nextTeachers.length > 0) {
+					handleGeneratePlan(day, nextTeachers, { silent: true });
+					return;
+				}
+
+				renderSubstitutionView(day, nextTeachers);
+			} catch (error) {
+				console.error('Error toggling absent teacher selection:', error);
+				showToast('Failed to update absent teacher selection.', 3000, 'error');
+			}
+		}
+
+		function openAbsentTeacherPicker(day) {
+			try {
+				const currentTeachers = getSavedAbsentTeachers(day);
+				const query = state.substitutionTeacherSearch.trim().toLowerCase();
+				const teacherNames = state.allData.teacherNames
+					.filter(teacher => !query || teacher.toLowerCase().includes(query))
+					.sort((a, b) => {
+						const aSelected = currentTeachers.includes(a) ? 0 : 1;
+						const bSelected = currentTeachers.includes(b) ? 0 : 1;
+						if (aSelected !== bSelected) return aSelected - bSelected;
+						return a.localeCompare(b);
+					});
+
+				closeSubstitutionAssignmentSheet();
+
+				const content = document.createElement('div');
+				content.className = 'substitution-sheet';
+				content.innerHTML = `
+					<div class="substitution-sheet-summary">
+						<span>Absent Teachers</span>
+						<strong>${currentTeachers.length} selected for ${escapeHtml(day)}</strong>
+						<p>${query ? `Showing results for "${escapeHtml(state.substitutionTeacherSearch)}".` : 'Tap a teacher name to add or remove it.'}</p>
+					</div>
+					<div class="substitution-sheet-list">
+						${teacherNames.length > 0 ? teacherNames.map(teacher => {
+							const isSelected = currentTeachers.includes(teacher);
+							const dayLoad = getTeacherLoadForDay(teacher, day);
+							const availabilityWindow = getTeacherAvailabilityWindowLabel(teacher);
+
+							return `
+								<button type="button" class="substitution-sheet-option ${isSelected ? 'substitution-sheet-option--current' : ''}" data-absent-teacher="${encodeURIComponent(teacher)}">
+									<div class="substitution-sheet-option-copy">
+										<strong>${escapeHtml(teacher)}</strong>
+										<p>${dayLoad ? `${dayLoad} periods on ${escapeHtml(day)}` : `No scheduled periods on ${escapeHtml(day)}`}</p>
+									</div>
+									<span class="substitution-mini-pill ${isSelected ? 'substitution-mini-pill--active' : ''}">
+										${isSelected ? 'Selected' : (availabilityWindow || 'Tap to add')}
+									</span>
+								</button>
+							`;
+						}).join('') : `
+							<div class="substitution-empty substitution-empty--inline">
+								<i data-lucide="search-x"></i>
+								<strong>No teacher matches this search</strong>
+								<p>Clear the search or try a shorter name.</p>
+							</div>
+						`}
+					</div>
+					<div class="substitution-sheet-footer">
+						<button type="button" class="button button-secondary" data-substitution-close="true">
+							<i data-lucide="x"></i>
+							Close
+						</button>
+						<button type="button" class="button button-secondary" data-clear-selection="true" ${currentTeachers.length === 0 ? 'disabled' : ''}>
+							<i data-lucide="eraser"></i>
+							Clear All
+						</button>
+					</div>
+				`;
+
+				const teacherPickerSheet = new window.ModernUI.BottomSheet({
+					title: 'Choose Absent Teachers',
+					content,
+					onClose: () => {
+						if (state.activeSubstitutionSheet === teacherPickerSheet) {
+							state.activeSubstitutionSheet = null;
+						}
+					}
+				});
+
+				state.activeSubstitutionSheet = teacherPickerSheet;
+
+				content.querySelectorAll('[data-absent-teacher]').forEach(button => {
+					button.addEventListener('click', () => {
+						const teacher = decodeURIComponent(button.dataset.absentTeacher || '');
+						toggleAbsentTeacherSelection(day, teacher);
+					});
+				});
+
+				content.querySelector('[data-substitution-close="true"]')?.addEventListener('click', () => {
+					closeSubstitutionAssignmentSheet();
+				});
+
+				content.querySelector('[data-clear-selection="true"]')?.addEventListener('click', () => {
+					clearSubstitutionTeacherSelection();
+				});
+
+				teacherPickerSheet.show();
+				lucide.createIcons();
+			} catch (error) {
+				console.error('Error opening absent teacher picker:', error);
+				showToast('Failed to open teacher picker.', 3000, 'error');
 			}
 		}
 
@@ -6743,6 +7007,7 @@
 				minute: '2-digit',
 				hour12: true
 			});
+			const normalizedQuery = state.substitutionTeacherSearch.trim().toLowerCase();
 			const searchValue = state.substitutionTeacherSearch
 				.replace(/&/g, '&amp;')
 				.replace(/"/g, '&quot;')
@@ -6755,50 +7020,27 @@
 			const planEntries = getSubstitutionPlanEntries(selectedDay, selectedAbsentTeachers);
 			const overview = getSubstitutionOverview(selectedDay, selectedAbsentTeachers, planEntries);
 			const hasAnySavedPlan = Object.values(state.substitutions[selectedDay]?.plan || {}).some(classPlan => Object.keys(classPlan).length > 0);
-			const filteredTeacherNames = teacherNames.filter(teacher =>
-				!state.substitutionTeacherSearch.trim() ||
-				teacher.toLowerCase().includes(state.substitutionTeacherSearch.trim().toLowerCase())
-			);
+			const filteredTeacherNames = teacherNames
+				.filter(teacher => !normalizedQuery || teacher.toLowerCase().includes(normalizedQuery))
+				.sort((a, b) => {
+					const aStarts = normalizedQuery ? a.toLowerCase().startsWith(normalizedQuery) : false;
+					const bStarts = normalizedQuery ? b.toLowerCase().startsWith(normalizedQuery) : false;
+					if (aStarts !== bStarts) return aStarts ? -1 : 1;
+					return a.localeCompare(b);
+				});
+			const visibleSearchResults = normalizedQuery ? filteredTeacherNames.slice(0, 6) : [];
+			const openEntries = planEntries.filter(entry => !entry.substitute);
+			const heroMessage = selectedAbsentTeachers.length === 0
+				? 'Search a teacher, tap the name, then assign or share.'
+				: openEntries.length > 0
+					? `${openEntries.length} open slots are ready for quick assignment.`
+					: 'Everything is ready. Share the plan when you are done.';
 
 			const dayTabsHtml = days.map(d => `
 				<button class="day-tab ${d === selectedDay ? 'active' : ''}" role="tab" aria-selected="${d === selectedDay}" data-day="${d}" onclick="renderSubstitutionView('${d}')">
 					${d.slice(0, 3)}
 				</button>
 			`).join('');
-
-			const teacherOptionsHtml = filteredTeacherNames.length > 0
-				? filteredTeacherNames.map(teacher => {
-					const isSelected = selectedAbsentTeachers.includes(teacher);
-					const dayLoad = getTeacherLoadForDay(teacher, selectedDay);
-					const availabilityWindow = getTeacherAvailabilityWindowLabel(teacher);
-					const teacherMessage = dayLoad
-						? `${dayLoad} scheduled periods on ${selectedDay}`
-						: `No scheduled periods on ${selectedDay}`;
-
-					return `
-						<label class="substitution-teacher-card ${isSelected ? 'substitution-teacher-card--selected' : ''}">
-							<div class="substitution-teacher-toggle">
-								<input type="checkbox" value="${teacher}" ${isSelected ? 'checked' : ''} onchange="handleAbsentTeacherChange(this)">
-								<div class="substitution-teacher-copy">
-									<strong>${teacher}</strong>
-									<p>${teacherMessage}</p>
-								</div>
-							</div>
-							<div class="substitution-teacher-meta">
-								<span class="substitution-mini-pill">${dayLoad || 0} periods</span>
-								${availabilityWindow ? `<span class="substitution-mini-pill substitution-mini-pill--soft">${availabilityWindow}</span>` : ''}
-								${isSelected ? '<span class="substitution-mini-pill substitution-mini-pill--active">Selected</span>' : ''}
-							</div>
-						</label>
-					`;
-				}).join('')
-				: `
-					<div class="substitution-empty substitution-empty--inline">
-						<i data-lucide="search-x"></i>
-						<strong>No teacher matches this search</strong>
-						<p>Try a shorter name or clear the filter.</p>
-					</div>
-				`;
 
 			const selectedTeacherChips = selectedAbsentTeachers.length > 0
 				? selectedAbsentTeachers.map(teacher => `
@@ -6812,20 +7054,53 @@
 					<span class="substitution-selected-empty">No absent teachers selected yet.</span>
 				`;
 
+			const searchResultsHtml = visibleSearchResults.length > 0
+				? `
+					<div class="substitution-search-results">
+						${visibleSearchResults.map(teacher => {
+							const isSelected = selectedAbsentTeachers.includes(teacher);
+							const dayLoad = getTeacherLoadForDay(teacher, selectedDay);
+							const availabilityWindow = getTeacherAvailabilityWindowLabel(teacher);
+
+							return `
+								<button type="button" class="substitution-teacher-suggestion ${isSelected ? 'substitution-teacher-suggestion--selected' : ''}" onclick='toggleAbsentTeacherSelection(${JSON.stringify(selectedDay)}, ${JSON.stringify(teacher)})'>
+									<div class="substitution-teacher-suggestion-copy">
+										<strong>${teacher}</strong>
+										<p>${dayLoad ? `${dayLoad} periods on ${selectedDay}` : `No periods on ${selectedDay}`}</p>
+									</div>
+									<span class="substitution-mini-pill ${isSelected ? 'substitution-mini-pill--active' : ''}">
+										${isSelected ? 'Selected' : (availabilityWindow || 'Tap to add')}
+									</span>
+								</button>
+							`;
+						}).join('')}
+					</div>
+				`
+				: `
+					<div class="substitution-search-empty">
+						${normalizedQuery ? 'No teacher matches this search.' : 'Teacher search stays here so you can add absences without scrolling through the full list.'}
+					</div>
+				`;
+
+			const openSlotChipsHtml = openEntries.length > 0
+				? `
+					<div class="substitution-open-strip">
+						${openEntries.map(entry => `
+							<button type="button" class="substitution-open-chip" onclick='openSubstitutionAssignmentSheet(${JSON.stringify(selectedDay)}, ${JSON.stringify(entry.className)}, ${entry.periodIndex})'>
+								<strong>${entry.periodName}</strong>
+								<span>${entry.className}</span>
+							</button>
+						`).join('')}
+					</div>
+				`
+				: '';
+
 			const planCardsHtml = planEntries.length > 0
 				? planEntries.map(entry => {
 					const isCovered = Boolean(entry.substitute);
-					const statusLabel = isCovered ? 'Assigned' : 'Needs attention';
+					const statusLabel = isCovered ? 'Assigned' : 'Open';
 					const statusIcon = isCovered ? 'badge-check' : 'alert-triangle';
 					const topCandidate = getRecommendedSubstitutionCandidates(selectedDay, entry, selectedAbsentTeachers, 1)[0] || null;
-					const recommendationTitle = !topCandidate
-						? 'No free teacher found yet'
-						: isCovered && topCandidate.teacher === entry.substitute
-							? `${topCandidate.teacher} is still the best match`
-							: `Best match: ${topCandidate.teacher}`;
-					const recommendationBody = !topCandidate
-						? 'Open the options sheet to review the slot or leave it pending for manual follow-up.'
-						: topCandidate.reason;
 					const quickAssignButton = topCandidate && (!isCovered || topCandidate.teacher !== entry.substitute)
 						? `
 							<button class="button button-primary substitution-inline-button" onclick='handleQuickAssignSuggestion(${JSON.stringify(selectedDay)}, ${JSON.stringify(entry.className)}, ${entry.periodIndex})'>
@@ -6834,7 +7109,6 @@
 							</button>
 						`
 						: '';
-					const optionsButtonLabel = isCovered ? 'Change Assignment' : (topCandidate ? 'More Options' : 'Choose Substitute');
 
 					return `
 						<article class="substitution-plan-card substitution-plan-card--${isCovered ? 'covered' : 'open'}">
@@ -6852,35 +7126,18 @@
 								<strong>${entry.className}</strong>
 								<p>${entry.subject}</p>
 							</div>
-							<div class="substitution-plan-people">
-								<div class="substitution-plan-person substitution-plan-person--absent">
-									<span>Absent Teacher</span>
-									<strong>${entry.originalTeacher}</strong>
-								</div>
-								<div class="substitution-plan-person substitution-plan-person--substitute">
-									<span>Assigned Substitute</span>
-									<strong>${entry.substitute || 'Not assigned yet'}</strong>
-								</div>
+							<div class="substitution-plan-detail-strip">
+								<span class="substitution-mini-pill substitution-mini-pill--soft">Absent: ${entry.originalTeacher}</span>
+								<span class="substitution-mini-pill ${isCovered ? 'substitution-mini-pill--active' : ''}">${isCovered ? `Sub: ${entry.substitute}` : 'Sub: Not assigned'}</span>
+								${topCandidate ? `<span class="substitution-mini-pill">AI: ${topCandidate.teacher}</span>` : ''}
 							</div>
-							<div class="substitution-plan-recommendation ${topCandidate ? '' : 'substitution-plan-recommendation--empty'}">
-								<div class="substitution-plan-recommendation-top">
-									<strong>${recommendationTitle}</strong>
-									${topCandidate ? `<span class="substitution-mini-pill">${topCandidate.score} pts</span>` : ''}
-								</div>
-								<p>${recommendationBody}</p>
-							</div>
+							<p class="substitution-plan-note">${topCandidate ? topCandidate.reason : 'No free teacher is currently available for this slot.'}</p>
 							<div class="substitution-plan-card-actions">
 								${quickAssignButton}
 								<button class="button button-secondary substitution-inline-button" onclick='openSubstitutionAssignmentSheet(${JSON.stringify(selectedDay)}, ${JSON.stringify(entry.className)}, ${entry.periodIndex})'>
 									<i data-lucide="user-cog"></i>
-									${optionsButtonLabel}
+									${isCovered ? 'Change' : 'Choose'}
 								</button>
-								${isCovered ? `
-									<button class="button button-secondary substitution-inline-button" onclick='applySubstitutionAssignment(${JSON.stringify(selectedDay)}, ${JSON.stringify(entry.className)}, ${entry.periodIndex}, "")'>
-										<i data-lucide="x"></i>
-										Clear
-									</button>
-								` : ''}
 							</div>
 						</article>
 					`;
@@ -6889,7 +7146,7 @@
 					<div class="substitution-empty">
 						<i data-lucide="clipboard-list"></i>
 						<strong>No affected classes yet</strong>
-						<p>Select absent teachers to preview affected periods and build the plan here.</p>
+						<p>Select absent teachers to preview affected periods.</p>
 					</div>
 				`;
 
@@ -6898,32 +7155,32 @@
 					<div class="substitution-plan-actions">
 						<button onclick='handleQuickShareSubstitutionPlan(${JSON.stringify(selectedDay)})' class="button button-whatsapp">
 							<i data-lucide="share-2"></i>
-							Quick Share
+							Share
 						</button>
 						<button onclick='handleShareSubstitutionPlanText(${JSON.stringify(selectedDay)})' class="button button-secondary">
 							<i data-lucide="clipboard"></i>
-							Share or Copy Text
+							Copy Text
 						</button>
 						<button onclick='handlePrintSubstitutionPlan(${JSON.stringify(selectedDay)})' class="button button-secondary">
 							<i data-lucide="printer"></i>
-							Print Plan
+							Print
 						</button>
 					</div>
 				`
 				: '';
 
 			const mobileSummaryTitle = selectedAbsentTeachers.length === 0
-				? 'Start by selecting absent teachers.'
+				? 'Start with teacher search'
 				: overview.coveredCount > 0
 					? `${overview.coveredCount} slots ready for ${selectedDay}`
 					: `${planEntries.length} slots waiting for assignment`;
 			const mobileSummaryText = selectedAbsentTeachers.length === 0
-				? 'Tap teacher names below to begin.'
+				? 'Search a teacher name above.'
 				: planEntries.length === 0
-					? 'The selected teachers do not have classes to cover on this day.'
+					? 'The selected teachers have no classes to cover on this day.'
 					: overview.uncoveredCount > 0
-						? `${overview.uncoveredCount} slots still need attention. Tap Assign to continue.`
-						: 'Everything is assigned. Share the plan from here in one tap.';
+						? `${overview.uncoveredCount} slots still need attention.`
+						: 'Everything is assigned. Share the plan from here.';
 			const mobileBarHtml = selectedAbsentTeachers.length > 0
 				? `
 					<div class="substitution-mobile-bar no-print">
@@ -6960,7 +7217,7 @@
 						</div>
 						<div class="section-kicker">Substitution Desk</div>
 						<h2 class="dashboard-hero-title">${overview.headline}</h2>
-						<p class="section-subtitle dashboard-hero-copy">${overview.message}</p>
+						<p class="section-subtitle dashboard-hero-copy">${heroMessage}</p>
 						<div class="day-tabs substitution-day-tabs" role="tablist" aria-label="Select substitution day">
 							${dayTabsHtml}
 						</div>
@@ -6974,68 +7231,62 @@
 								<strong>${overview.affectedClasses}</strong>
 							</div>
 							<div class="metric-chip">
-								<span>Slots To Cover</span>
-								<strong>${planEntries.length}</strong>
+								<span>Open Slots</span>
+								<strong>${overview.uncoveredCount}</strong>
 							</div>
 							<div class="metric-chip">
-								<span>Coverage Status</span>
-								<strong>${overview.coveredCount}/${planEntries.length || 0}</strong>
+								<span>Covered</span>
+								<strong>${overview.coveredCount}</strong>
 							</div>
-						</div>
-						<div class="substitution-step-grid">
-							<article class="substitution-step-card">
-								<span>Step 1</span>
-								<strong>Mark absent teachers</strong>
-								<p>Tap the teacher cards below. Your selection stays attached to ${selectedDay}.</p>
-							</article>
-							<article class="substitution-step-card">
-								<span>Step 2</span>
-								<strong>Tap Assign to fill the plan</strong>
-								<p>The app suggests the best available teacher first, then lets you change any slot.</p>
-							</article>
-							<article class="substitution-step-card">
-								<span>Step 3</span>
-								<strong>Share when the list looks right</strong>
-								<p>Use the Share button to send the plan in the fewest taps possible on mobile.</p>
-							</article>
 						</div>
 						<div class="substitution-hero-actions">
 							<button id="generate-plan-btn" class="button button-primary" ${selectedAbsentTeachers.length === 0 ? 'disabled' : ''}>
 								<i data-lucide="wand-2"></i>
-								Assign Automatically
+								Assign
 							</button>
-							<button id="reset-plan-btn" class="button button-danger" ${hasAnySavedPlan ? '' : 'disabled'}>
-								<i data-lucide="rotate-ccw"></i>
-								Reset ${selectedDay} Plan
+							<button class="button button-secondary" onclick='openAbsentTeacherPicker(${JSON.stringify(selectedDay)})'>
+								<i data-lucide="users"></i>
+								Browse Teachers
 							</button>
 						</div>
 					</section>
 
 					<div class="substitution-layout">
-						<section class="card substitution-selector-panel">
-							<div class="view-header">
-								<div>
-									<div class="section-kicker">Absence Input</div>
-									<h2 class="section-title">Choose absent teachers</h2>
-									<p class="section-subtitle">Tap teacher cards to mark absences. Remove a selected name from the chips above in one tap.</p>
+						<section class="card substitution-selector-panel substitution-selector-panel--compact">
+							<div class="substitution-search-toolbar">
+								<div class="substitution-search-toolbar-top">
+									<div>
+										<div class="section-kicker">Teacher Search</div>
+										<h2 class="section-title">Find absent teacher fast</h2>
+									</div>
+									<button class="button button-secondary substitution-clear-btn" onclick="clearSubstitutionTeacherSelection()" ${selectedAbsentTeachers.length === 0 ? 'disabled' : ''}>
+										<i data-lucide="x"></i>
+										Clear
+									</button>
 								</div>
-								<button class="button button-secondary substitution-clear-btn" onclick="clearSubstitutionTeacherSelection()" ${selectedAbsentTeachers.length === 0 ? 'disabled' : ''}>
-									<i data-lucide="x"></i>
-									Clear Selection
-								</button>
-							</div>
-							<div class="substitution-search">
-								<i data-lucide="search"></i>
-								<input type="search" id="substitution-teacher-search" value="${searchValue}" placeholder="Search teacher name" oninput="handleSubstitutionTeacherSearch(this.value)">
-							</div>
-							<div class="substitution-selected-panel">
-								<div class="section-kicker">Selected Teachers</div>
-								<div class="substitution-selected-list">
-									${selectedTeacherChips}
+								<div class="substitution-search substitution-search--prominent">
+									<i data-lucide="search"></i>
+									<input type="search" id="substitution-teacher-search" value="${searchValue}" placeholder="Search teacher name" oninput="handleSubstitutionTeacherSearch(this.value)">
 								</div>
-							</div>
-							<div id="substitution-teacher-list" class="substitution-teacher-grid">
-								${teacherOptionsHtml}
+								<div class="substitution-search-actions">
+									<button class="button button-secondary" onclick='openAbsentTeacherPicker(${JSON.stringify(selectedDay)})'>
+										<i data-lucide="users"></i>
+										Browse All
+									</button>
+									${normalizedQuery ? `
+										<button class="button button-secondary" onclick="handleSubstitutionTeacherSearch('')">
+											<i data-lucide="rotate-ccw"></i>
+											Clear Search
+										</button>
+									` : ''}
+								</div>
+								<div class="substitution-selected-panel">
+									<div class="section-kicker">Selected Teachers</div>
+									<div class="substitution-selected-list">
+										${selectedTeacherChips}
+									</div>
+								</div>
+								${searchResultsHtml}
 							</div>
 						</section>
 
@@ -7043,45 +7294,24 @@
 							<div class="view-header">
 								<div>
 									<div class="section-kicker">Coverage Plan</div>
-									<h2 class="section-title">${planEntries.length > 0 ? 'Tap any class card to finish the plan' : 'Plan preview appears here'}</h2>
-									<p class="section-subtitle">${planEntries.length > 0 ? 'Each card shows the absent teacher, current substitute, and the strongest next suggestion.' : 'Once absent teachers are selected, the plan area will show the classes and periods that need action.'}</p>
+									<h2 class="section-title">${planEntries.length > 0 ? 'Tap an open slot or scroll the compact list' : 'Plan preview appears here'}</h2>
 								</div>
 								${planEntries.length > 0 ? `<span class="finder-pill finder-pill--accent">${overview.uncoveredCount > 0 ? `${overview.uncoveredCount} open` : 'Ready to share'}</span>` : ''}
 							</div>
+							${openSlotChipsHtml}
 							<div id="substitution-plan-content" class="substitution-plan-shell">
-								${planEntries.length > 0 ? `
-									<div class="metric-strip substitution-plan-strip">
-										<div class="metric-chip">
-											<span>Periods Touched</span>
-											<strong>${overview.touchedPeriods}</strong>
-										</div>
-										<div class="metric-chip">
-											<span>Support Teachers</span>
-											<strong>${overview.supportingTeachers}</strong>
-										</div>
-										<div class="metric-chip">
-											<span>Covered</span>
-											<strong>${overview.coveredCount}</strong>
-										</div>
-										<div class="metric-chip">
-											<span>Need Review</span>
-											<strong>${overview.uncoveredCount}</strong>
-										</div>
-									</div>
-								` : ''}
 								<div id="plan-container" class="substitution-plan-grid">
 									${planCardsHtml}
 								</div>
 								${planActionsHtml}
+								${hasAnySavedPlan ? `
+									<button id="reset-plan-btn" class="button button-danger">
+										<i data-lucide="rotate-ccw"></i>
+										Reset ${selectedDay} Plan
+									</button>
+								` : ''}
 							</div>
 						</section>
-					</div>
-
-					<div class="dashboard-footer-actions">
-						<button onclick="handlePrint()" class="button button-secondary">
-							<i data-lucide="printer"></i>
-							Print Full Timetable
-						</button>
 					</div>
 				</div>
 				${mobileBarHtml}
@@ -7207,9 +7437,29 @@
 			setTimeout(() => updatePrintContent(), 100);
 		}
 
+		function pruneSubstitutionPlanForAbsentTeachers(day, absentTeachers = []) {
+			if (!state.substitutions[day]?.plan) return;
+
+			const validSlots = new Set(
+				getSubstitutionVacantSlots(day, absentTeachers).map(slot => `${slot.className}::${slot.periodIndex}`)
+			);
+			const nextPlan = {};
+
+			Object.entries(state.substitutions[day].plan).forEach(([className, classPlan]) => {
+				Object.entries(classPlan).forEach(([periodIndex, substitute]) => {
+					if (!validSlots.has(`${className}::${periodIndex}`)) return;
+					if (!nextPlan[className]) nextPlan[className] = {};
+					nextPlan[className][periodIndex] = substitute;
+				});
+			});
+
+			state.substitutions[day].plan = nextPlan;
+		}
+
 		// --- SUBSTITUTION MANAGEMENT ---
-		function handleGeneratePlan(day, absentTeachers) {
+		function handleGeneratePlan(day, absentTeachers, options = {}) {
 			try {
+				const silent = options?.silent === true;
 				if (!day || !absentTeachers || absentTeachers.length === 0) {
 					showToast('âš ï¸ Please select at least one absent teacher', 3000, 'warning');
 					return;
@@ -7762,6 +8012,90 @@
 			} catch (error) {
 				console.error('Error printing substitution plan:', error);
 				showToast('âŒ Failed to print substitution plan', 3000, 'error');
+			}
+		}
+
+		function handleGeneratePlan(day, absentTeachers, options = {}) {
+			try {
+				const silent = options?.silent === true;
+
+				if (!day || !absentTeachers || absentTeachers.length === 0) {
+					if (!silent) {
+						showToast('Please select at least one absent teacher', 3000, 'warning');
+					}
+					return;
+				}
+
+				const { teacherDetails } = state.allData;
+				const vacantSlots = [];
+
+				absentTeachers.forEach(teacher => {
+					const schedule = teacherDetails[teacher]?.schedule?.[day];
+					if (!schedule) return;
+
+					schedule.forEach((period, periodIndex) => {
+						if (!period) return;
+						vacantSlots.push({
+							...period,
+							periodIndex,
+							originalTeacher: teacher
+						});
+					});
+				});
+
+				if (vacantSlots.length === 0) {
+					if (!silent) {
+						showToast('The selected teachers have no classes to cover on this day', 3000, 'info');
+					}
+					renderSubstitutionView(day, absentTeachers);
+					return;
+				}
+
+				if (!state.substitutions[day]) {
+					state.substitutions[day] = { plan: {}, absentTeachers: [] };
+				}
+
+				state.substitutions[day].absentTeachers = [...absentTeachers];
+				closeSubstitutionAssignmentSheet();
+				pruneSubstitutionPlanForAbsentTeachers(day, absentTeachers);
+
+				vacantSlots.forEach(slot => {
+					if (!state.substitutions[day].plan[slot.className]) {
+						state.substitutions[day].plan[slot.className] = {};
+					}
+					delete state.substitutions[day].plan[slot.className][slot.periodIndex];
+					cleanupSubstitutionClassPlan(day, slot.className);
+				});
+
+				const newPlan = state.substitutions[day].plan;
+				vacantSlots.forEach(slot => {
+					const freeTeachers = findFreeTeachers(
+						day,
+						slot.periodIndex,
+						absentTeachers,
+						newPlan,
+						slot
+					);
+
+					if (freeTeachers.length === 0) return;
+					if (!newPlan[slot.className]) {
+						newPlan[slot.className] = {};
+					}
+
+					newPlan[slot.className][slot.periodIndex] = freeTeachers[0].teacher;
+					console.log(`Assigned ${freeTeachers[0].teacher} to ${slot.className} Period ${slot.periodIndex + 1} (Score: ${freeTeachers[0].score}, Reason: ${freeTeachers[0].reason})`);
+				});
+
+				state.substitutions[day].plan = newPlan;
+				if (!silent) {
+					showToast('Substitution plan generated successfully', 3000, 'success');
+				}
+				renderSubstitutionView(day, absentTeachers);
+			} catch (error) {
+				console.error('Error generating substitution plan:', error);
+				if (!options?.silent) {
+					showToast('Failed to generate substitution plan', 3000, 'error');
+				}
 			}
 		}
 
