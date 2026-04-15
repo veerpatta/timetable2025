@@ -18,10 +18,10 @@
 
 	<!-- LIBRARIES (CDN) -->
 	<!-- html2canvas and jsPDF are now lazy loaded via perf.js for better performance -->
-	<script src="https://cdn.jsdelivr.net/npm/lucide@latest/dist/umd/lucide.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/lucide@latest/dist/umd/lucide.min.js" defer></script>
 
 	<!-- PERFORMANCE OPTIMIZATION MODULE -->
-	<script src="./scripts/perf.js" defer></script>
+	<script src="./scripts/perf.js"></script>
 
 	<!-- FONTS -->
 	<link rel="preconnect" href="https://fonts.googleapis.com">
@@ -38,3574 +38,47 @@
 	<link rel="stylesheet" href="./styles/ui.css">
 	<!-- ACCESSIBILITY SYSTEM -->
 	<link rel="stylesheet" href="./styles/a11y.css">
+	<link rel="stylesheet" href="./styles/app.css">
 
 	<!-- STYLES -->
 	<style>
-		/* CSS Variables for Theme */
 		:root {
-			--primary-50: #eff6ff;
-			--primary-100: #dbeafe;
-			--primary-200: #bfdbfe;
-			--primary-300: #93c5fd;
-			--primary-400: #60a5fa;
-			--primary-500: #3b82f6;
-			--primary-600: #2563eb;
-			--primary-700: #1d4ed8;
-			--primary-800: #1e40af;
-			--primary-900: #1e3a8a;
-			--blue-50: #e0f2fe;
-			--blue-500: #0ea5e9;
-
-			--gray-50: #f9fafb;
-			--gray-100: #f3f4f6;
-			--gray-200: #e5e7eb;
-			--gray-300: #d1d5db;
-			--gray-400: #9ca3af;
-			--gray-500: #6b7280;
-			--gray-600: #4b5563;
-			--gray-700: #374151;
-			--gray-800: #1f2937;
-			--gray-900: #111827;
-
-                        --green-50: #ecfdf5;
-                        --green-500: #10b981;
-                        --green-600: #059669;
-                        --green-800: #065f46;
-                        --yellow-50: #fffbeb;
-                        --yellow-100: #fef3c7;
-                        --yellow-500: #f59e0b;
-                        --yellow-600: #d97706;
-                        --yellow-800: #92400e;
-                        --red-200: #fecaca;
-                        --red-500: #ef4444;
-                        --red-600: #dc2626;
-
-			--shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-			--shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
-			--shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-			--shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
-			--shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
-
-			--radius: 0.5rem;
-			--radius-lg: 0.75rem;
+			--app-shell-loader-bg: #ffffff;
+			--app-shell-loader-accent: #2563eb;
+			--app-shell-loader-track: #e5e7eb;
 		}
-
-		/* Global Styles */
 		* {
-			margin: 0;
-			padding: 0;
 			box-sizing: border-box;
 		}
-
+		html, body {
+			margin: 0;
+			min-height: 100%;
+			background: #ffffff;
+		}
 		body {
 			font-family: 'Inter', system-ui, -apple-system, sans-serif;
-			background: linear-gradient(135deg, var(--bg-gradient-start) 0%, var(--bg-gradient-end) 100%);
-			color: var(--text);
-			min-height: 100vh;
-			line-height: 1.6;
-			scroll-padding-top: 6rem;
 		}
-
-		/* Loading Screen */
 		#loader {
 			position: fixed;
-			top: 0;
-			left: 0;
-			width: 100%;
-			height: 100%;
-			background: var(--bg);
+			inset: 0;
+			background: var(--app-shell-loader-bg);
 			display: flex;
 			align-items: center;
 			justify-content: center;
 			z-index: 9999;
-			transition: opacity 0.3s ease;
+			transition: opacity 0.2s ease;
 		}
-
 		.spinner {
 			width: 50px;
 			height: 50px;
-			border: 5px solid var(--gray-200);
-			border-top-color: var(--primary-600);
+			border: 5px solid var(--app-shell-loader-track);
+			border-top-color: var(--app-shell-loader-accent);
 			border-radius: 50%;
 			animation: spin 1s linear infinite;
 		}
-
 		@keyframes spin {
 			to { transform: rotate(360deg); }
 		}
-
-		/* App Container */
-		.app-container {
-			max-width: 1400px;
-			margin: 0 auto;
-			padding: 0.75rem;
-			padding-bottom: 5.5rem;
-		}
-		
-		/* Mobile-first approach */
-		@media (min-width: 768px) {
-			.app-container {
-				padding: 1rem;
-				padding-bottom: 2rem;
-			}
-		}
-
-		/* Header - Mobile Optimized */
-		header {
-			background: var(--card);
-			border-radius: var(--radius-lg);
-			padding: 1rem;
-			margin-bottom: 1rem;
-			box-shadow: var(--shadow-md);
-			text-align: center;
-			position: relative;
-		}
-
-		header h1 {
-			font-size: 1.25rem;
-			font-weight: 800;
-			color: var(--primary-800);
-			margin-bottom: 0.25rem;
-			line-height: 1.3;
-		}
-
-		header p {
-			color: var(--gray-600);
-			font-size: 0.8rem;
-		}
-		
-		/* Header responsive */
-		@media (min-width: 768px) {
-			header {
-				padding: 1.5rem;
-				margin-bottom: 1.5rem;
-			}
-			
-			header h1 {
-				font-size: 1.875rem;
-			}
-			
-			header p {
-				font-size: 0.875rem;
-			}
-		}
-
-		/* Navigation - Mobile Optimized */
-		nav {
-			background: var(--card);
-			border-radius: var(--radius-lg);
-			padding: 0.5rem;
-			margin-bottom: 1rem;
-			box-shadow: var(--shadow);
-			display: flex;
-			gap: 0.25rem;
-			overflow-x: auto;
-			scrollbar-width: thin;
-			-webkit-overflow-scrolling: touch;
-		}
-
-		nav::-webkit-scrollbar {
-			height: 4px;
-		}
-
-		nav::-webkit-scrollbar-thumb {
-			background: var(--gray-300);
-			border-radius: 3px;
-		}
-
-		.nav-button {
-			display: inline-flex;
-			align-items: center;
-			justify-content: center;
-			gap: 0.25rem;
-			padding: 0.75rem;
-			min-width: 48px; /* Minimum touch target */
-			min-height: 48px; /* Minimum touch target */
-			background: transparent;
-			border: 1px solid var(--border);
-			border-radius: var(--radius-lg);
-			color: var(--text);
-			font-size: 0.75rem;
-			font-weight: 600;
-			cursor: pointer;
-			transition: all 0.2s;
-			white-space: nowrap;
-			flex-shrink: 0;
-			text-align: center;
-		}
-
-		.nav-button:active {
-			background: var(--primary-100);
-			border-color: var(--primary-400);
-			transform: scale(0.98);
-		}
-
-		.nav-button:hover {
-			background: var(--primary-50);
-			border-color: var(--primary-300);
-			color: var(--primary-700);
-		}
-
-		.nav-button.active {
-			background: var(--primary-600);
-			border-color: var(--primary-600);
-			color: white;
-			box-shadow: var(--shadow-md);
-		}
-
-		.nav-button svg {
-			width: 20px;
-			height: 20px;
-			flex-shrink: 0;
-		}
-		
-		/* Show labels on mobile too for clarity */
-		.nav-button span {
-			display: inline;
-		}
-		
-		/* Show text on larger screens */
-		@media (min-width: 768px) {
-			nav {
-				padding: 0.75rem;
-				margin-bottom: 1.5rem;
-				gap: 0.5rem;
-			}
-			
-			.nav-button {
-				padding: 0.625rem 1rem;
-				font-size: 0.875rem;
-				font-weight: 500;
-				gap: 0.5rem;
-			}
-			
-			/* Labels already visible on mobile; no change needed here */
-			
-			.nav-button svg {
-				width: 18px;
-				height: 18px;
-			}
-		}
-
-		/* Main Content */
-		.main-content {
-			animation: fadeIn 0.3s ease;
-		}
-
-		@keyframes fadeIn {
-			from {
-				opacity: 0;
-				transform: translateY(10px);
-			}
-			to {
-				opacity: 1;
-				transform: translateY(0);
-			}
-		}
-
-		/* Cards - Mobile Optimized */
-		.card {
-			background: var(--card);
-			border-radius: var(--radius-lg);
-			padding: 1rem;
-			box-shadow: var(--shadow);
-			margin-bottom: 1rem;
-		}
-		
-		@media (min-width: 768px) {
-			.card {
-				padding: 1.5rem;
-				margin-bottom: 1.5rem;
-			}
-		}
-
-		/* Stat Cards - Mobile Optimized */
-		.stat-grid {
-			display: grid;
-			grid-template-columns: 1fr 1fr;
-			gap: 0.75rem;
-			margin-bottom: 1rem;
-		}
-
-		.stat-card {
-			display: flex;
-			flex-direction: column;
-			align-items: center;
-			text-align: center;
-			gap: 0.75rem;
-			padding: 1rem;
-			background: var(--card);
-			border-radius: var(--radius-lg);
-			box-shadow: var(--shadow);
-			transition: transform 0.2s, box-shadow 0.2s;
-		}
-
-		.stat-card:active {
-			transform: scale(0.98);
-		}
-
-		.stat-card-icon {
-			width: 40px;
-			height: 40px;
-			border-radius: var(--radius-lg);
-			display: flex;
-			align-items: center;
-			justify-content: center;
-			color: white;
-			flex-shrink: 0;
-		}
-
-		.stat-card-icon svg {
-			width: 20px;
-			height: 20px;
-		}
-
-		.stat-card-label {
-			font-size: 0.7rem;
-			color: var(--gray-500);
-			text-transform: uppercase;
-			letter-spacing: 0.05em;
-			line-height: 1.2;
-		}
-
-		.stat-card-value {
-			font-size: 1.25rem;
-			font-weight: 700;
-			color: var(--text);
-			line-height: 1;
-		}
-		
-		/* Larger screens get row layout */
-		@media (min-width: 768px) {
-			.stat-grid {
-				grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-				gap: 1rem;
-				margin-bottom: 1.5rem;
-			}
-			
-			.stat-card {
-				flex-direction: row;
-				text-align: left;
-				gap: 1rem;
-				padding: 1.25rem;
-			}
-			
-			.stat-card:hover {
-				transform: translateY(-2px);
-				box-shadow: var(--shadow-lg);
-			}
-			
-			.stat-card-icon {
-				width: 50px;
-				height: 50px;
-			}
-			
-			.stat-card-icon svg {
-				width: 24px;
-				height: 24px;
-			}
-			
-			.stat-card-label {
-				font-size: 0.75rem;
-			}
-			
-			.stat-card-value {
-				font-size: 1.5rem;
-			}
-		}
-
-		/* Tables - Mobile Optimized */
-		.table-container {
-			overflow-x: auto;
-			margin: 0.5rem -0.5rem;
-			padding: 0 0.5rem;
-			-webkit-overflow-scrolling: touch;
-		}
-
-		table {
-			width: 100%;
-			border-collapse: collapse;
-			font-size: 0.8rem;
-		}
-
-		th {
-			background: var(--gray-50);
-			color: var(--gray-700);
-			font-weight: 600;
-			text-align: center;
-			padding: 0.5rem 0.25rem;
-			border-bottom: 2px solid var(--gray-200);
-			position: sticky;
-			top: 0;
-			z-index: 10;
-			font-size: 0.75rem;
-			line-height: 1.2;
-		}
-
-		td {
-			padding: 0.5rem 0.25rem;
-			border-bottom: 1px solid var(--gray-100);
-			vertical-align: top;
-			text-align: center;
-			font-size: 0.75rem;
-		}
-
-		tr:active {
-			background: var(--primary-50);
-		}
-
-		/* Sticky first column support (works if class is on parent or table) */
-		.sticky-first-col table thead th:first-child,
-		.sticky-first-col table tbody td:first-child,
-		.sticky-first-col thead th:first-child,
-		.sticky-first-col tbody td:first-child {
-			position: sticky;
-			left: 0;
-			background: var(--card);
-			z-index: 2;
-			box-shadow: 2px 0 0 0 var(--border);
-		}
-		
-		/* Larger screens get better spacing */
-		@media (min-width: 768px) {
-			.table-container {
-				margin: 1rem -0.5rem;
-			}
-			
-			table {
-				font-size: 0.875rem;
-			}
-			
-			th {
-				padding: 0.75rem;
-				text-align: left;
-				font-size: 0.875rem;
-			}
-			
-			td {
-				padding: 0.75rem;
-				font-size: 0.875rem;
-			}
-			
-			tr:hover {
-				background: var(--primary-50);
-			}
-		}
-
-		.subject {
-			font-weight: 600;
-			color: var(--gray-900);
-			margin-bottom: 0.125rem;
-			font-size: 0.7rem;
-			line-height: 1.2;
-		}
-
-		.teacher {
-			font-size: 0.65rem;
-			color: var(--gray-600);
-			line-height: 1.1;
-		}
-
-		.substitute {
-			color: var(--primary-600);
-			font-weight: 500;
-		}
-
-		.line-through {
-			text-decoration: line-through;
-			opacity: 0.5;
-		}
-
-		.class-name {
-			font-size: 0.65rem;
-			color: var(--gray-500);
-			margin-top: 0.125rem;
-			line-height: 1.1;
-		}
-
-		/* Highlight current period column - Enhanced */
-		.highlight-period {
-			background: linear-gradient(135deg, var(--yellow-100), var(--yellow-50)) !important;
-			color: var(--primary-800) !important;
-			font-weight: 700 !important;
-			border-left: 3px solid var(--yellow-500) !important;
-			position: relative;
-		}
-
-		.highlight-period::after {
-			content: "ðŸ”´ LIVE";
-			position: absolute;
-			top: 2px;
-			right: 2px;
-			font-size: 0.6rem;
-			color: var(--red-600);
-			font-weight: 700;
-			text-shadow: 0 1px 2px rgba(255,255,255,0.8);
-			z-index: 1;
-		}
-
-		@media (max-width: 768px) {
-			.highlight-period::after {
-				content: "ðŸ”´";
-				font-size: 0.7rem;
-			}
-		}
-		
-		/* Larger screens get better text sizing */
-		@media (min-width: 768px) {
-			.subject {
-				font-size: 0.875rem;
-			}
-			
-			.teacher {
-				font-size: 0.75rem;
-			}
-			
-			.class-name {
-				font-size: 0.75rem;
-			}
-		}
-
-		/* Form Elements - Mobile Optimized */
-		select {
-			width: 100%;
-			padding: 0.75rem;
-			min-height: 48px; /* Touch-friendly minimum */
-			border: 2px solid var(--border);
-			border-radius: var(--radius-lg);
-			background: var(--bg);
-			font-size: 1rem; /* Prevent zoom on iOS */
-			color: var(--text);
-			cursor: pointer;
-			transition: all 0.2s;
-			-webkit-appearance: none;
-			-moz-appearance: none;
-			appearance: none;
-			background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
-			background-position: right 0.75rem center;
-			background-repeat: no-repeat;
-			background-size: 1rem;
-			padding-right: 2.5rem;
-		}
-
-		select:hover {
-			border-color: var(--primary-400);
-		}
-
-		select:focus {
-			outline: none;
-			border-color: var(--primary-500);
-			box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-		}
-		
-		select:active {
-			border-color: var(--primary-600);
-		}
-		
-		/* Larger screens */
-		@media (min-width: 768px) {
-			select {
-				padding: 0.625rem 0.75rem;
-				font-size: 0.875rem;
-				border-width: 1px;
-				min-height: auto;
-			}
-		}
-
-		/* Buttons - Mobile Optimized */
-		.button {
-			display: inline-flex;
-			align-items: center;
-			justify-content: center;
-			gap: 0.5rem;
-			padding: 0.875rem 1rem;
-			min-height: 48px; /* Touch-friendly minimum */
-			border-radius: var(--radius-lg);
-			font-size: 0.9rem;
-			font-weight: 600;
-			cursor: pointer;
-			transition: all 0.2s;
-			border: none;
-			width: 100%;
-			text-align: center;
-			user-select: none;
-			-webkit-user-select: none;
-			-webkit-tap-highlight-color: transparent;
-		}
-
-		.button:active {
-			transform: scale(0.98);
-		}
-
-		.button svg {
-			width: 20px;
-			height: 20px;
-			flex-shrink: 0;
-		}
-		
-		/* Larger screens */
-		@media (min-width: 768px) {
-			.button {
-				padding: 0.625rem 1.25rem;
-				font-size: 0.875rem;
-				font-weight: 500;
-				min-height: auto;
-			}
-			
-			.button svg {
-				width: 18px;
-				height: 18px;
-			}
-		}
-
-		.button-primary {
-			background: var(--primary-600);
-			color: white;
-		}
-
-		.button-primary:hover {
-			background: var(--primary-700);
-			transform: translateY(-1px);
-			box-shadow: var(--shadow-md);
-		}
-
-		.button-secondary {
-			background: var(--gray-100);
-			color: var(--gray-700);
-			border: 1px solid var(--gray-300);
-		}
-
-		.button-secondary:hover {
-			background: var(--gray-200);
-			transform: translateY(-1px);
-		}
-
-		.button-danger {
-			background: var(--red-500);
-			color: white;
-		}
-
-		.button-danger:hover {
-			background: var(--red-600);
-			transform: translateY(-1px);
-			box-shadow: var(--shadow-md);
-		}
-
-		.button-whatsapp {
-			background: #25D366;
-			color: white;
-		}
-
-		.button-whatsapp:hover {
-			background: #1DA851;
-			transform: translateY(-1px);
-			box-shadow: var(--shadow-md);
-		}
-
-		/* Footer */
-		footer {
-			text-align: center;
-			padding: 2rem 1rem;
-			color: var(--gray-600);
-			font-size: 0.875rem;
-		}
-
-		/* App Shell Enhancements */
-		header {
-			border: 1px solid var(--border);
-			background:
-				radial-gradient(circle at top left, rgba(37, 99, 235, 0.14), transparent 34%),
-				linear-gradient(135deg, rgba(37, 99, 235, 0.08), rgba(14, 165, 233, 0.04)),
-				var(--card);
-			overflow: hidden;
-		}
-
-		.header-copy {
-			position: relative;
-			z-index: 1;
-			padding-right: 3.25rem;
-		}
-
-		.header-kicker {
-			display: inline-flex;
-			align-items: center;
-			gap: 0.4rem;
-			padding: 0.35rem 0.7rem;
-			margin-bottom: 0.75rem;
-			border-radius: 999px;
-			background: rgba(37, 99, 235, 0.1);
-			color: var(--primary-800);
-			font-size: 0.72rem;
-			font-weight: 700;
-			letter-spacing: 0.08em;
-			text-transform: uppercase;
-		}
-
-		.header-kicker strong {
-			letter-spacing: normal;
-			text-transform: none;
-		}
-
-		.header-status {
-			display: flex;
-			flex-wrap: wrap;
-			justify-content: center;
-			gap: 0.6rem;
-			margin-top: 0.9rem;
-		}
-
-		.status-pill {
-			display: inline-flex;
-			align-items: center;
-			gap: 0.4rem;
-			padding: 0.45rem 0.7rem;
-			border-radius: 999px;
-			background: rgba(255, 255, 255, 0.7);
-			border: 1px solid rgba(37, 99, 235, 0.14);
-			color: var(--gray-700);
-			font-size: 0.78rem;
-			font-weight: 600;
-		}
-
-		.status-pill strong {
-			color: var(--primary-800);
-		}
-
-		#main-nav {
-			position: sticky;
-			top: 0.75rem;
-			z-index: 40;
-			display: grid;
-			grid-template-columns: repeat(2, minmax(0, 1fr));
-			overflow: visible;
-			border: 1px solid var(--border);
-			backdrop-filter: blur(14px);
-			-webkit-backdrop-filter: blur(14px);
-		}
-
-		#main-nav .nav-button {
-			width: 100%;
-			min-width: 0;
-			flex-direction: column;
-			gap: 0.35rem;
-			padding-inline: 0.6rem;
-		}
-
-		.app-shell-note {
-			display: flex;
-			flex-wrap: wrap;
-			align-items: center;
-			justify-content: center;
-			gap: 0.65rem;
-			margin-bottom: 1rem;
-			padding: 0.8rem 1rem;
-			border: 1px solid rgba(37, 99, 235, 0.14);
-			border-radius: var(--radius-lg);
-			background: rgba(255, 255, 255, 0.78);
-			box-shadow: var(--shadow-sm);
-			color: var(--gray-700);
-			font-size: 0.86rem;
-			text-align: center;
-		}
-
-		.app-shell-note strong {
-			color: var(--primary-800);
-		}
-
-		.card {
-			border: 1px solid var(--border);
-		}
-
-		.table-container {
-			border: 1px solid var(--border);
-			border-radius: calc(var(--radius-lg) + 2px);
-			background: var(--card);
-			box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.45);
-			padding: 0.35rem 0.5rem;
-		}
-
-		.section-kicker {
-			display: inline-flex;
-			align-items: center;
-			gap: 0.4rem;
-			font-size: 0.74rem;
-			font-weight: 700;
-			letter-spacing: 0.08em;
-			text-transform: uppercase;
-			color: var(--primary-700);
-			margin-bottom: 0.45rem;
-		}
-
-		.section-title {
-			font-size: 1.2rem;
-			font-weight: 800;
-			line-height: 1.25;
-			color: var(--gray-900);
-			margin-bottom: 0.35rem;
-		}
-
-		.section-subtitle {
-			color: var(--gray-600);
-			font-size: 0.9rem;
-			max-width: 62ch;
-		}
-
-		.hero-grid {
-			display: grid;
-			gap: 1rem;
-			margin-bottom: 1rem;
-		}
-
-		.hero-panel {
-			position: relative;
-			overflow: hidden;
-			background:
-				linear-gradient(135deg, rgba(37, 99, 235, 0.08), rgba(16, 185, 129, 0.05)),
-				var(--card);
-		}
-
-		.hero-panel::after {
-			content: "";
-			position: absolute;
-			inset: auto -3rem -3rem auto;
-			width: 9rem;
-			height: 9rem;
-			border-radius: 50%;
-			background: rgba(14, 165, 233, 0.08);
-			filter: blur(8px);
-			pointer-events: none;
-		}
-
-		.metric-strip {
-			display: grid;
-			grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
-			gap: 0.75rem;
-			margin-top: 1rem;
-		}
-
-		.metric-chip {
-			padding: 0.85rem 0.9rem;
-			border-radius: var(--radius-lg);
-			background: rgba(255, 255, 255, 0.84);
-			border: 1px solid rgba(37, 99, 235, 0.12);
-			text-align: left;
-		}
-
-		.metric-chip span {
-			display: block;
-			font-size: 0.72rem;
-			color: var(--gray-500);
-			text-transform: uppercase;
-			letter-spacing: 0.07em;
-			margin-bottom: 0.2rem;
-		}
-
-		.metric-chip strong {
-			font-size: 1.02rem;
-			color: var(--gray-900);
-		}
-
-		.view-shell {
-			display: grid;
-			gap: 1rem;
-		}
-
-		.view-header {
-			display: flex;
-			flex-wrap: wrap;
-			align-items: flex-start;
-			justify-content: space-between;
-			gap: 1rem;
-		}
-
-		.view-actions {
-			display: flex;
-			flex-wrap: wrap;
-			gap: 0.75rem;
-			width: 100%;
-		}
-
-		.view-actions .button {
-			width: auto;
-			flex: 1 1 10rem;
-		}
-
-		.control-shell {
-			display: grid;
-			gap: 0.75rem;
-			padding: 1rem;
-			border-radius: var(--radius-lg);
-			background: linear-gradient(135deg, rgba(37, 99, 235, 0.05), rgba(14, 165, 233, 0.03));
-			border: 1px solid rgba(37, 99, 235, 0.1);
-		}
-
-		.field-block {
-			display: grid;
-			gap: 0.45rem;
-		}
-
-		.field-label {
-			font-size: 0.8rem;
-			font-weight: 700;
-			color: var(--gray-700);
-			text-transform: uppercase;
-			letter-spacing: 0.06em;
-		}
-
-		.field-help {
-			color: var(--gray-600);
-			font-size: 0.84rem;
-		}
-
-		.dashboard-actions {
-			display: grid;
-			grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-			gap: 0.75rem;
-			margin-top: 1rem;
-		}
-
-		.dashboard-actions .button {
-			width: 100%;
-		}
-
-		.dashboard-shell {
-			display: grid;
-			gap: 1rem;
-		}
-
-		.dashboard-shell > * {
-			opacity: 0;
-			animation: dashboard-enter 0.45s ease forwards;
-		}
-
-		.dashboard-shell > *:nth-child(2) {
-			animation-delay: 0.06s;
-		}
-
-		.dashboard-shell > *:nth-child(3) {
-			animation-delay: 0.12s;
-		}
-
-		.dashboard-hero {
-			display: grid;
-			gap: 1rem;
-		}
-
-		.dashboard-spotlight {
-			display: grid;
-			gap: 1rem;
-			padding-block: 1.15rem;
-			background:
-				radial-gradient(circle at top right, rgba(16, 185, 129, 0.18), transparent 28%),
-				linear-gradient(135deg, rgba(37, 99, 235, 0.12), rgba(14, 165, 233, 0.05)),
-				var(--card);
-		}
-
-		.dashboard-status-row {
-			display: flex;
-			flex-wrap: wrap;
-			align-items: center;
-			justify-content: space-between;
-			gap: 0.75rem;
-		}
-
-		.dashboard-live-pill,
-		.dashboard-time-chip,
-		.finder-pill {
-			display: inline-flex;
-			align-items: center;
-			gap: 0.45rem;
-			padding: 0.45rem 0.75rem;
-			border-radius: 999px;
-			font-size: 0.78rem;
-			font-weight: 700;
-			letter-spacing: 0.01em;
-			border: 1px solid rgba(37, 99, 235, 0.12);
-			background: rgba(255, 255, 255, 0.82);
-			color: var(--gray-800);
-		}
-
-		.dashboard-live-pill--live {
-			color: var(--green-800);
-			background: rgba(236, 253, 245, 0.94);
-			border-color: rgba(16, 185, 129, 0.24);
-		}
-
-		.dashboard-live-pill--upcoming,
-		.dashboard-live-pill--break {
-			color: var(--primary-800);
-			background: rgba(239, 246, 255, 0.94);
-			border-color: rgba(37, 99, 235, 0.22);
-		}
-
-		.dashboard-live-pill--complete {
-			color: var(--yellow-800);
-			background: rgba(255, 251, 235, 0.94);
-			border-color: rgba(245, 158, 11, 0.24);
-		}
-
-		.dashboard-live-dot {
-			width: 0.6rem;
-			height: 0.6rem;
-			border-radius: 50%;
-			background: currentColor;
-			box-shadow: 0 0 0 0 currentColor;
-			animation: dashboard-beacon 1.8s infinite;
-			flex-shrink: 0;
-		}
-
-		.dashboard-time-chip svg,
-		.finder-pill svg {
-			width: 0.95rem;
-			height: 0.95rem;
-		}
-
-		.dashboard-hero-title {
-			font-size: clamp(1.55rem, 4vw, 2.3rem);
-			font-weight: 800;
-			line-height: 1.08;
-			letter-spacing: -0.03em;
-			color: var(--gray-900);
-			margin: 0;
-		}
-
-		.dashboard-hero-copy {
-			max-width: 56ch;
-		}
-
-		.dashboard-glance-grid {
-			display: grid;
-			grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-			gap: 0.75rem;
-		}
-
-		.dashboard-glance-card {
-			display: grid;
-			gap: 0.3rem;
-			padding: 0.95rem;
-			border-radius: var(--radius-lg);
-			border: 1px solid rgba(37, 99, 235, 0.12);
-			background: rgba(255, 255, 255, 0.82);
-			backdrop-filter: blur(8px);
-			-webkit-backdrop-filter: blur(8px);
-			box-shadow: var(--shadow-sm);
-		}
-
-		.dashboard-glance-card span {
-			font-size: 0.73rem;
-			font-weight: 700;
-			letter-spacing: 0.08em;
-			text-transform: uppercase;
-			color: var(--gray-500);
-		}
-
-		.dashboard-glance-card strong {
-			font-size: 1.1rem;
-			line-height: 1.2;
-			color: var(--gray-900);
-		}
-
-		.dashboard-glance-card small {
-			font-size: 0.82rem;
-			color: var(--gray-600);
-			line-height: 1.35;
-		}
-
-		.dashboard-primary-actions,
-		.dashboard-footer-actions {
-			display: grid;
-			gap: 0.75rem;
-		}
-
-		.dashboard-side-stack {
-			display: grid;
-			gap: 1rem;
-		}
-
-		.dashboard-quick-panel,
-		.dashboard-metrics-panel,
-		.dashboard-finder-card {
-			display: grid;
-			gap: 1rem;
-		}
-
-		.dashboard-quick-grid {
-			display: grid;
-			gap: 0.75rem;
-		}
-
-		.dashboard-quick-card {
-			display: grid;
-			gap: 0.85rem;
-			width: 100%;
-			padding: 1rem;
-			text-align: left;
-			border-radius: var(--radius-lg);
-			border: 1px solid rgba(37, 99, 235, 0.12);
-			background:
-				linear-gradient(135deg, rgba(255, 255, 255, 0.94), rgba(239, 246, 255, 0.74)),
-				var(--card);
-			color: var(--gray-900);
-			cursor: pointer;
-			transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease;
-			-webkit-tap-highlight-color: transparent;
-		}
-
-		.dashboard-quick-card:hover {
-			transform: translateY(-2px);
-			box-shadow: var(--shadow-lg);
-			border-color: rgba(37, 99, 235, 0.28);
-		}
-
-		.dashboard-quick-card:active {
-			transform: translateY(0) scale(0.99);
-		}
-
-		.dashboard-quick-card-row {
-			display: flex;
-			align-items: center;
-			justify-content: space-between;
-			gap: 0.75rem;
-		}
-
-		.dashboard-quick-icon {
-			display: inline-flex;
-			align-items: center;
-			justify-content: center;
-			width: 2.8rem;
-			height: 2.8rem;
-			border-radius: 1rem;
-			background: linear-gradient(135deg, var(--primary-600), var(--primary-700));
-			color: white;
-			box-shadow: 0 10px 18px -12px rgba(37, 99, 235, 0.75);
-			flex-shrink: 0;
-		}
-
-		.dashboard-quick-icon svg {
-			width: 1.2rem;
-			height: 1.2rem;
-		}
-
-		.dashboard-quick-tag {
-			display: inline-flex;
-			align-items: center;
-			padding: 0.3rem 0.6rem;
-			border-radius: 999px;
-			background: rgba(37, 99, 235, 0.1);
-			color: var(--primary-800);
-			font-size: 0.74rem;
-			font-weight: 700;
-		}
-
-		.dashboard-quick-copy {
-			display: grid;
-			gap: 0.28rem;
-		}
-
-		.dashboard-quick-copy strong {
-			font-size: 1rem;
-			color: var(--gray-900);
-		}
-
-		.dashboard-quick-copy p {
-			font-size: 0.85rem;
-			line-height: 1.45;
-			color: var(--gray-600);
-		}
-
-		.dashboard-quick-link {
-			display: inline-flex;
-			align-items: center;
-			gap: 0.4rem;
-			font-size: 0.84rem;
-			font-weight: 700;
-			color: var(--primary-700);
-		}
-
-		.dashboard-quick-link svg {
-			width: 1rem;
-			height: 1rem;
-		}
-
-		.dashboard-metric-strip {
-			margin-top: 0;
-		}
-
-		.finder-shell {
-			display: grid;
-			gap: 1rem;
-		}
-
-		.finder-status-banner {
-			display: grid;
-			gap: 1rem;
-			padding: 1rem;
-			border-radius: var(--radius-lg);
-			border: 1px solid rgba(37, 99, 235, 0.14);
-			background:
-				linear-gradient(135deg, rgba(239, 246, 255, 0.96), rgba(255, 255, 255, 0.92)),
-				var(--card);
-		}
-
-		.finder-status-banner--live {
-			border-color: rgba(16, 185, 129, 0.2);
-			background:
-				linear-gradient(135deg, rgba(236, 253, 245, 0.96), rgba(255, 255, 255, 0.9)),
-				var(--card);
-		}
-
-		.finder-status-banner--manual {
-			border-color: rgba(37, 99, 235, 0.22);
-		}
-
-		.finder-status-banner--complete {
-			border-color: rgba(245, 158, 11, 0.22);
-			background:
-				linear-gradient(135deg, rgba(255, 251, 235, 0.96), rgba(255, 255, 255, 0.92)),
-				var(--card);
-		}
-
-		.finder-status-top {
-			display: flex;
-			flex-wrap: wrap;
-			align-items: flex-start;
-			justify-content: space-between;
-			gap: 1rem;
-		}
-
-		.finder-status-title {
-			font-size: 1.15rem;
-			font-weight: 800;
-			color: var(--gray-900);
-			margin: 0;
-		}
-
-		.finder-status-copy {
-			margin-top: 0.35rem;
-			font-size: 0.9rem;
-			color: var(--gray-600);
-			max-width: 58ch;
-		}
-
-		.finder-status-badges {
-			display: flex;
-			flex-wrap: wrap;
-			gap: 0.5rem;
-		}
-
-		.finder-pill--accent {
-			background: var(--primary-600);
-			color: white;
-			border-color: transparent;
-		}
-
-		.finder-highlight {
-			display: grid;
-			grid-template-columns: auto 1fr;
-			gap: 0.75rem;
-			padding: 0.85rem 0.95rem;
-			border-radius: var(--radius-lg);
-			background: rgba(37, 99, 235, 0.08);
-			border: 1px solid rgba(37, 99, 235, 0.12);
-		}
-
-		.finder-highlight svg {
-			width: 1.1rem;
-			height: 1.1rem;
-			color: var(--primary-700);
-			margin-top: 0.1rem;
-		}
-
-		.finder-highlight strong {
-			color: var(--gray-900);
-		}
-
-		.finder-highlight span {
-			display: block;
-			margin-top: 0.15rem;
-			font-size: 0.84rem;
-			color: var(--gray-600);
-		}
-
-		.finder-controls {
-			display: grid;
-			gap: 0.75rem;
-		}
-
-		.finder-field {
-			display: grid;
-			gap: 0.45rem;
-		}
-
-		.finder-field label {
-			display: inline-flex;
-			align-items: center;
-			gap: 0.4rem;
-			font-size: 0.82rem;
-			font-weight: 700;
-			text-transform: uppercase;
-			letter-spacing: 0.06em;
-			color: var(--gray-700);
-		}
-
-		.finder-field label svg {
-			width: 0.95rem;
-			height: 0.95rem;
-		}
-
-		.finder-banner-actions {
-			display: flex;
-			flex-wrap: wrap;
-			gap: 0.75rem;
-		}
-
-		.finder-banner-actions .button {
-			width: 100%;
-		}
-
-		.finder-results-panel {
-			display: grid;
-			gap: 0.9rem;
-			padding: 1rem;
-			border-radius: var(--radius-lg);
-			background: var(--gray-50);
-			border: 1px solid var(--gray-200);
-		}
-
-		.finder-results-header {
-			display: flex;
-			flex-wrap: wrap;
-			align-items: center;
-			justify-content: space-between;
-			gap: 0.75rem;
-		}
-
-		.finder-results-header h4 {
-			font-size: 1rem;
-			color: var(--gray-900);
-			margin: 0;
-		}
-
-		.finder-results-header p {
-			margin-top: 0.2rem;
-			font-size: 0.84rem;
-			color: var(--gray-600);
-		}
-
-		.finder-results-list {
-			display: grid;
-			gap: 0.75rem;
-			max-height: 24rem;
-			overflow-y: auto;
-			padding-right: 0.15rem;
-		}
-
-		.finder-card {
-			display: grid;
-			gap: 0.75rem;
-			padding: 0.95rem;
-			border-radius: var(--radius-lg);
-			border: 1px solid var(--gray-200);
-			border-left: 4px solid var(--gray-300);
-			background: var(--card);
-			box-shadow: var(--shadow-sm);
-			transition: transform 0.2s ease, box-shadow 0.2s ease;
-		}
-
-		.finder-card:hover {
-			transform: translateY(-1px);
-			box-shadow: var(--shadow-md);
-		}
-
-		.finder-card--best {
-			border-left-color: var(--green-500);
-			background: linear-gradient(135deg, rgba(236, 253, 245, 0.7), rgba(255, 255, 255, 0.92));
-		}
-
-		.finder-card--strong {
-			border-left-color: var(--primary-500);
-			background: linear-gradient(135deg, rgba(239, 246, 255, 0.7), rgba(255, 255, 255, 0.92));
-		}
-
-		.finder-card--backup {
-			border-left-color: var(--yellow-500);
-			background: linear-gradient(135deg, rgba(255, 251, 235, 0.7), rgba(255, 255, 255, 0.92));
-		}
-
-		.finder-card-header {
-			display: flex;
-			flex-wrap: wrap;
-			align-items: flex-start;
-			justify-content: space-between;
-			gap: 0.75rem;
-		}
-
-		.finder-teacher-block {
-			display: grid;
-			grid-template-columns: auto 1fr;
-			gap: 0.75rem;
-			align-items: start;
-		}
-
-		.finder-rank-badge {
-			display: inline-flex;
-			align-items: center;
-			justify-content: center;
-			min-width: 2rem;
-			height: 2rem;
-			padding: 0 0.45rem;
-			border-radius: 999px;
-			background: var(--gray-900);
-			color: white;
-			font-size: 0.85rem;
-			font-weight: 800;
-			box-shadow: var(--shadow-sm);
-		}
-
-		.finder-teacher-copy {
-			display: grid;
-			gap: 0.25rem;
-		}
-
-		.finder-teacher-row {
-			display: flex;
-			flex-wrap: wrap;
-			align-items: center;
-			gap: 0.5rem;
-		}
-
-		.finder-teacher-row strong {
-			font-size: 1rem;
-			color: var(--gray-900);
-		}
-
-		.finder-teacher-copy p {
-			font-size: 0.85rem;
-			color: var(--gray-600);
-			line-height: 1.4;
-		}
-
-		.finder-meta-block {
-			display: grid;
-			justify-items: end;
-			gap: 0.4rem;
-		}
-
-		.finder-workload {
-			font-size: 0.8rem;
-			color: var(--gray-500);
-		}
-
-		.finder-breakdown {
-			display: flex;
-			flex-wrap: wrap;
-			gap: 0.5rem;
-		}
-
-		.finder-breakdown span {
-			display: inline-flex;
-			align-items: center;
-			padding: 0.3rem 0.55rem;
-			border-radius: 999px;
-			background: rgba(17, 24, 39, 0.06);
-			color: var(--gray-700);
-			font-size: 0.75rem;
-			font-weight: 600;
-		}
-
-		.finder-empty {
-			display: grid;
-			justify-items: center;
-			gap: 0.45rem;
-			padding: 1.4rem 1rem;
-			text-align: center;
-			border-radius: var(--radius-lg);
-			border: 2px dashed var(--gray-300);
-			background: rgba(255, 255, 255, 0.78);
-			color: var(--gray-600);
-		}
-
-		.finder-empty svg {
-			width: 1.5rem;
-			height: 1.5rem;
-			color: var(--gray-400);
-		}
-
-		.finder-empty strong {
-			color: var(--gray-900);
-		}
-
-		.finder-empty--error {
-			border-color: var(--red-200);
-			color: var(--red-600);
-		}
-
-		.finder-empty--error svg,
-		.finder-empty--error strong {
-			color: var(--red-600);
-		}
-
-		.button:disabled {
-			opacity: 0.58;
-			cursor: not-allowed;
-			box-shadow: none;
-			transform: none;
-		}
-
-		.substitution-shell {
-			display: grid;
-			gap: 1rem;
-		}
-
-		.substitution-shell > * {
-			opacity: 0;
-			animation: dashboard-enter 0.45s ease forwards;
-		}
-
-		.substitution-shell > *:nth-child(2) {
-			animation-delay: 0.06s;
-		}
-
-		.substitution-shell > *:nth-child(3) {
-			animation-delay: 0.12s;
-		}
-
-		.substitution-hero,
-		.substitution-selector-panel,
-		.substitution-plan-panel {
-			display: grid;
-			gap: 1rem;
-		}
-
-		.substitution-day-tabs {
-			margin-top: 0.1rem;
-		}
-
-		.substitution-metric-strip,
-		.substitution-plan-strip {
-			margin-top: 0;
-		}
-
-		.substitution-toolbar {
-			display: grid;
-			gap: 0.85rem;
-		}
-
-		.substitution-toolbar-top {
-			display: flex;
-			flex-wrap: wrap;
-			align-items: flex-start;
-			justify-content: space-between;
-			gap: 0.85rem;
-		}
-
-		.substitution-toolbar-copy {
-			display: grid;
-			gap: 0.3rem;
-			flex: 1 1 18rem;
-		}
-
-		.substitution-toolbar-actions {
-			display: grid;
-			gap: 0.65rem;
-			width: min(100%, 22rem);
-		}
-
-		.substitution-step-grid {
-			display: grid;
-			gap: 0.75rem;
-		}
-
-		.substitution-step-card {
-			display: grid;
-			gap: 0.35rem;
-			padding: 0.95rem 1rem;
-			border-radius: var(--radius-lg);
-			border: 1px solid rgba(37, 99, 235, 0.14);
-			background: linear-gradient(135deg, rgba(255, 255, 255, 0.94), rgba(239, 246, 255, 0.88));
-		}
-
-		.substitution-step-card span {
-			font-size: 0.72rem;
-			font-weight: 800;
-			letter-spacing: 0.08em;
-			text-transform: uppercase;
-			color: var(--primary-700);
-		}
-
-		.substitution-step-card strong {
-			font-size: 0.98rem;
-			color: var(--gray-900);
-		}
-
-		.substitution-step-card p {
-			font-size: 0.84rem;
-			line-height: 1.45;
-			color: var(--gray-600);
-		}
-
-		.substitution-hero-actions,
-		.substitution-plan-actions {
-			display: grid;
-			gap: 0.75rem;
-		}
-
-		.substitution-plan-actions--sticky {
-			position: sticky;
-			top: 5.1rem;
-			z-index: 16;
-			padding: 0.7rem;
-			border-radius: var(--radius-lg);
-			border: 1px solid rgba(37, 99, 235, 0.14);
-			background: rgba(255, 255, 255, 0.96);
-			backdrop-filter: blur(4px);
-		}
-
-		.substitution-layout {
-			display: grid;
-			gap: 1rem;
-		}
-
-		.substitution-search {
-			position: relative;
-		}
-
-		.substitution-search svg {
-			position: absolute;
-			left: 0.85rem;
-			top: 50%;
-			width: 1rem;
-			height: 1rem;
-			transform: translateY(-50%);
-			color: var(--gray-400);
-			pointer-events: none;
-		}
-
-		.substitution-search input {
-			padding-left: 2.7rem;
-			border: 1px solid rgba(37, 99, 235, 0.16);
-			background: rgba(255, 255, 255, 0.9);
-		}
-
-		.substitution-search--prominent input {
-			min-height: 3.2rem;
-			font-size: 1rem;
-			font-weight: 600;
-			box-shadow: var(--shadow-sm);
-		}
-
-		.substitution-selector-panel--compact {
-			gap: 0.85rem;
-			position: sticky;
-			top: 5rem;
-			z-index: 20;
-		}
-
-		.substitution-search-toolbar {
-			display: grid;
-			gap: 0.85rem;
-		}
-
-		.substitution-search-toolbar-top,
-		.substitution-search-actions {
-			display: flex;
-			flex-wrap: wrap;
-			align-items: center;
-			justify-content: space-between;
-			gap: 0.65rem;
-		}
-
-		.substitution-search-actions .button {
-			flex: 1 1 0;
-		}
-
-		.substitution-search-results {
-			display: grid;
-			gap: 0.55rem;
-			max-height: 16rem;
-			overflow-y: auto;
-			padding-right: 0.1rem;
-		}
-
-		.substitution-search-empty {
-			padding: 0.7rem 0.1rem 0.1rem;
-			font-size: 0.84rem;
-			color: var(--gray-600);
-		}
-
-		.substitution-teacher-suggestion {
-			display: flex;
-			align-items: flex-start;
-			justify-content: space-between;
-			gap: 0.75rem;
-			width: 100%;
-			padding: 0.8rem 0.9rem;
-			border: 1px solid rgba(37, 99, 235, 0.12);
-			border-radius: var(--radius-lg);
-			background: linear-gradient(135deg, rgba(255, 255, 255, 0.96), rgba(248, 250, 252, 0.94));
-			cursor: pointer;
-			text-align: left;
-		}
-
-		.substitution-teacher-suggestion--selected {
-			border-color: rgba(16, 185, 129, 0.22);
-			background: linear-gradient(135deg, rgba(236, 253, 245, 0.9), rgba(255, 255, 255, 0.98));
-		}
-
-		.substitution-teacher-suggestion-copy {
-			display: grid;
-			gap: 0.18rem;
-		}
-
-		.substitution-teacher-suggestion-copy strong {
-			font-size: 0.94rem;
-			color: var(--gray-900);
-		}
-
-		.substitution-teacher-suggestion-copy p {
-			font-size: 0.8rem;
-			color: var(--gray-600);
-		}
-
-		.substitution-selected-panel {
-			display: grid;
-			gap: 0.6rem;
-			padding: 0.85rem 0.95rem;
-			border-radius: var(--radius-lg);
-			border: 1px solid rgba(37, 99, 235, 0.12);
-			background: rgba(239, 246, 255, 0.62);
-		}
-
-		.substitution-selected-list {
-			display: flex;
-			flex-wrap: wrap;
-			gap: 0.5rem;
-		}
-
-		.substitution-selected-chip,
-		.substitution-mini-pill {
-			display: inline-flex;
-			align-items: center;
-			gap: 0.35rem;
-			padding: 0.35rem 0.65rem;
-			border-radius: 999px;
-			background: rgba(17, 24, 39, 0.06);
-			color: var(--gray-700);
-			font-size: 0.75rem;
-			font-weight: 700;
-		}
-
-		.substitution-selected-chip svg {
-			width: 0.9rem;
-			height: 0.9rem;
-		}
-
-		.substitution-selected-chip {
-			border: none;
-			cursor: pointer;
-			transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
-		}
-
-		.substitution-selected-chip:hover {
-			transform: translateY(-1px);
-			box-shadow: var(--shadow-sm);
-			background: rgba(37, 99, 235, 0.1);
-		}
-
-		.substitution-selected-empty {
-			font-size: 0.84rem;
-			color: var(--gray-600);
-		}
-
-		.substitution-mini-pill--soft {
-			background: rgba(37, 99, 235, 0.08);
-			color: var(--primary-800);
-		}
-
-		.substitution-mini-pill--active {
-			background: rgba(16, 185, 129, 0.14);
-			color: var(--green-800);
-		}
-
-		.substitution-teacher-grid {
-			display: grid;
-			gap: 0.75rem;
-			max-height: 28rem;
-			overflow-y: auto;
-			padding-right: 0.15rem;
-		}
-
-		.substitution-teacher-card {
-			display: grid;
-			gap: 0.8rem;
-			padding: 0.95rem;
-			border-radius: var(--radius-lg);
-			border: 1px solid rgba(37, 99, 235, 0.12);
-			background: linear-gradient(135deg, rgba(255, 255, 255, 0.92), rgba(248, 250, 252, 0.9));
-			cursor: pointer;
-			transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
-		}
-
-		.substitution-teacher-card:hover {
-			transform: translateY(-1px);
-			box-shadow: var(--shadow-md);
-			border-color: rgba(37, 99, 235, 0.22);
-		}
-
-		.substitution-teacher-card--selected {
-			border-color: rgba(37, 99, 235, 0.34);
-			background: linear-gradient(135deg, rgba(239, 246, 255, 0.95), rgba(224, 242, 254, 0.92));
-			box-shadow: var(--shadow-md);
-		}
-
-		.substitution-teacher-toggle {
-			display: grid;
-			grid-template-columns: auto 1fr;
-			align-items: start;
-			gap: 0.75rem;
-		}
-
-		.substitution-teacher-toggle input {
-			width: 1.1rem;
-			height: 1.1rem;
-			margin-top: 0.2rem;
-			accent-color: var(--primary-600);
-		}
-
-		.substitution-teacher-copy {
-			display: grid;
-			gap: 0.22rem;
-		}
-
-		.substitution-teacher-copy strong {
-			font-size: 1rem;
-			color: var(--gray-900);
-		}
-
-		.substitution-teacher-copy p {
-			font-size: 0.84rem;
-			line-height: 1.4;
-			color: var(--gray-600);
-		}
-
-		.substitution-teacher-meta {
-			display: flex;
-			flex-wrap: wrap;
-			gap: 0.5rem;
-		}
-
-		.substitution-plan-shell {
-			display: grid;
-			gap: 1rem;
-		}
-
-		.substitution-plan-table {
-			margin-top: 0;
-		}
-
-		.substitution-plan-table th,
-		.substitution-plan-table td {
-			text-align: left;
-			vertical-align: middle;
-		}
-
-		.substitution-plan-row--covered {
-			background: rgba(236, 253, 245, 0.55);
-		}
-
-		.substitution-plan-row--open {
-			background: rgba(255, 251, 235, 0.7);
-		}
-
-		.substitution-plan-row--focused {
-			animation: substitution-slot-focus 1.8s ease;
-		}
-
-		.substitution-table-substitute {
-			display: grid;
-			gap: 0.2rem;
-		}
-
-		.substitution-table-substitute strong {
-			color: var(--gray-900);
-		}
-
-		.substitution-table-substitute small {
-			color: var(--gray-600);
-			line-height: 1.4;
-		}
-
-		.substitution-table-status {
-			display: inline-flex;
-			align-items: center;
-			justify-content: center;
-			width: fit-content;
-			padding: 0.3rem 0.55rem;
-			border-radius: 999px;
-			font-size: 0.7rem;
-			font-weight: 800;
-			letter-spacing: 0.04em;
-			text-transform: uppercase;
-		}
-
-		.substitution-table-status--covered {
-			background: rgba(16, 185, 129, 0.14);
-			color: var(--green-800);
-		}
-
-		.substitution-table-status--open {
-			background: rgba(245, 158, 11, 0.16);
-			color: var(--yellow-800);
-		}
-
-		.substitution-table-actions {
-			display: grid;
-			gap: 0.5rem;
-			min-width: 10rem;
-		}
-
-		.substitution-plan-grid {
-			display: grid;
-			gap: 0.75rem;
-		}
-
-		.substitution-plan-card {
-			display: grid;
-			gap: 0.85rem;
-			padding: 1rem;
-			border-radius: var(--radius-lg);
-			border: 1px solid var(--gray-200);
-			border-left: 4px solid var(--gray-300);
-			background: var(--card);
-			box-shadow: var(--shadow-sm);
-		}
-
-		.substitution-plan-card--covered {
-			border-left-color: var(--green-500);
-			background: linear-gradient(135deg, rgba(236, 253, 245, 0.82), rgba(255, 255, 255, 0.96));
-		}
-
-		.substitution-plan-card--open {
-			border-left-color: var(--yellow-500);
-			background: linear-gradient(135deg, rgba(255, 251, 235, 0.84), rgba(255, 255, 255, 0.96));
-		}
-
-		.substitution-plan-top {
-			display: flex;
-			flex-wrap: wrap;
-			align-items: flex-start;
-			justify-content: space-between;
-			gap: 0.75rem;
-		}
-
-		.substitution-plan-slot-block {
-			display: grid;
-			gap: 0.25rem;
-		}
-
-		.substitution-plan-slot {
-			display: inline-flex;
-			align-items: center;
-			padding: 0.35rem 0.65rem;
-			border-radius: 999px;
-			background: rgba(17, 24, 39, 0.08);
-			color: var(--gray-800);
-			font-size: 0.76rem;
-			font-weight: 800;
-		}
-
-		.substitution-plan-slot-block small {
-			font-size: 0.82rem;
-			color: var(--gray-500);
-		}
-
-		.substitution-plan-status {
-			display: inline-flex;
-			align-items: center;
-			gap: 0.35rem;
-			padding: 0.4rem 0.7rem;
-			border-radius: 999px;
-			font-size: 0.75rem;
-			font-weight: 800;
-		}
-
-		.substitution-plan-status svg {
-			width: 0.95rem;
-			height: 0.95rem;
-		}
-
-		.substitution-plan-status--covered {
-			background: rgba(16, 185, 129, 0.14);
-			color: var(--green-800);
-		}
-
-		.substitution-plan-status--open {
-			background: rgba(245, 158, 11, 0.16);
-			color: var(--yellow-800);
-		}
-
-		.substitution-plan-copy {
-			display: grid;
-			gap: 0.24rem;
-		}
-
-		.substitution-plan-copy strong {
-			font-size: 1rem;
-			color: var(--gray-900);
-		}
-
-		.substitution-plan-copy p {
-			font-size: 0.86rem;
-			color: var(--gray-600);
-		}
-
-		.substitution-plan-detail-strip {
-			display: flex;
-			flex-wrap: wrap;
-			gap: 0.45rem;
-		}
-
-		.substitution-plan-note {
-			font-size: 0.82rem;
-			line-height: 1.45;
-			color: var(--gray-600);
-		}
-
-		.substitution-open-strip {
-			display: flex;
-			gap: 0.55rem;
-			overflow-x: auto;
-			padding-bottom: 0.1rem;
-			-webkit-overflow-scrolling: touch;
-		}
-
-		.substitution-open-chip {
-			display: grid;
-			gap: 0.1rem;
-			min-width: 7.5rem;
-			padding: 0.7rem 0.85rem;
-			border: 1px solid rgba(245, 158, 11, 0.18);
-			border-radius: var(--radius-lg);
-			background: linear-gradient(135deg, rgba(255, 251, 235, 0.94), rgba(255, 255, 255, 0.98));
-			color: var(--gray-800);
-			cursor: pointer;
-			text-align: left;
-		}
-
-		.substitution-open-chip strong {
-			font-size: 0.82rem;
-		}
-
-		.substitution-open-chip span {
-			font-size: 0.76rem;
-			color: var(--gray-600);
-		}
-
-		.substitution-plan-recommendation {
-			display: grid;
-			gap: 0.4rem;
-			padding: 0.85rem 0.9rem;
-			border-radius: var(--radius-lg);
-			border: 1px solid rgba(37, 99, 235, 0.12);
-			background: rgba(239, 246, 255, 0.7);
-		}
-
-		.substitution-plan-recommendation--empty {
-			background: rgba(249, 250, 251, 0.9);
-			border-color: var(--gray-200);
-		}
-
-		.substitution-plan-recommendation-top {
-			display: flex;
-			flex-wrap: wrap;
-			align-items: flex-start;
-			justify-content: space-between;
-			gap: 0.6rem;
-		}
-
-		.substitution-plan-recommendation strong {
-			font-size: 0.9rem;
-			color: var(--gray-900);
-		}
-
-		.substitution-plan-recommendation p {
-			font-size: 0.83rem;
-			line-height: 1.45;
-			color: var(--gray-600);
-		}
-
-		.substitution-plan-card-actions {
-			display: grid;
-			gap: 0.65rem;
-		}
-
-		.substitution-inline-button {
-			width: 100%;
-		}
-
-		.substitution-plan-people {
-			display: grid;
-			grid-template-columns: repeat(2, minmax(0, 1fr));
-			gap: 0.75rem;
-		}
-
-		.substitution-plan-person {
-			display: grid;
-			gap: 0.28rem;
-			padding: 0.85rem 0.9rem;
-			border-radius: var(--radius-lg);
-			border: 1px solid rgba(148, 163, 184, 0.18);
-			background: rgba(255, 255, 255, 0.82);
-		}
-
-		.substitution-plan-person span {
-			font-size: 0.72rem;
-			font-weight: 700;
-			letter-spacing: 0.08em;
-			text-transform: uppercase;
-			color: var(--gray-500);
-		}
-
-		.substitution-plan-person strong {
-			font-size: 0.96rem;
-			color: var(--gray-900);
-		}
-
-		.substitution-plan-person--absent strong {
-			color: var(--red-700);
-		}
-
-		.substitution-plan-person--substitute strong {
-			color: var(--green-700);
-		}
-
-		.substitution-empty {
-			display: grid;
-			justify-items: center;
-			gap: 0.45rem;
-			padding: 1.5rem 1rem;
-			text-align: center;
-			border-radius: var(--radius-lg);
-			border: 2px dashed var(--gray-300);
-			background: rgba(255, 255, 255, 0.8);
-			color: var(--gray-600);
-		}
-
-		.substitution-empty--inline {
-			padding: 1.1rem 0.95rem;
-		}
-
-		.substitution-empty svg {
-			width: 1.45rem;
-			height: 1.45rem;
-			color: var(--gray-400);
-		}
-
-		.substitution-empty strong {
-			color: var(--gray-900);
-		}
-
-		.substitution-sheet {
-			display: grid;
-			gap: 1rem;
-		}
-
-		.substitution-sheet-summary,
-		.substitution-sheet-current {
-			display: grid;
-			gap: 0.35rem;
-			padding: 0.95rem 1rem;
-			border-radius: var(--radius-lg);
-			border: 1px solid rgba(37, 99, 235, 0.12);
-			background: rgba(239, 246, 255, 0.68);
-		}
-
-		.substitution-sheet-summary span,
-		.substitution-sheet-current span {
-			font-size: 0.72rem;
-			font-weight: 800;
-			letter-spacing: 0.08em;
-			text-transform: uppercase;
-			color: var(--primary-700);
-		}
-
-		.substitution-sheet-summary strong,
-		.substitution-sheet-current strong {
-			font-size: 1rem;
-			color: var(--gray-900);
-		}
-
-		.substitution-sheet-summary p,
-		.substitution-sheet-summary small,
-		.substitution-sheet-current p {
-			color: var(--gray-600);
-		}
-
-		.substitution-sheet-list,
-		.substitution-sheet-footer {
-			display: grid;
-			gap: 0.75rem;
-		}
-
-		.substitution-sheet-option {
-			display: flex;
-			align-items: flex-start;
-			justify-content: space-between;
-			gap: 0.75rem;
-			width: 100%;
-			padding: 0.95rem 1rem;
-			border-radius: var(--radius-lg);
-			border: 1px solid rgba(37, 99, 235, 0.14);
-			background: linear-gradient(135deg, rgba(255, 255, 255, 0.96), rgba(248, 250, 252, 0.94));
-			cursor: pointer;
-			text-align: left;
-			transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
-		}
-
-		.substitution-sheet-option:hover {
-			transform: translateY(-1px);
-			border-color: rgba(37, 99, 235, 0.26);
-			box-shadow: var(--shadow-sm);
-		}
-
-		.substitution-sheet-option--current {
-			border-color: rgba(16, 185, 129, 0.28);
-			background: linear-gradient(135deg, rgba(236, 253, 245, 0.92), rgba(255, 255, 255, 0.98));
-		}
-
-		.substitution-sheet-option-copy {
-			display: grid;
-			gap: 0.24rem;
-		}
-
-		.substitution-sheet-option-copy strong {
-			font-size: 0.98rem;
-			color: var(--gray-900);
-		}
-
-		.substitution-sheet-option-copy p {
-			font-size: 0.83rem;
-			line-height: 1.45;
-			color: var(--gray-600);
-		}
-
-		.substitution-mobile-bar {
-			position: fixed;
-			left: 0.75rem;
-			right: 0.75rem;
-			bottom: 1rem;
-			z-index: 95;
-			display: grid;
-			gap: 0.75rem;
-			padding: 0.9rem;
-			border-radius: 1rem;
-			border: 1px solid rgba(37, 99, 235, 0.14);
-			background: rgba(255, 255, 255, 0.96);
-			box-shadow: var(--shadow-xl);
-			backdrop-filter: blur(14px);
-			-webkit-backdrop-filter: blur(14px);
-		}
-
-		.substitution-mobile-summary {
-			display: grid;
-			gap: 0.18rem;
-		}
-
-		.substitution-mobile-summary strong {
-			font-size: 0.96rem;
-			color: var(--gray-900);
-		}
-
-		.substitution-mobile-summary p {
-			font-size: 0.82rem;
-			line-height: 1.4;
-			color: var(--gray-600);
-		}
-
-		.substitution-mobile-actions {
-			display: grid;
-			grid-template-columns: repeat(2, minmax(0, 1fr));
-			gap: 0.65rem;
-		}
-
-		.substitution-shell--with-mobile-bar {
-			padding-bottom: 8rem;
-		}
-
-		@keyframes dashboard-enter {
-			from {
-				opacity: 0;
-				transform: translateY(14px);
-			}
-			to {
-				opacity: 1;
-				transform: translateY(0);
-			}
-		}
-
-		@keyframes dashboard-beacon {
-			0% {
-				box-shadow: 0 0 0 0 currentColor;
-			}
-			70% {
-				box-shadow: 0 0 0 0.45rem rgba(0, 0, 0, 0);
-			}
-			100% {
-				box-shadow: 0 0 0 0 rgba(0, 0, 0, 0);
-			}
-		}
-
-		@keyframes substitution-slot-focus {
-			0% {
-				box-shadow: inset 0 0 0 0 rgba(37, 99, 235, 0.28);
-			}
-			35% {
-				box-shadow: inset 0 0 0 999px rgba(37, 99, 235, 0.14);
-			}
-			100% {
-				box-shadow: inset 0 0 0 0 rgba(37, 99, 235, 0);
-			}
-		}
-
-		@media (min-width: 640px) {
-			#main-nav {
-				grid-template-columns: repeat(3, minmax(0, 1fr));
-			}
-		}
-
-		@media (min-width: 768px) {
-			.header-copy {
-				padding-right: 4.25rem;
-			}
-
-			.header-status {
-				justify-content: center;
-			}
-
-			.hero-grid {
-				grid-template-columns: minmax(0, 1.4fr) minmax(280px, 0.9fr);
-				align-items: stretch;
-			}
-
-			.dashboard-hero {
-				grid-template-columns: minmax(0, 1.2fr) minmax(320px, 0.95fr);
-				align-items: start;
-			}
-
-			.dashboard-primary-actions {
-				grid-template-columns: repeat(2, minmax(0, 1fr));
-			}
-
-			.finder-controls {
-				grid-template-columns: repeat(2, minmax(0, 1fr));
-			}
-
-			.substitution-step-grid {
-				grid-template-columns: repeat(3, minmax(0, 1fr));
-			}
-
-			.substitution-layout {
-				grid-template-columns: minmax(320px, 0.95fr) minmax(0, 1.15fr);
-				align-items: start;
-			}
-
-			.substitution-toolbar-actions {
-				grid-template-columns: repeat(3, minmax(0, 1fr));
-				width: auto;
-			}
-
-			.substitution-hero-actions {
-				grid-template-columns: repeat(2, minmax(0, 1fr));
-			}
-
-			.substitution-plan-actions {
-				grid-template-columns: repeat(3, minmax(0, 1fr));
-			}
-
-			.substitution-plan-card-actions,
-			.substitution-sheet-footer {
-				grid-template-columns: repeat(3, minmax(0, 1fr));
-			}
-
-			.substitution-search-actions .button {
-				flex: 0 0 auto;
-			}
-
-			.finder-banner-actions .button,
-			.dashboard-footer-actions .button,
-			.substitution-clear-btn {
-				width: auto;
-				max-width: 280px;
-			}
-
-			.finder-banner-actions {
-				justify-content: flex-start;
-			}
-
-			.view-actions {
-				width: auto;
-				justify-content: flex-end;
-			}
-
-			#main-nav .nav-button {
-				flex-direction: row;
-				justify-content: center;
-			}
-		}
-
-		@media (min-width: 1024px) {
-			#main-nav {
-				grid-template-columns: repeat(5, minmax(0, 1fr));
-			}
-
-			.dashboard-spotlight {
-				padding: 1.4rem;
-			}
-
-			.substitution-teacher-grid {
-				grid-template-columns: repeat(2, minmax(0, 1fr));
-			}
-		}
-
-		/* Mobile Quick Access Button */
-		.mobile-menu-btn {
-			display: flex;
-			align-items: center;
-			justify-content: center;
-			position: fixed;
-			bottom: 1rem;
-			right: 1rem;
-			width: 56px;
-			height: 56px;
-			border-radius: 50%;
-			background: var(--primary-600);
-			color: white;
-			border: none;
-			box-shadow: var(--shadow-xl);
-			z-index: 100;
-			cursor: pointer;
-			transition: all 0.3s;
-			-webkit-tap-highlight-color: transparent;
-		}
-
-		.mobile-menu-btn:active {
-			transform: scale(0.95);
-			background: var(--primary-700);
-		}
-
-		.mobile-menu-btn:hover {
-			transform: scale(1.05);
-			background: var(--primary-700);
-		}
-
-		.mobile-menu-btn svg {
-			width: 24px;
-			height: 24px;
-		}
-		
-		/* Hide on larger screens if needed */
-		@media (min-width: 1024px) {
-			.mobile-menu-btn {
-				display: none;
-			}
-		}
-
-		/* Utility Classes */
-		.grid {
-			display: grid;
-		}
-
-		.grid-cols-1 {
-			grid-template-columns: repeat(1, minmax(0, 1fr));
-		}
-
-		.gap-4 {
-			gap: 1rem;
-		}
-
-		.gap-6 {
-			gap: 1.5rem;
-		}
-
-		.mb-4 {
-			margin-bottom: 1rem;
-		}
-
-		.mt-4 {
-			margin-top: 1rem;
-		}
-
-		.flex {
-			display: flex;
-		}
-
-		.flex-wrap {
-			flex-wrap: wrap;
-		}
-
-		.items-center {
-			align-items: center;
-		}
-
-		.justify-between {
-			justify-content: space-between;
-		}
-
-		.justify-center {
-			justify-content: center;
-		}
-
-		.font-bold {
-			font-weight: 700;
-		}
-
-		.block {
-			display: block;
-		}
-
-		/* Capture and Export Enhancements */
-		#print-capture-area {
-			--export-page-width: 1123px;
-			--export-page-height: 794px;
-			--export-page-padding: 20px;
-			position: absolute;
-			left: -9999px;
-			top: -9999px;
-			width: var(--export-page-width);
-			min-height: var(--export-page-height);
-			padding: var(--export-page-padding);
-			box-sizing: border-box;
-			overflow: hidden;
-			margin: 0 auto;
-			background: #ffffff;
-			display: none;
-		}
-
-		#print-capture-area[data-page-orientation="portrait"] {
-			--export-page-width: 794px;
-			--export-page-height: 1123px;
-		}
-
-		#print-content {
-			width: 100%;
-			font-family: Arial, sans-serif;
-			color: #111827;
-		}
-
-		#print-header {
-			text-align: center;
-			margin-bottom: 0.5rem;
-			padding-bottom: 0.35rem;
-			border-bottom: 2px solid #2563eb;
-		}
-
-		#print-header h1 {
-			font-size: 1.3rem;
-			font-weight: 800;
-			color: #2563eb;
-			margin: 0 0 0.1rem 0;
-			line-height: 1.1;
-		}
-
-		#print-header-subtitle {
-			font-size: 0.95rem;
-			font-weight: 700;
-			color: #374151;
-			margin: 0.1rem 0;
-			line-height: 1.2;
-		}
-
-		#print-header div {
-			font-size: 0.72rem !important;
-			color: #6b7280;
-			margin-top: 0.15rem !important;
-			line-height: 1.2;
-		}
-
-		.print-export-shell {
-			width: 100%;
-		}
-
-		.print-export-shell--single-page {
-			height: 100%;
-		}
-
-		.print-export-viewport {
-			width: 100%;
-			display: flex;
-			align-items: flex-start;
-			justify-content: center;
-		}
-
-		.print-export-shell--single-page .print-export-viewport {
-			overflow: hidden;
-			min-height: 0;
-		}
-
-		.print-export-fit {
-			display: inline-block;
-			min-width: 0;
-			transform-origin: top left;
-		}
-
-		.no-capture {
-			display: none !important;
-		}
-
-		/* Print Styles */
-		@media print {
-		@page {
-			size: A4 landscape;
-			margin: 0;
-		}
-		@page export-landscape {
-			size: A4 landscape;
-			margin: 0;
-		}
-		@page export-portrait {
-			size: A4 portrait;
-			margin: 0;
-		}
-		/* --- Print fix: Disable sticky headers, force thead/tfoot repeat, allow table page breaks ---
-		   Test: Open print preview in Chrome and Firefox to verify header repeats and no sticky issues. */
-		th {
-		  position: static !important;
-		  top: auto !important;
-		  z-index: auto !important;
-		}
-		thead {
-		  display: table-header-group !important;
-		}
-		tfoot {
-		  display: table-footer-group !important;
-		}
-		table {
-		  page-break-inside: auto !important;
-		  -webkit-column-break-inside: auto !important;
-		  break-inside: auto !important;
-		}
-		#print-capture-area,
-		.table-container,
-		div,
-		section {
-		  page-break-inside: auto !important;
-		  -webkit-column-break-inside: auto !important;
-		  break-inside: auto !important;
-		}
-		/* Remove any inline page-break-inside: avoid on table parents */
-		[style*="page-break-inside: avoid"] {
-		  page-break-inside: auto !important;
-		  -webkit-column-break-inside: auto !important;
-		  break-inside: auto !important;
-		}
-			/* Reset and clean print layout */
-			* {
-				box-shadow: none !important;
-				text-shadow: none !important;
-			}
-			
-			body {
-				background: white !important;
-				font-family: Arial, sans-serif !important;
-				font-size: 10pt !important;
-				line-height: 1.3 !important;
-				margin: 0 !important;
-				padding: 0 !important;
-			}
-			
-			/* Hide everything except print area */
-			.app-container,
-			.no-print,
-			header,
-			nav,
-			footer,
-			#main-content,
-			.mobile-menu-btn {
-				display: none !important;
-			}
-			
-			/* Show only print capture area */
-			#print-capture-area {
-				display: block !important;
-				position: static !important;
-				left: auto !important;
-				top: auto !important;
-				width: 297mm !important;
-				min-height: 210mm !important;
-				max-width: none !important;
-				padding: 6mm !important;
-				box-sizing: border-box !important;
-				margin: 0 !important;
-				background: white !important;
-				page-break-inside: avoid !important;
-				overflow: hidden !important;
-				page: export-landscape;
-			}
-
-			#print-capture-area[data-page-orientation="portrait"] {
-				width: 210mm !important;
-				min-height: 297mm !important;
-				page: export-portrait;
-			}
-			
-			/* Print Header Styling */
-			#print-header {
-				text-align: center !important;
-				margin-bottom: 0.5rem !important;
-				padding-bottom: 0.35rem !important;
-				border-bottom: 2px solid #2563eb !important;
-			}
-			
-			#print-header h1 {
-				font-size: 14pt !important;
-				font-weight: bold !important;
-				color: #2563eb !important;
-				margin: 0 0 0.1rem 0 !important;
-			}
-			
-			#print-header-subtitle {
-				font-size: 10pt !important;
-				font-weight: 600 !important;
-				color: #374151 !important;
-				margin: 0.1rem 0 !important;
-			}
-
-			#print-header div {
-				font-size: 8pt !important;
-				margin-top: 0.15rem !important;
-			}
-			
-			#print-header img {
-				display: none !important;
-			}
-			
-			/* Table Styling for Print */
-			table {
-				width: 100% !important;
-				border-collapse: collapse !important;
-				font-size: 0.95rem !important;
-				margin: 0 !important;
-				page-break-inside: avoid !important;
-			}
-			
-			th {
-				background: #f3f4f6 !important;
-				color: #374151 !important;
-				font-weight: bold !important;
-				font-size: 0.85rem !important;
-				padding: 4px 6px !important;
-				border: 1px solid #d1d5db !important;
-				text-align: center !important;
-				line-height: 1.2 !important;
-			}
-			
-			td {
-				padding: 4px 6px !important;
-				border: 1px solid #d1d5db !important;
-				font-size: 0.85rem !important;
-				line-height: 1.2 !important;
-				vertical-align: top !important;
-				text-align: center !important;
-			}
-			
-			/* Content within cells */
-			.subject {
-				font-size: 0.85rem !important;
-				font-weight: bold !important;
-				margin: 0 0 1px 0 !important;
-				color: #111827 !important;
-			}
-			
-			.teacher {
-				font-size: 0.75rem !important;
-				color: #6b7280 !important;
-				margin: 0 !important;
-				line-height: 1.1 !important;
-			}
-			
-			.substitute {
-				font-size: 0.75rem !important;
-				color: #2563eb !important;
-				font-weight: bold !important;
-				margin: 0 !important;
-			}
-			
-			.line-through {
-				text-decoration: line-through !important;
-				opacity: 0.6 !important;
-			}
-			
-			/* Class name styling */
-			.font-bold,
-			td.font-bold {
-				font-weight: bold !important;
-				background: #f9fafb !important;
-				text-align: left !important;
-			}
-			
-			/* Remove responsive mobile styles for print */
-			.table-container {
-				margin: 0 !important;
-				padding: 0 !important;
-				overflow: visible !important;
-			}
-			
-			/* Disable mobile responsive table labels in print */
-			table.responsive {
-				border-collapse: collapse !important;
-			}
-			
-			table.responsive thead {
-				display: table-header-group !important;
-			}
-			
-			table.responsive tr {
-				display: table-row !important;
-				margin: 0 !important;
-				border: none !important;
-				border-radius: 0 !important;
-				box-shadow: none !important;
-				background: transparent !important;
-				overflow: visible !important;
-			}
-			
-			table.responsive td {
-				display: table-cell !important;
-				width: auto !important;
-				border: 1px solid #d1d5db !important;
-				border-bottom: 1px solid #d1d5db !important;
-				position: static !important;
-			}
-			
-			/* Remove all pseudo-element labels */
-			table.responsive td::before,
-			td::before {
-				display: none !important;
-				content: none !important;
-			}
-			
-			/* Force single page layout */
-			@page {
-				size: A4 !important;
-				margin: 0.5in !important;
-			}
-			
-			/* Prevent page breaks within important elements */
-			h1, h2, h3 {
-				page-break-after: avoid !important;
-			}
-			
-			table {
-				page-break-inside: avoid !important;
-			}
-			
-			/* Ensure clean layout */
-			div, span {
-				page-break-inside: avoid !important;
-			}
-		}
-
-		/* Enhanced Mobile Responsive Design */
-		@media (max-width: 768px) {
-			/* Keep flat tables on mobile (no card transformation) */
-			table.responsive {
-				border-collapse: collapse;
-				width: 100%;
-				font-size: 0.85rem;
-			}
-			.table-container {
-				border-radius: var(--radius-lg);
-				border: 1px solid var(--gray-200);
-				background: white;
-			}
-			th {
-				position: sticky;
-				top: 0;
-				z-index: 1;
-			}
-			td, th {
-				padding: 0.5rem 0.4rem;
-				border-bottom: 1px solid var(--gray-100);
-			}
-			tr:last-child td {
-				border-bottom: 0;
-			}
-
-			/* Compact gaps on mobile */
-			.grid-cols-md-2 {
-				grid-template-columns: 1fr;
-				gap: 0.75rem;
-			}
-
-			#free-teacher-finder-container .grid {
-				grid-template-columns: 1fr;
-				gap: 0.5rem;
-			}
-
-			.card .grid {
-				grid-template-columns: 1fr;
-				gap: 0.75rem;
-			}
-
-			.dashboard-glance-grid {
-				grid-template-columns: repeat(2, minmax(0, 1fr));
-			}
-
-			.dashboard-glance-card {
-				min-height: 7.2rem;
-			}
-
-			.dashboard-quick-card,
-			.finder-status-banner,
-			.finder-results-panel {
-				padding: 0.95rem;
-			}
-
-			.finder-meta-block {
-				width: 100%;
-				justify-items: start;
-			}
-
-			.finder-results-list {
-				max-height: none;
-			}
-
-			.substitution-teacher-grid {
-				grid-template-columns: 1fr;
-				max-height: none;
-			}
-
-			.substitution-plan-people {
-				grid-template-columns: 1fr;
-			}
-
-			.substitution-toolbar-actions .button,
-			.substitution-hero-actions .button,
-			.substitution-plan-actions .button,
-			.substitution-clear-btn {
-				width: 100%;
-			}
-
-			.substitution-plan-actions--sticky {
-				position: static;
-				top: auto;
-				padding: 0;
-				border: none;
-				background: transparent;
-				backdrop-filter: none;
-			}
-
-			.substitution-selected-panel,
-			.substitution-plan-card {
-				padding: 0.95rem;
-			}
-
-			.substitution-mobile-bar {
-				display: none;
-			}
-
-			.flex.gap-4 {
-				flex-direction: column;
-				gap: 0.75rem;
-			}
-
-			.flex.gap-2 {
-				flex-wrap: wrap;
-				gap: 0.5rem;
-			}
-
-			label {
-				font-size: 0.9rem;
-				font-weight: 600;
-				margin-bottom: 0.5rem;
-				display: block;
-			}
-
-			input[type="checkbox"] {
-				width: 20px;
-				height: 20px;
-				margin-right: 0.75rem;
-				accent-color: var(--primary-600);
-			}
-		}
-
-		/* Day tabs (Mon-Sat) */
-		.day-tabs {
-			display: flex;
-			gap: 0.25rem;
-			overflow-x: auto;
-			white-space: nowrap;
-			scrollbar-width: thin;
-			padding: 0.25rem;
-			-webkit-overflow-scrolling: touch;
-			border-bottom: 1px solid var(--gray-200);
-			margin-bottom: 0.5rem;
-		}
-		.day-tab {
-			appearance: none;
-			border: 1px solid var(--border);
-			background: var(--card);
-			color: var(--text);
-			border-radius: 9999px;
-			padding: 0.5rem 0.75rem;
-			font-size: 0.85rem;
-			font-weight: 600;
-			cursor: pointer;
-			flex: 0 0 auto;
-		}
-		.day-tab[aria-selected="true"], .day-tab.active {
-			background: var(--primary-600);
-			border-color: var(--primary-600);
-			color: white;
-			box-shadow: var(--shadow-md);
-		}
-
-		/* Flat list styling for mobile class/teacher day view */
-		.timetable-list {
-			border-radius: var(--radius-lg);
-			border: 1px solid var(--border);
-			background: var(--card);
-			overflow: hidden;
-		}
-		.timetable-row {
-			display: grid;
-			grid-template-columns: 0.9fr 1.4fr 1.2fr;
-			gap: 0.5rem;
-			align-items: start;
-			padding: 0.5rem 0.6rem;
-			border-bottom: 1px solid var(--gray-100);
-		}
-		.timetable-row:last-child { border-bottom: 0; }
-		.timetable-row .period-col { color: var(--text); font-weight: 700; font-size: 0.85rem; }
-		.timetable-row .subject-col { font-weight: 600; color: var(--text); }
-		.timetable-row .teacher-col { color: var(--text-secondary); font-size: 0.85rem; }
-		.timetable-row.is-current { background: var(--primary-50); }
-		.timetable-row .extra { display: none; grid-column: 1 / -1; color: var(--gray-600); font-size: 0.8rem; }
-		.timetable-row.expanded .extra { display: block; }
-		@media (max-width: 420px) {
-			.timetable-row { grid-template-columns: 1fr 1fr; }
-			.timetable-row .teacher-col { grid-column: 2 / 3; }
-		}
-
-		/* Extra small mobile screens */
-		@media (max-width: 480px) {
-			.app-container {
-				padding: 0.25rem;
-			}
-			
-			.card {
-				padding: 0.75rem;
-				margin-bottom: 0.75rem;
-			}
-			
-			header {
-				padding: 0.75rem;
-			}
-			
-			header h1 {
-				font-size: 1.125rem;
-			}
-			
-			.nav-button {
-				padding: 0.5rem;
-				min-width: 44px;
-				min-height: 44px;
-			}
-
-			.nav-button svg {
-				width: 18px;
-				height: 18px;
-			}
-			
-			.stat-grid {
-				grid-template-columns: 1fr;
-				gap: 0.5rem;
-			}
-			
-			.stat-card {
-				padding: 0.75rem;
-			}
-			
-			.button {
-				padding: 0.75rem;
-				font-size: 0.85rem;
-			}
-			
-			/* Smaller text in tables for very small screens */
-			table.responsive td {
-				padding: 0.5rem;
-			}
-			
-			table.responsive td::before {
-				font-size: 0.65rem;
-				margin-bottom: 0.25rem;
-			}
-			
-			.subject {
-				font-size: 0.65rem;
-			}
-			
-			.teacher, .class-name {
-				font-size: 0.6rem;
-			}
-		}
-
-		/* Touch Interactions and Accessibility */
-		* {
-			-webkit-tap-highlight-color: rgba(59, 130, 246, 0.1);
-		}
-		
-		/* Smooth scrolling for mobile */
-		html {
-			scroll-behavior: smooth;
-		}
-		
-		/* Better focus indicators for keyboard navigation */
-		button:focus-visible,
-		select:focus-visible,
-		input:focus-visible {
-			outline: 2px solid var(--primary-500);
-			outline-offset: 2px;
-		}
-		
-		/* Loading improvements for mobile */
-		.spinner {
-			width: 40px;
-			height: 40px;
-		}
-		
-		/* Mobile-specific utility classes */
-		.mobile-only {
-			display: block;
-		}
-		
-		.desktop-only {
-			display: none;
-		}
-		
-		@media (min-width: 768px) {
-			.mobile-only {
-				display: none;
-			}
-			
-			.desktop-only {
-				display: block;
-			}
-		}
-
-		/* Enhanced loading states */
-		.loading-state {
-			opacity: 0.6;
-			pointer-events: none;
-		}
-
-		.pulse {
-			animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-		}
-
-		@keyframes pulse {
-			0%, 100% { opacity: 1; }
-			50% { opacity: .5; }
-		}
-
-		/* Better focus states for accessibility */
-		:focus-visible {
-			outline: 2px solid var(--primary-500);
-			outline-offset: 2px;
-			border-radius: var(--radius);
-		}
-
-		/* Enhanced toast */
-		.toast {
-			backdrop-filter: blur(8px);
-			border: 1px solid rgba(255, 255, 255, 0.2);
-		}
-
-		/* Performance optimizations */
-		.card, .stat-card {
-			will-change: transform;
-			transform: translateZ(0);
-		}
-
-	/* ========================================
-	   DARK MODE CONTRAST FIXES
-	   ======================================== */
-
-	/* Fix text colors in dark mode for better contrast */
-        [data-theme="dark"] .subject:not([data-category]):not([class*="subject-color-"]) {
-                color: var(--text) !important;
-        }
-
-	[data-theme="dark"] .teacher {
-		color: var(--text-secondary) !important;
-	}
-
-	[data-theme="dark"] .class-name {
-		color: var(--text-secondary) !important;
-	}
-
-	[data-theme="dark"] .stat-card-label {
-		color: var(--text-secondary) !important;
-	}
-
-        /* Fix button colors in dark mode - override inline styles */
-        [data-theme="dark"] .button-secondary {
-                background: var(--primary) !important;
-                color: var(--text-on-primary) !important;
-                border-color: var(--primary) !important;
-        }
-
-        [data-theme="dark"] .button-secondary:hover {
-                background: var(--primary-hover) !important;
-                border-color: var(--primary-hover) !important;
-        }
-
-        [data-theme="dark"] .button-danger {
-                background: var(--red-500) !important;
-                color: var(--bg) !important;
-        }
-
-        [data-theme="dark"] .button-danger:hover {
-                background: var(--red-600) !important;
-        }
-
-        /* Fix button text/icons to ensure visibility in dark mode */
-        [data-theme="dark"] .button-secondary span,
-        [data-theme="dark"] .button-secondary i {
-                color: var(--text-on-primary) !important;
-        }
-
-	/* Fix dropdown styling in dark mode */
-        [data-theme="dark"] select {
-                background-color: var(--bg-secondary) !important;
-                color: var(--text) !important;
-                border-color: var(--border) !important;
-                background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%23e8e8e8' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e") !important;
-                background-repeat: no-repeat !important;
-                background-position: right 0.75rem center !important;
-                background-size: 1rem !important;
-                padding-right: 2.5rem !important;
-        }
-
-	/* Ensure dropdown text and options are visible */
-	[data-theme="dark"] select option {
-		background: var(--bg-secondary) !important;
-		color: var(--text) !important;
-	}
-
-	/* Fix placeholder text in dark mode */
-	[data-theme="dark"] select::placeholder,
-	[data-theme="dark"] input::placeholder {
-		color: var(--text-muted) !important;
-	}
-
-	/* Fix substitute class styling in dark mode */
-	[data-theme="dark"] .substitute {
-		color: var(--primary-text);
-	}
-
-	/* Fix timetable extra info text in dark mode */
-	[data-theme="dark"] .timetable-row .extra {
-		color: var(--text-secondary);
-	}
-
-	/* Fix table header text in dark mode */
-	[data-theme="dark"] th {
-		color: var(--text) !important;
-		background: var(--bg-secondary) !important;
-	}
-
-	/* Fix table cell backgrounds and text in dark mode */
-	[data-theme="dark"] td {
-		background: var(--card) !important;
-		color: var(--text) !important;
-	}
-
-	/* Ensure all table text elements are visible */
-	[data-theme="dark"] table * {
-		border-color: var(--border) !important;
-	}
-
-	/* Fix heading colors in dark mode */
-	[data-theme="dark"] h2,
-	[data-theme="dark"] h3,
-	[data-theme="dark"] h4 {
-		color: var(--text) !important;
-	}
-
-	/* Fix card and section heading colors */
-	[data-theme="dark"] .card h2,
-	[data-theme="dark"] .card h3,
-	[data-theme="dark"] .dashboard-card h2,
-	[data-theme="dark"] .dashboard-card h3 {
-		color: var(--text) !important;
-	}
-
-	/* Fix inline styled headings with color values */
-	[data-theme="dark"] h2[style*="color"],
-	[data-theme="dark"] h3[style*="color"] {
-		color: var(--primary-text) !important;
-	}
-
-	/* Fix icon colors in dark mode */
-	[data-theme="dark"] .button i,
-	[data-theme="dark"] .nav-button i {
-		color: currentColor !important;
-	}
-
-	/* Fix card hover states in dark mode */
-	[data-theme="dark"] .card:hover,
-	[data-theme="dark"] .stat-card:hover {
-		background: var(--card-hover) !important;
-	}
-
-	/* Fix any remaining inline text colors in dark mode */
-	[data-theme="dark"] div[style*="color: #"],
-	[data-theme="dark"] span[style*="color: #"],
-	[data-theme="dark"] p[style*="color: #"],
-	[data-theme="dark"] small[style*="color: #"] {
-		color: var(--text-secondary) !important;
-	}
-
-	/* Fix primary colored inline text in dark mode */
-	[data-theme="dark"] [style*="color: #2563eb"],
-	[data-theme="dark"] [style*="color: #1d4ed8"] {
-		color: var(--primary-text) !important;
-	}
-
-	/* Ensure proper contrast for all form labels */
-	[data-theme="dark"] label,
-	[data-theme="dark"] .form-label {
-		color: var(--text) !important;
-	}
-
-	[data-theme="dark"] .header-kicker,
-	[data-theme="dark"] .status-pill,
-	[data-theme="dark"] .app-shell-note,
-	[data-theme="dark"] .metric-chip,
-	[data-theme="dark"] .control-shell {
-		background: rgba(15, 23, 42, 0.72);
-		border-color: rgba(148, 163, 184, 0.18);
-		color: var(--text);
-	}
-
-	[data-theme="dark"] header {
-		background:
-			radial-gradient(circle at top left, rgba(74, 124, 126, 0.2), transparent 34%),
-			linear-gradient(135deg, rgba(74, 124, 126, 0.16), rgba(30, 41, 59, 0.32)),
-			var(--card) !important;
-	}
-
-	[data-theme="dark"] .header-kicker strong,
-	[data-theme="dark"] .status-pill strong,
-	[data-theme="dark"] .app-shell-note strong,
-	[data-theme="dark"] .section-kicker,
-	[data-theme="dark"] .section-title,
-	[data-theme="dark"] .field-label {
-		color: var(--text) !important;
-	}
-
-	[data-theme="dark"] .dashboard-spotlight,
-	[data-theme="dark"] .dashboard-quick-card,
-	[data-theme="dark"] .dashboard-glance-card,
-	[data-theme="dark"] .dashboard-live-pill,
-	[data-theme="dark"] .dashboard-time-chip,
-	[data-theme="dark"] .finder-pill,
-	[data-theme="dark"] .finder-status-banner,
-	[data-theme="dark"] .finder-results-panel,
-	[data-theme="dark"] .finder-card,
-	[data-theme="dark"] .finder-empty,
-	[data-theme="dark"] .substitution-selected-panel,
-	[data-theme="dark"] .substitution-teacher-card,
-	[data-theme="dark"] .substitution-plan-card,
-	[data-theme="dark"] .substitution-plan-person,
-	[data-theme="dark"] .substitution-empty {
-		background: rgba(15, 23, 42, 0.78);
-		border-color: rgba(148, 163, 184, 0.2);
-		color: var(--text);
-	}
-
-	[data-theme="dark"] .dashboard-spotlight {
-		background:
-			radial-gradient(circle at top right, rgba(52, 211, 153, 0.12), transparent 28%),
-			linear-gradient(135deg, rgba(74, 124, 126, 0.2), rgba(22, 33, 62, 0.82)),
-			var(--card);
-	}
-
-	[data-theme="dark"] .dashboard-live-pill--live,
-	[data-theme="dark"] .finder-status-banner--live {
-		background: rgba(6, 95, 70, 0.34);
-		border-color: rgba(52, 211, 153, 0.24);
-		color: #d1fae5;
-	}
-
-	[data-theme="dark"] .dashboard-live-pill--upcoming,
-	[data-theme="dark"] .dashboard-live-pill--break,
-	[data-theme="dark"] .finder-status-banner--manual {
-		background: rgba(30, 58, 138, 0.3);
-		border-color: rgba(96, 165, 250, 0.28);
-		color: #dbeafe;
-	}
-
-	[data-theme="dark"] .dashboard-live-pill--complete,
-	[data-theme="dark"] .finder-status-banner--complete {
-		background: rgba(146, 64, 14, 0.3);
-		border-color: rgba(251, 191, 36, 0.28);
-		color: #fde68a;
-	}
-
-	[data-theme="dark"] .dashboard-quick-tag,
-	[data-theme="dark"] .finder-highlight,
-	[data-theme="dark"] .finder-breakdown span,
-	[data-theme="dark"] .substitution-selected-chip,
-	[data-theme="dark"] .substitution-mini-pill,
-	[data-theme="dark"] .substitution-plan-slot,
-	[data-theme="dark"] .substitution-mobile-bar {
-		background: rgba(255, 255, 255, 0.08);
-		color: var(--text);
-	}
-
-	[data-theme="dark"] .finder-pill--accent {
-		background: var(--primary-600);
-		color: var(--text-on-primary);
-	}
-
-	[data-theme="dark"] .dashboard-hero-title,
-	[data-theme="dark"] .dashboard-glance-card strong,
-	[data-theme="dark"] .dashboard-quick-copy strong,
-	[data-theme="dark"] .finder-status-title,
-	[data-theme="dark"] .finder-results-header h4,
-	[data-theme="dark"] .finder-teacher-row strong,
-	[data-theme="dark"] .finder-empty strong,
-	[data-theme="dark"] .substitution-teacher-copy strong,
-	[data-theme="dark"] .substitution-plan-copy strong,
-	[data-theme="dark"] .substitution-plan-person strong,
-	[data-theme="dark"] .substitution-empty strong {
-		color: var(--text);
-	}
-
-	[data-theme="dark"] .dashboard-glance-card small,
-	[data-theme="dark"] .dashboard-quick-copy p,
-	[data-theme="dark"] .finder-status-copy,
-	[data-theme="dark"] .finder-highlight span,
-	[data-theme="dark"] .finder-results-header p,
-	[data-theme="dark"] .finder-teacher-copy p,
-	[data-theme="dark"] .finder-workload,
-	[data-theme="dark"] .finder-empty p,
-	[data-theme="dark"] .substitution-selected-empty,
-	[data-theme="dark"] .substitution-teacher-copy p,
-	[data-theme="dark"] .substitution-plan-copy p,
-	[data-theme="dark"] .substitution-plan-slot-block small,
-	[data-theme="dark"] .substitution-step-card p,
-	[data-theme="dark"] .substitution-plan-recommendation p,
-	[data-theme="dark"] .substitution-sheet-summary p,
-	[data-theme="dark"] .substitution-sheet-summary small,
-	[data-theme="dark"] .substitution-sheet-current p,
-	[data-theme="dark"] .substitution-sheet-option-copy p,
-	[data-theme="dark"] .substitution-mobile-summary p,
-	[data-theme="dark"] .substitution-empty p {
-		color: var(--text-secondary);
-	}
-
-	[data-theme="dark"] .substitution-step-card,
-	[data-theme="dark"] .substitution-teacher-suggestion,
-	[data-theme="dark"] .substitution-open-chip,
-	[data-theme="dark"] .substitution-plan-recommendation,
-	[data-theme="dark"] .substitution-sheet-summary,
-	[data-theme="dark"] .substitution-sheet-current,
-	[data-theme="dark"] .substitution-sheet-option {
-		background: rgba(15, 23, 42, 0.78);
-		border-color: rgba(148, 163, 184, 0.2);
-	}
-
-	[data-theme="dark"] .substitution-plan-row--covered {
-		background: rgba(6, 95, 70, 0.22);
-	}
-
-	[data-theme="dark"] .substitution-plan-row--open {
-		background: rgba(146, 64, 14, 0.22);
-	}
-
-	[data-theme="dark"] .substitution-plan-recommendation--empty {
-		background: rgba(30, 41, 59, 0.7);
-	}
-
-	[data-theme="dark"] .substitution-teacher-card--selected {
-		background: linear-gradient(135deg, rgba(30, 58, 138, 0.34), rgba(15, 23, 42, 0.82));
-		border-color: rgba(96, 165, 250, 0.32);
-	}
-
-	[data-theme="dark"] .substitution-plan-card--covered {
-		background: linear-gradient(135deg, rgba(6, 95, 70, 0.34), rgba(15, 23, 42, 0.84));
-		border-left-color: rgba(52, 211, 153, 0.75);
-	}
-
-	[data-theme="dark"] .substitution-plan-card--open {
-		background: linear-gradient(135deg, rgba(146, 64, 14, 0.3), rgba(15, 23, 42, 0.84));
-		border-left-color: rgba(251, 191, 36, 0.75);
-	}
-
-	[data-theme="dark"] .substitution-step-card strong,
-	[data-theme="dark"] .substitution-teacher-suggestion-copy strong,
-	[data-theme="dark"] .substitution-plan-recommendation strong,
-	[data-theme="dark"] .substitution-sheet-summary strong,
-	[data-theme="dark"] .substitution-sheet-current strong,
-	[data-theme="dark"] .substitution-sheet-option-copy strong,
-	[data-theme="dark"] .substitution-mobile-summary strong {
-		color: var(--text);
-	}
-
-	[data-theme="dark"] .substitution-search-empty,
-	[data-theme="dark"] .substitution-teacher-suggestion-copy p,
-	[data-theme="dark"] .substitution-open-chip span,
-	[data-theme="dark"] .substitution-plan-note {
-		color: var(--text-secondary);
-	}
-
-	[data-theme="dark"] .substitution-teacher-suggestion--selected {
-		background: linear-gradient(135deg, rgba(6, 95, 70, 0.32), rgba(15, 23, 42, 0.82));
-		border-color: rgba(52, 211, 153, 0.3);
-	}
-
-	[data-theme="dark"] .substitution-mini-pill--soft {
-		background: rgba(59, 130, 246, 0.18);
-		color: #dbeafe;
-	}
-
-	[data-theme="dark"] .substitution-mini-pill--active,
-	[data-theme="dark"] .substitution-plan-status--covered {
-		background: rgba(16, 185, 129, 0.2);
-		color: #d1fae5;
-	}
-
-	[data-theme="dark"] .substitution-plan-status--open {
-		background: rgba(245, 158, 11, 0.2);
-		color: #fde68a;
-	}
-
-	[data-theme="dark"] .substitution-table-status--covered {
-		background: rgba(16, 185, 129, 0.2);
-		color: #d1fae5;
-	}
-
-	[data-theme="dark"] .substitution-table-status--open {
-		background: rgba(245, 158, 11, 0.2);
-		color: #fde68a;
-	}
-
-	[data-theme="dark"] .substitution-search input {
-		background: rgba(15, 23, 42, 0.88);
-		color: var(--text);
-		border-color: rgba(148, 163, 184, 0.24);
-	}
-
-	[data-theme="dark"] .substitution-table-substitute strong {
-		color: var(--text);
-	}
-
-	[data-theme="dark"] .substitution-table-substitute small {
-		color: var(--text-secondary);
-	}
 	</style>
 </head>
 <body>
@@ -3779,9 +252,7 @@
 				themeIcon.setAttribute('data-lucide', mode === 'dark' ? 'moon' : 'sun');
 
 				// Re-initialize lucide icons to render the new icon
-				if (typeof lucide !== 'undefined' && lucide.createIcons) {
-					lucide.createIcons();
-				}
+				refreshIcons();
 
 				// Remove animation class after animation completes
 				setTimeout(() => {
@@ -3956,6 +427,12 @@
 			substitutions: {},
 			substitutionTeacherSearch: '',
 			activeSubstitutionSheet: null,
+			uiSelection: {
+				day: null,
+				className: '',
+				teacherName: '',
+				substitutionDay: null
+			},
 			dashboardFinder: {
 				day: null,
 				period: null,
@@ -3964,6 +441,12 @@
 			allData: {},
 			cache: new Map(),
 			lastUpdate: null,
+			renderCache: {},
+			renderState: {
+				frames: {},
+				loaderStartedAt: typeof performance !== 'undefined' ? performance.now() : Date.now(),
+				firstCommitDone: false
+			},
 			performance: {
 				renderTimes: [],
 				avgRenderTime: 0
@@ -3971,8 +454,210 @@
 		};
 
 		const mainContent = document.getElementById('main-content');
+		const SESSION_UI_KEY = 'vpps-ui-state-v1';
+		const VALID_VIEWS = ['Dashboard', 'Day', 'Substitution', 'Class', 'Teacher'];
 
 		// --- UTILITY FUNCTIONS ---
+		function debounce(func, wait = 300, immediate = false) {
+			if (window.PerformanceOptimization?.debounce) {
+				return window.PerformanceOptimization.debounce(func, wait, immediate);
+			}
+
+			return func;
+		}
+
+		function refreshIcons() {
+			if (!window.lucide?.createIcons) {
+				return;
+			}
+
+			try {
+				window.lucide.createIcons();
+			} catch (error) {
+				console.warn('Icon refresh failed:', error);
+			}
+		}
+
+		function hideLoader(minVisibleMs = 80) {
+			const loader = document.getElementById('loader');
+			if (!loader || loader.dataset.hidden === 'true') {
+				return;
+			}
+
+			const startedAt = state.renderState.loaderStartedAt || 0;
+			const elapsed = (typeof performance !== 'undefined' ? performance.now() : Date.now()) - startedAt;
+			const delay = Math.max(0, minVisibleMs - elapsed);
+
+			setTimeout(() => {
+				loader.dataset.hidden = 'true';
+				loader.style.opacity = '0';
+				setTimeout(() => {
+					loader.style.display = 'none';
+				}, 200);
+			}, delay);
+		}
+
+		function queueElementRender(target, html, options = {}) {
+			if (!target) {
+				return;
+			}
+
+			const renderKey = options.renderKey || target.id || 'default';
+			const pendingFrame = state.renderState.frames[renderKey];
+			if (pendingFrame) {
+				cancelAnimationFrame(pendingFrame);
+			}
+
+			state.renderState.frames[renderKey] = requestAnimationFrame(() => {
+				target.innerHTML = html;
+				delete state.renderState.frames[renderKey];
+
+				if (typeof options.afterRender === 'function') {
+					options.afterRender(target);
+				}
+
+				if (options.refreshIcons !== false) {
+					refreshIcons();
+				}
+
+				if (target === mainContent && !state.renderState.firstCommitDone) {
+					state.renderState.firstCommitDone = true;
+					hideLoader();
+				}
+			});
+		}
+
+		function queueViewRender(html, options = {}) {
+			queueElementRender(mainContent, html, {
+				renderKey: 'main-view',
+				afterRender: options.afterRender,
+				refreshIcons: options.refreshIcons
+			});
+		}
+
+		function getCachedMarkup(key, factory) {
+			if (!Object.prototype.hasOwnProperty.call(state.renderCache, key)) {
+				state.renderCache[key] = factory();
+			}
+
+			return state.renderCache[key];
+		}
+
+		function normalizeUiSelection(selection = {}) {
+			const days = state.allData?.days || [];
+			const classNames = state.allData?.classNames || [];
+			const teacherNames = state.allData?.teacherNames || [];
+			const fallbackDay = days.includes(getCurrentDay()) ? getCurrentDay() : (days[0] || 'Monday');
+
+			return {
+				day: days.includes(selection.day) ? selection.day : fallbackDay,
+				className: classNames.includes(selection.className) ? selection.className : '',
+				teacherName: teacherNames.includes(selection.teacherName) ? selection.teacherName : '',
+				substitutionDay: days.includes(selection.substitutionDay) ? selection.substitutionDay : fallbackDay
+			};
+		}
+
+		function persistUiSessionState() {
+			try {
+				sessionStorage.setItem(SESSION_UI_KEY, JSON.stringify({
+					currentView: state.currentView,
+					uiSelection: state.uiSelection
+				}));
+			} catch (error) {
+				console.warn('Failed to persist UI session state:', error);
+			}
+		}
+
+		function restoreUiSessionState() {
+			try {
+				const raw = sessionStorage.getItem(SESSION_UI_KEY);
+				if (!raw) {
+					state.uiSelection = normalizeUiSelection(state.uiSelection);
+					return;
+				}
+
+				const parsed = JSON.parse(raw);
+				if (VALID_VIEWS.includes(parsed.currentView)) {
+					state.currentView = parsed.currentView;
+				}
+
+				state.uiSelection = normalizeUiSelection(parsed.uiSelection || {});
+			} catch (error) {
+				console.warn('Failed to restore UI session state:', error);
+				state.uiSelection = normalizeUiSelection(state.uiSelection);
+			}
+		}
+
+		function updateUiSelection(partialSelection = {}) {
+			state.uiSelection = normalizeUiSelection({
+				...state.uiSelection,
+				...partialSelection
+			});
+			persistUiSessionState();
+		}
+
+		function getClassOptionsMarkup() {
+			return getCachedMarkup('class-options', () => {
+				return '<option value="">-- Select a Class --</option>' +
+					state.allData.classNames.map(className =>
+						`<option value="${escapeHtml(className)}">${escapeHtml(className)}</option>`
+					).join('');
+			});
+		}
+
+		function getTeacherOptionsMarkup() {
+			return getCachedMarkup('teacher-options', () => {
+				return '<option value="">-- Select a Teacher --</option>' +
+					state.allData.teacherNames.map(teacherName =>
+						`<option value="${escapeHtml(teacherName)}">${escapeHtml(teacherName)}</option>`
+					).join('');
+			});
+		}
+
+		function getFinderDayOptionsMarkup() {
+			return getCachedMarkup('finder-day-options', () => {
+				return state.allData.days.map(dayName =>
+					`<option value="${escapeHtml(dayName)}">${escapeHtml(dayName)}</option>`
+				).join('');
+			});
+		}
+
+		function getFinderPeriodOptionsMarkup() {
+			return getCachedMarkup('finder-period-options', () => {
+				return state.allData.periodHeaders.map((header, index) => `
+					<option value="${index + 1}">${escapeHtml(header.name)}${header.time ? ` | ${escapeHtml(header.time)}` : ''}</option>
+				`).join('');
+			});
+		}
+
+		function getDayTabsMarkup(context, selectedDay) {
+			return getCachedMarkup(`day-tabs:${context}:${selectedDay}`, () => {
+				return state.allData.days.map(dayName => `
+					<button class="day-tab ${selectedDay === dayName ? 'active' : ''}" role="tab" aria-selected="${selectedDay === dayName}" data-day="${dayName}" data-day-tab-context="${context}">
+						${dayName.slice(0, 3)}
+					</button>
+				`).join('');
+			});
+		}
+
+		function getPeriodTableHeaderMarkup(cacheKey, firstColumnLabel, currentPeriodIdx, options = {}) {
+			const showTime = options.showTime !== false;
+			const useColumnRole = options.useColumnRole === true;
+
+			return getCachedMarkup(cacheKey, () => {
+				return `<th${useColumnRole ? ' role="columnheader"' : ''}>${firstColumnLabel}</th>` +
+					state.allData.periodHeaders.map((header, index) => {
+						const highlightClass = index === currentPeriodIdx ? ' class="highlight-period"' : '';
+						const roleAttr = useColumnRole ? ' role="columnheader"' : '';
+						const timeMarkup = showTime && header.time
+							? `<br/><span style="font-weight:400; font-size: 0.75rem;">${header.time}</span>`
+							: '';
+
+						return `<th${roleAttr}${highlightClass}>${header.name}${timeMarkup}</th>`;
+					}).join('');
+			});
+		}
+
 		function showToast(message, duration = 3000, type = 'info') {
 			try {
 				// Remove existing toast
@@ -4117,18 +802,6 @@
 				console.error('Error switching day:', error);
 				showToast('âŒ Error switching day', 2000, 'error');
 			}
-		}
-
-		function debounce(func, wait) {
-			let timeout;
-			return function executedFunction(...args) {
-				const later = () => {
-					clearTimeout(timeout);
-					func(...args);
-				};
-				clearTimeout(timeout);
-				timeout = setTimeout(later, wait);
-			};
 		}
 
 		function getCurrentDay() {
@@ -5427,14 +2100,13 @@
 
 			try {
 				if (!state.allData || !state.allData.days || state.allData.days.length === 0) {
-					container.innerHTML = `
+					queueElementRender(container, `
 						<div class="finder-empty finder-empty--error">
 							<i data-lucide="alert-circle"></i>
 							<strong>Data not loaded yet</strong>
 							<p>Please wait a moment and try again.</p>
 						</div>
-					`;
-					lucide.createIcons();
+					`, { renderKey: 'finder' });
 					return;
 				}
 
@@ -5465,14 +2137,13 @@
 							: 'The school day is over. Choose any day and period to plan ahead.';
 
 				if (!state.allData.days.includes(currentDay)) {
-					container.innerHTML = `
+					queueElementRender(container, `
 						<div class="finder-empty finder-empty--error">
 							<i data-lucide="alert-circle"></i>
 							<strong>Day not found</strong>
 							<p>${currentDay} is not available in the timetable data.</p>
 						</div>
-					`;
-					lucide.createIcons();
+					`, { renderKey: 'finder' });
 					return;
 				}
 
@@ -5482,12 +2153,8 @@
 					minute: '2-digit',
 					hour12: true
 				});
-				const dayOptions = state.allData.days.map(d =>
-					`<option value="${d}" ${d === currentDay ? 'selected' : ''}>${d}</option>`
-				).join('');
-				const periodOptions = state.allData.periodHeaders.map((p, i) =>
-					`<option value="${i + 1}" ${i + 1 === currentPeriod ? 'selected' : ''}>${p.name}${p.time ? ` (${p.time})` : ''}</option>`
-				).join('');
+				const dayOptions = getFinderDayOptionsMarkup();
+				const periodOptions = getFinderPeriodOptionsMarkup();
 				const leadingTeacher = freeTeachers[0];
 
 				const freeTeachersList = freeTeachers.length > 0
@@ -5543,7 +2210,7 @@
 						</div>
 					`;
 
-				container.innerHTML = `
+				queueElementRender(container, `
 					<div class="finder-shell">
 						<div class="finder-status-banner finder-status-banner--${statusTone}">
 							<div class="finder-status-top">
@@ -5620,52 +2287,32 @@
 							</div>
 						</div>
 					</div>
-				`;
-
-				const daySelect = document.getElementById('finder-day-select');
-				const periodSelect = document.getElementById('finder-period-select');
-
-				if (daySelect) {
-					daySelect.addEventListener('change', (event) => {
-						try {
-							const newDay = event.target.value;
-							const newPeriod = document.getElementById('finder-period-select')?.value || currentPeriod;
-							renderFreeTeacherFinder(newDay, newPeriod);
-						} catch (error) {
-							console.error('Error in day select change:', error);
+				`, {
+					renderKey: 'finder',
+					afterRender: () => {
+						const daySelect = document.getElementById('finder-day-select');
+						const periodSelect = document.getElementById('finder-period-select');
+						if (daySelect) {
+							daySelect.value = currentDay;
 						}
-					});
-				}
-
-				if (periodSelect) {
-					periodSelect.addEventListener('change', (event) => {
-						try {
-							const newDay = document.getElementById('finder-day-select')?.value || currentDay;
-							const newPeriod = event.target.value;
-							renderFreeTeacherFinder(newDay, newPeriod);
-						} catch (error) {
-							console.error('Error in period select change:', error);
+						if (periodSelect) {
+							periodSelect.value = String(currentPeriod);
 						}
-					});
-				}
-
-				if (typeof lucide !== 'undefined' && lucide.createIcons) {
-					lucide.createIcons();
-				}
+					}
+				});
 			} catch (error) {
 				console.error('Error rendering free teacher finder:', error);
-				container.innerHTML = `
+				queueElementRender(container, `
 					<div class="finder-empty finder-empty--error">
 						<i data-lucide="alert-circle"></i>
 						<strong>Error loading free teacher finder</strong>
 						<p>Please refresh the page and try again.</p>
 					</div>
-				`;
-				lucide.createIcons();
+				`, { renderKey: 'finder' });
 			}
 		}
 
-		const debouncedRenderFreeTeacher = debounce(renderFreeTeacherFinder, 300);
+		const debouncedRenderFreeTeacher = debounce(renderFreeTeacherFinder, 150);
 
 		function renderDashboard() {
 			try {
@@ -5702,7 +2349,7 @@
 					}
 				];
 
-				mainContent.innerHTML = `
+				queueViewRender(`
 					<div class="dashboard-shell">
 						<section class="dashboard-hero">
 							<div class="card hero-panel dashboard-spotlight">
@@ -5780,21 +2427,23 @@
 							</button>
 						</div>
 					</div>
-				`;
+				`, {
+					afterRender: () => {
+						renderFreeTeacherFinder();
+						if (!window.dashboardInterval) {
+							window.dashboardInterval = setInterval(() => {
+								if (document.hidden || state.currentView !== 'Dashboard') {
+									return;
+								}
 
-				renderFreeTeacherFinder();
-				lucide.createIcons();
-
-				if (!window.dashboardInterval) {
-					window.dashboardInterval = setInterval(() => {
-						if (state.currentView === 'Dashboard') {
-							renderFreeTeacherFinder();
+								renderFreeTeacherFinder();
+							}, 30000);
 						}
-					}, 30000);
-				}
+					}
+				});
 			} catch (error) {
 				console.error('Error rendering dashboard:', error);
-				mainContent.innerHTML = `
+				queueViewRender(`
 					<div class="card">
 						<div style="color: var(--red-500); padding: 2rem; text-align: center;">
 							<i data-lucide="alert-circle" style="width: 48px; height: 48px; margin-bottom: 1rem;"></i><br>
@@ -5802,15 +2451,14 @@
 							<p>Please refresh the page to try again.</p>
 						</div>
 					</div>
-				`;
-				lucide.createIcons();
+				`);
 			}
 		}
 
 		// --- FIXED DAY VIEW RENDER ---
 		function renderDayView(day = null) {
 			try {
-				const selectedDay = day || getCurrentDay();
+				const selectedDay = arguments.length > 0 && day ? day : (state.uiSelection.day || getCurrentDay());
 				const { timetable, classNames, periodHeaders } = state.allData;
 
 				// Validate that the selected day exists in timetable
@@ -5823,9 +2471,7 @@
 				const daySubs = state.substitutions[selectedDay]?.plan || {};
 
 				// Day tabs (Mon-Sat)
-				const tabs = state.allData.days.map(d => `
-					<button class="day-tab ${selectedDay===d?'active':''}" role="tab" aria-selected="${selectedDay===d}" data-day="${d}" onclick="renderDayView('${d}')">${d.slice(0,3)}</button>
-				`).join('');
+				const tabs = getDayTabsMarkup('day', selectedDay);
 
 				document.getElementById('print-header-subtitle').textContent = `Daily Schedule for ${selectedDay}`;
 
@@ -5836,9 +2482,13 @@
 					currentPeriodIdx = getActivePeriodIndex();
 				}
 
-					const tableHeader = '<th role="columnheader">Class</th>' + periodHeaders.map((h, idx) =>
-						`<th role="columnheader"${idx === currentPeriodIdx ? ' class="highlight-period"' : ''}>${h.name}<br/><span style="font-weight:400; font-size: 0.75rem;">${h.time}</span></th>`
-					).join('');				const tableBody = classNames.map(cName => {
+				const tableHeader = getPeriodTableHeaderMarkup(
+					`day-table-header:${currentPeriodIdx}`,
+					'Class',
+					currentPeriodIdx,
+					{ showTime: true, useColumnRole: true }
+				);
+				const tableBody = classNames.map(cName => {
 					if (!timetable[selectedDay][cName]) {
 						console.warn(`Class ${cName} not found for ${selectedDay}`);
 						return '';
@@ -5896,15 +2546,18 @@
 					</div>
 				`;
 
-				mainContent.innerHTML = html;
-				lucide.createIcons();
-				setupFab('today');
+				updateUiSelection({ day: selectedDay });
+				queueViewRender(html, {
+					afterRender: () => {
+						setupFab('today');
+					}
+				});
 
 				// Swipe functionality removed - use day tabs for navigation
 
 			} catch (error) {
 				console.error('Error rendering day view:', error);
-				mainContent.innerHTML = `
+				queueViewRender(`
 					<div class="card">
 						<div style="color: var(--red-500); padding: 2rem; text-align: center;">
 							<i data-lucide="alert-circle" style="width: 48px; height: 48px; margin-bottom: 1rem;"></i><br>
@@ -5915,32 +2568,26 @@
 							</button>
 						</div>
 					</div>
-				`;
-				lucide.createIcons();
+				`);
 			}
 		}
 
 		// --- COMPLETE MISSING RENDER FUNCTIONS ---
 		function renderClassView(selectedClass = '') {
 			try {
-				const { timetable, classNames, periodHeaders } = state.allData;
+				const { timetable, periodHeaders } = state.allData;
+				const resolvedClass = arguments.length > 0 ? selectedClass : (state.uiSelection.className || '');
+				const selectedDay = state.uiSelection.day || getCurrentDay();
 				document.getElementById('print-header-subtitle').textContent =
-					selectedClass ? `Weekly Schedule for ${selectedClass}` : 'Class Timetables';
+					resolvedClass ? `Weekly Schedule for ${resolvedClass}` : 'Class Timetables';
 
-				const classOptions = '<option value="">-- Select a Class --</option>' +
-					classNames.map(c =>
-						`<option value="${c}" ${c === selectedClass ? 'selected' : ''}>${c}</option>`
-					).join('');
+				const classOptions = getClassOptionsMarkup();
 
 				let tableHtml = '';
 
 				// Mobile: Show day tabs and flat list of periods for the selected class
-				if (isMobile() && selectedClass) {
-					const days = state.allData.days;
-					const selectedDay = getCurrentDay();
-					const tabs = days.map(d => `
-						<button class="day-tab" role="tab" aria-selected="${d===selectedDay}" data-day="${d}" onclick="renderClassViewMobile('${selectedClass}','${d}')">${d.slice(0,3)}</button>
-					`).join('');
+				if (isMobile() && resolvedClass) {
+					const tabs = getDayTabsMarkup('class', selectedDay);
 					tableHtml = `
 						<div class="day-tabs" role="tablist" aria-label="Select day">
 							${tabs}
@@ -5949,29 +2596,32 @@
 					`;
 				}
 
-		if (!isMobile() && selectedClass && timetable.Monday && timetable.Monday[selectedClass]) {
+		if (!isMobile() && resolvedClass && timetable.Monday && timetable.Monday[resolvedClass]) {
 			// Highlight current period if today
 			let currentPeriodIdx = -1;
 			let today = getCurrentDay();
 			if (typeof getActivePeriodIndex === 'function') {
 				currentPeriodIdx = getActivePeriodIndex();
 			}
-			const tableHeader = '<th>Day</th>' + periodHeaders.map((h, idx) =>
-				`<th${(today && idx === currentPeriodIdx) ? ' class="highlight-period"' : ''}>${h.name}<br/><span style="font-weight:400; font-size: 0.75rem;">${h.time}</span></th>`
-			).join('');
+			const tableHeader = getPeriodTableHeaderMarkup(
+				`class-table-header:${currentPeriodIdx}`,
+				'Day',
+				currentPeriodIdx,
+				{ showTime: true }
+			);
 
 			const validDays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 			const tableBody = Object.keys(timetable)
 				.filter(day => validDays.includes(day)) // Only include valid days
 				.map(day => {
-					const daySchedule = timetable[day][selectedClass] || [];
+					const daySchedule = timetable[day][resolvedClass] || [];
 					const daySubs = state.substitutions[day]?.plan || {};
 					return `
 						<tr>
 							<td class="font-bold" data-label="Day">${day}</td>
 						${periodHeaders.map((_, i) => {
 							const originalPeriod = daySchedule[i];
-							const substitute = getClassSubstitute(day, selectedClass, i);
+							const substitute = getClassSubstitute(day, resolvedClass, i);
 							const isSubstitutedOut = Boolean(originalPeriod && substitute);
 							const label = periodHeaders[i]?.name || `Period ${i+1}`;
 							return `
@@ -5992,14 +2642,14 @@
 
 					tableHtml = `
 						<div class="table-container">
-							<table class="responsive sticky-first-col" role="table" aria-label="${selectedClass} weekly timetable">
+							<table class="responsive sticky-first-col" role="table" aria-label="${resolvedClass} weekly timetable">
 								<thead><tr>${tableHeader}</tr></thead>
 								<tbody>${tableBody}</tbody>
 							</table>
 						</div>
 						<div class="view-actions" style="margin-top: 1.5rem;">
 							<button onclick="handlePrint()" class="button button-secondary">
-								<i data-lucide="printer"></i> Print ${selectedClass} Schedule
+								<i data-lucide="printer"></i> Print ${resolvedClass} Schedule
 							</button>
 							<button onclick="handleShareScreenshot()" class="button button-whatsapp">
 								<i data-lucide="share-2"></i> Share
@@ -6026,7 +2676,7 @@
 						<div class="control-shell">
 							<label class="field-block">
 								<span class="field-label">Class</span>
-								<select onchange="renderClassView(this.value)">${classOptions}</select>
+								<select id="class-select">${classOptions}</select>
 							</label>
 							<p class="field-help">Data is aligned with the official 2026-27 class-wise PDF timetable.</p>
 						</div>
@@ -6034,16 +2684,23 @@
 					</div>
 				`;
 
-				mainContent.innerHTML = html;
-				lucide.createIcons();
+				updateUiSelection({ className: resolvedClass, day: selectedDay });
+				queueViewRender(html, {
+					afterRender: () => {
+						const classSelect = document.getElementById('class-select');
+						if (classSelect) {
+							classSelect.value = resolvedClass;
+						}
 
-				if (isMobile() && selectedClass) {
-					renderClassViewMobile(selectedClass, getCurrentDay());
-					setupFab('today');
-					// Swipe functionality removed - use day tabs for navigation
-				} else {
-					setupFab('now');
-				}
+						if (isMobile() && resolvedClass) {
+							renderClassViewMobile(resolvedClass, selectedDay);
+							setupFab('today');
+							return;
+						}
+
+						setupFab('now');
+					}
+				});
 
 			} catch (error) {
 				console.error('Error rendering class view:', error);
@@ -6057,6 +2714,7 @@
 				const { timetable, periodHeaders } = state.allData;
 				const container = document.getElementById('class-mobile-container');
 				if (!container) return;
+				updateUiSelection({ className: selectedClass, day });
 				// Update tab selection state
 				document.querySelectorAll('.day-tab').forEach(btn => {
 					btn.setAttribute('aria-selected', String(btn.dataset.day === day));
@@ -6077,14 +2735,18 @@
 							<div class="extra">${substitute ? `Sub: ${substitute}` : ''}</div>
 						</div>`;
 				}).join('');
-				container.innerHTML = `<div class="timetable-list" aria-label="${selectedClass} - ${day}">${list}</div>`;
+				queueElementRender(container, `<div class="timetable-list" aria-label="${selectedClass} - ${day}">${list}</div>`, {
+					renderKey: 'class-mobile'
+				});
 			} catch (e) { console.error(e); }
 		}
 
 		function renderTeacherView(selectedTeacher = '') {
 			try {
-				const { teacherDetails, teacherNames, periodHeaders, timetable } = state.allData;
-				const teacherAvailabilityRule = getTeacherAvailabilityRule(selectedTeacher);
+				const { teacherDetails, periodHeaders, timetable } = state.allData;
+				const resolvedTeacher = arguments.length > 0 ? selectedTeacher : (state.uiSelection.teacherName || '');
+				const selectedDay = state.uiSelection.day || getCurrentDay();
+				const teacherAvailabilityRule = getTeacherAvailabilityRule(resolvedTeacher);
 				const availabilityNoteHtml = teacherAvailabilityRule ? `
 					<div style="background: var(--yellow-50); color: var(--yellow-800);
 								border: 1px solid var(--yellow-200); border-radius: var(--radius);
@@ -6093,28 +2755,21 @@
 					</div>
 				` : '';
 				document.getElementById('print-header-subtitle').textContent =
-					selectedTeacher ? `Weekly Schedule for ${selectedTeacher}` : 'Teacher Timetables';
+					resolvedTeacher ? `Weekly Schedule for ${resolvedTeacher}` : 'Teacher Timetables';
 
-				const teacherOptions = '<option value="">-- Select a Teacher --</option>' +
-					teacherNames.map(t =>
-						`<option value="${t}" ${t === selectedTeacher ? 'selected' : ''}>${t}</option>`
-					).join('');
+				const teacherOptions = getTeacherOptionsMarkup();
 
 				let detailsHtml = '';
-				if (selectedTeacher && teacherDetails[selectedTeacher]) {
+				if (resolvedTeacher && teacherDetails[resolvedTeacher]) {
 
 					// Mobile: day tabs + flat list
 					if (isMobile()) {
-						const days = state.allData.days;
-						const selectedDay = getCurrentDay();
-						const tabs = days.map(d => `
-							<button class="day-tab" role="tab" aria-selected="${d===selectedDay}" data-day="${d}" onclick="renderTeacherViewMobile('${selectedTeacher}','${d}')">${d.slice(0,3)}</button>
-						`).join('');
+						const tabs = getDayTabsMarkup('teacher', selectedDay);
 						detailsHtml = `
 							<div class="mt-4">
 								${availabilityNoteHtml}
 								<div style="background: var(--primary-50); color: var(--primary-800); font-weight: 600; text-align: center; border-radius: var(--radius); padding: 0.5rem; margin-bottom: 0.75rem;">
-									Total Weekly Periods: ${teacherDetails[selectedTeacher].periodCount}
+									Total Weekly Periods: ${teacherDetails[resolvedTeacher].periodCount}
 								</div>
 								<div class="day-tabs" role="tablist" aria-label="Select day">
 									${tabs}
@@ -6131,9 +2786,14 @@
 						if (typeof getActivePeriodIndex === 'function') {
 							currentPeriodIdx = getActivePeriodIndex();
 						}
-						const tableHeader = '<th>Day</th>' + periodHeaders.map((h, idx) => `<th${(today && idx === currentPeriodIdx) ? ' class="highlight-period"' : ''}>${h.name}</th>`).join('');
+						const tableHeader = getPeriodTableHeaderMarkup(
+							`teacher-table-header:${currentPeriodIdx}`,
+							'Day',
+							currentPeriodIdx,
+							{ showTime: false }
+						);
 						const tableBody = Object.keys(timetable).map(day => {
-							const daySchedule = teacherDetails[selectedTeacher].schedule[day] || [];
+							const daySchedule = teacherDetails[resolvedTeacher].schedule[day] || [];
 							const daySubs = state.substitutions[day]?.plan || {};
 							return `
 								<tr>
@@ -6142,8 +2802,8 @@
 										const originalPeriod = daySchedule[i];
 										const substitute = originalPeriod ? getClassSubstitute(day, originalPeriod.className, i) : '';
 										const isSubstitutedOut = Boolean(originalPeriod && substitute);
-										const subPeriodInfo = getTeacherSubstitutionCoverage(day, selectedTeacher, i);
-										const isUnavailableWindow = !originalPeriod && !subPeriodInfo && isTeacherUnavailableForPeriod(selectedTeacher, i);
+										const subPeriodInfo = getTeacherSubstitutionCoverage(day, resolvedTeacher, i);
+										const isUnavailableWindow = !originalPeriod && !subPeriodInfo && isTeacherUnavailableForPeriod(resolvedTeacher, i);
 										const label = periodHeaders[i]?.name || `Period ${i+1}`;
 										return `
 											<td data-label="${label}"${(day === today && i === currentPeriodIdx) ? ' class="highlight-period"' : ''}>
@@ -6162,7 +2822,7 @@
 												` : ''}
 												${isUnavailableWindow ? `
 													<div style="font-size: 0.78rem; font-weight: 600; color: var(--yellow-800);">Unavailable</div>
-													<div class="class-name">${getTeacherAvailabilityWindowLabel(selectedTeacher)}</div>
+													<div class="class-name">${getTeacherAvailabilityWindowLabel(resolvedTeacher)}</div>
 												` : ''}
 											</td>
 										`;
@@ -6177,18 +2837,18 @@
 								<div style="background: var(--primary-50); color: var(--primary-800);
 											font-weight: 600; text-align: center; border-radius: var(--radius);
 											padding: 0.75rem; margin-bottom: 1.5rem;">
-									Total Weekly Periods: ${teacherDetails[selectedTeacher].periodCount}
+									Total Weekly Periods: ${teacherDetails[resolvedTeacher].periodCount}
 								</div>
 							</div>
 							<div class="table-container">
-								<table class="responsive sticky-first-col" role="table" aria-label="${selectedTeacher} weekly timetable">
+								<table class="responsive sticky-first-col" role="table" aria-label="${resolvedTeacher} weekly timetable">
 									<thead><tr>${tableHeader}</tr></thead>
 									<tbody>${tableBody}</tbody>
 								</table>
 							</div>
 							<div class="view-actions" style="margin-top: 1.5rem;">
 								<button onclick="handlePrint()" class="button button-secondary">
-									<i data-lucide="printer"></i> Print ${selectedTeacher} Schedule
+									<i data-lucide="printer"></i> Print ${resolvedTeacher} Schedule
 								</button>
 								<button onclick="handleShareScreenshot()" class="button button-whatsapp">
 									<i data-lucide="share-2"></i> Share
@@ -6216,7 +2876,7 @@
 						<div class="control-shell">
 							<label class="field-block">
 								<span class="field-label">Teacher</span>
-								<select onchange="renderTeacherView(this.value)">${teacherOptions}</select>
+								<select id="teacher-select">${teacherOptions}</select>
 							</label>
 							<p class="field-help">Teacher schedules are generated directly from the official 2026-27 timetable data.</p>
 						</div>
@@ -6224,18 +2884,25 @@
 					</div>
 				`;
 
-				mainContent.innerHTML = html;
-				lucide.createIcons();
+				updateUiSelection({ teacherName: resolvedTeacher, day: selectedDay });
+				queueViewRender(html, {
+					afterRender: () => {
+						const teacherSelect = document.getElementById('teacher-select');
+						if (teacherSelect) {
+							teacherSelect.value = resolvedTeacher;
+						}
 
-				if (selectedTeacher && teacherDetails[selectedTeacher]) {
-					if (isMobile()) {
-						renderTeacherViewMobile(selectedTeacher, getCurrentDay());
-						setupFab('today');
-						// Swipe functionality removed - use day tabs for navigation
-					} else {
-						setupFab('now');
+						if (resolvedTeacher && teacherDetails[resolvedTeacher]) {
+							if (isMobile()) {
+								renderTeacherViewMobile(resolvedTeacher, selectedDay);
+								setupFab('today');
+								return;
+							}
+
+							setupFab('now');
+						}
 					}
-				}
+				});
 
 			} catch (error) {
 				console.error('Error rendering teacher view:', error);
@@ -6248,6 +2915,7 @@
 				const { teacherDetails, periodHeaders } = state.allData;
 				const container = document.getElementById('teacher-mobile-container');
 				if (!container) return;
+				updateUiSelection({ teacherName: selectedTeacher, day });
 				document.querySelectorAll('.day-tab').forEach(btn => {
 					btn.setAttribute('aria-selected', String(btn.dataset.day === day));
 					btn.classList.toggle('active', btn.dataset.day === day);
@@ -6268,7 +2936,9 @@
 							<div class="extra">${subPeriodInfo ? `Sub for ${subPeriodInfo.originalTeacher || subPeriodInfo.teacher}` : (substitute ? `Covered by ${substitute}` : (p ? ('Teacher: ' + selectedTeacher) : (isUnavailableWindow ? 'Not available for substitutions in this slot' : '')))}</div>
 						</div>`;
 				}).join('');
-				container.innerHTML = `<div class="timetable-list" aria-label="${selectedTeacher} - ${day}">${list}</div>`;
+				queueElementRender(container, `<div class="timetable-list" aria-label="${selectedTeacher} - ${day}">${list}</div>`, {
+					renderKey: 'teacher-mobile'
+				});
 			} catch (e) { console.error(e); }
 		}
 
@@ -6338,7 +3008,7 @@
 			switch (state.currentView) {
 				case 'Day': {
 					const activeDayTab = document.querySelector('#main-content .day-tab.active, #main-content .day-tab[aria-selected="true"]');
-					const targetDay = activeDayTab?.dataset?.day || getCurrentDay();
+					const targetDay = state.uiSelection.day || activeDayTab?.dataset?.day || getCurrentDay();
 					return {
 						title: `Daily Schedule - ${targetDay}`,
 						content: renderDayTimetableForPrint(targetDay),
@@ -6349,7 +3019,7 @@
 				}
 
 				case 'Class': {
-					const selectedClass = document.querySelector('#main-content select')?.value || '';
+					const selectedClass = state.uiSelection.className || document.querySelector('#class-select')?.value || '';
 					if (!selectedClass) {
 						if (!silent) {
 							showToast('Please select a class first', 3000, 'warning');
@@ -6367,7 +3037,7 @@
 				}
 
 				case 'Teacher': {
-					const selectedTeacher = document.querySelector('#main-content select')?.value || '';
+					const selectedTeacher = state.uiSelection.teacherName || document.querySelector('#teacher-select')?.value || '';
 					if (!selectedTeacher) {
 						if (!silent) {
 							showToast('Please select a teacher first', 3000, 'warning');
@@ -6385,7 +3055,7 @@
 				}
 
 				case 'Substitution': {
-					const selectedDay = state.currentSubstitutionDay || getCurrentDay();
+					const selectedDay = state.currentSubstitutionDay || state.uiSelection.substitutionDay || getCurrentDay();
 					const content = buildSubstitutionPlanExportMarkup(selectedDay);
 					if (!content) {
 						if (!silent) {
@@ -6696,97 +3366,6 @@
 			return html;
 		}
 
-		function legacyPreparePrintContent() {
-			try {
-				let printContent = '';
-				let title = '';
-				
-				// Set current date and time
-				const now = new Date();
-				document.getElementById('print-date').textContent = now.toLocaleDateString('en-GB');
-				document.getElementById('print-time').textContent = now.toLocaleTimeString('en-US', { 
-					hour: '2-digit', 
-					minute: '2-digit',
-					hour12: true 
-				});
-				
-				// Detect current view and prepare appropriate content
-				switch(state.currentView) {
-					case 'Day':
-						// Find the active day tab (not nav button)
-						const activeDayTab = document.querySelector('.day-tab.active, .day-tab[aria-selected="true"]');
-						let targetDay = getCurrentDay();
-						
-						if (activeDayTab && activeDayTab.dataset.day) {
-							targetDay = activeDayTab.dataset.day;
-						}
-						
-						printContent = renderDayTimetableForPrint(targetDay);
-						title = `Daily Schedule - ${targetDay}`;
-						break;
-						
-					case 'Class':
-						const classSelect = document.querySelector('select')?.value;
-						if (classSelect) {
-							printContent = renderClassTimetableForPrint(classSelect);
-							title = `Weekly Schedule - ${classSelect}`;
-						} else {
-							showToast('âš ï¸ Please select a class first', 3000, 'warning');
-							return false;
-						}
-						break;
-						
-					case 'Teacher':
-						const teacherSelect = document.querySelector('select')?.value;
-						if (teacherSelect) {
-							printContent = renderTeacherTimetableForPrint(teacherSelect);
-							title = `Weekly Schedule - ${teacherSelect}`;
-						} else {
-							showToast('âš ï¸ Please select a teacher first', 3000, 'warning');
-							return false;
-						}
-						break;
-						
-					case 'Dashboard':
-					default:
-						printContent = renderFullTimetableForPrint();
-						title = "Complete School Timetable";
-						break;
-				}
-				
-				document.getElementById('print-header-subtitle').textContent = title;
-				document.getElementById('print-content').innerHTML = printContent;
-				return true;
-			} catch (error) {
-				console.error('Error preparing print content:', error);
-				return false;
-			}
-		}
-
-		// Pre-render print content and keep updated
-		function legacyUpdatePrintContent() {
-			try {
-				// Always keep the print content updated in background
-				preparePrintContent();
-			} catch (error) {
-				console.error('Error updating print content:', error);
-			}
-		}
-
-		function preparePrintContent() {
-			const descriptor = getCurrentExportDescriptor();
-			return prepareExportContent(descriptor);
-		}
-
-		function updatePrintContent() {
-			try {
-				const descriptor = getCurrentExportDescriptor({ silent: true });
-				if (!descriptor) return;
-				prepareExportContent(descriptor);
-			} catch (error) {
-				console.error('Error updating print content:', error);
-			}
-		}
 
 		// Wait for DOM rendering using requestAnimationFrame
 		function waitForRender() {
@@ -6861,47 +3440,6 @@
 			return rows;
 		}
 
-		async function handlePrint() {
-			try {
-				// Check if mobile and offer alternative
-				const isMobile = window.innerWidth <= 768;
-				
-				if (isMobile) {
-					const userChoice = confirm(
-						"ðŸ“± Mobile Print Options:\n\n" +
-						"âœ… OK = Print (may need landscape orientation)\n" +
-						"âŒ Cancel = Share as image instead\n\n" +
-						"Tip: For best mobile printing, rotate to landscape!"
-					);
-					
-					if (!userChoice) {
-						handleShareScreenshot();
-						return;
-					}
-					
-					// Show mobile print tip
-					showToast("ðŸ’¡ Tip: Rotate to landscape for better mobile printing!", 4000, 'info');
-				}
-				
-				if (preparePrintContent()) {
-					const captureElement = document.getElementById('print-capture-area');
-					const previousDisplay = captureElement.style.display;
-					// Show the print area temporarily
-					captureElement.style.display = 'block';
-					// Wait for DOM to render
-					await waitForRender();
-					window.print();
-					// Hide the print area again after printing
-					captureElement.style.display = previousDisplay || 'none';
-					showToast(isMobile ? "ðŸ“± Mobile print dialog opened" : "ðŸ“„ Print dialog opened", 2000, 'info');
-				} else {
-					showToast("âš ï¸ No printable content available.", 3000, 'warning');
-				}
-			} catch (error) {
-				console.error('Print error:', error);
-				showToast("âŒ Print failed. Try sharing as image instead.", 3000, 'error');
-			}
-		}
 
 		function getSavedAbsentTeachers(day) {
 			return [...(state.substitutions?.[day]?.absentTeachers || [])];
@@ -7297,7 +3835,7 @@
 				});
 
 				teacherPickerSheet.show();
-				lucide.createIcons();
+				refreshIcons();
 			} catch (error) {
 				console.error('Error opening absent teacher picker:', error);
 				showToast('Failed to open teacher picker.', 3000, 'error');
@@ -7436,157 +3974,16 @@
 				});
 
 				assignmentSheet.show();
-				lucide.createIcons();
+				refreshIcons();
 			} catch (error) {
 				console.error('Error opening substitution assignment sheet:', error);
 				showToast('Failed to open assignment options.', 3000, 'error');
 			}
 		}
 
-		// --- FIX SUBSTITUTION VIEW ---
-		function renderSubstitutionViewLegacy(day = null, absentTeachers = []) {
-			const { teacherNames, periodHeaders, teacherDetails, timetable, days } = state.allData;
-			// Always default to the current day when none is provided
-			const currentDay = getCurrentDay();
-			const selectedDay = day || currentDay;
-			state.currentSubstitutionDay = selectedDay;
-			document.getElementById('print-header-subtitle').textContent = `Substitution Plan for ${selectedDay}`;
 
-
-			const teacherOptionsHtml = teacherNames.map(t => `
-				<label style="display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem;
-							  border-radius: var(--radius); cursor: pointer; transition: background 0.2s;">
-					<input type="checkbox" value="${t}" ${absentTeachers.includes(t) ? 'checked' : ''}
-						   onchange="handleAbsentTeacherChange(this)">
-					<span>${t}</span>
-				</label>
-			`).join('');
-
-			const daySubsData = state.substitutions[selectedDay]?.plan || {};
-			const vacantSlots = [];
-			absentTeachers.forEach(absentTeacher => {
-				const schedule = teacherDetails[absentTeacher]?.schedule[selectedDay];
-				if (schedule) {
-					schedule.forEach((period, periodIndex) => {
-						if (period) {
-							vacantSlots.push({ ...period, periodIndex, originalTeacher: absentTeacher });
-						}
-					});
-				}
-			});
-
-			const plan = vacantSlots.map(slot => {
-				const substitute = daySubsData[slot.className]?.[slot.periodIndex];
-				return { ...slot, substitute };
-			}).sort((a, b) => a.periodIndex - b.periodIndex);
-
-
-	let planTableHTML = '';
-	if (plan.length > 0) {
-		const tableRows = plan.map(slot => `
-			<tr>
-				<td>${periodHeaders[slot.periodIndex].name}</td>
-				<td>${slot.className}</td>
-				<td>${slot.subject}</td>
-				<td style="color: var(--red-600);">${slot.originalTeacher}</td>
-				<td><span class="substitute">${slot.substitute || '--'}</span></td>
-			</tr>
-		`).join('');
-
-		planTableHTML = `
-			<div style="margin-top: 2rem;">
-				<div id="substitution-plan-content">
-					<h3 style="text-align: center; margin-bottom: 1rem; font-size: 1.25rem;">
-						ðŸ“‹ Substitution Plan: ${selectedDay}
-					</h3>
-					<div class="table-container">
-						<table>
-							<thead>
-								<tr>
-									<th>Period</th>
-									<th>Class</th>
-									<th>Subject</th>
-									<th>Original Teacher</th>
-									<th>Substitute</th>
-								</tr>
-							</thead>
-							<tbody>${tableRows}</tbody>
-						</table>
-					</div>
-					<div class="flex justify-center gap-4" style="margin-top: 1.5rem; flex-wrap: wrap;">
-						<button onclick="handleShareSubstitutionPlan('${selectedDay}')" class="button button-whatsapp" style="max-width: 250px;">
-							<i data-lucide="share-2"></i> Share Substitution Plan (Image)
-						</button>
-						<button onclick="handleShareSubstitutionPlanText('${selectedDay}')" class="button button-secondary" style="max-width: 250px;">
-							<i data-lucide="clipboard"></i> Copy Text Plan
-						</button>
-						<button onclick="handlePrintSubstitutionPlan('${selectedDay}')" class="button button-secondary" style="max-width: 250px;">
-							<i data-lucide="printer"></i> Print Plan
-						</button>
-					</div>
-				</div>
-			</div>
-		`;
-	}
-
-			const html = `
-				<div class="card">
-					<div class="grid grid-cols-1 gap-6">
-						<div>
-							<label class="block font-bold mb-2">Select Absent Teachers (for ${selectedDay})</label>
-							<div style="border: 1px solid var(--gray-300); border-radius: var(--radius);
-									padding: 0.5rem; max-height: 15rem; overflow-y: auto;">
-								${teacherOptionsHtml}
-							</div>
-						</div>
-					</div>
-					<div class="grid grid-cols-1 grid-cols-md-2 gap-4"
-						 style="border-top: 1px solid var(--gray-200); padding-top: 1.5rem; margin-top: 1.5rem;">
-						<button id="generate-plan-btn" class="button button-primary">
-							<i data-lucide="wand-2"></i> Generate Smart Plan
-						</button>
-						<button id="reset-plan-btn" class="button button-danger">
-							<i data-lucide="rotate-ccw"></i> Reset ${selectedDay} Plan
-						</button>
-					</div>
-					<div id="plan-container">${planTableHTML}</div>
-					<div class="flex justify-center gap-4" style="margin-top: 1.5rem;">
-						<button onclick="handlePrint()" class="button button-secondary" style="max-width: 200px;">
-							<i data-lucide="printer"></i> Print Full Timetable
-						</button>
-					</div>
-				</div>
-			`;
-
-			mainContent.innerHTML = html;
-			attachSubstitutionEventListeners(selectedDay, absentTeachers);
-			lucide.createIcons();
-		}
-
-		function renderSubstitutionView(day = null, absentTeachers = []) {
-			const { teacherNames, days } = state.allData;
-			const currentDay = getCurrentDay();
-			const selectedDay = day || state.currentSubstitutionDay || currentDay;
-			const hasExplicitAbsentTeachers = arguments.length >= 2;
-			const selectedAbsentTeachers = hasExplicitAbsentTeachers ? absentTeachers : getSavedAbsentTeachers(selectedDay);
-			const currentTimeLabel = new Date().toLocaleTimeString('en-US', {
-				hour: '2-digit',
-				minute: '2-digit',
-				hour12: true
-			});
-			const normalizedQuery = state.substitutionTeacherSearch.trim().toLowerCase();
-			const searchValue = state.substitutionTeacherSearch
-				.replace(/&/g, '&amp;')
-				.replace(/"/g, '&quot;')
-				.replace(/</g, '&lt;');
-
-			persistAbsentTeachers(selectedDay, selectedAbsentTeachers);
-			state.currentSubstitutionDay = selectedDay;
-			document.getElementById('print-header-subtitle').textContent = `Substitution Plan for ${selectedDay}`;
-
-			const planEntries = getSubstitutionPlanEntries(selectedDay, selectedAbsentTeachers);
-			const overview = getSubstitutionOverview(selectedDay, selectedAbsentTeachers, planEntries);
-			const hasAnySavedPlan = Object.values(state.substitutions[selectedDay]?.plan || {}).some(classPlan => Object.keys(classPlan).length > 0);
+		function getVisibleSubstitutionTeacherResults(selectedDay, normalizedQuery) {
+			const teacherNames = state.allData.teacherNames || [];
 			const filteredTeacherNames = teacherNames
 				.filter(teacher => !normalizedQuery || teacher.toLowerCase().includes(normalizedQuery))
 				.sort((a, b) => {
@@ -7595,22 +3992,12 @@
 					if (aStarts !== bStarts) return aStarts ? -1 : 1;
 					return a.localeCompare(b);
 				});
-			const visibleSearchResults = normalizedQuery ? filteredTeacherNames.slice(0, 6) : [];
-			const heroMessage = selectedAbsentTeachers.length === 0
-				? 'Add absent teachers, then use Auto Assign or choose substitutes directly from the table.'
-				: planEntries.length === 0
-					? 'The selected teachers do not have scheduled classes on this day.'
-					: overview.uncoveredCount > 0
-						? `${overview.uncoveredCount} slot${overview.uncoveredCount === 1 ? '' : 's'} still need attention.`
-						: 'Every visible slot is assigned and ready to share.';
 
-			const dayTabsHtml = days.map(d => `
-				<button class="day-tab ${d === selectedDay ? 'active' : ''}" role="tab" aria-selected="${d === selectedDay}" data-day="${d}" onclick="renderSubstitutionView('${d}')">
-					${d.slice(0, 3)}
-				</button>
-			`).join('');
+			return normalizedQuery ? filteredTeacherNames.slice(0, 6) : [];
+		}
 
-			const selectedTeacherChips = selectedAbsentTeachers.length > 0
+		function buildSubstitutionSelectedTeacherChips(selectedDay, selectedAbsentTeachers) {
+			return selectedAbsentTeachers.length > 0
 				? selectedAbsentTeachers.map(teacher => `
 					<button type="button" class="substitution-selected-chip" onclick='removeAbsentTeacherFromSelection(${JSON.stringify(selectedDay)}, ${JSON.stringify(teacher)})'>
 						<i data-lucide="user-minus"></i>
@@ -7621,34 +4008,92 @@
 				: `
 					<span class="substitution-selected-empty">No absent teachers selected.</span>
 				`;
+		}
 
-			const searchResultsHtml = normalizedQuery
-				? visibleSearchResults.length > 0
-					? `
-						<div class="substitution-search-results">
-							${visibleSearchResults.map(teacher => {
-								const isSelected = selectedAbsentTeachers.includes(teacher);
-								const dayLoad = getTeacherLoadForDay(teacher, selectedDay);
-								const availabilityWindow = getTeacherAvailabilityWindowLabel(teacher);
+		function buildSubstitutionSearchResultsMarkup(selectedDay, selectedAbsentTeachers) {
+			const normalizedQuery = state.substitutionTeacherSearch.trim().toLowerCase();
+			const visibleSearchResults = getVisibleSubstitutionTeacherResults(selectedDay, normalizedQuery);
 
-								return `
-									<button type="button" class="substitution-teacher-suggestion ${isSelected ? 'substitution-teacher-suggestion--selected' : ''}" onclick='toggleAbsentTeacherSelection(${JSON.stringify(selectedDay)}, ${JSON.stringify(teacher)})'>
-										<div class="substitution-teacher-suggestion-copy">
-											<strong>${escapeHtml(teacher)}</strong>
-											<p>${escapeHtml(dayLoad ? `${dayLoad} periods on ${selectedDay}` : `No periods on ${selectedDay}`)}</p>
-										</div>
-										<span class="substitution-mini-pill ${isSelected ? 'substitution-mini-pill--active' : ''}">
-											${escapeHtml(isSelected ? 'Selected' : (availabilityWindow || 'Tap to add'))}
-										</span>
-									</button>
-								`;
-							}).join('')}
-						</div>
-					`
-					: `
-						<div class="substitution-search-empty">No teacher matches this search.</div>
-					`
-				: '';
+			if (!normalizedQuery) {
+				return '';
+			}
+
+			if (visibleSearchResults.length === 0) {
+				return `<div class="substitution-search-empty">No teacher matches this search.</div>`;
+			}
+
+			return `
+				<div class="substitution-search-results">
+					${visibleSearchResults.map(teacher => {
+						const isSelected = selectedAbsentTeachers.includes(teacher);
+						const dayLoad = getTeacherLoadForDay(teacher, selectedDay);
+						const availabilityWindow = getTeacherAvailabilityWindowLabel(teacher);
+
+						return `
+							<button type="button" class="substitution-teacher-suggestion ${isSelected ? 'substitution-teacher-suggestion--selected' : ''}" onclick='toggleAbsentTeacherSelection(${JSON.stringify(selectedDay)}, ${JSON.stringify(teacher)})'>
+								<div class="substitution-teacher-suggestion-copy">
+									<strong>${escapeHtml(teacher)}</strong>
+									<p>${escapeHtml(dayLoad ? `${dayLoad} periods on ${selectedDay}` : `No periods on ${selectedDay}`)}</p>
+								</div>
+								<span class="substitution-mini-pill ${isSelected ? 'substitution-mini-pill--active' : ''}">
+									${escapeHtml(isSelected ? 'Selected' : (availabilityWindow || 'Tap to add'))}
+								</span>
+							</button>
+						`;
+					}).join('')}
+				</div>
+			`;
+		}
+
+		function updateSubstitutionSearchPanels(day, selectedAbsentTeachers = getSavedAbsentTeachers(day)) {
+			const selectedList = document.getElementById('substitution-selected-list');
+			const resultsHost = document.getElementById('substitution-search-results-host');
+			if (!selectedList || !resultsHost) {
+				renderSubstitutionView(day, selectedAbsentTeachers);
+				return;
+			}
+
+			queueElementRender(selectedList, buildSubstitutionSelectedTeacherChips(day, selectedAbsentTeachers), {
+				renderKey: 'substitution-selected'
+			});
+			queueElementRender(resultsHost, buildSubstitutionSearchResultsMarkup(day, selectedAbsentTeachers), {
+				renderKey: 'substitution-search-results'
+			});
+		}
+
+		function renderSubstitutionView(day = null, absentTeachers = []) {
+			const { days } = state.allData;
+			const currentDay = getCurrentDay();
+			const selectedDay = day || state.currentSubstitutionDay || state.uiSelection.substitutionDay || currentDay;
+			const hasExplicitAbsentTeachers = arguments.length >= 2;
+			const selectedAbsentTeachers = hasExplicitAbsentTeachers ? absentTeachers : getSavedAbsentTeachers(selectedDay);
+			const currentTimeLabel = new Date().toLocaleTimeString('en-US', {
+				hour: '2-digit',
+				minute: '2-digit',
+				hour12: true
+			});
+			const normalizedQuery = state.substitutionTeacherSearch.trim().toLowerCase();
+			const searchValue = escapeHtml(state.substitutionTeacherSearch);
+
+			persistAbsentTeachers(selectedDay, selectedAbsentTeachers);
+			state.currentSubstitutionDay = selectedDay;
+			updateUiSelection({ substitutionDay: selectedDay });
+			document.getElementById('print-header-subtitle').textContent = `Substitution Plan for ${selectedDay}`;
+
+			const planEntries = getSubstitutionPlanEntries(selectedDay, selectedAbsentTeachers);
+			const overview = getSubstitutionOverview(selectedDay, selectedAbsentTeachers, planEntries);
+			const hasAnySavedPlan = Object.values(state.substitutions[selectedDay]?.plan || {}).some(classPlan => Object.keys(classPlan).length > 0);
+			const heroMessage = selectedAbsentTeachers.length === 0
+				? 'Add absent teachers, then use Auto Assign or choose substitutes directly from the table.'
+				: planEntries.length === 0
+					? 'The selected teachers do not have scheduled classes on this day.'
+					: overview.uncoveredCount > 0
+						? `${overview.uncoveredCount} slot${overview.uncoveredCount === 1 ? '' : 's'} still need attention.`
+						: 'Every visible slot is assigned and ready to share.';
+
+			const dayTabsHtml = getDayTabsMarkup('substitution', selectedDay);
+			const selectedTeacherChips = buildSubstitutionSelectedTeacherChips(selectedDay, selectedAbsentTeachers);
+			const searchResultsHtml = buildSubstitutionSearchResultsMarkup(selectedDay, selectedAbsentTeachers);
 
 			const planTableHtml = planEntries.length > 0
 				? `
@@ -7793,14 +4238,14 @@
 							</div>
 							<div class="substitution-search substitution-search--prominent">
 								<i data-lucide="search"></i>
-								<input type="search" id="substitution-teacher-search" value="${searchValue}" placeholder="Search teacher name" oninput="handleSubstitutionTeacherSearch(this.value)">
+								<input type="search" id="substitution-teacher-search" value="${searchValue}" placeholder="Search teacher name">
 							</div>
 							<div class="substitution-selected-panel">
-								<div class="substitution-selected-list">
+								<div class="substitution-selected-list" id="substitution-selected-list">
 									${selectedTeacherChips}
 								</div>
 							</div>
-							${searchResultsHtml}
+							<div id="substitution-search-results-host">${searchResultsHtml}</div>
 						</div>
 					</section>
 
@@ -7832,9 +4277,11 @@
 				</div>
 			`;
 
-			mainContent.innerHTML = html;
-			attachSubstitutionEventListeners(selectedDay, selectedAbsentTeachers);
-			lucide.createIcons();
+			queueViewRender(html, {
+				afterRender: () => {
+					attachSubstitutionEventListeners(selectedDay, selectedAbsentTeachers);
+				}
+			});
 		}
 
 		function focusSubstitutionPlanRow(day, className = '', periodIndex = -1) {
@@ -7893,12 +4340,101 @@
 		function handleSubstitutionTeacherSearch(query) {
 			try {
 				state.substitutionTeacherSearch = query || '';
-				const day = state.currentSubstitutionDay || getCurrentDay();
+				const day = state.currentSubstitutionDay || state.uiSelection.substitutionDay || getCurrentDay();
 				closeSubstitutionAssignmentSheet();
-				renderSubstitutionView(day, getSavedAbsentTeachers(day));
+				updateSubstitutionSearchPanels(day, getSavedAbsentTeachers(day));
 			} catch (error) {
 				console.error('Error updating substitution teacher search:', error);
 			}
+		}
+
+		const debouncedHandleSubstitutionTeacherSearch = debounce(handleSubstitutionTeacherSearch, 120);
+
+		function handleDelegatedDayTab(context, day) {
+			if (!day) {
+				return;
+			}
+
+			switch (context) {
+				case 'day':
+					renderDayView(day);
+					break;
+				case 'class': {
+					const selectedClass = state.uiSelection.className || document.getElementById('class-select')?.value || '';
+					if (selectedClass) {
+						renderClassViewMobile(selectedClass, day);
+					}
+					break;
+				}
+				case 'teacher': {
+					const selectedTeacher = state.uiSelection.teacherName || document.getElementById('teacher-select')?.value || '';
+					if (selectedTeacher) {
+						renderTeacherViewMobile(selectedTeacher, day);
+					}
+					break;
+				}
+				case 'substitution':
+					renderSubstitutionView(day);
+					break;
+				default:
+					break;
+			}
+		}
+
+		function bindMainContentEvents() {
+			if (!mainContent || mainContent.dataset.boundEvents === 'true') {
+				return;
+			}
+
+			mainContent.dataset.boundEvents = 'true';
+
+			mainContent.addEventListener('change', event => {
+				const target = event.target;
+				if (!(target instanceof HTMLSelectElement)) {
+					return;
+				}
+
+				switch (target.id) {
+					case 'finder-day-select': {
+						const newPeriod = document.getElementById('finder-period-select')?.value || state.dashboardFinder.period || getCurrentPeriod();
+						debouncedRenderFreeTeacher(target.value, newPeriod);
+						break;
+					}
+					case 'finder-period-select': {
+						const newDay = document.getElementById('finder-day-select')?.value || state.dashboardFinder.day || getCurrentDay();
+						debouncedRenderFreeTeacher(newDay, target.value);
+						break;
+					}
+					case 'class-select':
+						renderClassView(target.value);
+						break;
+					case 'teacher-select':
+						renderTeacherView(target.value);
+						break;
+					default:
+						break;
+				}
+			});
+
+			mainContent.addEventListener('input', event => {
+				const target = event.target;
+				if (!(target instanceof HTMLInputElement)) {
+					return;
+				}
+
+				if (target.id === 'substitution-teacher-search') {
+					debouncedHandleSubstitutionTeacherSearch(target.value);
+				}
+			});
+
+			mainContent.addEventListener('click', event => {
+				const dayTab = event.target.closest('.day-tab[data-day-tab-context]');
+				if (!dayTab || !mainContent.contains(dayTab)) {
+					return;
+				}
+
+				handleDelegatedDayTab(dayTab.dataset.dayTabContext, dayTab.dataset.day);
+			});
 		}
 
 		function clearSubstitutionTeacherSelection() {
@@ -7938,6 +4474,7 @@
 			// Swipe handlers cleanup removed
 
 			state.currentView = view;
+			persistUiSessionState();
 
 			const fab = document.getElementById('fab-go-now');
 			if (fab) {
@@ -7973,9 +4510,6 @@
 			if (view === 'Substitution') {
 				window.scrollTo({ top: 0, behavior: 'auto' });
 			}
-
-			// Update print content when view changes
-			setTimeout(() => updatePrintContent(), 100);
 		}
 
 		function pruneSubstitutionPlanForAbsentTeachers(day, absentTeachers = []) {
@@ -7998,88 +4532,6 @@
 		}
 
 		// --- SUBSTITUTION MANAGEMENT ---
-		function handleGeneratePlan(day, absentTeachers, options = {}) {
-			try {
-				const silent = options?.silent === true;
-				if (!day || !absentTeachers || absentTeachers.length === 0) {
-					showToast('âš ï¸ Please select at least one absent teacher', 3000, 'warning');
-					return;
-				}
-
-				const { teacherDetails } = state.allData;
-				const vacantSlots = [];
-
-				// Find all slots that need substitution
-				absentTeachers.forEach(teacher => {
-					const schedule = teacherDetails[teacher]?.schedule[day];
-					if (schedule) {
-						schedule.forEach((period, periodIndex) => {
-							if (period) {
-								vacantSlots.push({
-									...period,
-									periodIndex,
-									originalTeacher: teacher
-								});
-							}
-						});
-					}
-				});
-
-				if (vacantSlots.length === 0) {
-					showToast('ℹ️ The selected teachers have no classes to cover on this day', 3000, 'info');
-					renderSubstitutionView(day, absentTeachers);
-					return;
-				}
-
-				// Initialize substitution structure if needed
-				if (!state.substitutions[day]) {
-					state.substitutions[day] = { plan: {}, absentTeachers: [] };
-				}
-				state.substitutions[day].absentTeachers = [...absentTeachers];
-				closeSubstitutionAssignmentSheet();
-				
-				// Clear existing plan for these slots
-				vacantSlots.forEach(slot => {
-					if (!state.substitutions[day].plan[slot.className]) {
-						state.substitutions[day].plan[slot.className] = {};
-					}
-					delete state.substitutions[day].plan[slot.className][slot.periodIndex];
-					cleanupSubstitutionClassPlan(day, slot.className);
-				});
-
-				// Generate new plan with enhanced algorithm
-				const newPlan = state.substitutions[day].plan;
-				vacantSlots.forEach(slot => {
-					const freeTeachers = findFreeTeachers(
-						day, 
-						slot.periodIndex, 
-						absentTeachers, 
-						newPlan,
-						slot // Pass the vacant period details for better matching
-					);
-					
-					if (freeTeachers.length > 0) {
-						if (!newPlan[slot.className]) {
-							newPlan[slot.className] = {};
-						}
-						// Use the highest-scored teacher (first in sorted array)
-						newPlan[slot.className][slot.periodIndex] = freeTeachers[0].teacher;
-						
-						// Log the recommendation for debugging
-						console.log(`Assigned ${freeTeachers[0].teacher} to ${slot.className} Period ${slot.periodIndex + 1} (Score: ${freeTeachers[0].score}, Reason: ${freeTeachers[0].reason})`);
-					}
-				});
-
-				// Save updated plan
-				state.substitutions[day].plan = newPlan;
-				showToast('âœ… Substitution plan generated successfully!', 3000, 'success');
-				renderSubstitutionView(day, absentTeachers);
-				
-			} catch (error) {
-				console.error('Error generating substitution plan:', error);
-				showToast('âŒ Failed to generate substitution plan', 3000, 'error');
-			}
-		}
 
 		function handleResetPlan(day) {
 			try {
@@ -8109,200 +4561,7 @@
 			}
 		}
 
-		async function legacyHandleShareScreenshot() {
-			try {
-				const captureElement = document.getElementById('print-capture-area');
-				
-				if (!captureElement) {
-					showToast('âŒ Required elements not found', 3000, 'error');
-					return;
-				}
 
-				// Lazy load html2canvas if feat_perf_opt is enabled
-				if (FEATURE_FLAGS.feat_perf_opt && typeof PerformanceOptimization !== 'undefined') {
-					try {
-						showToast('â³ Loading screenshot library...', 2000, 'info');
-						await PerformanceOptimization.lazyLoader.loadHtml2Canvas();
-					} catch (error) {
-						showToast('âŒ Failed to load screenshot library', 3000, 'error');
-						return;
-					}
-				} else if (typeof html2canvas === 'undefined') {
-					showToast('âŒ Screenshot library not loaded', 3000, 'error');
-					return;
-				}
-				
-				// 1. Populate print content using existing preparePrintContent()
-				if (!preparePrintContent()) {
-					showToast('âŒ Failed to prepare print content', 3000, 'error');
-					return;
-				}
-				
-				// 2. Store original display state and temporarily show print area
-				const originalDisplay = captureElement.style.display;
-				captureElement.style.display = 'block';
-				
-				try {
-					// 3. Ensure fonts are loaded and wait for rendering
-					await ensureFontsLoaded();
-					await waitForRender();
-					
-					// 4. Capture with optimal settings using device pixel ratio
-					const canvas = await html2canvas(captureElement, {
-						backgroundColor: '#fff',
-						scale: getOptimalScale(),
-						useCORS: true,
-						allowTaint: false,
-						foreignObjectRendering: false,
-						imageTimeout: 15000,
-						removeContainer: false
-					});
-					
-					// 5. Convert canvas to blob and handle sharing/download
-					canvas.toBlob(async (blob) => {
-						try {
-							if (!blob) {
-								throw new Error('Failed to create image blob');
-							}
-
-							const file = new File([blob], 'timetable.png', { type: 'image/png' });
-							
-							// Try Web Share API first (mobile-friendly)
-							if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
-								try {
-									await navigator.share({
-										files: [file],
-										title: 'Veer Patta Public School Timetable',
-										text: 'Check out our school timetable!'
-									});
-									showToast('âœ… Timetable shared successfully', 3000, 'success');
-								} catch (shareError) {
-									if (shareError.name !== 'AbortError') {
-										console.warn('Share failed, falling back to download:', shareError);
-										downloadImage(blob, 'timetable.png');
-										showToast('âš ï¸ Sharing failed. Image downloaded instead.', 3000, 'warning');
-									}
-								}
-							} else {
-								// Fallback to download if sharing not supported
-								downloadImage(blob, 'timetable.png');
-								showToast('âœ… Timetable image downloaded', 3000, 'success');
-							}
-						} catch (error) {
-							console.error('Error processing image blob:', error);
-							showToast('âŒ Failed to process image', 3000, 'error');
-						}
-					}, 'image/png', 0.95);
-					
-				} finally {
-					// 6. Always restore original DOM state (no flicker)
-					captureElement.style.display = originalDisplay;
-				}
-				
-			} catch (error) {
-				console.error('Screenshot capture error:', error);
-				showToast('âŒ Failed to capture screenshot', 3000, 'error');
-				
-				// Ensure cleanup even on error
-				const captureElement = document.getElementById('print-capture-area');
-				if (captureElement) {
-					captureElement.style.display = 'none';
-				}
-			}
-		}
-
-		// New function: Share as PDF
-		async function legacyHandleShareAsPDF() {
-			try {
-				// Lazy load jsPDF and html2canvas if feat_perf_opt is enabled
-				if (FEATURE_FLAGS.feat_perf_opt && typeof PerformanceOptimization !== 'undefined') {
-					try {
-						showToast('â³ Loading PDF libraries...', 2000, 'info');
-						await Promise.all([
-							PerformanceOptimization.lazyLoader.loadJsPDF(),
-							PerformanceOptimization.lazyLoader.loadHtml2Canvas()
-						]);
-					} catch (error) {
-						showToast('âŒ Failed to load PDF libraries', 3000, 'error');
-						return;
-					}
-				} else if (!window.jspdf || typeof window.jspdf.jsPDF === 'undefined') {
-					showToast('âŒ PDF library not loaded', 3000, 'error');
-					return;
-				}
-
-				const captureElement = document.getElementById('print-capture-area');
-				if (!captureElement) {
-					showToast('âŒ Required elements not found', 3000, 'error');
-					return;
-				}
-
-				// Prepare print content
-				if (!preparePrintContent()) {
-					showToast('âŒ Failed to prepare print content', 3000, 'error');
-					return;
-				}
-
-				showToast('ðŸ“„ Generating PDF...', 2000, 'info');
-
-				const originalDisplay = captureElement.style.display;
-				captureElement.style.display = 'block';
-
-				try {
-					await ensureFontsLoaded();
-					await waitForRender();
-
-					// Capture with html2canvas
-					const canvas = await html2canvas(captureElement, {
-						backgroundColor: '#fff',
-						scale: getOptimalScale(),
-						useCORS: true,
-						allowTaint: false,
-						foreignObjectRendering: false,
-						imageTimeout: 15000
-					});
-
-					// Create PDF
-					const { jsPDF } = window.jspdf;
-					const pdf = new jsPDF({
-						orientation: 'landscape',
-						unit: 'mm',
-						format: 'a4'
-					});
-
-					// Calculate dimensions
-					const pdfWidth = pdf.internal.pageSize.getWidth();
-					const pdfHeight = pdf.internal.pageSize.getHeight();
-					const canvasWidth = canvas.width;
-					const canvasHeight = canvas.height;
-					const ratio = Math.min(pdfWidth / canvasWidth, pdfHeight / canvasHeight);
-					const imgWidth = canvasWidth * ratio;
-					const imgHeight = canvasHeight * ratio;
-					const x = (pdfWidth - imgWidth) / 2;
-					const y = (pdfHeight - imgHeight) / 2;
-
-					// Add image to PDF
-					const imgData = canvas.toDataURL('image/png');
-					pdf.addImage(imgData, 'PNG', x, y, imgWidth, imgHeight);
-
-					// Generate filename
-					const now = new Date();
-					const dateStr = now.toISOString().split('T')[0];
-					const filename = `vpps-timetable-${dateStr}.pdf`;
-
-					// Save PDF
-					pdf.save(filename);
-					showToast('âœ… PDF saved successfully!', 3000, 'success');
-
-				} finally {
-					captureElement.style.display = originalDisplay;
-				}
-
-			} catch (error) {
-				console.error('PDF generation error:', error);
-				showToast('âŒ Failed to generate PDF', 3000, 'error');
-			}
-		}
 
 		// New function: Export CSV
 		function handleExportCSV() {
@@ -8368,229 +4627,11 @@
 			}
 		}
 
-		function legacyHandleShareSubstitutionPlan(day) {
-			try {
-				const planContent = document.getElementById('substitution-plan-content');
-				if (!planContent) {
-					showToast('âš ï¸ No substitution plan to share', 3000, 'warning');
-					return;
-				}
 
-				// Create a temporary container for the substitution plan only
-				const tempContainer = document.createElement('div');
-				tempContainer.style.cssText = `
-					background: white;
-					padding: 2rem;
-					font-family: 'Inter', sans-serif;
-					position: absolute;
-					left: -9999px;
-					top: -9999px;
-					width: 800px;
-				`;
-				
-				// Add school header
-				tempContainer.innerHTML = `
-					<div style="text-align: center; margin-bottom: 2rem; border-bottom: 2px solid #2563eb; padding-bottom: 1rem;">
-						<h1 style="color: #2563eb; font-size: 1.5rem; margin: 0;">Veer Patta Public School</h1>
-						<p style="color: #6b7280; margin: 0.5rem 0 0 0;">Substitution Plan - ${day}</p>
-						<small style="color: #9ca3af;">Generated on ${new Date().toLocaleDateString('en-GB')} at ${new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}</small>
-					</div>
-					${planContent.innerHTML}
-				`;
-				
-				document.body.appendChild(tempContainer);
-				
-				html2canvas(tempContainer, {
-					backgroundColor: '#ffffff',
-					width: 800,
-					height: tempContainer.scrollHeight,
-					scale: 2
-				}).then(canvas => {
-					document.body.removeChild(tempContainer);
-					
-					canvas.toBlob(blob => {
-						try {
-							const fileName = `substitution-plan-${day.toLowerCase()}-${new Date().toISOString().split('T')[0]}.png`;
-							const file = new File([blob], fileName, { type: 'image/png' });
-							
-							// Generate WhatsApp sharing text
-							const whatsappText = `ðŸ“‹ *Substitution Plan - ${day}*\n\n` +
-								`ðŸ« *Veer Patta Public School*\n` +
-								`ðŸ“… Date: ${new Date().toLocaleDateString('en-GB')}\n` +
-								`â° Generated: ${new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}\n\n` +
-								`Please see the attached image for detailed substitution assignments.`;
-							
-							// Check if Web Share API is available
-							if (navigator.share) {
-								navigator.share({
-									files: [file],
-									title: `Substitution Plan - ${day}`,
-									text: whatsappText
-								}).then(() => {
-									showToast('âœ… Substitution plan shared successfully!', 3000, 'success');
-								}).catch(err => {
-									console.error('Share failed:', err);
-									// Fallback to download
-									downloadSubstitutionPlan(blob, fileName, whatsappText);
-								});
-							} else {
-								// Fallback for browsers without Web Share API
-								downloadSubstitutionPlan(blob, fileName, whatsappText);
-							}
-						} catch (error) {
-							console.error('Error sharing substitution plan:', error);
-							showToast('âŒ Failed to share substitution plan', 3000, 'error');
-						}
-					});
-				}).catch(error => {
-					document.body.removeChild(tempContainer);
-					console.error('Error capturing substitution plan:', error);
-					showToast('âŒ Failed to capture substitution plan', 3000, 'error');
-				});
-				
-			} catch (error) {
-				console.error('Error in handleShareSubstitutionPlan:', error);
-				showToast('âŒ Failed to share substitution plan', 3000, 'error');
-			}
-		}
-
-		function legacyDownloadSubstitutionPlan(blob, fileName, whatsappText) {
-			// Download the image
-			const url = URL.createObjectURL(blob);
-			const a = document.createElement('a');
-			a.href = url;
-			a.download = fileName;
-			a.click();
-			URL.revokeObjectURL(url);
-			
-			// Copy WhatsApp text to clipboard
-			navigator.clipboard.writeText(whatsappText).then(() => {
-				showToast('âœ… Plan downloaded & text copied to clipboard!', 4000, 'success');
-			}).catch(() => {
-				showToast('âœ… Substitution plan downloaded successfully!', 3000, 'success');
-			});
-		}
 
 		// --- TEXT-BASED SHARING FOR SUBSTITUTION PLAN ---
-		function legacyHandleShareSubstitutionPlanText(day) {
-			try {
-				const { periodHeaders } = state.allData;
-				const daySubsData = state.substitutions[day]?.plan || {};
-				
-				// Gather all slots for the day
-				let slots = [];
-				for (const className in daySubsData) {
-					for (const periodIdx in daySubsData[className]) {
-						slots.push({
-							className,
-							periodIndex: parseInt(periodIdx, 10),
-							substitute: daySubsData[className][periodIdx]
-						});
-					}
-				}
-				
-				slots = getSubstitutionPlanEntries(day, getSavedAbsentTeachers(day));
 
-				if (slots.length === 0) {
-					showToast('âš ï¸ No substitution plan to share', 3000, 'warning');
-					return;
-				}
-				
-				// Sort by period, then class
-				slots.sort((a, b) => a.periodIndex - b.periodIndex || a.className.localeCompare(b.className));
-				
-				// Build text summary
-				let text = `ðŸ“‹ Substitution Plan - ${day}\n`;
-				text += `ðŸ« Veer Patta Public School\n`;
-				text += `ðŸ“… Date: ${new Date().toLocaleDateString('en-GB')}\n`;
-				text += `â° Generated: ${new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}\n\n`;
-				text += `Period | Class | Absent | Substitute\n`;
-				text += `-------------------------------------\n`;
-				
-				slots.forEach(slot => {
-					const periodName = periodHeaders[slot.periodIndex]?.name || `P${slot.periodIndex+1}`;
-					text += `${periodName} | ${slot.className} | ${slot.originalTeacher || '--'} | ${slot.substitute || '--'}\n`;
-				});
-				
-				// Copy to clipboard
-				navigator.clipboard.writeText(text).then(() => {
-					showToast('âœ… Text plan copied to clipboard!', 3000, 'success');
-				}).catch(() => {
-					showToast('âš ï¸ Failed to copy text plan', 3000, 'warning');
-				});
-				
-			} catch (error) {
-				console.error('Error sharing text substitution plan:', error);
-				showToast('âŒ Failed to share text plan', 3000, 'error');
-			}
-		}
 
-		function legacyBuildAssignedSubstitutionPlanPrintMarkup(day) {
-			const assignedSlots = getSortedSubstitutionShareEntries(day).filter(slot => slot.substitute);
-			if (assignedSlots.length === 0) {
-				return '';
-			}
-
-			const rows = assignedSlots.map(slot => `
-				<tr>
-					<td>${escapeHtml(slot.periodName || '--')}</td>
-					<td>${escapeHtml(slot.periodTime || '--')}</td>
-					<td>${escapeHtml(slot.className || '--')}</td>
-					<td>${escapeHtml(slot.subject || '--')}</td>
-					<td>${escapeHtml(slot.originalTeacher || '--')}</td>
-					<td>${escapeHtml(slot.substitute || '--')}</td>
-				</tr>
-			`).join('');
-
-			return `
-				<div class="table-container">
-					<table>
-						<thead>
-							<tr>
-								<th>Period</th>
-								<th>Time</th>
-								<th>Class</th>
-								<th>Subject</th>
-								<th>Absent Teacher</th>
-								<th>Substitute</th>
-							</tr>
-						</thead>
-						<tbody>${rows}</tbody>
-					</table>
-				</div>
-			`;
-		}
-
-		async function legacyHandlePrintSubstitutionPlanAssigned(day) {
-			try {
-				const printMarkup = legacyBuildAssignedSubstitutionPlanPrintMarkup(day);
-				if (!printMarkup) {
-					showToast('No assigned substitutions to print for this day', 3200, 'warning');
-					return;
-				}
-
-				// Prepare print content
-				const captureElement = document.getElementById('print-capture-area');
-				const prevContent = document.getElementById('print-content').innerHTML;
-				const prevSubtitle = document.getElementById('print-header-subtitle').textContent;
-
-				document.getElementById('print-header-subtitle').textContent = `Substitution Plan (${day}) - Assigned Slots Only`;
-				document.getElementById('print-content').innerHTML = printMarkup;
-
-				const prevDisplay = captureElement.style.display;
-				captureElement.style.display = 'block';
-				// Wait for DOM to render
-				await waitForRender();
-				window.print();
-				// Restore previous content
-				captureElement.style.display = prevDisplay;
-				document.getElementById('print-content').innerHTML = prevContent;
-				document.getElementById('print-header-subtitle').textContent = prevSubtitle;
-			} catch (error) {
-				console.error('Error printing substitution plan:', error);
-				showToast('âŒ Failed to print substitution plan', 3000, 'error');
-			}
-		}
 
 		function handleGeneratePlan(day, absentTeachers, options = {}) {
 			try {
@@ -8754,52 +4795,6 @@
 			return lines.join('\n');
 		}
 
-		function legacyBuildSubstitutionPlanExportMarkup(day) {
-			const absentTeachers = getSavedAbsentTeachers(day);
-			const slots = getSortedSubstitutionShareEntries(day)
-				.filter(slot => slot.substitute);
-			const overview = getSubstitutionOverview(day, absentTeachers, slots);
-
-			if (slots.length === 0) {
-				return '';
-			}
-
-			const generatedDate = new Date();
-			const rows = slots.map(slot => `
-				<tr>
-					<td style="padding: 0.85rem 0.75rem; border-bottom: 1px solid #e5e7eb; font-weight: 700;">${escapeHtml(slot.periodName)}</td>
-					<td style="padding: 0.85rem 0.75rem; border-bottom: 1px solid #e5e7eb;">${escapeHtml(slot.className)}</td>
-					<td style="padding: 0.85rem 0.75rem; border-bottom: 1px solid #e5e7eb;">${escapeHtml(slot.subject)}</td>
-					<td style="padding: 0.85rem 0.75rem; border-bottom: 1px solid #e5e7eb; color: #b91c1c; font-weight: 700;">${escapeHtml(slot.originalTeacher || '--')}</td>
-					<td style="padding: 0.85rem 0.75rem; border-bottom: 1px solid #e5e7eb; color: #065f46; font-weight: 800;">${escapeHtml(slot.substitute)}</td>
-				</tr>
-			`).join('');
-
-			return `
-				<div style="font-family: Inter, system-ui, sans-serif; color: #111827; background: #ffffff; padding: 0.5rem 0;">
-					<div style="text-align: center; margin-bottom: 1.25rem; border-bottom: 2px solid #2563eb; padding-bottom: 0.9rem;">
-						<h1 style="color: #2563eb; font-size: 1.6rem; margin: 0;">Veer Patta Public School</h1>
-						<p style="color: #374151; font-size: 1rem; margin: 0.55rem 0 0;">Substitution Plan - ${escapeHtml(day)}</p>
-						<small style="color: #6b7280;">Assigned slots only | ${slots.length} substitutions | Generated on ${generatedDate.toLocaleDateString('en-GB')} at ${generatedDate.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true })}</small>
-					</div>
-					<div style="margin-bottom: 1rem; color: #4b5563; font-size: 0.9rem; text-align: center;">
-						${absentTeachers.length} absent teacher${absentTeachers.length === 1 ? '' : 's'} | ${overview.affectedClasses} class${overview.affectedClasses === 1 ? '' : 'es'} covered
-					</div>
-					<table style="width: 100%; border-collapse: collapse; border: 1px solid #e5e7eb; border-radius: 0.75rem; overflow: hidden;">
-						<thead>
-							<tr style="background: #eff6ff; color: #1e3a8a;">
-								<th style="padding: 0.85rem 0.75rem; text-align: left; font-size: 0.75rem; letter-spacing: 0.08em; text-transform: uppercase;">Period</th>
-								<th style="padding: 0.85rem 0.75rem; text-align: left; font-size: 0.75rem; letter-spacing: 0.08em; text-transform: uppercase;">Class</th>
-								<th style="padding: 0.85rem 0.75rem; text-align: left; font-size: 0.75rem; letter-spacing: 0.08em; text-transform: uppercase;">Subject</th>
-								<th style="padding: 0.85rem 0.75rem; text-align: left; font-size: 0.75rem; letter-spacing: 0.08em; text-transform: uppercase;">Absent</th>
-								<th style="padding: 0.85rem 0.75rem; text-align: left; font-size: 0.75rem; letter-spacing: 0.08em; text-transform: uppercase;">Substitute</th>
-							</tr>
-						</thead>
-						<tbody>${rows}</tbody>
-					</table>
-				</div>
-			`;
-		}
 
 		async function shareSubstitutionPlanText(day, options = {}) {
 			const text = buildSubstitutionPlanShareText(day);
@@ -8879,96 +4874,6 @@
 			}
 		}
 
-		async function legacyHandleShareSubstitutionPlan(day) {
-			try {
-				const exportMarkup = legacyBuildSubstitutionPlanExportMarkup(day);
-				if (!exportMarkup) {
-					showToast('No assigned substitutions to share', 3000, 'warning');
-					return;
-				}
-
-				if (FEATURE_FLAGS.feat_perf_opt && typeof PerformanceOptimization !== 'undefined') {
-					try {
-						await PerformanceOptimization.lazyLoader.loadHtml2Canvas();
-					} catch (loadError) {
-						console.warn('Failed to load html2canvas for substitution share.', loadError);
-						showToast('Image sharing is unavailable right now. Use Share Text Only.', 3600, 'warning');
-						return;
-					}
-				} else if (typeof html2canvas === 'undefined') {
-					showToast('Image sharing is unavailable right now. Use Share Text Only.', 3600, 'warning');
-					return;
-				}
-
-				const tempContainer = document.createElement('div');
-				tempContainer.style.cssText = `
-					background: #ffffff;
-					padding: 2rem;
-					font-family: 'Inter', system-ui, sans-serif;
-					position: absolute;
-					left: -9999px;
-					top: -9999px;
-					width: 960px;
-				`;
-				tempContainer.innerHTML = exportMarkup;
-				document.body.appendChild(tempContainer);
-
-				try {
-					await ensureFontsLoaded();
-					await waitForRender();
-
-					const canvas = await html2canvas(tempContainer, {
-						backgroundColor: '#ffffff',
-						width: 960,
-						height: tempContainer.scrollHeight,
-						scale: 2,
-						useCORS: true,
-						allowTaint: false
-					});
-					const blob = await canvasToBlob(canvas);
-					const fileName = `substitution-plan-${day.toLowerCase()}-${new Date().toISOString().split('T')[0]}.png`;
-					const shareText = buildSubstitutionPlanShareText(day);
-					const file = new File([blob], fileName, { type: 'image/png' });
-
-					let canShareFiles = false;
-					if (navigator.share) {
-						try {
-							canShareFiles = navigator.canShare ? navigator.canShare({ files: [file] }) : true;
-						} catch (error) {
-							canShareFiles = false;
-						}
-					}
-
-					if (canShareFiles) {
-						try {
-							await navigator.share({
-								files: [file],
-								title: `Substitution Plan - ${day}`,
-								text: shareText
-							});
-							showToast('Substitution plan image shared successfully', 3000, 'success');
-							return;
-						} catch (error) {
-							if (error.name === 'AbortError') {
-								return;
-							}
-
-							console.warn('File share failed, falling back.', error);
-						}
-					}
-
-					downloadImage(blob, fileName);
-					showToast('Substitution plan image downloaded successfully', 3200, 'success');
-				} finally {
-					if (tempContainer.parentNode) {
-						tempContainer.parentNode.removeChild(tempContainer);
-					}
-				}
-			} catch (error) {
-				console.error('Error in handleShareSubstitutionPlan:', error);
-				showToast('Failed to share substitution plan image', 3000, 'error');
-			}
-		}
 
 		async function handleShareSubstitutionPlanText(day) {
 			try {
@@ -8979,33 +4884,6 @@
 			}
 		}
 
-		async function legacyHandlePrintSubstitutionPlan(day) {
-			try {
-				const printMarkup = buildSubstitutionPlanExportMarkup(day);
-				if (!printMarkup) {
-					showToast('No substitution plan to print', 3000, 'warning');
-					return;
-				}
-
-				const captureElement = document.getElementById('print-capture-area');
-				const prevContent = document.getElementById('print-content').innerHTML;
-				const prevSubtitle = document.getElementById('print-header-subtitle').textContent;
-
-				document.getElementById('print-header-subtitle').textContent = `Substitution Plan - ${day}`;
-				document.getElementById('print-content').innerHTML = printMarkup;
-
-				const prevDisplay = captureElement.style.display;
-				captureElement.style.display = 'block';
-				await waitForRender();
-				window.print();
-				captureElement.style.display = prevDisplay;
-				document.getElementById('print-content').innerHTML = prevContent;
-				document.getElementById('print-header-subtitle').textContent = prevSubtitle;
-			} catch (error) {
-				console.error('Error printing substitution plan:', error);
-				showToast('Failed to print substitution plan', 3000, 'error');
-			}
-		}
 
 		function buildSubstitutionPlanExportMarkup(day) {
 			const absentTeachers = getSavedAbsentTeachers(day);
@@ -9063,9 +4941,6 @@
 			`;
 		}
 
-		function legacyBuildAssignedSubstitutionPlanPrintMarkup(day) {
-			return buildSubstitutionPlanExportMarkup(day);
-		}
 
 		async function ensureHtml2CanvasReady(failureMessage = 'Image sharing is unavailable right now.') {
 			if (FEATURE_FLAGS.feat_perf_opt && typeof PerformanceOptimization !== 'undefined') {
@@ -9122,7 +4997,6 @@
 				return true;
 			} finally {
 				captureElement.style.display = previousDisplay || 'none';
-				updatePrintContent();
 			}
 		}
 
@@ -9390,9 +5264,12 @@
 						state.substitutions[day] = { plan: {}, absentTeachers: [] };
 					}
 				});
+
+				restoreUiSessionState();
+				bindMainContentEvents();
 				
 				// Render initial view
-				switchView('Dashboard');
+				switchView(state.currentView || 'Dashboard');
 				
 				// Set up toast style
 				const style = document.createElement('style');
@@ -9442,128 +5319,118 @@
 				}
 			`;
 			document.head.appendChild(style);
-			
-			// Hide loader after a delay for smoother UX
-			setTimeout(() => {
-				const loader = document.getElementById('loader');
-				loader.style.opacity = '0';
-				setTimeout(() => {
-					loader.style.display = 'none';
-				}, 300);
-
-				// Add keyboard shortcuts with error handling
-				document.addEventListener('keydown', (e) => {
-					try {
-						if (e.altKey) {
-							switch(e.key) {
-								case '1': switchView('Dashboard'); break;
-								case '2': switchView('Day'); break;
-								case '3': switchView('Substitution'); break;
-								case '4': switchView('Class'); break;
-								case '5': switchView('Teacher'); break;
-							}
-						}
-					} catch (error) {
-						console.error('Error in keyboard shortcut:', error);
-					}
-				});
-
-				// Mobile touch gestures removed for better UX - use navigation buttons instead
-
-				// Add pull-to-refresh functionality for mobile
-				let pullStartY = 0;
-				let pullDistance = 0;
-				const pullThreshold = 80;
-				
-				document.addEventListener('touchstart', (e) => {
-					if (window.scrollY === 0) {
-						pullStartY = e.touches[0].clientY;
-					}
-				}, { passive: true });
-				
-				document.addEventListener('touchmove', (e) => {
-					if (window.scrollY === 0 && pullStartY > 0) {
-						pullDistance = e.touches[0].clientY - pullStartY;
-						if (pullDistance > 0 && pullDistance < pullThreshold * 2) {
-							// Visual feedback for pull-to-refresh could be added here
+			document.addEventListener('keydown', (e) => {
+				try {
+					if (e.altKey) {
+						switch(e.key) {
+							case '1': switchView('Dashboard'); break;
+							case '2': switchView('Day'); break;
+							case '3': switchView('Substitution'); break;
+							case '4': switchView('Class'); break;
+							case '5': switchView('Teacher'); break;
 						}
 					}
-				}, { passive: true });
-				
-				document.addEventListener('touchend', () => {
-					if (pullDistance > pullThreshold) {
-						// Refresh current view
-						switch(state.currentView) {
-							case 'Dashboard':
-								renderDashboard();
-								showToast('ðŸ”„ Dashboard refreshed!', 2000, 'success');
-								break;
-							case 'Day':
-								renderDayView();
-								showToast('ðŸ”„ Day view refreshed!', 2000, 'success');
-								break;
-							default:
-								showToast('ðŸ”„ View refreshed!', 2000, 'success');
-						}
-					}
-					pullStartY = 0;
-					pullDistance = 0;
-				}, { passive: true });
-
-				// Handle orientation changes for mobile
-				window.addEventListener('orientationchange', () => {
-					setTimeout(() => {
-						// Re-render current view after orientation change
-						switch(state.currentView) {
-							case 'Dashboard':
-								renderDashboard();
-								break;
-							case 'Day':
-								renderDayView();
-								break;
-							case 'Substitution':
-								renderSubstitutionView();
-								break;
-							case 'Class':
-								renderClassView();
-								break;
-							case 'Teacher':
-								renderTeacherView();
-								break;
-						}
-						showToast('ðŸ“± Layout optimized for new orientation', 2000, 'info');
-					}, 100);
-				});
-
-				// Register service worker for offline functionality
-				if ('serviceWorker' in navigator) {
-					navigator.serviceWorker.register('./sw.js')
-						.then(registration => {
-							console.log('Service Worker registered successfully:', registration.scope);
-						})
-						.catch(error => {
-							console.log('Service Worker registration failed:', error);
-						});
+				} catch (error) {
+					console.error('Error in keyboard shortcut:', error);
 				}
-
-				// Initialize lazy image loading (Performance Optimization)
-				if (FEATURE_FLAGS.feat_perf_opt && typeof PerformanceOptimization !== 'undefined') {
-					PerformanceOptimization.lazyImageLoader.observe();
-					console.log('âœ… Lazy image loading initialized');
+			});
+			// Mobile touch gestures removed for better UX - use navigation buttons instead
+			let pullStartY = 0;
+			let pullDistance = 0;
+			const pullThreshold = 80;
+			document.addEventListener('touchstart', (e) => {
+				if (window.scrollY === 0) {
+					pullStartY = e.touches[0].clientY;
 				}
-
-				// Pre-render print content on load
-				updatePrintContent();
-
-				showToast('ðŸ“± Mobile-optimized Timetable Command Center loaded!', 2500, 'success');
-			}, 300);
+			}, { passive: true });
+			document.addEventListener('touchmove', (e) => {
+				if (window.scrollY === 0 && pullStartY > 0) {
+					pullDistance = e.touches[0].clientY - pullStartY;
+				}
+			}, { passive: true });
+			document.addEventListener('touchend', () => {
+				if (pullDistance > pullThreshold) {
+					switch(state.currentView) {
+						case 'Dashboard':
+							renderDashboard();
+							showToast('Dashboard refreshed!', 2000, 'success');
+							break;
+						case 'Day':
+							renderDayView();
+							showToast('Day view refreshed!', 2000, 'success');
+							break;
+						case 'Class':
+							renderClassView();
+							showToast('Class view refreshed!', 2000, 'success');
+							break;
+						case 'Teacher':
+							renderTeacherView();
+							showToast('Teacher view refreshed!', 2000, 'success');
+							break;
+						case 'Substitution':
+							renderSubstitutionView();
+							showToast('Substitution view refreshed!', 2000, 'success');
+							break;
+						default:
+							showToast('View refreshed!', 2000, 'success');
+					}
+				}
+				pullStartY = 0;
+				pullDistance = 0;
+			}, { passive: true });
+			const rerenderCurrentView = () => {
+				switch(state.currentView) {
+					case 'Dashboard':
+						renderDashboard();
+						break;
+					case 'Day':
+						renderDayView();
+						break;
+					case 'Substitution':
+						renderSubstitutionView();
+						break;
+					case 'Class':
+						renderClassView();
+						break;
+					case 'Teacher':
+						renderTeacherView();
+						break;
+					default:
+						renderDashboard();
+				}
+			};
+			const debouncedViewportRefresh = debounce(() => {
+				rerenderCurrentView();
+				showToast('Layout optimized for the new viewport', 2000, 'info');
+			}, 160);
+			window.addEventListener('orientationchange', debouncedViewportRefresh);
+			window.addEventListener('resize', debouncedViewportRefresh);
+			document.addEventListener('visibilitychange', () => {
+				if (!document.hidden && state.currentView === 'Dashboard') {
+					renderFreeTeacherFinder();
+				}
+			});
+			if ('serviceWorker' in navigator) {
+				navigator.serviceWorker.register('./sw.js')
+					.then(registration => {
+						console.log('Service Worker registered successfully:', registration.scope);
+					})
+					.catch(error => {
+						console.log('Service Worker registration failed:', error);
+					});
+			}
+			if (FEATURE_FLAGS.feat_perf_opt && typeof PerformanceOptimization !== 'undefined') {
+				PerformanceOptimization.lazyImageLoader.observe();
+				console.log('Lazy image loading initialized');
+			}
+			showToast('Mobile-optimized Timetable Command Center loaded!', 2500, 'success');
 			
 			} catch (error) {
 				console.error('Initialization error:', error);
 				
 				// Try to safely show error toast
 				try {
-					showToast('âŒ Failed to load timetable data', 5000, 'error');
+					showToast('Failed to load timetable data', 5000, 'error');
 				} catch (toastError) {
 					console.error('Failed to show error toast:', toastError);
 				}
@@ -9589,17 +5456,17 @@
 					
 					// Safely create icons
 					try {
-						if (typeof lucide !== 'undefined' && lucide.createIcons) {
-							lucide.createIcons();
-						}
+						refreshIcons();
 					} catch (iconError) {
 						console.error('Failed to create icons:', iconError);
 					}
 				}
+
+				hideLoader(0);
 			}
 		}
 
-		// Initialize app when window loads with mobile-optimized fallback
+		// Initialize app once the DOM is ready
 		if (typeof window !== 'undefined') {
 			// Add mobile-specific event listeners
 			document.addEventListener('DOMContentLoaded', () => {
@@ -9632,7 +5499,7 @@
 			});
 			
 			if (document.readyState === 'loading') {
-				window.addEventListener('load', init);
+				document.addEventListener('DOMContentLoaded', init);
 			} else {
 				// If document is already loaded, run init immediately
 				init();
