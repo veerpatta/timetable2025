@@ -6957,6 +6957,45 @@
 			}));
 		}
 
+		const SUBSTITUTION_NO_FREE_TEACHER_LABEL = 'No free teacher';
+
+		function getSubstitutionCoverageState(day, planEntry, absentTeachers = []) {
+			if (!planEntry) {
+				return {
+					isCovered: false,
+					label: 'Not assigned',
+					detail: 'No substitution data available',
+					topCandidate: null
+				};
+			}
+
+			if (planEntry.substitute) {
+				return {
+					isCovered: true,
+					label: planEntry.substitute,
+					detail: 'Assigned',
+					topCandidate: null
+				};
+			}
+
+			const topCandidate = getRecommendedSubstitutionCandidates(day, planEntry, absentTeachers, 1)[0] || null;
+			if (topCandidate) {
+				return {
+					isCovered: false,
+					label: 'Not assigned',
+					detail: `Best free: ${topCandidate.teacher}`,
+					topCandidate
+				};
+			}
+
+			return {
+				isCovered: false,
+				label: SUBSTITUTION_NO_FREE_TEACHER_LABEL,
+				detail: 'No free teacher available',
+				topCandidate: null
+			};
+		}
+
 		function getSubstitutionOverview(day, absentTeachers = [], planEntries = []) {
 			const affectedClasses = new Set(planEntries.map(entry => entry.className)).size;
 			const touchedPeriods = new Set(planEntries.map(entry => entry.periodIndex)).size;
@@ -7627,12 +7666,10 @@
 							</thead>
 							<tbody>
 								${planEntries.map(entry => {
-									const isCovered = Boolean(entry.substitute);
-									const topCandidate = getRecommendedSubstitutionCandidates(selectedDay, entry, selectedAbsentTeachers, 1)[0] || null;
+									const coverageState = getSubstitutionCoverageState(selectedDay, entry, selectedAbsentTeachers);
+									const isCovered = coverageState.isCovered;
+									const topCandidate = coverageState.topCandidate;
 									const slotKey = encodeURIComponent(`${selectedDay}|${entry.className}|${entry.periodIndex}`);
-									const suggestionText = topCandidate
-										? `Best free: ${topCandidate.teacher}`
-										: 'No free teacher available';
 									const quickAssignButton = topCandidate && (!isCovered || topCandidate.teacher !== entry.substitute)
 										? `
 											<button class="button button-primary substitution-inline-button" onclick='handleQuickAssignSuggestion(${JSON.stringify(selectedDay)}, ${JSON.stringify(entry.className)}, ${entry.periodIndex})' title="${escapeHtml(topCandidate.reason)}">
@@ -7656,8 +7693,8 @@
 											<td>
 												<div class="substitution-table-substitute">
 													<span class="substitution-table-status substitution-table-status--${isCovered ? 'covered' : 'open'}">${escapeHtml(isCovered ? 'Assigned' : 'Open')}</span>
-													<strong>${escapeHtml(entry.substitute || 'Not assigned')}</strong>
-													<small>${escapeHtml(isCovered ? 'Tap change if needed.' : suggestionText)}</small>
+													<strong>${escapeHtml(coverageState.label)}</strong>
+													<small>${escapeHtml(isCovered ? 'Tap change if needed.' : coverageState.detail)}</small>
 												</div>
 											</td>
 											<td>
@@ -8683,13 +8720,21 @@
 		}
 
 		function getSortedSubstitutionShareEntries(day) {
-			return getSubstitutionPlanEntries(day, getSavedAbsentTeachers(day))
-				.sort((a, b) => a.periodIndex - b.periodIndex || a.className.localeCompare(b.className));
+			const absentTeachers = getSavedAbsentTeachers(day);
+			return getSubstitutionPlanEntries(day, absentTeachers)
+				.sort((a, b) => a.periodIndex - b.periodIndex || a.className.localeCompare(b.className))
+				.map(slot => {
+					const coverageState = getSubstitutionCoverageState(day, slot, absentTeachers);
+					return {
+						...slot,
+						coverageState,
+						substituteLabel: coverageState.label
+					};
+				});
 		}
 
 		function buildSubstitutionPlanShareText(day) {
-			const slots = getSortedSubstitutionShareEntries(day)
-				.filter(slot => slot.substitute);
+			const slots = getSortedSubstitutionShareEntries(day);
 
 			if (slots.length === 0) {
 				return '';
@@ -8697,13 +8742,13 @@
 
 			const lines = [
 				`${day} substitutions`,
-				'Period | Class | Substitute'
+				'Period | Class | Coverage'
 			];
 
 			slots.forEach(slot => {
 				const compactPeriod = (slot.periodName || '--').replace(/^Period\s+/i, 'P');
 				const compactClass = (slot.className || '--').replace(/^Class\s+/i, '');
-				lines.push(`${compactPeriod} | ${compactClass} | ${slot.substitute}`);
+				lines.push(`${compactPeriod} | ${compactClass} | ${slot.substituteLabel}`);
 			});
 
 			return lines.join('\n');
@@ -8761,7 +8806,7 @@
 
 			if (!text) {
 				if (!options.silent) {
-					showToast('No assigned substitutions to share', 3000, 'warning');
+					showToast('No substitution plan to share', 3000, 'warning');
 				}
 
 				return { ok: false };
@@ -8824,9 +8869,7 @@
 				}
 
 				if (!planEntries.some(entry => entry.substitute)) {
-					showToast('No substitute could be assigned automatically. Choose one open slot first.', 3600, 'warning');
-					openFirstOpenSubstitutionSlot(day);
-					return;
+					showToast('No free teacher could be assigned automatically. Sharing the open plan instead.', 3600, 'warning');
 				}
 
 				await handleShareSubstitutionPlan(day);
@@ -8966,29 +9009,42 @@
 
 		function buildSubstitutionPlanExportMarkup(day) {
 			const absentTeachers = getSavedAbsentTeachers(day);
-			const slots = getSortedSubstitutionShareEntries(day)
-				.filter(slot => slot.substitute);
+			const slots = getSortedSubstitutionShareEntries(day);
 			const overview = getSubstitutionOverview(day, absentTeachers, slots);
 
 			if (slots.length === 0) {
 				return '';
 			}
 
-			const rows = slots.map(slot => `
-				<tr>
+			const rows = slots.map(slot => {
+				const coverageState = slot.coverageState || getSubstitutionCoverageState(day, slot, absentTeachers);
+				const coverageColor = coverageState.isCovered
+					? '#065f46'
+					: (coverageState.label === SUBSTITUTION_NO_FREE_TEACHER_LABEL ? '#b45309' : '#92400e');
+				const rowBackground = coverageState.isCovered ? '#ffffff' : '#fffaf0';
+
+				return `
+				<tr style="background: ${rowBackground};">
 					<td style="padding: 0.65rem 0.55rem; border-bottom: 1px solid #e5e7eb; font-weight: 700;">${escapeHtml(slot.periodName)}</td>
 					<td style="padding: 0.65rem 0.55rem; border-bottom: 1px solid #e5e7eb;">${escapeHtml(slot.periodTime || '--')}</td>
 					<td style="padding: 0.65rem 0.55rem; border-bottom: 1px solid #e5e7eb;">${escapeHtml(slot.className)}</td>
 					<td style="padding: 0.65rem 0.55rem; border-bottom: 1px solid #e5e7eb;">${escapeHtml(slot.subject)}</td>
 					<td style="padding: 0.65rem 0.55rem; border-bottom: 1px solid #e5e7eb; color: #b91c1c; font-weight: 700;">${escapeHtml(slot.originalTeacher || '--')}</td>
-					<td style="padding: 0.65rem 0.55rem; border-bottom: 1px solid #e5e7eb; color: #065f46; font-weight: 800;">${escapeHtml(slot.substitute)}</td>
+					<td style="padding: 0.65rem 0.55rem; border-bottom: 1px solid #e5e7eb;">
+						<div style="color: ${coverageColor}; font-weight: 800;">${escapeHtml(coverageState.label)}</div>
+						<div style="font-size: 0.62rem; color: #6b7280; margin-top: 0.15rem;">${escapeHtml(coverageState.detail)}</div>
+					</td>
 				</tr>
-			`).join('');
+			`;
+			}).join('');
 
 			return `
 				<div style="font-family: Inter, system-ui, sans-serif; color: #111827; background: #ffffff; padding: 0.25rem 0;">
 					<div style="margin-bottom: 0.9rem; color: #4b5563; font-size: 0.82rem; text-align: center;">
-						Assigned slots only | ${slots.length} substitution${slots.length === 1 ? '' : 's'} | ${absentTeachers.length} absent teacher${absentTeachers.length === 1 ? '' : 's'} | ${overview.affectedClasses} class${overview.affectedClasses === 1 ? '' : 'es'} covered
+						Full plan | ${slots.length} slot${slots.length === 1 ? '' : 's'} | ${overview.coveredCount} assigned | ${overview.uncoveredCount} open
+					</div>
+					<div style="margin-bottom: 0.9rem; color: #4b5563; font-size: 0.82rem; text-align: center;">
+						${absentTeachers.length} absent teacher${absentTeachers.length === 1 ? '' : 's'} | ${overview.affectedClasses} class${overview.affectedClasses === 1 ? '' : 'es'} affected
 					</div>
 					<table style="width: 100%; border-collapse: collapse; border: 1px solid #e5e7eb; table-layout: fixed;">
 						<thead>
@@ -8998,7 +9054,7 @@
 								<th style="padding: 0.65rem 0.55rem; text-align: left; font-size: 0.72rem; letter-spacing: 0.04em; text-transform: uppercase;">Class</th>
 								<th style="padding: 0.65rem 0.55rem; text-align: left; font-size: 0.72rem; letter-spacing: 0.04em; text-transform: uppercase;">Subject</th>
 								<th style="padding: 0.65rem 0.55rem; text-align: left; font-size: 0.72rem; letter-spacing: 0.04em; text-transform: uppercase;">Absent</th>
-								<th style="padding: 0.65rem 0.55rem; text-align: left; font-size: 0.72rem; letter-spacing: 0.04em; text-transform: uppercase;">Substitute</th>
+								<th style="padding: 0.65rem 0.55rem; text-align: left; font-size: 0.72rem; letter-spacing: 0.04em; text-transform: uppercase;">Coverage</th>
 							</tr>
 						</thead>
 						<tbody>${rows}</tbody>
@@ -9212,7 +9268,7 @@
 
 				const exportMarkup = buildSubstitutionPlanExportMarkup(day);
 				if (!exportMarkup) {
-					showToast('No assigned substitutions to share', 3000, 'warning');
+					showToast('No substitution plan to share', 3000, 'warning');
 					return;
 				}
 
@@ -9270,7 +9326,7 @@
 			try {
 				const exportMarkup = buildSubstitutionPlanExportMarkup(day);
 				if (!exportMarkup) {
-					showToast('No assigned substitutions to print for this day', 3200, 'warning');
+					showToast('No substitution plan to print for this day', 3200, 'warning');
 					return;
 				}
 
