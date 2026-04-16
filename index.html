@@ -5399,12 +5399,26 @@
 						renderDashboard();
 				}
 			};
-			const debouncedViewportRefresh = debounce(() => {
+			const mobileLayoutQuery = window.matchMedia('(max-width: 768px)');
+			const getLayoutMode = (matchesMobile = mobileLayoutQuery.matches) => matchesMobile ? 'mobile' : 'desktop';
+			let currentLayoutMode = getLayoutMode();
+			const debouncedViewportRefresh = debounce((event) => {
+				const nextLayoutMode = getLayoutMode(
+					typeof event?.matches === 'boolean' ? event.matches : mobileLayoutQuery.matches
+				);
+
+				if (nextLayoutMode === currentLayoutMode) {
+					return;
+				}
+
+				currentLayoutMode = nextLayoutMode;
 				rerenderCurrentView();
-				showToast('Layout optimized for the new viewport', 2000, 'info');
 			}, 160);
-			window.addEventListener('orientationchange', debouncedViewportRefresh);
-			window.addEventListener('resize', debouncedViewportRefresh);
+			if (typeof mobileLayoutQuery.addEventListener === 'function') {
+				mobileLayoutQuery.addEventListener('change', debouncedViewportRefresh);
+			} else if (typeof mobileLayoutQuery.addListener === 'function') {
+				mobileLayoutQuery.addListener(debouncedViewportRefresh);
+			}
 			document.addEventListener('visibilitychange', () => {
 				if (!document.hidden && state.currentView === 'Dashboard') {
 					renderFreeTeacherFinder();
