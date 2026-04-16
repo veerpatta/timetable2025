@@ -660,6 +660,9 @@
 
 		function showToast(message, duration = 3000, type = 'info') {
 			try {
+				const normalizedMessage = String(message || '').replace(/\s+/g, ' ').trim();
+				if (!normalizedMessage) return;
+
 				// Remove existing toast
 				const existingToast = document.querySelector('.toast, .toast-notification');
 				if (existingToast) existingToast.remove();
@@ -667,7 +670,19 @@
 				// Create new toast
 				const toast = document.createElement('div');
 				toast.className = `toast-notification ${type}`;
-				toast.innerHTML = `<span>${message}</span>`;
+				toast.setAttribute('role', 'status');
+				toast.setAttribute('aria-live', type === 'error' || type === 'warning' ? 'assertive' : 'polite');
+				toast.setAttribute('aria-atomic', 'true');
+				const toneLabel = ({
+					info: 'Info',
+					success: 'Success',
+					warning: 'Alert',
+					error: 'Error'
+				})[type] || 'Notice';
+				toast.innerHTML = `
+					<span class="toast-notification__badge">${toneLabel}</span>
+					<span class="toast-notification__message">${escapeHtml(normalizedMessage)}</span>
+				`;
 				
 				// Ensure document body exists
 				if (document.body) {
@@ -718,7 +733,7 @@
 			try {
 				const idx = getActivePeriodIndex();
 				if (idx === -1) {
-					showToast('â„¹ï¸ No live period right now', 2000, 'info');
+					showToast('No live period right now', 2000, 'info');
 					return;
 				}
 				const container = document.querySelector(containerSelector) || document;
@@ -734,7 +749,7 @@
 					row.classList.add('is-current');
 					setTimeout(() => row.classList.remove('is-current'), 2000);
 				} else {
-					showToast('âš ï¸ Current period not visible here', 2500, 'warning');
+					showToast('Current period is not visible here', 2500, 'warning');
 				}
 			} catch (e) { console.error(e); }
 		}
@@ -800,7 +815,7 @@
 				}
 			} catch (error) {
 				console.error('Error switching day:', error);
-				showToast('âŒ Error switching day', 2000, 'error');
+				showToast('Error switching day', 2000, 'error');
 			}
 		}
 
@@ -1466,7 +1481,7 @@
 						);
 						
 						if (isHeaderRow) {
-							console.log(`ðŸš« SKIPPING HEADER: ${day} - "${line.substring(0, 100)}..."`);
+							console.log(`Skipping header: ${day} - "${line.substring(0, 100)}..."`);
 							
 							// Process headers only once across all days
 							if (headers.length === 0 && line.includes('Period 1')) {
@@ -1477,7 +1492,7 @@
 										time: parts[1]?.trim() || '' 
 									};
 								});
-								console.log(`âœ… Headers extracted: ${headers.length} periods`);
+								console.log(`Headers extracted: ${headers.length} periods`);
 							}
 							headerProcessed = true;
 							continue; // CRITICAL: Skip processing this line as class data
@@ -1488,11 +1503,11 @@
 						    firstColumn !== 'Class' && 
 						    !firstColumn.toLowerCase().includes('period')) {
 							const className = firstColumn;
-							console.log(`âœ… PROCESSING CLASS: ${day} - "${className}" with ${columns.length-1} periods`);
+							console.log(`Processing class: ${day} - "${className}" with ${columns.length-1} periods`);
 							
 							// Ensure we have enough columns for all periods
 							if (columns.length < 2) {
-								console.warn(`âš ï¸ Insufficient data for ${className} on ${day}`);
+								console.warn(`Insufficient data for ${className} on ${day}`);
 								continue;
 							}
 							
@@ -1602,7 +1617,7 @@
 							});
 						} else {
 							// Debug: Log any unprocessed lines
-							console.log(`â“ UNPROCESSED LINE: ${day} - "${line.substring(0, 100)}..."`);
+							console.log(`Unprocessed line: ${day} - "${line.substring(0, 100)}..."`);
 							console.log(`   First column: "${firstColumn}"`);
 							console.log(`   Starts with 'Class ': ${firstColumn.startsWith('Class ')}`);
 							console.log(`   Not 'Class': ${firstColumn !== 'Class'}`);
@@ -1610,7 +1625,7 @@
 						}
 					}
 					
-					console.log(`âœ… Processed ${day}: ${Object.keys(timetable[day]).length} classes`);
+					console.log(`Processed ${day}: ${Object.keys(timetable[day]).length} classes`);
 				}
 
 				// Validate and clean up the parsed data
@@ -1624,8 +1639,8 @@
 					cleanTimetable[day] = timetable[day];
 				});
 				
-				console.log(`ðŸ§¹ Cleaned timetable - Valid days: ${validDays.join(', ')}`);
-				console.log(`ðŸ§¹ Removed invalid days: ${Object.keys(timetable).filter(d => !validDays.includes(d)).join(', ') || 'none'}`);
+				console.log(`Cleaned timetable - valid days: ${validDays.join(', ')}`);
+				console.log(`Removed invalid days: ${Object.keys(timetable).filter(d => !validDays.includes(d)).join(', ') || 'none'}`);
 				
 				// Update timetable reference
 				Object.keys(timetable).forEach(key => delete timetable[key]);
@@ -1728,12 +1743,12 @@
 			// Try to get from cache
 			const cached = cache.get(cacheKey);
 			if (cached) {
-				console.log('ðŸ“¦ Using cached timetable data');
+				console.log('Using cached timetable data');
 				return cached;
 			}
 
 			// Parse and cache
-			console.log('ðŸ”„ Parsing timetable data...');
+			console.log('Parsing timetable data...');
 			const data = parseTimetableData();
 			cache.set(cacheKey, data, 10 * 60 * 1000); // Cache for 10 minutes
 			return data;
@@ -1773,7 +1788,7 @@
 			});
 
 			virtualScroller.init();
-			console.log(`âœ… Virtual scrolling enabled for ${items.length} items`);
+			console.log(`Virtual scrolling enabled for ${items.length} items`);
 			return virtualScroller;
 		}
 
@@ -1784,7 +1799,7 @@
 		function initDebouncedFunctions() {
 			if (FEATURE_FLAGS.feat_perf_opt && typeof PerformanceOptimization !== 'undefined') {
 				// Will be initialized when render functions are defined
-				console.log('âœ… Debouncing enabled for render functions');
+				console.log('Debouncing enabled for render functions');
 			}
 		}
 
@@ -2464,7 +2479,7 @@
 				// Validate that the selected day exists in timetable
 				if (!timetable[selectedDay]) {
 					console.error(`Day ${selectedDay} not found in timetable`);
-					showToast(`âŒ No timetable data found for ${selectedDay}`);
+					showToast(`No timetable data found for ${selectedDay}`);
 					return;
 				}
 
@@ -2516,7 +2531,7 @@
 						<div class="view-header">
 							<div>
 								<div class="section-kicker">Day View</div>
-								<h2 class="section-title">${selectedDay} Schedule ${selectedDay === getCurrentDay() && currentPeriodIdx !== -1 ? '<span style="color: var(--red-500); font-size: 0.8rem;">â— LIVE</span>' : ''}</h2>
+								<h2 class="section-title section-title--with-tag">${selectedDay} Schedule${selectedDay === getCurrentDay() && currentPeriodIdx !== -1 ? '<span class="live-status-tag">Live now</span>' : ''}</h2>
 								<p class="section-subtitle">Updated against the official 2026-27 day-wise PDF timetable.</p>
 							</div>
 							<div class="view-actions">
@@ -2704,7 +2719,7 @@
 
 			} catch (error) {
 				console.error('Error rendering class view:', error);
-				showToast('âŒ Error loading class view');
+				showToast('Error loading class view');
 			}
 		}
 
@@ -2906,7 +2921,7 @@
 
 			} catch (error) {
 				console.error('Error rendering teacher view:', error);
-				showToast('âŒ Error loading teacher view');
+				showToast('Error loading teacher view');
 			}
 		}
 
@@ -4318,7 +4333,7 @@
 							handleGeneratePlan(day, getSavedAbsentTeachers(day));
 						} catch (error) {
 							console.error('Error in generate plan button:', error);
-							showToast('âŒ Error generating plan', 3000, 'error');
+							showToast('Error generating plan', 3000, 'error');
 						}
 					});
 				}
@@ -4329,7 +4344,7 @@
 							handleResetPlan(day);
 						} catch (error) {
 							console.error('Error in reset plan button:', error);
-							showToast('âŒ Error resetting plan', 3000, 'error');
+							showToast('Error resetting plan', 3000, 'error');
 						}
 					});
 				}
@@ -4445,7 +4460,7 @@
 				renderSubstitutionView(day, []);
 			} catch (error) {
 				console.error('Error clearing substitution teacher selection:', error);
-				showToast('❌ Error clearing teacher selection', 3000, 'error');
+				showToast('Error clearing teacher selection', 3000, 'error');
 			}
 		}
 
@@ -4459,7 +4474,7 @@
 				renderSubstitutionView(day, absentTeachers);
 			} catch (error) {
 				console.error('Error handling absent teacher change:', error);
-				showToast('âŒ Error updating teacher selection', 3000, 'error');
+				showToast('Error updating teacher selection', 3000, 'error');
 			}
 		}
 
@@ -4536,12 +4551,12 @@
 		function handleResetPlan(day) {
 			try {
 				if (!day) {
-					showToast('âš ï¸ No day selected', 3000, 'warning');
+					showToast('No day selected', 3000, 'warning');
 					return;
 				}
 
 				if (!state.substitutions[day] || !state.substitutions[day].plan) {
-					showToast('â„¹ï¸ No substitution plan exists for this day', 3000, 'info');
+					showToast('No substitution plan exists for this day', 3000, 'info');
 					return;
 				}
 
@@ -4552,12 +4567,12 @@
 				state.substitutions[day] = { plan: {}, absentTeachers };
 				closeSubstitutionAssignmentSheet();
 				
-				showToast('âœ… Substitution plan reset successfully', 3000, 'success');
+				showToast('Substitution plan reset successfully', 3000, 'success');
 				renderSubstitutionView(day, absentTeachers);
 				
 			} catch (error) {
 				console.error('Error resetting substitution plan:', error);
-				showToast('âŒ Failed to reset substitution plan', 3000, 'error');
+				showToast('Failed to reset substitution plan', 3000, 'error');
 			}
 		}
 
@@ -4570,14 +4585,14 @@
                         const tables = document.querySelectorAll('.table-container table');
                         const visibleTable = Array.from(tables).find(table => !table.closest('#print-capture-area'));
                         if (!visibleTable) {
-                                showToast('âŒ No table found to export', 3000, 'error');
+                                showToast('No table found to export', 3000, 'error');
                                 return;
                         }
 
 				// Convert table to 2D array
 				const data = tableTo2DArray(visibleTable);
 				if (data.length === 0) {
-					showToast('âŒ No data found in table', 3000, 'error');
+					showToast('No data found in table', 3000, 'error');
 					return;
 				}
 
@@ -4603,11 +4618,11 @@
 				document.body.removeChild(link);
 				URL.revokeObjectURL(url);
 
-				showToast('âœ… CSV exported successfully!', 3000, 'success');
+				showToast('CSV exported successfully', 3000, 'success');
 
 			} catch (error) {
 				console.error('CSV export error:', error);
-				showToast('âŒ Failed to export CSV', 3000, 'error');
+				showToast('Failed to export CSV', 3000, 'error');
 			}
 		}
 
@@ -4623,7 +4638,7 @@
 				URL.revokeObjectURL(url);
 			} catch (error) {
 				console.error('Error downloading image:', error);
-				showToast('âŒ Failed to download image', 3000, 'error');
+				showToast('Failed to download image', 3000, 'error');
 			}
 		}
 
@@ -5245,12 +5260,12 @@
 				const winterReport = validateTimetable();
 				if (!winterReport.ok) {
 					console.warn('Winter validation issues:', winterReport);
-					showToast(`âš ï¸ Validation: ${winterReport.errors.length} errors, ${winterReport.warnings.length} warnings`, 4500, 'warning');
+					showToast(`Validation: ${winterReport.errors.length} errors, ${winterReport.warnings.length} warnings`, 4500, 'warning');
 				} else {
 					if (winterReport.warnings.length) {
 						console.info('Winter warnings:', winterReport.warnings);
 					}
-					showToast('â„ï¸ Winter schedule active: timings updated & sports substitutions applied', 3500, 'success');
+					showToast('Winter schedule active: timings updated and sports substitutions applied', 3500, 'success');
 				}
 				
 				// Validate parsed data
@@ -5280,17 +5295,42 @@
 					left: 1rem;
 					right: 1rem;
 					z-index: 10000;
-					background: var(--primary-600);
-					color: white;
-					padding: 1rem;
-					border-radius: var(--radius-lg);
+					display: flex;
+					align-items: center;
+					gap: 0.7rem;
+					padding: 0.9rem 1rem;
+					border-radius: calc(var(--radius-lg) + 0.1rem);
+					border: 1px solid rgba(255, 255, 255, 0.16);
+					background: linear-gradient(135deg, rgba(37, 99, 235, 0.96), rgba(29, 78, 216, 0.94));
+					color: #eff6ff;
 					box-shadow: var(--shadow-xl);
-					transition: all 0.3s ease;
+					transition: opacity 0.3s ease, transform 0.3s ease;
 					font-size: 0.9rem;
 					font-weight: 600;
-					text-align: center;
+					line-height: 1.4;
 					opacity: 1;
-					backdrop-filter: blur(8px);
+					backdrop-filter: blur(16px);
+				}
+
+				.toast-notification__badge {
+					display: inline-flex;
+					align-items: center;
+					justify-content: center;
+					flex-shrink: 0;
+					min-width: 4.5rem;
+					padding: 0.35rem 0.65rem;
+					border-radius: 999px;
+					border: 1px solid rgba(255, 255, 255, 0.16);
+					background: rgba(255, 255, 255, 0.14);
+					font-size: 0.68rem;
+					font-weight: 800;
+					letter-spacing: 0.08em;
+					text-transform: uppercase;
+					color: inherit;
+				}
+
+				.toast-notification__message {
+					min-width: 0;
 				}
 				
 				@media (min-width: 768px) {
@@ -5298,20 +5338,25 @@
 						top: 20px;
 						right: 20px;
 						left: auto;
-						max-width: 350px;
+						max-width: 380px;
 						font-size: 0.875rem;
 						font-weight: 500;
-						text-align: left;
 					}
 				}
+				.toast-notification.info {
+					background: linear-gradient(135deg, rgba(37, 99, 235, 0.96), rgba(29, 78, 216, 0.94));
+				}
 				.toast-notification.error {
-					background: var(--red-500);
+					background: linear-gradient(135deg, rgba(220, 38, 38, 0.96), rgba(153, 27, 27, 0.94));
+					color: #fef2f2;
 				}
 				.toast-notification.success {
-					background: var(--green-500);
+					background: linear-gradient(135deg, rgba(5, 150, 105, 0.96), rgba(6, 95, 70, 0.94));
+					color: #ecfdf5;
 				}
 				.toast-notification.warning {
-					background: var(--yellow-500);
+					background: linear-gradient(135deg, rgba(180, 83, 9, 0.96), rgba(146, 64, 14, 0.94));
+					color: #fff7ed;
 				}
 				@keyframes pulse {
 					0%, 100% { opacity: 1; }
