@@ -26,7 +26,7 @@
 	<!-- FONTS -->
 	<link rel="preconnect" href="https://fonts.googleapis.com">
 	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-	<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+	<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
 
 	<!-- THEME SYSTEM -->
 	<link rel="stylesheet" href="./styles/theme.css">
@@ -56,7 +56,7 @@
 			background: #ffffff;
 		}
 		body {
-			font-family: 'Inter', system-ui, -apple-system, sans-serif;
+			font-family: 'Manrope', system-ui, -apple-system, sans-serif;
 		}
 		#loader {
 			position: fixed;
@@ -2370,55 +2370,55 @@
 							<div class="card hero-panel dashboard-spotlight">
 								${renderDashboardSummaryMarkup(overview)}
 							</div>
+						</section>
 
-							<div class="dashboard-side-stack">
-								<div class="card dashboard-quick-panel">
-									<div class="section-kicker">Start Here</div>
-									<h2 class="section-title">Open the clearest route</h2>
-									<p class="section-subtitle">The dashboard now starts with the most common tasks so non-technical users do not need to guess where to go.</p>
-									<div class="dashboard-quick-grid">
-										${quickActions.map(action => `
-											<button class="dashboard-quick-card" onclick="switchView('${action.view}')">
-												<div class="dashboard-quick-card-row">
-													<span class="dashboard-quick-icon">
-														<i data-lucide="${action.icon}"></i>
-													</span>
-													<span class="dashboard-quick-tag">${action.tag}</span>
-												</div>
-												<div class="dashboard-quick-copy">
-													<strong>${action.title}</strong>
-													<p>${action.description}</p>
-												</div>
-												<span class="dashboard-quick-link">
-													Open ${action.view}
-													<i data-lucide="arrow-right"></i>
+						<section class="dashboard-assist-grid" aria-label="Dashboard shortcuts and official session coverage">
+							<div class="card dashboard-quick-panel">
+								<div class="section-kicker">Start Here</div>
+								<h2 class="section-title">Open the clearest route</h2>
+								<p class="section-subtitle">Common tasks stay grouped here so staff can jump directly to the right view.</p>
+								<div class="dashboard-quick-grid">
+									${quickActions.map(action => `
+										<button class="dashboard-quick-card" onclick="switchView('${action.view}')">
+											<div class="dashboard-quick-card-row">
+												<span class="dashboard-quick-icon">
+													<i data-lucide="${action.icon}"></i>
 												</span>
-											</button>
-										`).join('')}
-									</div>
+												<span class="dashboard-quick-tag">${action.tag}</span>
+											</div>
+											<div class="dashboard-quick-copy">
+												<strong>${action.title}</strong>
+												<p>${action.description}</p>
+											</div>
+											<span class="dashboard-quick-link">
+												Open ${action.view}
+												<i data-lucide="arrow-right"></i>
+											</span>
+										</button>
+									`).join('')}
 								</div>
+							</div>
 
-								<div class="card dashboard-metrics-panel">
-									<div class="section-kicker">Official Data</div>
-									<h2 class="section-title">Session coverage</h2>
-									<p class="section-subtitle">Counts stay visible here so the operational cards above can focus on what matters right now.</p>
-									<div class="metric-strip dashboard-metric-strip">
-										<div class="metric-chip">
-											<span>Classes</span>
-											<strong>${classNames.length}</strong>
-										</div>
-										<div class="metric-chip">
-											<span>Teachers</span>
-											<strong>${teacherNames.length}</strong>
-										</div>
-										<div class="metric-chip">
-											<span>Teaching Days</span>
-											<strong>${days.length}</strong>
-										</div>
-										<div class="metric-chip">
-											<span>Data Sync</span>
-											<strong>Updated PDFs</strong>
-										</div>
+							<div class="card dashboard-metrics-panel">
+								<div class="section-kicker">Official Data</div>
+								<h2 class="section-title">Session coverage</h2>
+								<p class="section-subtitle">Operational counts stay nearby without taking over the main dashboard story.</p>
+								<div class="metric-strip dashboard-metric-strip">
+									<div class="metric-chip">
+										<span>Classes</span>
+										<strong>${classNames.length}</strong>
+									</div>
+									<div class="metric-chip">
+										<span>Teachers</span>
+										<strong>${teacherNames.length}</strong>
+									</div>
+									<div class="metric-chip">
+										<span>Teaching Days</span>
+										<strong>${days.length}</strong>
+									</div>
+									<div class="metric-chip">
+										<span>Data Sync</span>
+										<strong>Updated PDFs</strong>
 									</div>
 								</div>
 							</div>

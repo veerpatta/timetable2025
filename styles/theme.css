@@ -15,11 +15,14 @@
    ======================================== */
 
 :root {
+        --font-sans: 'Manrope', system-ui, -apple-system, sans-serif;
+        --font-display: 'Space Grotesk', 'Manrope', system-ui, sans-serif;
+
         /* Semantic Color Tokens - Light Mode */
-        --bg: #ffffff;
-        --bg-secondary: #f9fafb;
-        --bg-gradient-start: #eff6ff;
-        --bg-gradient-end: #f9fafb;
+        --bg: #f5f7fb;
+        --bg-secondary: #eef3fb;
+        --bg-gradient-start: #dbe8ff;
+        --bg-gradient-end: #f7efe2;
 
         --card: #ffffff;
         --card-hover: #f9fafb;
@@ -35,6 +38,9 @@
 
 	--border: #e5e7eb;
 	--border-hover: #d1d5db;
+        --shell-glow-1: rgba(37, 99, 235, 0.18);
+        --shell-glow-2: rgba(16, 185, 129, 0.14);
+        --shell-glow-3: rgba(245, 158, 11, 0.12);
 
 	--shadow-color: rgba(0, 0, 0, 0.1);
 	--shadow-color-sm: rgba(0, 0, 0, 0.05);
@@ -78,9 +84,9 @@
 
 [data-theme="dark"] {
         /* Semantic Color Tokens - Dark Mode */
-        --bg: #1a1a2e;
-        --bg-secondary: #0f0f1e;
-        --bg-gradient-start: #1a1a2e;
+        --bg: #08111f;
+        --bg-secondary: #0c172a;
+        --bg-gradient-start: #0b1325;
         --bg-gradient-end: #16213e;
 
         --card: #16213e;
@@ -97,6 +103,9 @@
 
 	--border: #2a3a5e;
 	--border-hover: #3a4a6e;
+        --shell-glow-1: rgba(90, 140, 142, 0.26);
+        --shell-glow-2: rgba(52, 211, 153, 0.14);
+        --shell-glow-3: rgba(251, 191, 36, 0.12);
 
 	--shadow-color: rgba(0, 0, 0, 0.3);
 	--shadow-color-sm: rgba(0, 0, 0, 0.2);

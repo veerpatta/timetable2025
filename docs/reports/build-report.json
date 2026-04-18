@@ -1,10 +1,10 @@
 {
-  "timestamp": "2026-04-16T02:46:03.186Z",
+  "timestamp": "2026-04-18T02:55:53.956Z",
   "files": [
     {
       "file": "index.html",
-      "rawSize": 219291,
-      "gzippedSize": 46752,
+      "rawSize": 219240,
+      "gzippedSize": 46803,
       "compression": "78.7%"
     },
     {
@@ -33,9 +33,9 @@
     },
     {
       "file": "styles/theme.css",
-      "rawSize": 9684,
-      "gzippedSize": 2563,
-      "compression": "73.5%"
+      "rawSize": 10125,
+      "gzippedSize": 2751,
+      "compression": "72.8%"
     },
     {
       "file": "styles/a11y.css",
@@ -57,8 +57,8 @@
     },
     {
       "file": "sw.js",
-      "rawSize": 7432,
-      "gzippedSize": 2342,
+      "rawSize": 7466,
+      "gzippedSize": 2354,
       "compression": "68.5%"
     },
     {
@@ -69,7 +69,7 @@
     }
   ],
   "totals": {
-    "raw": 368355,
-    "gzipped": 81518
+    "raw": 368779,
+    "gzipped": 81769
   }
 }
