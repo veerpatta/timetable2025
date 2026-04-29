@@ -5525,6 +5525,9 @@ Class 12 Arts,Geography (Prakash),English Literature (Harshita),Economics (Praka
 				}
 
 				hideLoader(0);
+			} finally {
+				// Safety fallback: never leave the app in an indefinite loading state.
+				hideLoader(0);
 			}
 		}
 
