@@ -310,115 +310,119 @@
 
 		// --- ENHANCED DATA STORE ---
 		const rawData = `Monday
-		Class,Assembly<br>8:00 AM - 8:30 AM,Period 1<br>8:30 AM - 9:10 AM,Period 2<br>9:10 AM - 9:50 AM,Period 3<br>9:50 AM - 10:30 AM,Period 4<br>10:30 AM - 11:10 AM,Period 5<br>11:30 AM - 12:10 PM,Period 6<br>12:10 PM - 12:50 PM,Period 7<br>12:50 PM - 01:30 PM,Period 8<br>01:30 PM - 02:10 PM
-		Class 1,Assembly,Maths (Bindu),Sports (Rakesh),ELGA (Bindu Anita Rashmita Kusum Ravina),ELGA (Bindu Anita Rashmita Kusum Ravina),ELGA (Bindu Anita Rashmita Kusum Ravina),Hindi (Anjana),EVS (Ravina),EVS (Ravina)
-		Class 2,Assembly,Maths (Ravina),EVS (Bindu),ELGA (Bindu Anita Rashmita Kusum Ravina),ELGA (Bindu Anita Rashmita Kusum Ravina),ELGA (Bindu Anita Rashmita Kusum Ravina),Hindi (Bindu),Hindi (Bindu),CCS (Maya)
-		Class 3,Assembly,EVS (Rashmita),EVS (Rashmita),ELGA (Bindu Anita Rashmita Kusum Ravina),ELGA (Bindu Anita Rashmita Kusum Ravina),ELGA (Bindu Anita Rashmita Kusum Ravina),Maths (Ravina),Hindi (Kusum),Hindi (Kusum)
-		Class 4,Assembly,Hindi (Kusum),Hindi (Kusum),ELGA (Bindu Anita Rashmita Kusum Ravina),ELGA (Bindu Anita Rashmita Kusum Ravina),ELGA (Bindu Anita Rashmita Kusum Ravina),Maths (Anita),EVS (Rashmita),EVS (Rashmita)
-		Class 5,Assembly,Maths (Nidhika),Maths (Nidhika),ELGA (Bindu Anita Rashmita Kusum Ravina),ELGA (Bindu Anita Rashmita Kusum Ravina),ELGA (Bindu Anita Rashmita Kusum Ravina),Hindi (Kusum),CCS (Maya),EVS (Anita)
-		Class 6,Assembly,English compulsory (Hemlata),CCS (Maya),Hindi (Jainendra),Sports (Rakesh),NoteBook Checking (Antima),SST (Rashmita),Maths (Nidhika),Maths (Nidhika)
-		Class 7,Assembly,Maths (Anita),Maths (Anita),Sanskrit (Antima),Hindi (Jainendra),SST (Nidhika),English compulsory (Harshita),Sports (Rakesh),NoteBook Checking (Antima)
-		Class 8,Assembly,Sanskrit (Antima),Hindi (Jainendra),English compulsory (Pradhyuman),SST (Harshita),SST (Harshita),CCS (Maya),Maths (Prakash),Maths (Prakash)
-		Class 9,Assembly,Hindi (Jainendra),Sanskrit (Antima),Science (Toshit),Science (Toshit),SST (Pradhyuman),SST (Pradhyuman),English compulsory (Harshita),Maths (Nathulal)
-		Class 10,Assembly,SST (Pradhyuman),English compulsory (Harshita),English compulsory (Harshita),Sanskrit (Antima),Maths (Nathulal),Hindi (Antima),Science (Toshit),Science (Toshit)
-		Class 11 Science,Assembly,Physics (Mahesh),Biology (Hemlata),Biology (Hemlata),English compulsory (Pradhyuman),Hindi (Jainendra),Chemistry (Toshit),Free,Free
-		Class 11 Commerce,Assembly,Self Study (Maya),Economics (Prakash),Economics (Prakash),English compulsory (Pradhyuman),Hindi (Jainendra),Business Studies (Nidhika),Accountancy (Nathulal),Free
-		Class 11 Arts,Assembly,English Literature (Harshita),Economics (Prakash),Economics (Prakash),English compulsory (Pradhyuman),Hindi (Jainendra),Geography (Prakash),NoteBook Checking (Antima),Political Science (Pradhyuman)
-		Class 12 Science,Assembly,Chemistry (Toshit),Physics (Mahesh),Physics (Mahesh),Biology (Hemlata),Biology (Hemlata),Hindi (Jainendra),English compulsory (Pradhyuman),Free
-		Class 12 Commerce,Assembly,Accountancy (Nathulal),Accountancy (Nathulal),Business Studies (Nidhika),Economics (Prakash),Sports (Rakesh),Hindi (Jainendra),English compulsory (Pradhyuman),Free
-		Class 12 Arts,Assembly,Geography (Prakash),Political Science (Pradhyuman),Sports (Rakesh),Economics (Prakash),CCS (Maya),Hindi (Jainendra),English compulsory (Pradhyuman),English Literature (Harshita)
+Class,Period 1,Period 2,Period 3,Period 4,Period 5,Period 6
+Class 1,Maths (Bindu),EVS (Ravina),ELGA (Bindu / Anita / Rashmita / Kusum / Ravina),ELGA (Bindu / Anita / Rashmita / Kusum / Ravina),ELGA (Bindu / Anita / Rashmita / Kusum / Ravina),Hindi (Anjana)
+Class 2,Maths (Ravina),EVS (Bindu),ELGA (Bindu / Anita / Rashmita / Kusum / Ravina),ELGA (Bindu / Anita / Rashmita / Kusum / Ravina),ELGA (Bindu / Anita / Rashmita / Kusum / Ravina),Hindi (Bindu)
+Class 3,EVS (Rashmita),EVS (Rashmita),ELGA (Bindu / Anita / Rashmita / Kusum / Ravina),ELGA (Bindu / Anita / Rashmita / Kusum / Ravina),ELGA (Bindu / Anita / Rashmita / Kusum / Ravina),Maths (Ravina)
+Class 4,Hindi (Kusum),Hindi (Kusum),ELGA (Bindu / Anita / Rashmita / Kusum / Ravina),ELGA (Bindu / Anita / Rashmita / Kusum / Ravina),ELGA (Bindu / Anita / Rashmita / Kusum / Ravina),Maths (Anita)
+Class 5,Maths (Nidhika),Maths (Nidhika),ELGA (Bindu / Anita / Rashmita / Kusum / Ravina),ELGA (Bindu / Anita / Rashmita / Kusum / Ravina),ELGA (Bindu / Anita / Rashmita / Kusum / Ravina),Hindi (Kusum)
+Class 6,English compulsory (Hemlata),CCS (Maya),Hindi (Jainendra),Maths (Nidhika),Core Revision (Anjana),SST (Rashmita)
+Class 7,Maths (Anita),Maths (Anita),Sanskrit (Antima),Hindi (Jainendra),SST (Nidhika),English compulsory (Harshita)
+Class 8,Sanskrit (Antima),Hindi (Jainendra),English compulsory (Pradhyuman),SST (Harshita),SST (Harshita),CCS (Maya)
+Class 9,Hindi (Jainendra),Sanskrit (Antima),Science (Toshit),Science (Toshit),SST Practice (Rakesh),SST (Pradhyuman)
+Class 10,SST (Pradhyuman),English compulsory (Harshita),Maths (Nathulal),Sanskrit (Antima),Science (Toshit),Hindi (Antima)
+Class 11 Science,Physics (Mahesh),Biology (Hemlata),Biology (Hemlata),English compulsory (Pradhyuman),Hindi (Jainendra),Chemistry (Toshit)
+Class 11 Arts,English Literature (Harshita),Economics (Prakash),Economics (Prakash),English compulsory (Pradhyuman),Hindi (Jainendra),Geography (Prakash)
+Class 11 Commerce,Core Revision (Maya),Economics (Prakash),Economics (Prakash),English compulsory (Pradhyuman),Hindi (Jainendra),Business Studies (Nidhika)
+Class 12 Commerce,Accountancy (Nathulal),Accountancy (Nathulal),Business Studies (Nidhika),Economics (Prakash),Economics (Prakash),Hindi (Jainendra)
+Class 12 Science,Chemistry (Toshit),Physics (Mahesh),Physics (Mahesh),Biology (Hemlata),Biology (Hemlata),Hindi (Jainendra)
+Class 12 Arts,Geography (Prakash),Political Science (Pradhyuman),English Literature (Harshita),Economics (Prakash),Political Science (Pradhyuman),Hindi (Jainendra)
 
-		Tuesday
-		Class,Assembly<br>8:00 AM - 8:30 AM,Period 1<br>8:30 AM - 9:10 AM,Period 2<br>9:10 AM - 9:50 AM,Period 3<br>9:50 AM - 10:30 AM,Period 4<br>10:30 AM - 11:10 AM,Period 5<br>11:30 AM - 12:10 PM,Period 6<br>12:10 PM - 12:50 PM,Period 7<br>12:50 PM - 01:30 PM,Period 8<br>01:30 PM - 02:10 PM
-		Class 1,Assembly,Maths (Bindu),Maths (Bindu),ELGA (Bindu Anita Rashmita Kusum Ravina),ELGA (Bindu Anita Rashmita Kusum Ravina),ELGA (Bindu Anita Rashmita Kusum Ravina),Hindi (Anjana),Hindi (Anjana),EVS (Ravina)
-		Class 2,Assembly,Maths (Ravina),Maths (Ravina),ELGA (Bindu Anita Rashmita Kusum Ravina),ELGA (Bindu Anita Rashmita Kusum Ravina),ELGA (Bindu Anita Rashmita Kusum Ravina),Hindi (Bindu),EVS (Bindu),EVS (Bindu)
-		Class 3,Assembly,EVS (Rashmita),Hindi (Kusum),ELGA (Bindu Anita Rashmita Kusum Ravina),ELGA (Bindu Anita Rashmita Kusum Ravina),ELGA (Bindu Anita Rashmita Kusum Ravina),Maths (Ravina),Maths (Ravina),Sports (Rakesh)
-		Class 4,Assembly,Hindi (Kusum),Sports (Rakesh),ELGA (Bindu Anita Rashmita Kusum Ravina),ELGA (Bindu Anita Rashmita Kusum Ravina),ELGA (Bindu Anita Rashmita Kusum Ravina),EVS (Rashmita),Maths (Anita),Maths (Anita)
-		Class 5,Assembly,Maths (Nidhika),Maths (Nidhika),ELGA (Bindu Anita Rashmita Kusum Ravina),ELGA (Bindu Anita Rashmita Kusum Ravina),ELGA (Bindu Anita Rashmita Kusum Ravina),EVS (Anita),Hindi (Kusum),Hindi (Kusum)
-		Class 6,Assembly,English compulsory (Hemlata),Chemistry (Hemlata),Physics (Hemlata),Sanskrit (Jainendra),Sports (Rakesh),Maths (Nidhika),Maths (Nidhika),SST (Rashmita)
-		Class 7,Assembly,Maths (Anita),Maths (Anita),Sanskrit (Antima),Physics (Toshit),SST (Nidhika),Biology (Hemlata),CCS (Maya),English compulsory (Harshita)
-		Class 8,Assembly,Sanskrit (Antima),Hindi (Jainendra),Maths (Prakash),Maths (Prakash),English compulsory (Pradhyuman),SST (Harshita),Chemistry (Toshit),Biology (Hemlata)
-		Class 9,Assembly,Hindi (Jainendra),CCS (Maya),Maths (Nathulal),Sanskrit (Antima),English compulsory (Harshita),NoteBook Checking (Antima),SST (Pradhyuman),Science (Toshit)
-		Class 10,Assembly,SST (Pradhyuman),SST (Pradhyuman),Science (Toshit),English compulsory (Harshita),Sanskrit (Antima),Maths (Nathulal),Maths (Nathulal),Hindi (Antima)
-		Class 11 Science,Assembly,Physics (Mahesh),Physics (Mahesh),Sports (Rakesh),Biology (Hemlata),Biology (Hemlata),Chemistry (Toshit),Hindi (Jainendra),English compulsory (Pradhyuman)
-		Class 11 Commerce,Assembly,CCS (Maya),NoteBook Checking (Antima),Business Studies (Nidhika),Accountancy (Nathulal),Accountancy (Nathulal),Economics (Prakash),Hindi (Jainendra),English compulsory (Pradhyuman)
-		Class 11 Arts,Assembly,English Literature (Harshita),Geography (Prakash),English Literature (Harshita),Political Science (Pradhyuman),Geography (Prakash),Economics (Prakash),Hindi (Jainendra),English compulsory (Pradhyuman)
-		Class 12 Science,Assembly,Chemistry (Toshit),Chemistry (Toshit),Physics (Mahesh),Sports (Rakesh),Hindi (Jainendra),English compulsory (Pradhyuman),Biology (Hemlata),Free
-		Class 12 Commerce,Assembly,Accountancy (Nathulal),Accountancy (Nathulal),CCS (Maya),Business Studies (Nidhika),Hindi (Jainendra),English compulsory (Pradhyuman),Sports (Rakesh),Economics (Prakash)
-		Class 12 Arts,Assembly,Geography (Prakash),English Literature (Harshita),Political Science (Pradhyuman),CCS (Maya),Hindi (Jainendra),English compulsory (Pradhyuman),English Literature (Harshita),Economics (Prakash)
-		Wednesday
-		Class,Assembly<br>8:00 AM - 8:30 AM,Period 1<br>8:30 AM - 9:10 AM,Period 2<br>9:10 AM - 9:50 AM,Period 3<br>9:50 AM - 10:30 AM,Period 4<br>10:30 AM - 11:10 AM,Period 5<br>11:30 AM - 12:10 PM,Period 6<br>12:10 PM - 12:50 PM,Period 7<br>12:50 PM - 01:30 PM,Period 8<br>01:30 PM - 02:10 PM
-		Class 1,Assembly,Maths (Bindu),EVS (Ravina),ELGA (Bindu Anita Rashmita Kusum Ravina),ELGA (Bindu Anita Rashmita Kusum Ravina),ELGA (Bindu Anita Rashmita Kusum Ravina),Hindi (Anjana),Hindi (Anjana),NoteBook Checking (Antima)
-		Class 2,Assembly,Maths (Ravina),Sports (Rakesh),ELGA (Bindu Anita Rashmita Kusum Ravina),ELGA (Bindu Anita Rashmita Kusum Ravina),ELGA (Bindu Anita Rashmita Kusum Ravina),EVS (Bindu),EVS (Bindu),Hindi (Bindu)
-		Class 3,Assembly,EVS (Rashmita),EVS (Rashmita),ELGA (Bindu Anita Rashmita Kusum Ravina),ELGA (Bindu Anita Rashmita Kusum Ravina),ELGA (Bindu Anita Rashmita Kusum Ravina),Hindi (Kusum),Maths (Ravina),Maths (Ravina)
-		Class 4,Assembly,Hindi (Kusum),Hindi (Kusum),ELGA (Bindu Anita Rashmita Kusum Ravina),ELGA (Bindu Anita Rashmita Kusum Ravina),ELGA (Bindu Anita Rashmita Kusum Ravina),Maths (Anita),Maths (Anita),EVS (Rashmita)
-		Class 5,Assembly,Maths (Nidhika),EVS (Anita),ELGA (Bindu Anita Rashmita Kusum Ravina),ELGA (Bindu Anita Rashmita Kusum Ravina),ELGA (Bindu Anita Rashmita Kusum Ravina),Robotics (Maya),CCS (Maya),Hindi (Kusum)
-		Class 6,Assembly,Biology (Hemlata),Sanskrit (Jainendra),Chemistry (Hemlata),Maths (Nidhika),Maths (Nidhika),English compulsory (Hemlata),SST (Rashmita),Hindi (Jainendra)
-		Class 7,Assembly,Maths (Anita),English compulsory (Harshita),Sports (Rakesh),Physics (Toshit),Hindi (Jainendra),Sanskrit (Antima),SST (Nidhika),Robotics (Maya)
-		Class 8,Assembly,Sanskrit (Antima),Biology (Hemlata),English compulsory (Pradhyuman),Hindi (Jainendra),Chemistry (Toshit),Maths (Prakash),SST (Harshita),Physics (Toshit)
-		Class 9,Assembly,Hindi (Jainendra),Sanskrit (Antima),English compulsory (Harshita),English compulsory (Harshita),Maths (Nathulal),Science (Toshit),Sports (Rakesh),SST (Pradhyuman)
-		Class 10,Assembly,SST (Pradhyuman),CCS (Maya),Sanskrit (Antima),Hindi (Antima),English compulsory (Harshita),English compulsory (Harshita),Science (Toshit),Maths (Nathulal)
-		Class 11 Science,Assembly,Physics (Mahesh),Physics (Mahesh),Chemistry (Toshit),Sports (Rakesh),English compulsory (Pradhyuman),Hindi (Jainendra),Biology (Hemlata),Biology (Hemlata)
-		Class 11 Commerce,Assembly,Self Study (Maya),Business Studies (Nidhika),Accountancy (Nathulal),Accountancy (Nathulal),English compulsory (Pradhyuman),Hindi (Jainendra),Economics (Prakash),Free
-		Class 11 Arts,Assembly,English Literature (Harshita),Geography (Prakash),CCS (Maya),Political Science (Pradhyuman),English compulsory (Pradhyuman),Hindi (Jainendra),Economics (Prakash),Geography (Prakash)
-		Class 12 Science,Assembly,Chemistry (Toshit),Chemistry (Toshit),Physics (Mahesh),Biology (Hemlata),Biology (Hemlata),English compulsory (Pradhyuman),Hindi (Jainendra),Free
-		Class 12 Commerce,Assembly,Accountancy (Nathulal),Accountancy (Nathulal),Economics (Prakash),CCS (Maya),Economics (Prakash),English compulsory (Pradhyuman),Hindi (Jainendra),Business Studies (Nidhika)
-		Class 12 Arts,Assembly,Geography (Prakash),Political Science (Pradhyuman),Economics (Prakash),Geography (Prakash),Economics (Prakash),English compulsory (Pradhyuman),Hindi (Jainendra),English Literature (Harshita)
-		Thursday
-		Class,Assembly<br>8:00 AM - 8:30 AM,Period 1<br>8:30 AM - 9:10 AM,Period 2<br>9:10 AM - 9:50 AM,Period 3<br>9:50 AM - 10:30 AM,Period 4<br>10:30 AM - 11:10 AM,Period 5<br>11:30 AM - 12:10 PM,Period 6<br>12:10 PM - 12:50 PM,Period 7<br>12:50 PM - 01:30 PM,Period 8<br>01:30 PM - 02:10 PM
-		Class 1,Assembly,Maths (Bindu),Maths (Bindu),ELGA (Bindu Anita Rashmita Kusum Ravina),ELGA (Bindu Anita Rashmita Kusum Ravina),ELGA (Bindu Anita Rashmita Kusum Ravina),Hindi (Anjana),EVS (Ravina),EVS (Ravina)
-		Class 2,Assembly,Maths (Ravina),Maths (Ravina),ELGA (Bindu Anita Rashmita Kusum Ravina),ELGA (Bindu Anita Rashmita Kusum Ravina),ELGA (Bindu Anita Rashmita Kusum Ravina),EVS (Bindu),Hindi (Bindu),Hindi (Bindu)
-		Class 3,Assembly,EVS (Rashmita),CCS (Maya),ELGA (Bindu Anita Rashmita Kusum Ravina),ELGA (Bindu Anita Rashmita Kusum Ravina),ELGA (Bindu Anita Rashmita Kusum Ravina),Maths (Ravina),Hindi (Kusum),Hindi (Kusum)
-		Class 4,Assembly,Hindi (Kusum),Maths (Anita),ELGA (Bindu Anita Rashmita Kusum Ravina),ELGA (Bindu Anita Rashmita Kusum Ravina),ELGA (Bindu Anita Rashmita Kusum Ravina),CCS (Maya),EVS (Rashmita),EVS (Rashmita)
-		Class 5,Assembly,Maths (Nidhika),Maths (Nidhika),ELGA (Bindu Anita Rashmita Kusum Ravina),ELGA (Bindu Anita Rashmita Kusum Ravina),ELGA (Bindu Anita Rashmita Kusum Ravina),Hindi (Kusum),EVS (Anita),EVS (Anita)
-		Class 6,Assembly,English compulsory (Hemlata),SST (Rashmita),Maths (Nidhika),CCS (Maya),Hindi (Jainendra),Chemistry (Hemlata),Biology (Hemlata),Robotics (Maya)
-		Class 7,Assembly,Maths (Anita),Hindi (Jainendra),Physics (Toshit),SST (Nidhika),Biology (Hemlata),Sanskrit (Antima),English compulsory (Harshita),Chemistry (Hemlata)
-		Class 8,Assembly,NoteBook Checking (Antima),Biology (Hemlata),CCS (Maya),English compulsory (Pradhyuman),Sports (Rakesh),SST (Harshita),Maths (Prakash),Maths (Prakash)
-		Class 9,Assembly,Hindi (Jainendra),Sanskrit (Antima),SST (Pradhyuman),English compulsory (Harshita),English compulsory (Harshita),Science (Toshit),Maths (Nathulal),Maths (Nathulal)
-		Class 10,Assembly,SST (Pradhyuman),SST (Pradhyuman),English compulsory (Harshita),Hindi (Antima),Sanskrit (Antima),Maths (Nathulal),Sports (Rakesh),Science (Toshit)
-		Class 11 Science,Assembly,Physics (Mahesh),Physics (Mahesh),Biology (Hemlata),Chemistry (Toshit),Chemistry (Toshit),English compulsory (Pradhyuman),Hindi (Jainendra),Free
-		Class 11 Commerce,Assembly,CCS (Maya),Sports (Rakesh),Accountancy (Nathulal),Accountancy (Nathulal),Economics (Prakash),English compulsory (Pradhyuman),Hindi (Jainendra),Business Studies (Nidhika)
-		Class 11 Arts,Assembly,English Literature (Harshita),English Literature (Harshita),Geography (Prakash),Sports (Rakesh),Economics (Prakash),English compulsory (Pradhyuman),Hindi (Jainendra),Political Science (Pradhyuman)
-		Class 12 Science,Assembly,Chemistry (Toshit),Chemistry (Toshit),Physics (Mahesh),Biology (Hemlata),English compulsory (Pradhyuman),Hindi (Jainendra),NoteBook Checking (Antima),Free
-		Class 12 Commerce,Assembly,Accountancy (Nathulal),Accountancy (Nathulal),NoteBook Checking (Antima),Economics (Prakash),English compulsory (Pradhyuman),Hindi (Jainendra),Business Studies (Nidhika),Free
-		Class 12 Arts,Assembly,Geography (Prakash),Geography (Prakash),Sports (Rakesh),Economics (Prakash),English compulsory (Pradhyuman),Hindi (Jainendra),Political Science (Pradhyuman),English Literature (Harshita)
-		Friday
-		Class,Assembly<br>8:00 AM - 8:30 AM,Period 1<br>8:30 AM - 9:10 AM,Period 2<br>9:10 AM - 9:50 AM,Period 3<br>9:50 AM - 10:30 AM,Period 4<br>10:30 AM - 11:10 AM,Period 5<br>11:30 AM - 12:10 PM,Period 6<br>12:10 PM - 12:50 PM,Period 7<br>12:50 PM - 01:30 PM,Period 8<br>01:30 PM - 02:10 PM
-		Class 1,Assembly,Maths (Bindu),Maths (Bindu),EVS (Ravina),EVS (Ravina),Sports (Rakesh),CCS (Maya),Hindi (Anjana),Hindi (Anjana)
-		Class 2,Assembly,Maths (Ravina),Maths (Ravina),EVS (Bindu),EVS (Bindu),CCS (Maya),Hindi (Bindu),Hindi (Bindu),Sports (Rakesh)
-		Class 3,Assembly,EVS (Rashmita),EVS (Rashmita),NoteBook Checking (Antima),CCS (Maya),Maths (Ravina),Maths (Ravina),Hindi (Kusum),Hindi (Kusum)
-		Class 4,Assembly,Hindi (Kusum),Hindi (Kusum),EVS (Rashmita),EVS (Rashmita),Maths (Anita),Maths (Anita),Robotics (Maya),NoteBook Checking (Antima)
-		Class 5,Assembly,Maths (Nidhika),EVS (Anita),EVS (Anita),NoteBook Checking (Antima),Hindi (Kusum),Hindi (Kusum),Sports (Rakesh),English compulsory (Ravina)
-		Class 6,Assembly,Physics (Hemlata),Sanskrit (Jainendra),English compulsory (Hemlata),Hindi (Jainendra),SST (Rashmita),SST (Rashmita),Biology (Hemlata),Maths (Nidhika)
-		Class 7,Assembly,Maths (Anita),CCS (Maya),SST (Nidhika),SST (Nidhika),Chemistry (Hemlata),English compulsory (Harshita),Hindi (Jainendra),Biology (Hemlata)
-		Class 8,Assembly,Sanskrit (Antima),Sports (Rakesh),English compulsory (Pradhyuman),Physics (Toshit),SST (Harshita),Hindi (Jainendra),Maths (Prakash),Robotics (Maya)
-		Class 9,Assembly,Hindi (Jainendra),Science (Toshit),Sports (Rakesh),English compulsory (Harshita),Sanskrit (Antima),Maths (Nathulal),SST (Pradhyuman),SST (Pradhyuman)
-		Class 10,Assembly,SST (Pradhyuman),Sanskrit (Antima),English compulsory (Harshita),Maths (Nathulal),Maths (Nathulal),Hindi (Antima),Science (Toshit),Science (Toshit)
-		Class 11 Science,Assembly,Physics (Mahesh),English compulsory (Pradhyuman),Hindi (Jainendra),Biology (Hemlata),Chemistry (Toshit),Chemistry (Toshit),Free,Free
-		Class 11 Commerce,Assembly,Self Study (Maya),English compulsory (Pradhyuman),Hindi (Jainendra),Sports (Rakesh),Business Studies (Nidhika),Economics (Prakash),Accountancy (Nathulal),Accountancy (Nathulal)
-		Class 11 Arts,Assembly,English Literature (Harshita),English compulsory (Pradhyuman),Hindi (Jainendra),Geography (Prakash),Political Science (Pradhyuman),Economics (Prakash),English Literature (Harshita),Geography (Prakash)
-		Class 12 Science,Assembly,Chemistry (Toshit),Physics (Mahesh),Physics (Mahesh),English compulsory (Pradhyuman),Hindi (Jainendra),Biology (Hemlata),Free,Free
-		Class 12 Commerce,Assembly,Accountancy (Nathulal),Accountancy (Nathulal),Economics (Prakash),English compulsory (Pradhyuman),Hindi (Jainendra),Business Studies (Nidhika),Business Studies (Nidhika),Free
-		Class 12 Arts,Assembly,Geography (Prakash),Geography (Prakash),Economics (Prakash),English compulsory (Pradhyuman),Hindi (Jainendra),Political Science (Pradhyuman),NoteBook Checking (Antima),English Literature (Harshita)
+Tuesday
+Class,Period 1,Period 2,Period 3,Period 4,Period 5,Period 6
+Class 1,Maths (Bindu),Maths (Bindu),ELGA (Bindu / Anita / Rashmita / Kusum / Ravina),ELGA (Bindu / Anita / Rashmita / Kusum / Ravina),ELGA (Bindu / Anita / Rashmita / Kusum / Ravina),Hindi (Anjana)
+Class 2,Maths (Ravina),Maths (Ravina),ELGA (Bindu / Anita / Rashmita / Kusum / Ravina),ELGA (Bindu / Anita / Rashmita / Kusum / Ravina),ELGA (Bindu / Anita / Rashmita / Kusum / Ravina),Hindi (Bindu)
+Class 3,EVS (Rashmita),Hindi (Kusum),ELGA (Bindu / Anita / Rashmita / Kusum / Ravina),ELGA (Bindu / Anita / Rashmita / Kusum / Ravina),ELGA (Bindu / Anita / Rashmita / Kusum / Ravina),Maths (Ravina)
+Class 4,Hindi (Kusum),English Revision (Rashmita),ELGA (Bindu / Anita / Rashmita / Kusum / Ravina),ELGA (Bindu / Anita / Rashmita / Kusum / Ravina),ELGA (Bindu / Anita / Rashmita / Kusum / Ravina),EVS (Rashmita)
+Class 5,Maths (Nidhika),Maths (Nidhika),ELGA (Bindu / Anita / Rashmita / Kusum / Ravina),ELGA (Bindu / Anita / Rashmita / Kusum / Ravina),ELGA (Bindu / Anita / Rashmita / Kusum / Ravina),EVS (Anita)
+Class 6,English compulsory (Hemlata),Chemistry (Hemlata),Physics (Hemlata),Sanskrit (Jainendra),Core Revision (Anjana),Maths (Nidhika)
+Class 7,Maths (Anita),Maths (Anita),Sanskrit (Antima),Science Practice (Rakesh),SST (Nidhika),Biology (Hemlata)
+Class 8,Sanskrit (Antima),Hindi (Jainendra),Maths (Prakash),Maths (Prakash),English compulsory (Pradhyuman),SST (Harshita)
+Class 9,Hindi (Jainendra),CCS (Maya),Maths (Nathulal),Sanskrit (Antima),English compulsory (Harshita),Hindi (Jainendra)
+Class 10,SST (Pradhyuman),SST (Pradhyuman),Science (Toshit),Science (Toshit),Sanskrit (Antima),Maths (Nathulal)
+Class 11 Science,Physics (Mahesh),Physics (Mahesh),Hindi (Jainendra),Core Revision (Maya),Biology (Hemlata),Chemistry (Toshit)
+Class 11 Arts,English Literature (Harshita),Geography (Prakash),English Literature (Harshita),Political Science (Pradhyuman),Geography (Prakash),Economics (Prakash)
+Class 11 Commerce,CCS (Maya),Core Revision (Antima),Core Revision (Maya),Accountancy (Nathulal),Accountancy (Nathulal),Economics (Prakash)
+Class 12 Commerce,Accountancy (Nathulal),Accountancy (Nathulal),Business Studies (Nidhika),Business Studies (Nidhika),Hindi (Jainendra),English compulsory (Pradhyuman)
+Class 12 Science,Chemistry (Toshit),Chemistry (Toshit),Physics (Mahesh),Biology (Hemlata),Hindi (Jainendra),English compulsory (Pradhyuman)
+Class 12 Arts,Geography (Prakash),English Literature (Harshita),Political Science (Pradhyuman),English Literature (Harshita),Hindi (Jainendra),English compulsory (Pradhyuman)
 
-		Saturday
-		Class,Assembly<br>8:00 AM - 8:30 AM,Period 1<br>8:30 AM - 9:10 AM,Period 2<br>9:10 AM - 9:50 AM,Period 3<br>9:50 AM - 10:30 AM,Period 4<br>10:30 AM - 11:10 AM,Period 5<br>11:30 AM - 12:10 PM,Period 6<br>12:10 PM - 12:50 PM,Period 7<br>12:50 PM - 01:30 PM,Period 8<br>01:30 PM - 02:10 PM
-		Class 1,Assembly,Maths (Bindu),Maths (Bindu),EVS (Ravina),EVS (Ravina),CCS (Maya),Hindi (Anjana),Hindi (Anjana),Robotics (Maya)
-		Class 2,Assembly,Maths (Ravina),Maths (Ravina),NoteBook Checking (Antima),Robotics (Maya),Hindi (Bindu),Hindi (Bindu),EVS (Bindu),EVS (Bindu)
-		Class 3,Assembly,EVS (Rashmita),EVS (Rashmita),Hindi (Kusum),Hindi (Kusum),Maths (Ravina),Maths (Ravina),Robotics (Maya),Sports (Rakesh)
-		Class 4,Assembly,Hindi (Kusum),Hindi (Kusum),EVS (Rashmita),EVS (Rashmita),Sports (Rakesh),CCS (Maya),Maths (Anita),Maths (Anita)
-		Class 5,Assembly,Maths (Nidhika),Maths (Nidhika),Sports (Rakesh),EVS (Anita),EVS (Anita),Hindi (Kusum),Hindi (Kusum),English compulsory (Ravina)
-		Class 6,Assembly,English compulsory (Hemlata),English compulsory (Hemlata),Maths (Nidhika),Sanskrit (Jainendra),SST (Rashmita),SST (Rashmita),Hindi (Jainendra),Physics (Hemlata)
-		Class 7,Assembly,Maths (Anita),Maths (Anita),Chemistry (Hemlata),Sanskrit (Antima),English compulsory (Harshita),Hindi (Jainendra),SST (Nidhika),SST (Nidhika)
-		Class 8,Assembly,Sanskrit (Antima),Physics (Toshit),SST (Harshita),SST (Harshita),Hindi (Jainendra),English compulsory (Pradhyuman),Maths (Prakash),Chemistry (Toshit)
-		Class 9,Assembly,Hindi (Jainendra),SST (Pradhyuman),Science (Toshit),Science (Toshit),Maths (Nathulal),Maths (Nathulal),Sanskrit (Antima),English compulsory (Harshita)
-		Class 10,Assembly,SST (Pradhyuman),CCS (Maya),Maths (Nathulal),Maths (Nathulal),Science (Toshit),Sanskrit (Antima),English compulsory (Harshita),Hindi (Antima)
-		Class 11 Science,Assembly,Physics (Mahesh),Hindi (Jainendra),English compulsory (Pradhyuman),Biology (Hemlata),NoteBook Checking (Antima),Chemistry (Toshit),Chemistry (Toshit),Free
-		Class 11 Commerce,Assembly,Self Study (Maya),Hindi (Jainendra),English compulsory (Pradhyuman),Business Studies (Nidhika),Economics (Prakash),Economics (Prakash),Accountancy (Nathulal),Accountancy (Nathulal)
-		Class 11 Arts,Assembly,English Literature (Harshita),Hindi (Jainendra),English compulsory (Pradhyuman),Political Science (Pradhyuman),Economics (Prakash),Economics (Prakash),Sports (Rakesh),Geography (Prakash)
-		Class 12 Science,Assembly,Chemistry (Toshit),Physics (Mahesh),Physics (Mahesh),Sports (Rakesh),Biology (Hemlata),Biology (Hemlata),English compulsory (Pradhyuman),Hindi (Jainendra)
-		Class 12 Commerce,Assembly,Accountancy (Nathulal),Accountancy (Nathulal),Economics (Prakash),Economics (Prakash),Business Studies (Nidhika),Business Studies (Nidhika),English compulsory (Pradhyuman),Hindi (Jainendra)
-		Class 12 Arts,Assembly,Geography (Prakash),English Literature (Harshita),Economics (Prakash),Economics (Prakash),Political Science (Pradhyuman),English Literature (Harshita),English compulsory (Pradhyuman),Hindi (Jainendra)`;
+Wednesday
+Class,Period 1,Period 2,Period 3,Period 4,Period 5,Period 6
+Class 1,Maths (Bindu),EVS (Ravina),ELGA (Bindu / Anita / Rashmita / Kusum / Ravina),ELGA (Bindu / Anita / Rashmita / Kusum / Ravina),ELGA (Bindu / Anita / Rashmita / Kusum / Ravina),Hindi (Anjana)
+Class 2,Maths (Ravina),Hindi (Bindu),ELGA (Bindu / Anita / Rashmita / Kusum / Ravina),ELGA (Bindu / Anita / Rashmita / Kusum / Ravina),ELGA (Bindu / Anita / Rashmita / Kusum / Ravina),EVS (Bindu)
+Class 3,EVS (Rashmita),EVS (Rashmita),ELGA (Bindu / Anita / Rashmita / Kusum / Ravina),ELGA (Bindu / Anita / Rashmita / Kusum / Ravina),ELGA (Bindu / Anita / Rashmita / Kusum / Ravina),Hindi (Kusum)
+Class 4,Hindi (Kusum),Hindi (Kusum),ELGA (Bindu / Anita / Rashmita / Kusum / Ravina),ELGA (Bindu / Anita / Rashmita / Kusum / Ravina),ELGA (Bindu / Anita / Rashmita / Kusum / Ravina),Maths (Anita)
+Class 5,Maths (Nidhika),EVS (Anita),ELGA (Bindu / Anita / Rashmita / Kusum / Ravina),ELGA (Bindu / Anita / Rashmita / Kusum / Ravina),ELGA (Bindu / Anita / Rashmita / Kusum / Ravina),CCS (Maya)
+Class 6,Biology (Hemlata),Sanskrit (Jainendra),Chemistry (Hemlata),Maths (Nidhika),Maths (Nidhika),English compulsory (Hemlata)
+Class 7,Maths (Anita),English compulsory (Harshita),SST (Nidhika),Physics (Toshit),Hindi (Jainendra),Sanskrit (Antima)
+Class 8,Sanskrit (Antima),Biology (Hemlata),English compulsory (Pradhyuman),Hindi (Jainendra),Chemistry (Toshit),Maths (Prakash)
+Class 9,Hindi (Jainendra),Core Revision (Maya),English compulsory (Harshita),English compulsory (Harshita),Maths (Nathulal),Science (Toshit)
+Class 10,SST (Pradhyuman),Sanskrit (Antima),Sanskrit (Antima),Hindi (Antima),English compulsory (Harshita),English compulsory (Harshita)
+Class 11 Science,Physics (Mahesh),Physics (Mahesh),Chemistry (Toshit),Core Revision (Rakesh),English compulsory (Pradhyuman),Hindi (Jainendra)
+Class 11 Arts,English Literature (Harshita),Geography (Prakash),CCS (Maya),Political Science (Pradhyuman),English compulsory (Pradhyuman),Hindi (Jainendra)
+Class 11 Commerce,Core Revision (Maya),Business Studies (Nidhika),Accountancy (Nathulal),Core Revision (Maya),English compulsory (Pradhyuman),Hindi (Jainendra)
+Class 12 Commerce,Accountancy (Nathulal),Accountancy (Nathulal),Economics (Prakash),Accountancy (Nathulal),Economics (Prakash),English compulsory (Pradhyuman)
+Class 12 Science,Chemistry (Toshit),Chemistry (Toshit),Physics (Mahesh),Biology (Hemlata),Biology (Hemlata),English compulsory (Pradhyuman)
+Class 12 Arts,Geography (Prakash),Political Science (Pradhyuman),Economics (Prakash),Geography (Prakash),Economics (Prakash),English compulsory (Pradhyuman)
+
+Thursday
+Class,Period 1,Period 2,Period 3,Period 4,Period 5,Period 6
+Class 1,Maths (Bindu),Maths (Bindu),ELGA (Bindu / Anita / Rashmita / Kusum / Ravina),ELGA (Bindu / Anita / Rashmita / Kusum / Ravina),ELGA (Bindu / Anita / Rashmita / Kusum / Ravina),Hindi (Anjana)
+Class 2,Maths (Ravina),Maths (Ravina),ELGA (Bindu / Anita / Rashmita / Kusum / Ravina),ELGA (Bindu / Anita / Rashmita / Kusum / Ravina),ELGA (Bindu / Anita / Rashmita / Kusum / Ravina),EVS (Bindu)
+Class 3,EVS (Rashmita),CCS (Maya),ELGA (Bindu / Anita / Rashmita / Kusum / Ravina),ELGA (Bindu / Anita / Rashmita / Kusum / Ravina),ELGA (Bindu / Anita / Rashmita / Kusum / Ravina),Maths (Ravina)
+Class 4,Hindi (Kusum),Maths (Anita),ELGA (Bindu / Anita / Rashmita / Kusum / Ravina),ELGA (Bindu / Anita / Rashmita / Kusum / Ravina),ELGA (Bindu / Anita / Rashmita / Kusum / Ravina),EVS (Rashmita)
+Class 5,Maths (Nidhika),Maths (Nidhika),ELGA (Bindu / Anita / Rashmita / Kusum / Ravina),ELGA (Bindu / Anita / Rashmita / Kusum / Ravina),ELGA (Bindu / Anita / Rashmita / Kusum / Ravina),Hindi (Kusum)
+Class 6,English compulsory (Hemlata),SST (Rashmita),Maths (Nidhika),CCS (Maya),Hindi (Jainendra),Chemistry (Hemlata)
+Class 7,Maths (Anita),Hindi (Jainendra),Science Practice (Rakesh),SST (Nidhika),Biology (Hemlata),Sanskrit (Antima)
+Class 8,Sanskrit (Antima),Biology (Hemlata),CCS (Maya),English compulsory (Pradhyuman),Core Revision (Anjana),SST (Harshita)
+Class 9,Hindi (Jainendra),Sanskrit (Antima),SST (Pradhyuman),English compulsory (Harshita),English compulsory (Harshita),Science (Toshit)
+Class 10,SST (Pradhyuman),SST (Pradhyuman),Science (Toshit),Hindi (Antima),Sanskrit (Antima),Maths (Nathulal)
+Class 11 Science,Physics (Mahesh),Physics (Mahesh),Biology (Hemlata),Chemistry (Toshit),Chemistry (Toshit),English compulsory (Pradhyuman)
+Class 11 Arts,English Literature (Harshita),English Literature (Harshita),Geography (Prakash),Hindi (Jainendra),Economics (Prakash),English compulsory (Pradhyuman)
+Class 11 Commerce,CCS (Maya),Core Revision (Kusum),Accountancy (Nathulal),Accountancy (Nathulal),Economics (Prakash),English compulsory (Pradhyuman)
+Class 12 Commerce,Accountancy (Nathulal),Accountancy (Nathulal),Hindi (Jainendra),Economics (Prakash),English compulsory (Pradhyuman),Hindi (Jainendra)
+Class 12 Science,Chemistry (Toshit),Chemistry (Toshit),Physics (Mahesh),Biology (Hemlata),English compulsory (Pradhyuman),Hindi (Jainendra)
+Class 12 Arts,Geography (Prakash),Geography (Prakash),Hindi (Jainendra),Economics (Prakash),English compulsory (Pradhyuman),Hindi (Jainendra)
+
+Friday
+Class,Period 1,Period 2,Period 3,Period 4,Period 5,Period 6
+Class 1,Maths (Bindu),Maths (Bindu),EVS (Ravina),EVS (Ravina),Hindi (Anjana),Hindi (Anjana)
+Class 2,Maths (Ravina),Maths (Ravina),EVS (Bindu),EVS (Bindu),Hindi (Bindu),Hindi (Bindu)
+Class 3,EVS (Rashmita),EVS (Rashmita),Hindi (Kusum),CCS (Maya),Maths (Ravina),Maths (Ravina)
+Class 4,Hindi (Kusum),Hindi (Kusum),EVS (Rashmita),EVS (Rashmita),Maths (Anita),Maths (Anita)
+Class 5,Maths (Nidhika),EVS (Anita),EVS (Anita),English Revision (Kusum),Hindi (Kusum),Hindi (Kusum)
+Class 6,Physics (Hemlata),Sanskrit (Jainendra),English compulsory (Hemlata),Hindi (Jainendra),SST (Rashmita),SST (Rashmita)
+Class 7,Maths (Anita),CCS (Maya),SST (Nidhika),SST (Nidhika),Chemistry (Hemlata),English compulsory (Harshita)
+Class 8,Sanskrit (Antima),Biology (Hemlata),English compulsory (Pradhyuman),Science Practice (Rakesh),SST (Harshita),Hindi (Jainendra)
+Class 9,Hindi (Jainendra),Science (Toshit),Science (Toshit),English compulsory (Harshita),Sanskrit (Antima),Maths (Nathulal)
+Class 10,SST (Pradhyuman),Sanskrit (Antima),English compulsory (Harshita),Science (Toshit),Maths (Nathulal),Hindi (Antima)
+Class 11 Science,Physics (Mahesh),English compulsory (Pradhyuman),Hindi (Jainendra),Biology (Hemlata),Chemistry (Toshit),Chemistry (Toshit)
+Class 11 Arts,English Literature (Harshita),English compulsory (Pradhyuman),Hindi (Jainendra),Geography (Prakash),Political Science (Pradhyuman),Economics (Prakash)
+Class 11 Commerce,Core Revision (Maya),English compulsory (Pradhyuman),Hindi (Jainendra),Core Revision (Anita),Business Studies (Nidhika),Economics (Prakash)
+Class 12 Commerce,Accountancy (Nathulal),Accountancy (Nathulal),Economics (Prakash),English compulsory (Pradhyuman),Hindi (Jainendra),Business Studies (Nidhika)
+Class 12 Science,Chemistry (Toshit),Physics (Mahesh),Physics (Mahesh),English compulsory (Pradhyuman),Hindi (Jainendra),Biology (Hemlata)
+Class 12 Arts,Geography (Prakash),Geography (Prakash),Economics (Prakash),English compulsory (Pradhyuman),Hindi (Jainendra),Political Science (Pradhyuman)
+
+Saturday
+Class,Period 1,Period 2,Period 3,Period 4,Period 5,Period 6
+Class 1,Maths (Bindu),Maths (Bindu),EVS (Ravina),EVS (Ravina),CCS (Maya),Hindi (Anjana)
+Class 2,Maths (Ravina),Maths (Ravina),EVS (Bindu),EVS (Bindu),Hindi (Bindu),Hindi (Bindu)
+Class 3,EVS (Rashmita),EVS (Rashmita),Hindi (Kusum),Hindi (Kusum),Maths (Ravina),Maths (Ravina)
+Class 4,Hindi (Kusum),Hindi (Kusum),EVS (Rashmita),EVS (Rashmita),English Revision (Kusum),Maths (Anita)
+Class 5,Maths (Nidhika),Maths (Nidhika),English Revision (Anita),EVS (Anita),EVS (Anita),Hindi (Kusum)
+Class 6,English compulsory (Hemlata),English compulsory (Hemlata),Maths (Nidhika),Sanskrit (Jainendra),SST (Rashmita),SST (Rashmita)
+Class 7,Maths (Anita),Maths (Anita),Chemistry (Hemlata),Sanskrit (Antima),English compulsory (Harshita),Hindi (Jainendra)
+Class 8,Sanskrit (Antima),Physics (Toshit),SST (Harshita),SST (Harshita),Hindi (Jainendra),English compulsory (Pradhyuman)
+Class 9,Hindi (Jainendra),SST (Pradhyuman),Science (Toshit),Science Practice (Rakesh),Maths (Nathulal),Maths (Nathulal)
+Class 10,SST (Pradhyuman),Hindi (Antima),Maths (Nathulal),Maths (Nathulal),Science (Toshit),Sanskrit (Antima)
+Class 11 Science,Physics (Mahesh),Hindi (Jainendra),English compulsory (Pradhyuman),Biology (Hemlata),Core Revision (Anjana),Chemistry (Toshit)
+Class 11 Arts,English Literature (Harshita),Hindi (Jainendra),English compulsory (Pradhyuman),Political Science (Pradhyuman),Economics (Prakash),Economics (Prakash)
+Class 11 Commerce,Core Revision (Maya),Hindi (Jainendra),English compulsory (Pradhyuman),Business Studies (Nidhika),Economics (Prakash),Economics (Prakash)
+Class 12 Commerce,Accountancy (Nathulal),Accountancy (Nathulal),Economics (Prakash),Economics (Prakash),Business Studies (Nidhika),Business Studies (Nidhika)
+Class 12 Science,Chemistry (Toshit),Physics (Mahesh),Physics (Mahesh),Chemistry (Toshit),Biology (Hemlata),Biology (Hemlata)
+Class 12 Arts,Geography (Prakash),English Literature (Harshita),Economics (Prakash),Economics (Prakash),Political Science (Pradhyuman),English Literature (Harshita)
+`;`;
 
 		// --- ENHANCED GLOBAL STATE ---
 		let state = {
@@ -937,15 +941,15 @@
 		function getDashboardSlotDetails(index) {
 			if (index == null || index < 0) return null;
 
-			const winterSlot = getWinterTimeSlots()[index];
+			const activeSlot = getWinterTimeSlots()[index];
 			const parsedSlot = state.allData?.periodHeaders?.[index];
-			const timeLabel = parsedSlot?.time || (winterSlot ? `${formatMinutesToTimeLabel(winterSlot.start)} - ${formatMinutesToTimeLabel(winterSlot.end)}` : '');
+			const timeLabel = parsedSlot?.time || (activeSlot ? `${formatMinutesToTimeLabel(activeSlot.start)} - ${formatMinutesToTimeLabel(activeSlot.end)}` : '');
 
 			return {
-				name: parsedSlot?.name || winterSlot?.name || `Period ${index + 1}`,
+				name: parsedSlot?.name || activeSlot?.name || `Period ${index + 1}`,
 				time: timeLabel,
-				startLabel: winterSlot ? formatMinutesToTimeLabel(winterSlot.start) : (timeLabel ? timeLabel.split(' - ')[0] : ''),
-				endLabel: winterSlot ? formatMinutesToTimeLabel(winterSlot.end) : (timeLabel ? timeLabel.split(' - ')[1] || '' : '')
+				startLabel: activeSlot ? formatMinutesToTimeLabel(activeSlot.start) : (timeLabel ? timeLabel.split(' - ')[0] : ''),
+				endLabel: activeSlot ? formatMinutesToTimeLabel(activeSlot.end) : (timeLabel ? timeLabel.split(' - ')[1] || '' : '')
 			};
 		}
 
@@ -1020,7 +1024,7 @@
 			let slotCard = {
 				label: 'Next school day',
 				value: getNextSchoolDay(currentDay),
-				meta: getDashboardSlotDetails(0)?.time || 'Assembly starts at 8:00 AM'
+				meta: getDashboardSlotDetails(0)?.time || 'Period 1 starts at 7:30 AM'
 			};
 			let bestTeacherCard = {
 				label: 'Best available',
@@ -1147,8 +1151,8 @@
 			`;
 		}
 
-		// --- WINTER SCHEDULE HELPERS ---
-		function applyWinterPeriodTimings() {
+		// --- ACTIVE SCHEDULE HELPERS ---
+		function applyActivePeriodTimings() {
 			// Override parsed period headers from active profile
 			const activeHeaders = getActiveScheduleProfile().periods.map((p) => ({ name: p.label, time: p.display }));
 			if (state.allData?.periodHeaders?.length) {
@@ -1161,14 +1165,20 @@
 			return candidates && candidates.length ? candidates[0].teacher : null;
 		}
 
+		const HEATWAVE_TEACHER_ROSTER = [
+			'Anita', 'Anjana', 'Antima', 'Bindu', 'Harshita', 'Hemlata', 'Jainendra', 'Kusum',
+			'Mahesh', 'Maya', 'Nathulal', 'Nidhika', 'Pradhyuman', 'Prakash', 'Rakesh',
+			'Rashmita', 'Ravina', 'Toshit'
+		];
+
 		const TEACHER_AVAILABILITY_RULES = {
 			Mahesh: {
-				allowedPeriodIndexes: [1, 2, 3],
+				allowedPeriodIndexes: [0, 1, 2],
 				windowLabel: 'Periods 1-3 only'
 			},
 			Anjana: {
-				allowedPeriodIndexes: [5, 6, 7, 8],
-				windowLabel: 'Periods 5-8 only'
+				allowedPeriodIndexes: [4, 5],
+				windowLabel: 'Periods 5-6 only'
 			}
 		};
 
@@ -1252,34 +1262,8 @@
 			}
 		}
 
-		function applyWinterChanges() {
-			// 1) Period timings
-			applyWinterPeriodTimings();
-
-			// 2-4) Class/DAY sports -> Self Study substitutions
-			const tt = state.allData?.timetable;
-			if (!tt) return;
-
-			// Helper: find all sports period indexes for a class/day
-			const findSportsIndexes = (day, className) => {
-				const arr = tt[day]?.[className] || [];
-				const idxs = [];
-				arr.forEach((p, i) => { if ((p?.subject || '').toLowerCase().includes('sports')) idxs.push(i); });
-				return idxs;
-			};
-
-			// Class 10, Friday, 7th period -> Self Study
-			applySelfStudySubstitution('Friday', 'Class 10', 6);
-
-			// Class 12 Arts, Thu/Fri/Sat: all sports periods -> Self Study
-			['Thursday', 'Friday', 'Saturday'].forEach(day => {
-				findSportsIndexes(day, 'Class 12 Arts').forEach(i => applySelfStudySubstitution(day, 'Class 12 Arts', i));
-			});
-
-			// Class 12 Commerce, Thu/Fri/Sat/Mon: all sports periods -> Self Study
-			['Thursday', 'Friday', 'Saturday', 'Monday'].forEach(day => {
-				findSportsIndexes(day, 'Class 12 Commerce').forEach(i => applySelfStudySubstitution(day, 'Class 12 Commerce', i));
-			});
+		function applyActiveScheduleChanges() {
+			applyActivePeriodTimings();
 		}
 
 		function validateTimetable() {
@@ -1290,7 +1274,7 @@
 				if (!timetable || !periodHeaders || !days) return { ok: false, errors: ['Data not initialized'], warnings };
 
 				// Check period headers length and ascending times
-				if (periodHeaders.length !== 9) warnings.push(`Expected 9 timetable slots, found ${periodHeaders.length}`);
+				if (periodHeaders.length !== 6) warnings.push(`Expected 6 timetable slots, found ${periodHeaders.length}`);
 				const parseTime = t => {
 					// t: "h:mm AM - h:mm PM"
 					const [start, end] = t.split('-').map(s => s.trim());
@@ -1478,12 +1462,9 @@
 						// COMPREHENSIVE HEADER SKIP CONDITION
 						// Check multiple conditions to identify and skip header rows
 						const isHeaderRow = (
-							line.includes('Period 1') ||                    // Contains "Period 1"
-							firstColumn === 'Class' ||                      // First column is exactly "Class"
-							firstColumn.toLowerCase() === 'class' ||        // Case insensitive check
-							line.toLowerCase().includes('period') ||        // Contains "period" anywhere
-							columns.some(col => col.includes('<br>')) ||    // Any column contains <br> (time format)
-							columns.some(col => col.includes('AM') || col.includes('PM')) // Contains time markers
+							firstColumn === 'Class' ||
+							firstColumn.toLowerCase() === 'class' ||
+							line.includes('Period 1')
 						);
 						
 						if (isHeaderRow) {
@@ -1491,13 +1472,9 @@
 							
 							// Process headers only once across all days
 							if (headers.length === 0 && line.includes('Period 1')) {
-								headers = columns.slice(1).map(h => {
-									const parts = h.split('<br>');
-									return { 
-										name: parts[0]?.trim() || `Period ${h}`, 
-										time: parts[1]?.trim() || '' 
-									};
-								});
+								headers = columns
+									.slice(1)
+									.map(h => ({ name: h.trim(), time: '' }));
 								console.log(`Headers extracted: ${headers.length} periods`);
 							}
 							headerProcessed = true;
@@ -1522,12 +1499,11 @@
 							
 							// Process each period for this class
 							let periodData = columns.slice(1); // Skip the class name column
-							// Backward compatibility: old data included Assembly + Period 1..8
-							if (periodData.length >= 9 && /^Assembly/i.test(periodData[0])) {
-								periodData = periodData.slice(1, 7);
-							} else if (periodData.length > 6) {
-								periodData = periodData.slice(0, 6);
+							const expectedPeriodCount = headers.length || getActiveScheduleProfile().periods.length;
+							if (periodData.length !== expectedPeriodCount) {
+								console.warn(`${day} ${className}: expected ${expectedPeriodCount} periods, found ${periodData.length}`);
 							}
+							periodData = periodData.slice(0, expectedPeriodCount);
 							
 							periodData.forEach((cell, periodIndex) => {
 								// Parse subject and teacher from the cell
@@ -1558,6 +1534,7 @@
 									const subjectsInCell = entry.subject.split('/').map(s => s.trim());
 
 									teachersInCell.forEach((teacherName, teacherIndex) => {
+										if (!HEATWAVE_TEACHER_ROSTER.includes(teacherName)) return;
 										// Initialize teacher if not exists
 										if (!teacherDetails[teacherName]) {
 											teacherDetails[teacherName] = { 
@@ -1684,10 +1661,24 @@
 					return a.localeCompare(b);
 				});
 
-				// Clean up teacher names - remove any invalid entries
-				const validTeacherNames = Object.keys(teacherDetails)
-					.filter(name => name && name.trim().length > 0)
-					.sort();
+				// Use fixed heatwave roster as source-of-truth for teacher-facing views
+				const validTeacherNames = HEATWAVE_TEACHER_ROSTER.slice();
+				validTeacherNames.forEach((teacherName) => {
+					if (!teacherDetails[teacherName]) {
+						teacherDetails[teacherName] = {
+							schedule: {},
+							periodCount: 0,
+							subjects: new Set(),
+							workload: {}
+						};
+					}
+					validDays.forEach((day) => {
+						if (!teacherDetails[teacherName].schedule[day]) {
+							const expectedPeriods = headers.length || getActiveScheduleProfile().periods.length;
+							teacherDetails[teacherName].schedule[day] = Array(expectedPeriods).fill(null);
+						}
+					});
+				});
 
 				const result = { 
 					timetable, 
@@ -5268,7 +5259,7 @@
 				console.log('Initialized with data:', state.allData.days);
 
 				// Apply active schedule timings and required substitutions, then validate
-				applyWinterChanges();
+				applyActiveScheduleChanges();
 				const validationReport = validateTimetable();
 				if (!validationReport.ok) {
 					console.warn('Schedule validation issues:', validationReport);
@@ -5277,7 +5268,7 @@
 					if (validationReport.warnings.length) {
 						console.info('Schedule warnings:', validationReport.warnings);
 					}
-					showToast('Winter schedule active: timings updated and sports substitutions applied', 3500, 'success');
+					showToast('Temporary heatwave schedule active: timings synced', 3500, 'success');
 				}
 				
 				// Validate parsed data
