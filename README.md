@@ -128,8 +128,7 @@ The current format is:
 Each class row currently contains:
 
 - class name
-- `Assembly`
-- `Period 1` through `Period 8`
+- `Period 1` through `Period 6` (temporary heatwave profile)
 
 That means the parser expects 10 CSV columns per class row: 1 class column plus 9 timetable slots.
 

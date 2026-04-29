@@ -143,7 +143,7 @@
 		<main id="main-content" class="main-content"></main>
 
 		<footer class="no-print">
-			<p>Veer Patta Public School | Official Session 2026-27 timetable</p>
+			<p>Temporary Heatwave Timetable | Effective from Monday onwards till summer holidays</p>
 		</footer>
 	</div>
 
@@ -835,21 +835,37 @@
 			return 'Monday';
 		}
 
-		function getWinterTimeSlots() {
-			return [
-				{ name: 'Assembly', start: 8 * 60 + 0, end: 8 * 60 + 30 },
-				{ name: 'Period 1', start: 8 * 60 + 30, end: 9 * 60 + 10 },
-				{ name: 'Period 2', start: 9 * 60 + 10, end: 9 * 60 + 50 },
-				{ name: 'Period 3', start: 9 * 60 + 50, end: 10 * 60 + 30 },
-				{ name: 'Period 4', start: 10 * 60 + 30, end: 11 * 60 + 10 },
-				{ name: 'Period 5', start: 11 * 60 + 30, end: 12 * 60 + 10 },
-				{ name: 'Period 6', start: 12 * 60 + 10, end: 12 * 60 + 50 },
-				{ name: 'Period 7', start: 12 * 60 + 50, end: 13 * 60 + 30 },
-				{ name: 'Period 8', start: 13 * 60 + 30, end: 14 * 60 + 10 }
-			];
-		}
+		
+		const ACTIVE_TIMETABLE_MODE = 'heatwave';
+		const scheduleProfiles = {
+			heatwave: {
+				label: 'Temporary Heatwave Timetable',
+				effectiveText: 'Active from Monday onwards till summer holidays',
+				reportingTime: '7:25 AM',
+				schoolCloseTime: '12:00 Noon',
+				periods: [
+					{ label: 'Period 1', start: '07:30', end: '08:10', display: '7:30 AM – 8:10 AM' },
+					{ label: 'Period 2', start: '08:10', end: '08:50', display: '8:10 AM – 8:50 AM' },
+					{ label: 'Period 3', start: '08:50', end: '09:30', display: '8:50 AM – 9:30 AM' },
+					{ label: 'Period 4', start: '09:30', end: '10:10', display: '9:30 AM – 10:10 AM' },
+					{ label: 'Period 5', start: '10:25', end: '11:05', display: '10:25 AM – 11:05 AM' },
+					{ label: 'Period 6', start: '11:05', end: '11:45', display: '11:05 AM – 11:45 AM' }
+				],
+				nonInstructional: [
+					{ label: 'Reporting', display: '7:25 AM' },
+					{ label: 'Short Break / Hydration', display: '10:10 AM – 10:25 AM' },
+					{ label: 'Dispersal / Bus Movement', display: '11:45 AM – 12:00 Noon' }
+				]
+			}
+		};
+
+		function timeToMinutes(t) { const [h,m]=t.split(':').map(Number); return h*60+m; }
+		function getActiveScheduleProfile(){ return scheduleProfiles[ACTIVE_TIMETABLE_MODE] || scheduleProfiles.heatwave; }
+		function getActiveTimeSlots(){ return getActiveScheduleProfile().periods.map(p=>({name:p.label,start:timeToMinutes(p.start),end:timeToMinutes(p.end)})); }
+		function getWinterTimeSlots(){ return getActiveTimeSlots(); }
 
 		function getCurrentTimeInMinutes() {
+
 			const now = new Date();
 			return now.getHours() * 60 + now.getMinutes();
 		}
@@ -1133,20 +1149,10 @@
 
 		// --- WINTER SCHEDULE HELPERS ---
 		function applyWinterPeriodTimings() {
-			// Override parsed period headers to winter timing, keep period names stable
-			const winterHeaders = [
-				{ name: 'Assembly', time: '8:00 AM - 8:30 AM' },
-				{ name: 'Period 1', time: '8:30 AM - 9:10 AM' },
-				{ name: 'Period 2', time: '9:10 AM - 9:50 AM' },
-				{ name: 'Period 3', time: '9:50 AM - 10:30 AM' },
-				{ name: 'Period 4', time: '10:30 AM - 11:10 AM' },
-				{ name: 'Period 5', time: '11:30 AM - 12:10 PM' }, // Recess 11:10-11:30
-				{ name: 'Period 6', time: '12:10 PM - 12:50 PM' },
-				{ name: 'Period 7', time: '12:50 PM - 01:30 PM' },
-				{ name: 'Period 8', time: '01:30 PM - 02:10 PM' }
-			];
-			if (state.allData) {
-				state.allData.periodHeaders = winterHeaders;
+			// Override parsed period headers from active profile
+			const activeHeaders = getActiveScheduleProfile().periods.map((p) => ({ name: p.label, time: p.display }));
+			if (state.allData?.periodHeaders?.length) {
+				state.allData.periodHeaders = activeHeaders;
 			}
 		}
 
@@ -1515,7 +1521,13 @@
 							timetable[day][className] = [];
 							
 							// Process each period for this class
-							const periodData = columns.slice(1); // Skip the class name column
+							let periodData = columns.slice(1); // Skip the class name column
+							// Backward compatibility: old data included Assembly + Period 1..8
+							if (periodData.length >= 9 && /^Assembly/i.test(periodData[0])) {
+								periodData = periodData.slice(1, 7);
+							} else if (periodData.length > 6) {
+								periodData = periodData.slice(0, 6);
+							}
 							
 							periodData.forEach((cell, periodIndex) => {
 								// Parse subject and teacher from the cell
@@ -5255,15 +5267,15 @@
 				state.allData = parseTimetableDataCached();
 				console.log('Initialized with data:', state.allData.days);
 
-				// Apply winter timings and required substitutions, then validate
+				// Apply active schedule timings and required substitutions, then validate
 				applyWinterChanges();
-				const winterReport = validateTimetable();
-				if (!winterReport.ok) {
-					console.warn('Winter validation issues:', winterReport);
-					showToast(`Validation: ${winterReport.errors.length} errors, ${winterReport.warnings.length} warnings`, 4500, 'warning');
+				const validationReport = validateTimetable();
+				if (!validationReport.ok) {
+					console.warn('Schedule validation issues:', validationReport);
+					showToast(`Validation: ${validationReport.errors.length} errors, ${validationReport.warnings.length} warnings`, 4500, 'warning');
 				} else {
-					if (winterReport.warnings.length) {
-						console.info('Winter warnings:', winterReport.warnings);
+					if (validationReport.warnings.length) {
+						console.info('Schedule warnings:', validationReport.warnings);
 					}
 					showToast('Winter schedule active: timings updated and sports substitutions applied', 3500, 'success');
 				}
