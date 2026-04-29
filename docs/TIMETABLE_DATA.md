@@ -29,32 +29,28 @@ Example:
 
 ```text
 Monday
-Class,Assembly<br>8:00 AM - 8:30 AM,Period 1<br>8:30 AM - 9:10 AM,...,Period 8<br>01:30 PM - 02:10 PM
-Class 11 Science,Assembly,Physics (Mahesh),Biology (Hemlata),...,Free
+Class,Period 1,Period 2,Period 3,Period 4,Period 5,Period 6
+Class 11 Science,Physics (Mahesh),Biology (Hemlata),Hindi (Jainendra),Core Revision (Maya),Biology (Hemlata),Chemistry (Toshit)
 ```
 
 ## Column Rules
 
-Each class row currently has 10 columns total:
+Each class row currently has 7 columns total:
 
 1. Class name
-2. Assembly
-3. Period 1
-4. Period 2
-5. Period 3
-6. Period 4
-7. Period 5
-8. Period 6
-9. Period 7
-10. Period 8
+2. Period 1
+3. Period 2
+4. Period 3
+5. Period 4
+6. Period 5
+7. Period 6
 
-Important: many older notes in the repo refer to only 8 periods. The live app now includes non-instructional timings as schedule metadata, so the row width is larger than those older docs describe.
+Reporting, short break/hydration, and dispersal are timing metadata in the active schedule profile. They are not timetable columns in `rawData`.
 
 ## Allowed Cell Shapes
 
 Most timetable cells should look like one of:
 
-- `Assembly`
 - `Subject (Teacher)`
 - `Free`
 
@@ -62,8 +58,7 @@ Examples from the current dataset:
 
 - `English compulsory (Pradhyuman)`
 - `Business Studies (Nidhika)`
-- `NoteBook Checking (Antima)`
-- `Robotics (Maya)`
+- `ELGA (Bindu / Anita / Rashmita / Kusum / Ravina)`
 
 ## Parsing Expectations
 
@@ -74,8 +69,8 @@ The parser in `index.html` derives these structures:
   timetable: {
     Monday: {
       "Class 11 Science": [
-        { subject: "Assembly", teacher: "", time: "8:00 AM - 8:30 AM" },
-        { subject: "Physics", teacher: "Mahesh", time: "8:30 AM - 9:10 AM" }
+        { subject: "Physics", teacher: "Mahesh", time: "7:30 AM – 8:10 AM" },
+        { subject: "Biology", teacher: "Hemlata", time: "8:10 AM – 8:50 AM" }
       ]
     }
   },
@@ -114,11 +109,10 @@ The exact derived shape may evolve, but the key point is that teacher schedules 
 
 These values have app-level meaning and should not be normalized away without checking behavior:
 
-- `Assembly`
 - `Free`
-- `Self Study`
-- `NoteBook Checking`
-- `Sports`
+- `Core Revision`
+- `Science Practice`
+- `SST Practice`
 
 ### Watch for color-mapping and search impact
 
@@ -146,6 +140,10 @@ node tests/manual/colors/verify-contrast.js
    - the class view
    - the teacher view for any renamed teacher
 5. If the runtime app changed, bump the service worker cache version in `sw.js`.
+
+## Seasonal Rollback Note
+
+The heatwave timetable is temporary. After summer holidays, restore the prior timetable data by checking out the previous `rawData` block from git history (for example via `git log -p index.html`) and revalidating all derived views.
 
 ## Reference Inputs
 
