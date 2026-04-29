@@ -3805,3 +3805,18 @@
 		color: var(--text-secondary);
 	}
 	
+
+
+.heatwave-notice {
+  margin: 0.5rem 0 0.75rem;
+  padding: 0.75rem 1rem;
+  border-radius: 10px;
+  background: rgba(255, 160, 0, 0.12);
+  border: 1px solid rgba(255, 160, 0, 0.35);
+  color: var(--text-primary);
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+@media (max-width: 640px) {
+  .heatwave-notice { font-size: 0.82rem; padding: 0.65rem 0.75rem; }
+}

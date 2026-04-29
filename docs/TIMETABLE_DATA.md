@@ -48,7 +48,7 @@ Each class row currently has 10 columns total:
 9. Period 7
 10. Period 8
 
-Important: many older notes in the repo refer to only 8 periods. The live app now includes `Assembly` as a parsed timetable slot, so the row width is larger than those older docs describe.
+Important: many older notes in the repo refer to only 8 periods. The live app now includes non-instructional timings as schedule metadata, so the row width is larger than those older docs describe.
 
 ## Allowed Cell Shapes
 
