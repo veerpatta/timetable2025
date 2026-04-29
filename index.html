@@ -18,7 +18,7 @@
 
 	<!-- LIBRARIES (CDN) -->
 	<!-- html2canvas and jsPDF are now lazy loaded via perf.js for better performance -->
-	<script src="https://cdn.jsdelivr.net/npm/lucide@latest/dist/umd/lucide.min.js" defer></script>
+	<script src="https://cdn.jsdelivr.net/npm/lucide@latest/dist/umd/lucide.min.js" async onload="if(typeof refreshIcons==='function')refreshIcons()"></script>
 
 	<!-- PERFORMANCE OPTIMIZATION MODULE -->
 	<script src="./scripts/perf.js"></script>

@@ -1,8 +1,8 @@
 // Service Worker for Veer Patta Public School Timetable
 // Provides offline-first caching for the page shell and timetable data
 
-const CACHE_NAME = 'vpps-timetable-v31';
-const STATIC_CACHE_NAME = 'vpps-static-v31';
+const CACHE_NAME = 'vpps-timetable-v32';
+const STATIC_CACHE_NAME = 'vpps-static-v32';
 
 // Core resources required for offline shell
 const CORE_ASSETS = [
@@ -88,22 +88,13 @@ self.addEventListener('activate', event => {
 // Fetch event - serve from cache, fallback to network
 self.addEventListener('fetch', event => {
   const { request } = event;
-  const url = new URL(request.url);
 
-  // Handle different types of requests
+  // Only handle GET requests
   if (request.method !== 'GET') {
-    return; // Only handle GET requests
-  }
-
-  // For timetable data requests (if any API calls are made)
-  if (url.pathname.includes('timetable') || url.pathname.includes('api')) {
-    event.respondWith(
-      networkFirstWithCache(request, CACHE_NAME)
-    );
     return;
   }
 
-  // For static assets and main page
+  // Use cache-first strategy for all static assets (appropriate for offline-first PWA)
   event.respondWith(
     cacheFirstWithNetworkFallback(request)
   );
