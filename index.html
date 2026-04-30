@@ -1386,6 +1386,11 @@ Class 12 Arts,Geography (Prakash),English Literature (Harshita),Economics (Praka
 			const timetable = {};
 			const teacherDetails = {};
 			let headers = [];
+			const expectedDayNames = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+			const expectedHeaderRow = ['Class', 'Period 1', 'Period 2', 'Period 3', 'Period 4', 'Period 5', 'Period 6'];
+			const expectedClassColumnCount = 7;
+			const expectedClassesPerDay = 16;
+			const forbiddenRuntimeTokens = ['Assembly', 'Period 7', 'Period 8', 'Director', 'Games', 'Sports', 'PT', 'Robotics', 'NoteBook'];
 
 			try {
 				// Validate rawData exists
@@ -1407,7 +1412,7 @@ Class 12 Arts,Geography (Prakash),English Literature (Harshita),Economics (Praka
 					.map(line => line.trim())           // Trim whitespace from each line
 					.filter(line => line.length > 0);   // Remove empty lines
 
-				const dayNames = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+				const dayNames = expectedDayNames;
 				
 				let currentDay = null;
 				let currentDayData = [];
@@ -1439,12 +1444,12 @@ Class 12 Arts,Geography (Prakash),English Literature (Harshita),Economics (Praka
 
 				function processDay(day, dayData) {
 					if (!dayData || dayData.length === 0) {
-						console.warn(`No data found for ${day}`);
-						return;
+						throw new Error(`No data found for day ${day}`);
 					}
 
 					timetable[day] = {};
 					let headerProcessed = false;
+					let classRowsProcessed = 0;
 					
 					// Process each line for this day
 					for (let lineIndex = 0; lineIndex < dayData.length; lineIndex++) {
@@ -1468,15 +1473,14 @@ Class 12 Arts,Geography (Prakash),English Literature (Harshita),Economics (Praka
 						);
 						
 						if (isHeaderRow) {
-							console.log(`Skipping header: ${day} - "${line.substring(0, 100)}..."`);
-							
-							// Process headers only once across all days
-							if (headers.length === 0 && line.includes('Period 1')) {
-								headers = columns
-									.slice(1)
-									.map(h => ({ name: h.trim(), time: '' }));
-								console.log(`Headers extracted: ${headers.length} periods`);
+							if (columns.length !== expectedHeaderRow.length) {
+								throw new Error(`Invalid header column count on ${day}: found ${columns.length}, expected ${expectedHeaderRow.length}`);
 							}
+							const mismatchIndex = columns.findIndex((col, index) => col !== expectedHeaderRow[index]);
+							if (mismatchIndex !== -1) {
+								throw new Error(`Invalid header on ${day}: "${columns.join(',')}"`);
+							}
+							headers = expectedHeaderRow.slice(1).map(h => ({ name: h, time: '' }));
 							headerProcessed = true;
 							continue; // CRITICAL: Skip processing this line as class data
 						}
@@ -1489,9 +1493,8 @@ Class 12 Arts,Geography (Prakash),English Literature (Harshita),Economics (Praka
 							console.log(`Processing class: ${day} - "${className}" with ${columns.length-1} periods`);
 							
 							// Ensure we have enough columns for all periods
-							if (columns.length < 2) {
-								console.warn(`Insufficient data for ${className} on ${day}`);
-								continue;
+							if (columns.length !== expectedClassColumnCount) {
+								throw new Error(`Invalid column count for ${className} on ${day}: found ${columns.length}, expected ${expectedClassColumnCount}`);
 							}
 							
 							// Initialize the class schedule array
@@ -1604,6 +1607,7 @@ Class 12 Arts,Geography (Prakash),English Literature (Harshita),Economics (Praka
 									});
 								}
 							});
+							classRowsProcessed++;
 						} else {
 							// Debug: Log any unprocessed lines
 							console.log(`Unprocessed line: ${day} - "${line.substring(0, 100)}..."`);
@@ -1613,8 +1617,13 @@ Class 12 Arts,Geography (Prakash),English Literature (Harshita),Economics (Praka
 							console.log(`   No 'period': ${!firstColumn.toLowerCase().includes('period')}`);
 						}
 					}
-					
-					console.log(`Processed ${day}: ${Object.keys(timetable[day]).length} classes`);
+
+					if (!headerProcessed) {
+						throw new Error(`Missing header row for ${day}`);
+					}
+					if (classRowsProcessed !== expectedClassesPerDay) {
+						throw new Error(`Day ${day} has ${classRowsProcessed} class rows; expected ${expectedClassesPerDay}`);
+					}
 				}
 
 				// Validate and clean up the parsed data
@@ -1634,6 +1643,24 @@ Class 12 Arts,Geography (Prakash),English Literature (Harshita),Economics (Praka
 				// Update timetable reference
 				Object.keys(timetable).forEach(key => delete timetable[key]);
 				Object.assign(timetable, cleanTimetable);
+				const missingDays = expectedDayNames.filter(day => !Object.prototype.hasOwnProperty.call(timetable, day));
+				if (missingDays.length > 0) {
+					throw new Error(`Missing required day(s): ${missingDays.join(', ')}`);
+				}
+
+				const forbiddenPattern = new RegExp(`\\b(?:${forbiddenRuntimeTokens.join('|')})\\b`, 'i');
+				for (const [day, dayRows] of Object.entries(timetable)) {
+					for (const [className, entries] of Object.entries(dayRows)) {
+						entries.forEach((entry, periodIndex) => {
+							const periodLabel = headers[periodIndex]?.name || `Period ${periodIndex + 1}`;
+							const subjectText = String(entry?.subject || '');
+							const teacherText = String(entry?.teacher || '');
+							if (forbiddenPattern.test(subjectText) || forbiddenPattern.test(teacherText) || forbiddenPattern.test(periodLabel)) {
+								throw new Error(`Forbidden token in runtime data at ${day} > ${className} > ${periodLabel}`);
+							}
+						});
+					}
+				}
 
 				// Enhanced class sorting with better filtering
 				let allClassNames = new Set();
@@ -1696,20 +1723,6 @@ Class 12 Arts,Geography (Prakash),English Literature (Harshita),Economics (Praka
 				console.log('Teachers found:', validTeacherNames.length);
 				console.log('Period headers:', headers.length);
 				
-				// Validate data integrity
-				validDays.forEach(day => {
-					const dayClasses = Object.keys(timetable[day]);
-					console.log(`${day}: ${dayClasses.length} classes`);
-					
-					// Check for data consistency
-					dayClasses.forEach(className => {
-						const periods = timetable[day][className];
-						if (periods.length !== headers.length && headers.length > 0) {
-							console.warn(`${day} ${className}: Expected ${headers.length} periods, got ${periods.length}`);
-						}
-					});
-				});
-				
 				// Cache the result
 				state.cache.set('parsedData', result);
 				state.lastUpdate = Date.now();
@@ -1720,16 +1733,7 @@ Class 12 Arts,Geography (Prakash),English Literature (Harshita),Economics (Praka
 				console.error('Error parsing timetable data:', error);
 				console.error('Error details:', error.message);
 				console.error('Stack trace:', error.stack);
-				
-				// Return minimal data structure to prevent crashes
-				return {
-					timetable: { Monday: {} },
-					teacherDetails: {},
-					periodHeaders: [],
-					classNames: [],
-					teacherNames: [],
-					days: ['Monday']
-				};
+				throw error;
 			}
 		};
 
