@@ -161,6 +161,52 @@
 		/**
 		 * Feature flags configuration
 		 */
+
+		function hideLoaderSafely() {
+			try {
+				const loader = document.getElementById('loader');
+				if (!loader) {
+					return;
+				}
+
+				loader.style.display = 'none';
+				loader.style.opacity = '0';
+				loader.dataset.hidden = 'true';
+			} catch (error) {
+				console.error('hideLoaderSafely failed:', error);
+			}
+		}
+
+		function showFatalAppError(error) {
+			const mainContentElement = document.getElementById('main-content');
+			if (!mainContentElement) {
+				return;
+			}
+
+			const technicalMessage = error?.message || String(error);
+			mainContentElement.innerHTML = `
+				<div style="max-width: 680px; margin: 2rem auto; padding: 1.5rem; border: 1px solid #e5e7eb; border-radius: 12px; background: #ffffff; color: #111827; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);">
+					<h2 style="margin: 0 0 0.75rem 0; font-size: 1.1rem; line-height: 1.4;">Timetable could not load. Please refresh or contact admin.</h2>
+					<p style="margin: 0; font-size: 0.82rem; line-height: 1.5; color: #6b7280; word-break: break-word;">${technicalMessage}</p>
+				</div>
+			`;
+		}
+
+		window.addEventListener('error', (event) => {
+			const runtimeError = event?.error || new Error(event?.message || 'Unknown runtime error');
+			console.error('Global error captured:', runtimeError);
+			hideLoaderSafely();
+			showFatalAppError(runtimeError);
+		});
+
+		window.addEventListener('unhandledrejection', (event) => {
+			const rejectionError = event?.reason instanceof Error
+				? event.reason
+				: new Error(typeof event?.reason === 'string' ? event.reason : 'Unhandled promise rejection');
+			console.error('Unhandled promise rejection captured:', rejectionError);
+			hideLoaderSafely();
+			showFatalAppError(rejectionError);
+		});
 		const FEATURE_FLAGS = {
 			feat_dark_mode: true, // Toggle this to enable/disable dark mode
 			feat_color_coding: true, // Toggle this to enable/disable subject color coding
@@ -5524,10 +5570,10 @@ Class 12 Arts,Geography (Prakash),English Literature (Harshita),Economics (Praka
 					}
 				}
 
-				hideLoader(0);
+				hideLoaderSafely();
 			} finally {
 				// Safety fallback: never leave the app in an indefinite loading state.
-				hideLoader(0);
+				hideLoaderSafely();
 			}
 		}
 
