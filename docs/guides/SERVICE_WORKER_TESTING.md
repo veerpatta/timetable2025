@@ -137,6 +137,16 @@ Run this after changing any cached asset:
 - verify the affected UI path
 - verify the app still opens offline
 
+
+## Admin Release Note (Post-Deploy)
+
+After deploying a new service worker version, administrators should do one of the following if an older worker still controls the app:
+
+- perform one hard refresh (`Ctrl+Shift+R` on Windows/Linux or `Cmd+Shift+R` on macOS)
+- clear site data in DevTools (Application → Storage → Clear site data)
+
+This forces clients onto the latest cache version and avoids stale shell assets.
+
 ## Troubleshooting
 
 ### Changes do not appear
