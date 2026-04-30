@@ -1171,6 +1171,8 @@ Class 12 Arts,Geography (Prakash),English Literature (Harshita),Economics (Praka
 			'Rashmita', 'Ravina', 'Toshit'
 		];
 
+		const EXCLUDED_TEACHER_NAMES = new Set(['Director']);
+
 		const TEACHER_AVAILABILITY_RULES = {
 			Mahesh: {
 				allowedPeriodIndexes: [0, 1, 2],
@@ -1367,7 +1369,7 @@ Class 12 Arts,Geography (Prakash),English Literature (Harshita),Economics (Praka
 				return cleanedTeacherField
 					.split(/[\/,&;+]|(?:\s+-\s+)/)
 					.map(name => name.trim())
-					.filter(Boolean);
+					.filter(name => Boolean(name) && !EXCLUDED_TEACHER_NAMES.has(name));
 			}
 
 			// ELGA periods often contain multiple teacher names separated only by spaces.
@@ -1376,10 +1378,10 @@ Class 12 Arts,Geography (Prakash),English Literature (Harshita),Economics (Praka
 				return cleanedTeacherField
 					.split(/\s+/)
 					.map(name => name.trim())
-					.filter(Boolean);
+					.filter(name => Boolean(name) && !EXCLUDED_TEACHER_NAMES.has(name));
 			}
 
-			return [cleanedTeacherField];
+			return EXCLUDED_TEACHER_NAMES.has(cleanedTeacherField) ? [] : [cleanedTeacherField];
 		};
 
 		const parseTimetableData = () => {
@@ -1810,7 +1812,7 @@ Class 12 Arts,Geography (Prakash),English Literature (Harshita),Economics (Praka
 		function findFreeTeachers(day, periodIndex, absentTeachers, currentDaySubs, vacantPeriod = null) {
 			try {
 				// Validate inputs
-				if (!state.allData || !state.allData.teacherNames) {
+				if (!state.allData || !state.allData.teacherDetails) {
 					console.error('Teacher data not available');
 					return [];
 				}
@@ -1837,9 +1839,10 @@ Class 12 Arts,Geography (Prakash),English Literature (Harshita),Economics (Praka
 				const vacantClassName = vacantPeriod?.className || '';
 				const vacantClassGrade = extractClassGrade(vacantClassName);
 				
-				for (const teacher of state.allData.teacherNames) {
+				for (const teacher of HEATWAVE_TEACHER_ROSTER) {
 					// Skip if absent
 					if (absentTeachers.includes(teacher)) continue;
+					if (EXCLUDED_TEACHER_NAMES.has(teacher)) continue;
 					
 					// Skip special cases or unavailable teachers
 					if (teacher === 'Gyan' || teacher === 'Phy') continue;
@@ -2106,6 +2109,8 @@ Class 12 Arts,Geography (Prakash),English Literature (Harshita),Economics (Praka
 		}
 
 		function isTeacherUnavailableForPeriod(teacher, periodIndex) {
+			if (teacher === 'Mahesh' && periodIndex > 2) return true;
+			if (teacher === 'Anjana' && periodIndex < 4) return true;
 			return !isTeacherAvailableForPeriod(teacher, periodIndex);
 		}
 
@@ -2223,7 +2228,7 @@ Class 12 Arts,Geography (Prakash),English Literature (Harshita),Economics (Praka
 					: `
 						<div class="finder-empty">
 							<i data-lucide="user-x"></i>
-							<strong>No teachers are free for this slot</strong>
+							<strong>No free teacher available</strong>
 							<p>Try another period or switch to substitutions for a broader plan.</p>
 						</div>
 					`;
