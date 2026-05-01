@@ -187,7 +187,7 @@
 			mainContentElement.innerHTML = `
 				<div style="max-width: 680px; margin: 2rem auto; padding: 1.5rem; border: 1px solid #e5e7eb; border-radius: 12px; background: #ffffff; color: #111827; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);">
 					<h2 style="margin: 0 0 0.75rem 0; font-size: 1.1rem; line-height: 1.4;">Timetable could not load. Please refresh or contact admin.</h2>
-					<p style="margin: 0; font-size: 0.82rem; line-height: 1.5; color: #6b7280; word-break: break-word;">${technicalMessage}</p>
+					<p style="margin: 0; font-size: 0.82rem; line-height: 1.5; color: #6b7280; word-break: break-word;">${escapeHtml(technicalMessage)}</p>
 				</div>
 			`;
 		}
@@ -506,6 +506,7 @@ Class 12 Arts,Geography (Prakash),English Literature (Harshita),Economics (Praka
 		const mainContent = document.getElementById('main-content');
 		const SESSION_UI_KEY = 'vpps-ui-state-v1';
 		const VALID_VIEWS = ['Dashboard', 'Day', 'Substitution', 'Class', 'Teacher'];
+		const PARSED_TIMETABLE_CACHE_KEY = 'parsed_timetable_data_v2';
 
 		// --- UTILITY FUNCTIONS ---
 		function debounce(func, wait = 300, immediate = false) {
@@ -771,6 +772,10 @@ Class 12 Arts,Geography (Prakash),English Literature (Harshita),Economics (Praka
 				.replace(/>/g, '&gt;')
 				.replace(/"/g, '&quot;')
 				.replace(/'/g, '&#39;');
+		}
+
+		function getExpectedPeriodCount() {
+			return state.allData?.periodHeaders?.length || getActiveScheduleProfile().periods.length;
 		}
 
 		function scrollToTop() {
@@ -1269,7 +1274,7 @@ Class 12 Arts,Geography (Prakash),English Literature (Harshita),Economics (Praka
 					if (!teacherDetails[newTeacher]) {
 						teacherDetails[newTeacher] = { schedule: {}, periodCount: 0, subjects: new Set(), workload: {} };
 					}
-					const expectedPeriods = state.allData?.periodHeaders?.length || 8;
+					const expectedPeriods = getExpectedPeriodCount();
 					if (!teacherDetails[newTeacher].schedule[day]) {
 						teacherDetails[newTeacher].schedule[day] = Array(expectedPeriods).fill(null);
 					}
@@ -1599,7 +1604,7 @@ Class 12 Arts,Geography (Prakash),English Literature (Harshita),Economics (Praka
 										// Initialize day schedule for teacher
 										if (!teacherDetails[teacherName].schedule[day]) {
 											// Ensure we have the correct number of periods
-											const expectedPeriods = headers.length || 8;
+											const expectedPeriods = headers.length || getActiveScheduleProfile().periods.length;
 											teacherDetails[teacherName].schedule[day] = Array(expectedPeriods).fill(null);
 										}
 
@@ -1786,6 +1791,56 @@ Class 12 Arts,Geography (Prakash),English Literature (Harshita),Economics (Praka
 		};
 
 		// --- CACHED TIMETABLE DATA PARSING (Performance Optimization) ---
+		function serializeParsedTimetableDataForCache(data) {
+			if (!data || typeof data !== 'object') return data;
+
+			const teacherDetails = {};
+			Object.entries(data.teacherDetails || {}).forEach(([teacherName, details]) => {
+				const subjects = details?.subjects instanceof Set
+					? Array.from(details.subjects)
+					: Array.isArray(details?.subjects)
+						? details.subjects
+						: [];
+
+				teacherDetails[teacherName] = {
+					...details,
+					subjects
+				};
+			});
+
+			return {
+				...data,
+				teacherDetails
+			};
+		}
+
+		function hydrateParsedTimetableDataFromCache(data) {
+			if (!data || typeof data !== 'object' || !data.timetable || !data.teacherDetails || !Array.isArray(data.periodHeaders)) {
+				return null;
+			}
+
+			let isValid = true;
+			Object.values(data.teacherDetails).forEach((details) => {
+				if (!details || typeof details !== 'object') {
+					isValid = false;
+					return;
+				}
+
+				if (details.subjects instanceof Set) {
+					return;
+				}
+
+				if (!Array.isArray(details.subjects)) {
+					isValid = false;
+					return;
+				}
+
+				details.subjects = new Set(details.subjects.filter(Boolean));
+			});
+
+			return isValid ? data : null;
+		}
+
 		const parseTimetableDataCached = () => {
 			// Check if performance optimizations are enabled
 			if (!FEATURE_FLAGS.feat_perf_opt || typeof PerformanceOptimization === 'undefined') {
@@ -1793,19 +1848,23 @@ Class 12 Arts,Geography (Prakash),English Literature (Harshita),Economics (Praka
 			}
 
 			const cache = PerformanceOptimization.cache;
-			const cacheKey = 'parsed_timetable_data';
 
 			// Try to get from cache
-			const cached = cache.get(cacheKey);
-			if (cached) {
-				console.log('Using cached timetable data');
-				return cached;
+			const cachedRaw = cache.get(PARSED_TIMETABLE_CACHE_KEY);
+			if (cachedRaw) {
+				const cached = hydrateParsedTimetableDataFromCache(cachedRaw);
+				if (!cached) {
+					cache.delete(PARSED_TIMETABLE_CACHE_KEY);
+				} else {
+					console.log('Using cached timetable data');
+					return cached;
+				}
 			}
 
 			// Parse and cache
 			console.log('Parsing timetable data...');
 			const data = parseTimetableData();
-			cache.set(cacheKey, data, 10 * 60 * 1000); // Cache for 10 minutes
+			cache.set(PARSED_TIMETABLE_CACHE_KEY, serializeParsedTimetableDataForCache(data), 10 * 60 * 1000); // Cache for 10 minutes
 			return data;
 		};
 
@@ -1872,7 +1931,7 @@ Class 12 Arts,Geography (Prakash),English Literature (Harshita),Economics (Praka
 					return [];
 				}
 
-				if (periodIndex < 0 || periodIndex >= (state.allData.periodHeaders?.length || 8)) {
+				if (periodIndex < 0 || periodIndex >= getExpectedPeriodCount()) {
 					console.error('Invalid period index:', periodIndex);
 					return [];
 				}
@@ -1997,7 +2056,7 @@ Class 12 Arts,Geography (Prakash),English Literature (Harshita),Economics (Praka
 				const totalWorkload = currentWorkload + substitutionWorkload;
 				
 				// Bonus for teachers with lower workload
-				const maxWorkload = 8; // Maximum periods per day
+				const maxWorkload = getExpectedPeriodCount(); // Maximum periods per active schedule day
 				const workloadBonus = Math.max(0, Math.round((maxWorkload - totalWorkload) * 2.5));
 				breakdown.workloadBonus = workloadBonus;
 				score += workloadBonus;
@@ -5562,7 +5621,7 @@ Class 12 Arts,Geography (Prakash),English Literature (Harshita),Economics (Praka
 							<h3>Initialization Error</h3>
 							<p>Failed to load the timetable application. Please refresh the page.</p>
 							<p style="font-size: 0.875rem; color: var(--gray-600); margin-top: 1rem;">
-								Error details: ${error.message}
+								Error details: ${escapeHtml(error.message)}
 							</p>
 							<button onclick="window.location.reload()" class="button button-primary" style="margin-top: 1rem; max-width: 200px;">
 								Reload Page
