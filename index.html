@@ -878,8 +878,8 @@ Class 12 Arts,Geography (Prakash),English Literature (Harshita),Economics (Praka
 			const today = new Date();
 			const dayName = today.toLocaleDateString('en-US', { weekday: 'long' });
 			
-			// Map Sunday to Monday for school context
-			if (dayName === 'Sunday') return 'Monday';
+			// Sunday: school is closed — return 'Sunday' so callers can handle it explicitly
+			if (dayName === 'Sunday') return 'Sunday';
 			
 			// Ensure the day exists in our timetable
 			if (state.allData && state.allData.days && state.allData.days.includes(dayName)) {
@@ -1057,6 +1057,26 @@ Class 12 Arts,Geography (Prakash),English Literature (Harshita),Economics (Praka
 				minute: '2-digit',
 				hour12: true
 			});
+
+			// Sunday: school is closed
+			if (currentDay === 'Sunday') {
+				const nextDay = state.allData?.days?.[0] || 'Monday';
+				return {
+					mode: 'complete',
+					statusLabel: 'School closed',
+					currentDay: 'Sunday',
+					currentTimeLabel,
+					headline: 'School is closed today',
+					message: `It's Sunday — enjoy your day off! ${nextDay}'s schedule is ready whenever you need it.`,
+					cards: [
+						{ label: 'Today', value: 'Sunday', meta: 'School closed' },
+						{ label: 'Next school day', value: nextDay, meta: getDashboardSlotDetails(0)?.time || 'Period 1 starts at 7:30 AM' },
+						{ label: 'Best available', value: 'N/A', meta: 'School is closed today' },
+						{ label: 'Availability', value: 'N/A', meta: 'No classes on Sunday' }
+					]
+				};
+			}
+
 			const liveIndex = getActivePeriodIndex();
 			const nextSlotIndex = getNextScheduledSlotIndex();
 			const classesToday = Object.keys(state.allData?.timetable?.[currentDay] || {}).length || state.allData?.classNames?.length || 0;
@@ -2592,6 +2612,35 @@ Class 12 Arts,Geography (Prakash),English Literature (Harshita),Economics (Praka
 			try {
 				const selectedDay = arguments.length > 0 && day ? day : (state.uiSelection.day || getCurrentDay());
 				const { timetable, classNames, periodHeaders } = state.allData;
+
+				// Sunday: school is closed — show a closed card instead of a timetable
+				if (selectedDay === 'Sunday') {
+					const nextDay = state.allData?.days?.[0] || 'Monday';
+					const tabs = getDayTabsMarkup('day', null);
+					const html = `
+						<div class="card view-shell">
+							<div class="view-header">
+								<div>
+									<div class="section-kicker">Day View</div>
+									<h2 class="section-title">Sunday — School Closed</h2>
+									<p class="section-subtitle">No classes are scheduled on Sunday.</p>
+								</div>
+							</div>
+							<div class="day-tabs" role="tablist" aria-label="Select day">
+								${tabs}
+							</div>
+							<div style="padding: 3rem 2rem; text-align: center;">
+								<i data-lucide="door-closed" style="width: 48px; height: 48px; margin-bottom: 1rem; color: var(--text-muted);"></i>
+								<p style="color: var(--text-muted); font-size: 1.1rem; margin-bottom: 1.5rem;">School is closed on Sundays. Next school day is <strong>${nextDay}</strong>.</p>
+								<button onclick="renderDayView('${nextDay}')" class="button button-primary">
+									<i data-lucide="calendar-days"></i> View ${nextDay}'s Schedule
+								</button>
+							</div>
+						</div>
+					`;
+					queueViewRender(html, { afterRender: () => { setupFab('today'); } });
+					return;
+				}
 
 				// Validate that the selected day exists in timetable
 				if (!timetable[selectedDay]) {
