@@ -52,18 +52,18 @@ Do not edit `docs/sources/` or `tools/one-off/` unless the task is explicitly ab
 
 Search for `const rawData`.
 
-The current data model includes:
+The current data model (Timetable 2026–27, v4) includes:
 
-- `Assembly`
 - `Period 1` through `Period 8`
+- No separate `Assembly` column — verify against the live parser constants (`expectedHeaderRow`, `expectedClassColumnCount`) before trusting any doc, including this one
 
 So each class row is:
 
 - 1 class column
-- 9 timetable slots
-- 10 CSV columns total
+- 8 timetable slots
+- 9 CSV columns total
 
-Many older notes in the repo talk about only 8 periods. That is stale for the current app because `Assembly` is now part of the parsed timetable structure.
+This file previously claimed a 10-column/`Assembly`-inclusive shape that did not match either the shipped parser or the source timetable PDFs. Trust `index.html` and `docs/TIMETABLE_DATA.md` over this note if they ever disagree again.
 
 ### 2. Service worker versioning is mandatory for cached runtime assets
 

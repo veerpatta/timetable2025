@@ -29,13 +29,13 @@ Example:
 
 ```text
 Monday
-Class,Period 1,Period 2,Period 3,Period 4,Period 5,Period 6
-Class 11 Science,Physics (Mahesh),Biology (Hemlata),Hindi (Jainendra),Core Revision (Maya),Biology (Hemlata),Chemistry (Toshit)
+Class,Period 1,Period 2,Period 3,Period 4,Period 5,Period 6,Period 7,Period 8
+Class 11 Science,Physics (Prateek),Chemistry (Toshit),Biology (Hemlata),English compulsory (Pradhyuman),Hindi (Jainendra),Chemistry (Toshit),Maths (Prateek),Biology (Hemlata)
 ```
 
 ## Column Rules
 
-Each class row currently has 7 columns total:
+Each class row currently has 9 columns total (Timetable 2026–27, v4):
 
 1. Class name
 2. Period 1
@@ -44,8 +44,10 @@ Each class row currently has 7 columns total:
 5. Period 4
 6. Period 5
 7. Period 6
+8. Period 7
+9. Period 8
 
-Reporting, short break/hydration, and dispersal are timing metadata in the active schedule profile. They are not timetable columns in `rawData`.
+There is no separate `Assembly` column in the live v4 data — reporting time, the mid-morning short break, and dispersal are timing metadata in the active schedule profile only. They are not timetable columns in `rawData`.
 
 ## Allowed Cell Shapes
 
@@ -141,9 +143,9 @@ node tests/manual/colors/verify-contrast.js
    - the teacher view for any renamed teacher
 5. If the runtime app changed, bump the service worker cache version in `sw.js`.
 
-## Seasonal Rollback Note
+## Version History Note
 
-The heatwave timetable is temporary. After summer holidays, restore the prior timetable data by checking out the previous `rawData` block from git history (for example via `git log -p index.html`) and revalidating all derived views.
+The 6-period heatwave timetable that was active for summer 2026 has been superseded by Timetable 2026–27 (v4), an 8-period schedule (`Period 1`–`Period 8`). If a prior schedule ever needs to be restored, check out the relevant `rawData` block from git history (for example via `git log -p index.html`) and revalidate all derived views, including the column count and header row expected by the parser at that point in history.
 
 ## Reference Inputs
 
