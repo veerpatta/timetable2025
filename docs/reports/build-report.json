@@ -1,11 +1,11 @@
 {
-  "timestamp": "2026-07-07T04:39:13.634Z",
+  "timestamp": "2026-07-10T18:45:14.439Z",
   "files": [
     {
       "file": "index.html",
-      "rawSize": 219217,
-      "gzippedSize": 48286,
-      "compression": "78.0%"
+      "rawSize": 237509,
+      "gzippedSize": 51929,
+      "compression": "78.1%"
     },
     {
       "file": "scripts/perf.js",
@@ -32,6 +32,18 @@
       "compression": "80.8%"
     },
     {
+      "file": "scripts/i18n.js",
+      "rawSize": 16379,
+      "gzippedSize": 4346,
+      "compression": "73.5%"
+    },
+    {
+      "file": "scripts/substitution.js",
+      "rawSize": 17414,
+      "gzippedSize": 4990,
+      "compression": "71.3%"
+    },
+    {
       "file": "styles/theme.css",
       "rawSize": 10125,
       "gzippedSize": 2751,
@@ -56,10 +68,16 @@
       "compression": "81.8%"
     },
     {
+      "file": "styles/app.css",
+      "rawSize": 91571,
+      "gzippedSize": 15177,
+      "compression": "83.4%"
+    },
+    {
       "file": "sw.js",
-      "rawSize": 6983,
-      "gzippedSize": 2251,
-      "compression": "67.8%"
+      "rawSize": 7035,
+      "gzippedSize": 2272,
+      "compression": "67.7%"
     },
     {
       "file": "manifest.webmanifest",
@@ -69,7 +87,7 @@
     }
   ],
   "totals": {
-    "raw": 368273,
-    "gzipped": 83149
+    "raw": 511981,
+    "gzipped": 111326
   }
 }

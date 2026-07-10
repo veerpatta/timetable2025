@@ -98,6 +98,8 @@ Important view renderers in `index.html`:
 - `scripts/a11y.js`: keyboard shortcuts, announcements, skip link, high-contrast support, and focus enhancements exposed as `window.A11y`.
 - `scripts/colors.js`: subject-to-category mapping, legend rendering, and dynamic subject coloring exposed as `window.SubjectColorCoding`.
 - `scripts/ui.js`: modern UI primitives such as FABs, snackbars, bottom sheets, pull-to-refresh, and swipe cards exposed as `window.ModernUI`.
+- `scripts/substitution.js`: pure whole-day substitution matching, workload validation, and date-keyed local plan storage exposed as `window.SubstitutionEngine`.
+- `scripts/i18n.js`: English/Hindi interface dictionaries and persisted language switching exposed as `window.I18n`.
 
 ### `styles/`
 
@@ -113,7 +115,7 @@ The service worker precaches the app shell and uses:
 - cache-first for static assets
 - network-first for future timetable or API-like requests
 
-Whenever you change a cached asset, bump both cache constants in `sw.js`. As of April 2026 the file uses `vpps-timetable-v13` and `vpps-static-v13`, but always verify the live values in `sw.js` before editing.
+Whenever you change a cached asset, bump both cache constants in `sw.js` and verify the live values before editing.
 
 ## Timetable Data Model
 
@@ -125,12 +127,8 @@ The current format is:
 2. Header row beginning with `Class`
 3. One row per class
 
-Each class row currently contains:
-
-- class name
-- `Period 1` through `Period 6` (temporary heatwave profile)
-
-That means the parser expects 10 CSV columns per class row: 1 class column plus 9 timetable slots.
+Each class row currently contains the class name followed by `Period 1` through `Period 8`.
+The parser therefore expects 9 CSV columns per class row: 1 class column plus 8 timetable slots.
 
 Cell values are usually one of:
 
@@ -195,6 +193,7 @@ Use `-c-1` during development so cached assets do not hide local changes.
 node build-report.js
 node tests/manual/colors/verify-contrast.js
 node tests/manual/test-mapping.js
+node --test tests/substitution-engine.test.js
 rg -n "const FEATURE_FLAGS|const rawData|function parseTimetableData" index.html
 rg -n "CACHE_NAME|STATIC_CACHE_NAME|CORE_ASSETS" sw.js
 ```
@@ -228,6 +227,7 @@ Run the minimum set that matches your change:
 - `node tests/manual/test-mapping.js` after subject naming or category mapping edits.
 - `node build-report.js` after meaningful runtime changes.
 - Manual browser verification for the specific day/class/teacher/substitution flow you changed.
+- `node --test tests/substitution-engine.test.js` after substitution policy, persistence, or translation changes.
 - Service worker check in DevTools after `sw.js` edits.
 
 See [tests/README.md](tests/README.md) and [docs/guides/QA_CHECKLIST.md](docs/guides/QA_CHECKLIST.md).

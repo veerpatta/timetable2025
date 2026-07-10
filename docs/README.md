@@ -20,6 +20,7 @@ These are the most useful docs when editing the app today:
 - `guides/FEATURE_FLAGS.md`: current flag behavior and where each flag is read
 - `guides/SERVICE_WORKER_TESTING.md`: cache versioning and service worker validation workflow
 - `guides/QA_CHECKLIST.md`: practical pre-merge validation checklist
+- `guides/SUBSTITUTION_ENGINE.md`: subject qualification, workload policy, persistence, and substitution-engine validation
 - `../tests/README.md`: how to run the lightweight validation tools
 
 ## Feature Reference Guides

@@ -1,8 +1,8 @@
 // Service Worker for Veer Patta Public School Timetable
 // Provides offline-first caching for the page shell and timetable data
 
-const CACHE_NAME = 'vpps-timetable-v37';
-const STATIC_CACHE_NAME = 'vpps-static-v37';
+const CACHE_NAME = 'vpps-timetable-v42';
+const STATIC_CACHE_NAME = 'vpps-static-v42';
 
 // Core resources required for offline shell
 const CORE_ASSETS = [
@@ -11,6 +11,8 @@ const CORE_ASSETS = [
   './manifest.webmanifest',
   './icons/icon-512.png',
   './scripts/perf.js',
+	'./scripts/i18n.js',
+	'./scripts/substitution.js',
   './scripts/a11y.js',
   './scripts/colors.js',
   './scripts/ui.js',

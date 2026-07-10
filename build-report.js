@@ -19,10 +19,13 @@ const FILES_TO_ANALYZE = [
   'scripts/a11y.js',
   'scripts/colors.js',
   'scripts/ui.js',
+	'scripts/i18n.js',
+	'scripts/substitution.js',
   'styles/theme.css',
   'styles/a11y.css',
   'styles/colors.css',
   'styles/ui.css',
+	'styles/app.css',
   'sw.js',
   'manifest.webmanifest'
 ];
@@ -158,7 +161,7 @@ function generateReport() {
   // JavaScript Analysis
   console.log('\n📝 JAVASCRIPT ANALYSIS\n');
 
-  const jsFiles = ['scripts/perf.js', 'scripts/colors.js'];
+  const jsFiles = ['scripts/perf.js', 'scripts/colors.js', 'scripts/i18n.js', 'scripts/substitution.js'];
   jsFiles.forEach(file => {
     const filePath = path.join(PROJECT_ROOT, file);
     const analysis = analyzeJavaScript(filePath);

@@ -2596,49 +2596,6 @@
 			}
 		}
 
-		/* Mobile Quick Access Button */
-		.mobile-menu-btn {
-			display: flex;
-			align-items: center;
-			justify-content: center;
-			position: fixed;
-			bottom: 1rem;
-			right: 1rem;
-			width: 56px;
-			height: 56px;
-			border-radius: 50%;
-			background: var(--primary-600);
-			color: white;
-			border: none;
-			box-shadow: var(--shadow-xl);
-			z-index: 100;
-			cursor: pointer;
-			transition: all 0.3s;
-			-webkit-tap-highlight-color: transparent;
-		}
-
-		.mobile-menu-btn:active {
-			transform: scale(0.95);
-			background: var(--primary-700);
-		}
-
-		.mobile-menu-btn:hover {
-			transform: scale(1.05);
-			background: var(--primary-700);
-		}
-
-		.mobile-menu-btn svg {
-			width: 24px;
-			height: 24px;
-		}
-		
-		/* Hide on larger screens if needed */
-		@media (min-width: 1024px) {
-			.mobile-menu-btn {
-				display: none;
-			}
-		}
-
 		/* Utility Classes */
 		.grid {
 			display: grid;
@@ -2848,8 +2805,7 @@
 			header,
 			nav,
 			footer,
-			#main-content,
-			.mobile-menu-btn {
+				#main-content {
 				display: none !important;
 			}
 			
@@ -3807,16 +3763,490 @@
 	
 
 
-.heatwave-notice {
-  margin: 0.5rem 0 0.75rem;
-  padding: 0.75rem 1rem;
-  border-radius: 10px;
-  background: rgba(255, 160, 0, 0.12);
-  border: 1px solid rgba(255, 160, 0, 0.35);
-  color: var(--text-primary);
-  font-size: 0.9rem;
-  line-height: 1.4;
+/* 2026 coordinator-first mobile shell */
+html,
+body {
+	max-width: 100%;
+	overflow-x: clip;
 }
-@media (max-width: 640px) {
-  .heatwave-notice { font-size: 0.82rem; padding: 0.65rem 0.75rem; }
+
+.header-controls {
+	position: absolute;
+	top: 0.75rem;
+	right: 0.75rem;
+	z-index: 3;
+	display: flex;
+	gap: 0.45rem;
+}
+
+.header-control,
+#theme-toggle.header-control {
+	position: static;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	min-width: 44px;
+	height: 44px;
+	padding: 0 0.65rem;
+	border: 1px solid var(--border);
+	border-radius: 999px;
+	background: var(--card);
+	color: var(--text);
+	font: inherit;
+	font-size: 0.78rem;
+	font-weight: 800;
+	cursor: pointer;
+}
+
+.mobile-bottom-nav {
+	display: none;
+}
+
+.button-warning {
+	background: #b45309;
+	color: #fff;
+	border-color: #b45309;
+}
+
+.substitution-date-control {
+	display: grid;
+	gap: 0.45rem;
+	padding: 0.8rem;
+	border: 1px solid var(--border);
+	border-radius: var(--radius-lg);
+	background: color-mix(in srgb, var(--card) 88%, var(--primary-50));
+}
+
+.substitution-date-control label {
+	margin: 0;
+	font-size: 0.78rem;
+	color: var(--text-secondary);
+}
+
+.substitution-date-control small {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.35rem;
+	color: var(--text-secondary);
+}
+
+.substitution-date-control small svg {
+	width: 15px;
+	height: 15px;
+}
+
+.substitution-date-row {
+	display: grid;
+	grid-template-columns: 44px minmax(0, 1fr) 44px;
+	gap: 0.5rem;
+}
+
+.substitution-date-row input {
+	width: 100%;
+	min-height: 44px;
+	padding: 0.65rem 0.75rem;
+	border: 1px solid var(--border);
+	border-radius: var(--radius-md);
+	background: var(--card);
+	color: var(--text);
+	font: inherit;
+}
+
+.icon-button {
+	width: 44px !important;
+	min-width: 44px !important;
+	padding: 0 !important;
+}
+
+.substitution-plan-grid {
+	display: none;
+	gap: 0.75rem;
+}
+
+.substitution-plan-card--review {
+	border-color: #f59e0b;
+	background: color-mix(in srgb, var(--card) 92%, #fef3c7);
+}
+
+.substitution-plan-status--review,
+.substitution-mini-pill--warning {
+	background: #fef3c7;
+	color: #92400e;
+	border-color: #f59e0b;
+}
+
+.substitution-match-note,
+.substitution-warning-note {
+	display: block;
+	margin-top: 0.35rem;
+	font-size: 0.78rem;
+	line-height: 1.4;
+}
+
+.substitution-warning-note {
+	color: #92400e;
+}
+
+.mobile-day-focus {
+	display: none;
+}
+
+.more-tools-view {
+	max-width: 760px;
+	margin: 0 auto;
+}
+
+.more-tools-grid {
+	display: grid;
+	gap: 0.75rem;
+	margin-top: 1.25rem;
+}
+
+.more-tool-card {
+	display: grid;
+	grid-template-columns: 28px minmax(0, 1fr) 22px;
+	align-items: center;
+	gap: 0.75rem;
+	min-height: 58px;
+	padding: 0.85rem 1rem;
+	border: 1px solid var(--border);
+	border-radius: var(--radius-lg);
+	background: var(--card);
+	color: var(--text);
+	font: inherit;
+	font-weight: 700;
+	text-align: left;
+	cursor: pointer;
+}
+
+@media (max-width: 767px) {
+	body {
+		padding-bottom: calc(76px + env(safe-area-inset-bottom));
+	}
+
+	.app-container {
+		padding: 0.5rem;
+		padding-bottom: 1rem;
+	}
+
+	header {
+		min-height: 82px;
+		padding: 0.8rem;
+		margin-bottom: 0.65rem;
+		text-align: left;
+	}
+
+	.header-copy {
+		padding-right: 7.3rem;
+	}
+
+	.header-kicker {
+		display: none;
+	}
+
+	header h1 {
+		margin: 0 0 0.25rem;
+		font-size: 1.25rem;
+		line-height: 1.2;
+		color: var(--text);
+	}
+
+	header p {
+		margin: 0;
+		font-size: 0.76rem;
+		color: var(--text-secondary);
+	}
+
+	.header-controls {
+		top: 0.65rem;
+		right: 0.65rem;
+	}
+
+	#main-nav {
+		display: none;
+	}
+
+	.mobile-bottom-nav {
+		position: fixed;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		z-index: 100;
+		display: grid;
+		grid-template-columns: repeat(4, minmax(0, 1fr));
+		gap: 0.2rem;
+		padding: 0.45rem 0.45rem calc(0.45rem + env(safe-area-inset-bottom));
+		margin: 0;
+		border: 0;
+		border-top: 1px solid var(--border);
+		border-radius: 0;
+		background: color-mix(in srgb, var(--card) 94%, transparent);
+		box-shadow: 0 -10px 30px rgba(15, 23, 42, 0.14);
+		backdrop-filter: blur(18px);
+		overflow: visible;
+	}
+
+	.mobile-bottom-nav__button {
+		display: grid;
+		justify-items: center;
+		gap: 0.2rem;
+		min-width: 0;
+		min-height: 54px;
+		padding: 0.4rem 0.2rem;
+		border: 0;
+		border-radius: 0.8rem;
+		background: transparent;
+		color: var(--text-secondary);
+		font: inherit;
+		font-size: 0.68rem;
+		font-weight: 700;
+	}
+
+	.mobile-bottom-nav__button svg {
+		width: 21px;
+		height: 21px;
+	}
+
+	.mobile-bottom-nav__button.active {
+		background: var(--primary-50);
+		color: var(--primary-700);
+	}
+
+	.dashboard-spotlight,
+	.substitution-hero {
+		padding: 1rem;
+	}
+
+	.dashboard-hero-title {
+		font-size: clamp(1.5rem, 7vw, 2rem);
+	}
+
+	.dashboard-hero-copy {
+		font-size: 0.86rem;
+	}
+
+	.dashboard-glance-card {
+		padding: 0.72rem;
+	}
+
+	.dashboard-finder-card .finder-results-list article:nth-child(n+4) {
+		display: none;
+	}
+
+	.substitution-toolbar-top {
+		display: grid;
+		gap: 0.85rem;
+	}
+
+	.substitution-toolbar-actions {
+		display: grid;
+		grid-template-columns: 1fr 1fr;
+		gap: 0.55rem;
+	}
+
+	.substitution-toolbar-actions .substitution-clear-btn {
+		grid-column: 1 / -1;
+	}
+
+	.substitution-date-control {
+		order: -1;
+	}
+
+	.substitution-metric-strip {
+		grid-template-columns: repeat(3, minmax(0, 1fr));
+	}
+
+	.substitution-metric-strip .metric-chip {
+		min-width: 0;
+		padding: 0.7rem 0.55rem;
+	}
+
+	.substitution-search input,
+	.substitution-date-row input,
+	select,
+	input[type="search"] {
+		font-size: 16px !important;
+	}
+
+	.substitution-plan-grid {
+		display: grid;
+	}
+
+	.substitution-plan-table {
+		display: none;
+	}
+
+	.substitution-plan-card {
+		padding: 0.9rem;
+	}
+
+	.substitution-plan-card-actions {
+		display: grid;
+		grid-template-columns: 1fr;
+	}
+
+	.substitution-plan-card-actions .button {
+		width: 100%;
+		min-height: 46px;
+	}
+
+	.substitution-plan-actions {
+		display: grid;
+		grid-template-columns: 1fr 1fr;
+		gap: 0.55rem;
+	}
+
+	.substitution-plan-actions .button:first-child {
+		grid-column: 1 / -1;
+	}
+
+	.mobile-day-focus {
+		display: grid;
+		gap: 0.75rem;
+	}
+
+	.desktop-day-table {
+		display: none;
+	}
+
+	.mobile-period-picker {
+		display: flex;
+		gap: 0.45rem;
+		overflow-x: auto;
+		padding: 0.15rem 0.05rem 0.45rem;
+		scrollbar-width: none;
+	}
+
+	.mobile-period-chip {
+		display: grid;
+		justify-items: center;
+		flex: 0 0 64px;
+		min-height: 52px;
+		padding: 0.5rem;
+		border: 1px solid var(--border);
+		border-radius: 0.9rem;
+		background: var(--card);
+		color: var(--text);
+		font: inherit;
+	}
+
+	.mobile-period-chip span {
+		font-weight: 800;
+	}
+
+	.mobile-period-chip small {
+		font-size: 0.64rem;
+		color: var(--text-secondary);
+	}
+
+	.mobile-period-chip.active {
+		background: var(--primary-600);
+		color: #fff;
+		border-color: var(--primary-600);
+	}
+
+	.mobile-period-chip.active small {
+		color: rgba(255,255,255,0.88);
+	}
+
+	.mobile-day-focus__header {
+		display: flex;
+		align-items: end;
+		justify-content: space-between;
+		gap: 0.75rem;
+		padding: 0.85rem 0.9rem;
+		border-radius: var(--radius-lg);
+		background: var(--primary-50);
+		color: var(--primary-900);
+	}
+
+	.mobile-day-focus__header div {
+		display: grid;
+		gap: 0.2rem;
+	}
+
+	.day-period-list {
+		display: grid;
+		gap: 0.55rem;
+	}
+
+	.day-period-card {
+		display: grid;
+		grid-template-columns: minmax(0, 1fr) auto;
+		align-items: center;
+		gap: 0.75rem;
+		min-height: 66px;
+		padding: 0.8rem 0.9rem;
+		border: 1px solid var(--border);
+		border-radius: var(--radius-lg);
+		background: var(--card);
+	}
+
+	.day-period-card > div {
+		display: grid;
+		gap: 0.18rem;
+	}
+
+	.day-period-card span {
+		font-size: 0.82rem;
+		color: var(--text-secondary);
+	}
+
+	.day-period-card__teacher {
+		justify-items: end;
+		text-align: right;
+	}
+
+	.day-period-card__teacher strong {
+		color: var(--primary-700);
+	}
+
+	.day-period-card--live {
+		border-color: var(--primary-500);
+		box-shadow: 0 0 0 2px color-mix(in srgb, var(--primary-500) 18%, transparent);
+	}
+}
+
+[data-theme="dark"] header h1,
+[data-theme="dark"] header p,
+[data-theme="dark"] .header-kicker,
+[data-theme="dark"] .substitution-date-control,
+[data-theme="dark"] .substitution-date-control label,
+[data-theme="dark"] .substitution-date-control small {
+	color: var(--text);
+}
+
+[data-theme="dark"] .substitution-plan-card--review {
+	background: #2b2414;
+	border-color: #d97706;
+}
+
+[data-theme="dark"] .substitution-warning-note {
+	color: #fbbf24;
+}
+
+[data-theme="dark"] .section-subtitle,
+[data-theme="dark"] .dashboard-hero-copy,
+[data-theme="dark"] .metric-chip span,
+[data-theme="dark"] .metric-chip strong,
+[data-theme="dark"] .substitution-selected-empty,
+[data-theme="dark"] .substitution-search input,
+[data-theme="dark"] .substitution-date-row input,
+[data-theme="dark"] .substitution-plan-copy p,
+[data-theme="dark"] .day-period-card span {
+	color: #cbd5e1;
+}
+
+[data-theme="dark"] .mobile-bottom-nav__button.active {
+	background: rgba(59, 130, 246, 0.2);
+	color: #bfdbfe;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.mobile-bottom-nav *,
+	.substitution-plan-card,
+	.day-period-card {
+		animation: none !important;
+		transition: none !important;
+	}
 }

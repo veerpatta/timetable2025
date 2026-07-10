@@ -31,6 +31,7 @@ Run these from the repository root:
 npx http-server . -p 8080 -c-1
 node tests/manual/colors/verify-contrast.js
 node tests/manual/test-mapping.js
+node --test tests/substitution-engine.test.js
 ```
 
 Then open:
@@ -84,6 +85,10 @@ Visual check for subject color styling and legend rendering.
 ### `tests/manual/performance/perf-test.html`
 
 Interactive page for performance helpers such as caching, debouncing, lazy loading, and virtual scrolling. Use this after editing `scripts/perf.js`.
+
+### `tests/substitution-engine.test.js`
+
+Automated Node tests for whole-day subject matching, hard availability rules, workload limits, deterministic allocation, manual override warnings, date-keyed persistence, and English/Hindi translation parity.
 
 ## When To Run What
 

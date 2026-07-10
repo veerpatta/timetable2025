@@ -22,6 +22,8 @@
 
 	<!-- PERFORMANCE OPTIMIZATION MODULE -->
 	<script src="./scripts/perf.js"></script>
+	<script src="./scripts/i18n.js"></script>
+	<script src="./scripts/substitution.js"></script>
 
 	<!-- FONTS -->
 	<link rel="preconnect" href="https://fonts.googleapis.com">
@@ -99,36 +101,56 @@
 
 	<div class="app-container">
 		<header class="no-print">
-			<button id="theme-toggle" aria-label="Toggle dark mode" title="Toggle dark mode">
-				<i data-lucide="sun" id="theme-icon"></i>
-			</button>
+			<div class="header-controls">
+				<button id="language-toggle" class="header-control" aria-label="Switch language" title="Switch language" onclick="toggleAppLanguage()">
+					<span id="language-toggle-label">हिंदी</span>
+				</button>
+				<button id="theme-toggle" class="header-control" aria-label="Toggle dark mode" title="Toggle dark mode">
+					<i data-lucide="sun" id="theme-icon"></i>
+				</button>
+			</div>
 			<div class="header-copy">
 				<div class="header-kicker">Official <strong>Session 2026-27</strong></div>
-				<h1>Timetable Command Center</h1>
-				<p>Veer Patta Public School, Amet</p>
+				<h1 data-i18n="app.name">VPPS Timetable</h1>
+				<p data-i18n="app.school">Veer Patta Public School, Amet</p>
 			</div>
 		</header>
 
 		<nav class="no-print" id="main-nav">
 			<button id="nav-Dashboard" class="nav-button active" onclick="switchView('Dashboard')">
 				<i data-lucide="layout-dashboard"></i>
-				<span>Dashboard</span>
+				<span data-i18n="nav.home">Home</span>
 			</button>
 			<button id="nav-Day" class="nav-button" onclick="switchView('Day')">
 				<i data-lucide="calendar-days"></i>
-				<span>Day View</span>
+				<span data-i18n="nav.today">Today</span>
 			</button>
 			<button id="nav-Substitution" class="nav-button" onclick="switchView('Substitution')">
 				<i data-lucide="user-cog"></i>
-				<span>Substitutions</span>
+				<span data-i18n="nav.substitutions">Substitutions</span>
 			</button>
 			<button id="nav-Class" class="nav-button" onclick="switchView('Class')">
 				<i data-lucide="school"></i>
-				<span>Class View</span>
+				<span data-i18n="nav.class">Class View</span>
 			</button>
 			<button id="nav-Teacher" class="nav-button" onclick="switchView('Teacher')">
 				<i data-lucide="users"></i>
-				<span>Teacher View</span>
+				<span data-i18n="nav.teacher">Teacher View</span>
+			</button>
+		</nav>
+
+		<nav class="mobile-bottom-nav no-print" id="mobile-bottom-nav" aria-label="Primary navigation">
+			<button id="mobile-nav-Dashboard" class="mobile-bottom-nav__button active" onclick="switchView('Dashboard')">
+				<i data-lucide="home"></i><span data-i18n="nav.home">Home</span>
+			</button>
+			<button id="mobile-nav-Day" class="mobile-bottom-nav__button" onclick="switchView('Day')">
+				<i data-lucide="calendar-days"></i><span data-i18n="nav.today">Today</span>
+			</button>
+			<button id="mobile-nav-Substitution" class="mobile-bottom-nav__button" onclick="switchView('Substitution')">
+				<i data-lucide="user-round-check"></i><span data-i18n="nav.substitutions">Substitutions</span>
+			</button>
+			<button id="mobile-nav-More" class="mobile-bottom-nav__button" onclick="switchView('More')">
+				<i data-lucide="menu"></i><span data-i18n="nav.more">More</span>
 			</button>
 		</nav>
 
@@ -146,11 +168,6 @@
 			<p>Timetable 2026–27 (v4) | Active from Monday onwards for the 2026–27 session</p>
 		</footer>
 	</div>
-
-	<!-- Mobile Floating Action Button: Go to Today/Now -->
-	<button class="mobile-menu-btn no-print" id="fab-go-now" aria-label="Go to current period" title="Go to current period">
-		<i data-lucide="clock"></i>
-	</button>
 
 	<script>
 		// ============================================
@@ -474,9 +491,13 @@ Class 12 Arts,Geography (Prakash),English Literature (Harshita),Economics (Praka
 		let state = {
 			currentView: 'Dashboard',
 			currentSubstitutionDay: null,
+			substitutionDate: null,
 			substitutions: {},
+			substitutionSuggestions: {},
+			substitutionMetadata: {},
 			substitutionTeacherSearch: '',
 			activeSubstitutionSheet: null,
+			mobileDayPeriod: null,
 			uiSelection: {
 				day: null,
 				className: '',
@@ -504,9 +525,55 @@ Class 12 Arts,Geography (Prakash),English Literature (Harshita),Economics (Praka
 		};
 
 		const mainContent = document.getElementById('main-content');
-		const SESSION_UI_KEY = 'vpps-ui-state-v1';
-		const VALID_VIEWS = ['Dashboard', 'Day', 'Substitution', 'Class', 'Teacher'];
+		const SESSION_UI_KEY = 'vpps-ui-state-v2';
+		const SCHEDULE_VERSION = '2026-27-v4';
+		const VALID_VIEWS = ['Dashboard', 'Day', 'Substitution', 'Class', 'Teacher', 'More'];
 		const PARSED_TIMETABLE_CACHE_KEY = 'parsed_timetable_data_v2';
+		const t = (key, params = {}) => window.I18n?.t(key, params) || key;
+		window.I18n?.init();
+		const substitutionPlanStore = window.SubstitutionEngine?.createPlanStore(localStorage, {
+			scheduleVersion: SCHEDULE_VERSION
+		});
+
+		function updateStaticTranslations() {
+			document.querySelectorAll('[data-i18n]').forEach(element => {
+				const key = element.dataset.i18n;
+				if (key) element.textContent = t(key);
+			});
+			const languageLabel = document.getElementById('language-toggle-label');
+			if (languageLabel) languageLabel.textContent = window.I18n?.getLanguage() === 'hi' ? 'EN' : 'हिंदी';
+		}
+
+		function toggleAppLanguage() {
+			const next = window.I18n?.getLanguage() === 'hi' ? 'en' : 'hi';
+			window.I18n?.setLanguage(next);
+		}
+
+		function formatLocalIsoDate(date) {
+			const year = date.getFullYear();
+			const month = String(date.getMonth() + 1).padStart(2, '0');
+			const day = String(date.getDate()).padStart(2, '0');
+			return `${year}-${month}-${day}`;
+		}
+
+		function getDefaultSubstitutionDate() {
+			const date = new Date();
+			if (date.getDay() === 0) date.setDate(date.getDate() + 1);
+			return formatLocalIsoDate(date);
+		}
+
+		function getDayForIsoDate(isoDate) {
+			if (!/^\d{4}-\d{2}-\d{2}$/.test(String(isoDate || ''))) return null;
+			const date = new Date(`${isoDate}T12:00:00`);
+			if (Number.isNaN(date.getTime()) || date.getDay() === 0) return null;
+			return date.toLocaleDateString('en-US', { weekday: 'long' });
+		}
+
+		function shiftSubstitutionDate(offset) {
+			const current = new Date(`${state.substitutionDate || getDefaultSubstitutionDate()}T12:00:00`);
+			do { current.setDate(current.getDate() + offset); } while (current.getDay() === 0);
+			handleSubstitutionDateChange(formatLocalIsoDate(current));
+		}
 
 		// --- UTILITY FUNCTIONS ---
 		function debounce(func, wait = 300, immediate = false) {
@@ -612,7 +679,8 @@ Class 12 Arts,Geography (Prakash),English Literature (Harshita),Economics (Praka
 			try {
 				sessionStorage.setItem(SESSION_UI_KEY, JSON.stringify({
 					currentView: state.currentView,
-					uiSelection: state.uiSelection
+					uiSelection: state.uiSelection,
+					substitutionDate: state.substitutionDate
 				}));
 			} catch (error) {
 				console.warn('Failed to persist UI session state:', error);
@@ -633,6 +701,9 @@ Class 12 Arts,Geography (Prakash),English Literature (Harshita),Economics (Praka
 				}
 
 				state.uiSelection = normalizeUiSelection(parsed.uiSelection || {});
+				if (getDayForIsoDate(parsed.substitutionDate)) {
+					restoreSubstitutionPlanForDate(parsed.substitutionDate);
+				}
 			} catch (error) {
 				console.warn('Failed to restore UI session state:', error);
 				state.uiSelection = normalizeUiSelection(state.uiSelection);
@@ -891,9 +962,9 @@ Class 12 Arts,Geography (Prakash),English Literature (Harshita),Economics (Praka
 		}
 
 		
-		const ACTIVE_TIMETABLE_MODE = 'heatwave';
+		const ACTIVE_TIMETABLE_MODE = 'current';
 		const scheduleProfiles = {
-			heatwave: {
+			current: {
 				label: 'Timetable 2026–27 (v4)',
 				effectiveText: 'Active from Monday onwards for the 2026–27 session',
 				reportingTime: '8:00 AM',
@@ -917,7 +988,7 @@ Class 12 Arts,Geography (Prakash),English Literature (Harshita),Economics (Praka
 		};
 
 		function timeToMinutes(t) { const [h,m]=t.split(':').map(Number); return h*60+m; }
-		function getActiveScheduleProfile(){ return scheduleProfiles[ACTIVE_TIMETABLE_MODE] || scheduleProfiles.heatwave; }
+		function getActiveScheduleProfile(){ return scheduleProfiles[ACTIVE_TIMETABLE_MODE] || scheduleProfiles.current; }
 		function getActiveTimeSlots(){ return getActiveScheduleProfile().periods.map(p=>({name:p.label,start:timeToMinutes(p.start),end:timeToMinutes(p.end)})); }
 		function getWinterTimeSlots(){ return getActiveTimeSlots(); }
 
@@ -1188,22 +1259,58 @@ Class 12 Arts,Geography (Prakash),English Literature (Harshita),Economics (Praka
 		}
 
 		function renderDashboardSummaryMarkup(overview) {
+			const periodCard = overview.cards[1];
+			const periodName = periodCard?.value || 'Period 1';
+			const periodTime = periodCard?.meta || '';
+			const localized = {
+				live: {
+					status: t('dashboard.statusLive'),
+					headline: t('dashboard.liveHeadline', { day: overview.currentDay, period: periodName }),
+					message: t('dashboard.liveMessage', { time: periodTime })
+				},
+				break: {
+					status: t('dashboard.statusBreak'),
+					headline: t('dashboard.breakHeadline', { period: periodName }),
+					message: t('dashboard.breakMessage', { period: periodName, time: periodTime.split('–')[0].trim() })
+				},
+				upcoming: {
+					status: t('dashboard.statusUpcoming'),
+					headline: t('dashboard.upcomingHeadline', { day: overview.currentDay, period: periodName }),
+					message: t('dashboard.upcomingMessage', { period: periodName, time: periodTime.split('–')[0].trim() })
+				},
+				complete: {
+					status: t('dashboard.statusComplete'),
+					headline: t('dashboard.completeHeadline', { day: overview.currentDay }),
+					message: t('dashboard.completeMessage')
+				}
+			}[overview.mode] || { status: overview.statusLabel, headline: overview.headline, message: overview.message };
+			const localizedCards = overview.cards.map((card, index) => {
+				const teacherCount = index === 3 ? Number.parseInt(card.value, 10) : null;
+				return {
+					...card,
+					label: [t('nav.today'), overview.mode === 'live' ? t('dashboard.currentSlot') : t('dashboard.nextSlot'), t('dashboard.bestAvailable'), t('dashboard.freeTeachers')][index],
+					value: index === 3 && Number.isFinite(teacherCount)
+						? t(teacherCount === 1 ? 'dashboard.teacherOne' : 'dashboard.teacherMany', { count: teacherCount })
+						: card.value,
+					meta: index === 0 ? t('dashboard.classesScheduled', { count: state.allData.classNames.length }) : index === 1 ? card.meta : ''
+				};
+			});
 			return `
 				<div class="dashboard-status-row">
 					<div class="dashboard-live-pill dashboard-live-pill--${overview.mode}">
 						<span class="dashboard-live-dot"></span>
-						${overview.statusLabel}
+						${escapeHtml(localized.status)}
 					</div>
 					<span class="dashboard-time-chip">
 						<i data-lucide="clock-3"></i>
 						${overview.currentTimeLabel}
 					</span>
 				</div>
-				<div class="section-kicker">Today At A Glance</div>
-				<h2 class="dashboard-hero-title">${overview.headline}</h2>
-				<p class="section-subtitle dashboard-hero-copy">${overview.message}</p>
+				<div class="section-kicker">${escapeHtml(t('dashboard.glance'))}</div>
+				<h2 class="dashboard-hero-title">${escapeHtml(localized.headline)}</h2>
+				<p class="section-subtitle dashboard-hero-copy">${escapeHtml(localized.message)}</p>
 				<div class="dashboard-glance-grid">
-					${overview.cards.map(card => `
+					${localizedCards.map(card => `
 						<div class="dashboard-glance-card">
 							<span>${card.label}</span>
 							<strong>${card.value}</strong>
@@ -1214,11 +1321,11 @@ Class 12 Arts,Geography (Prakash),English Literature (Harshita),Economics (Praka
 				<div class="dashboard-primary-actions">
 					<button class="button button-primary" onclick="switchView('Day')">
 						<i data-lucide="calendar-days"></i>
-						Open Day View
+						${escapeHtml(t('action.viewToday'))}
 					</button>
 					<button class="button button-secondary" onclick="switchView('Substitution')">
 						<i data-lucide="user-cog"></i>
-						Plan Substitutions
+						${escapeHtml(t('action.planSubstitutions'))}
 					</button>
 				</div>
 			`;
@@ -1238,7 +1345,7 @@ Class 12 Arts,Geography (Prakash),English Literature (Harshita),Economics (Praka
 			return candidates && candidates.length ? candidates[0].teacher : null;
 		}
 
-		const HEATWAVE_TEACHER_ROSTER = [
+		const ACTIVE_TEACHER_ROSTER = [
 			'Anita', 'Anjana', 'Antima', 'Bindu', 'Harshita', 'Hemlata', 'Jainendra', 'Kusum',
 			'Maya', 'Nathulal', 'Nidhika', 'Pradhyuman', 'Prakash', 'Prateek', 'Rakesh',
 			'Rashmita', 'Ravina', 'Toshit'
@@ -1252,6 +1359,9 @@ Class 12 Arts,Geography (Prakash),English Literature (Harshita),Economics (Praka
 				windowLabel: 'Periods 6-8 only (part-time)'
 			}
 		};
+		const TEACHER_POLICY_OVERRIDES = Object.fromEntries(
+			Object.entries(TEACHER_AVAILABILITY_RULES).map(([teacher, availability]) => [teacher, { availability }])
+		);
 
 		function getTeacherAvailabilityRule(teacher) {
 			return TEACHER_AVAILABILITY_RULES[teacher] || null;
@@ -1344,26 +1454,16 @@ Class 12 Arts,Geography (Prakash),English Literature (Harshita),Economics (Praka
 				const { timetable, periodHeaders, days } = state.allData || {};
 				if (!timetable || !periodHeaders || !days) return { ok: false, errors: ['Data not initialized'], warnings };
 
-				// Check period headers length and ascending times
-				if (periodHeaders.length !== 6) warnings.push(`Expected 6 timetable slots, found ${periodHeaders.length}`);
-				const parseTime = t => {
-					// t: "h:mm AM - h:mm PM"
-					const [start, end] = t.split('-').map(s => s.trim());
-					const toMin = (s) => {
-						const m = s.match(/(\d{1,2}):(\d{2})\s*(AM|PM)/i);
-						if (!m) return null;
-						let hh = parseInt(m[1],10);
-						const mm = parseInt(m[2],10);
-						const ap = m[3].toUpperCase();
-						if (ap === 'PM' && hh !== 12) hh += 12;
-						if (ap === 'AM' && hh === 12) hh = 0;
-						return hh*60+mm;
-					};
-					return [toMin(start), toMin(end)];
-				};
+				// Validate against the structured active schedule instead of parsing display text.
+				const activePeriods = getActiveScheduleProfile().periods;
+				if (periodHeaders.length !== activePeriods.length) {
+					errors.push(`Expected ${activePeriods.length} timetable slots, found ${periodHeaders.length}`);
+				}
 				let lastEnd = -1;
 				periodHeaders.forEach((ph, idx) => {
-					const [s,e] = parseTime(ph.time || '');
+					const configuredPeriod = activePeriods[idx];
+					const s = configuredPeriod ? timeToMinutes(configuredPeriod.start) : null;
+					const e = configuredPeriod ? timeToMinutes(configuredPeriod.end) : null;
 					if (s==null || e==null || e<=s) errors.push(`Invalid time in header ${ph.name}: ${ph.time}`);
 					if (s!=null && lastEnd>0 && s<lastEnd && idx!==4) { // allow recess gap before Period 5
 						errors.push(`Overlapping/unsorted period header at ${ph.name}`);
@@ -1608,7 +1708,7 @@ Class 12 Arts,Geography (Prakash),English Literature (Harshita),Economics (Praka
 									const subjectsInCell = entry.subject.split('/').map(s => s.trim());
 
 									teachersInCell.forEach((teacherName, teacherIndex) => {
-										if (!HEATWAVE_TEACHER_ROSTER.includes(teacherName)) return;
+										if (!ACTIVE_TEACHER_ROSTER.includes(teacherName)) return;
 										// Initialize teacher if not exists
 										if (!teacherDetails[teacherName]) {
 											teacherDetails[teacherName] = { 
@@ -1760,7 +1860,7 @@ Class 12 Arts,Geography (Prakash),English Literature (Harshita),Economics (Praka
 				});
 
 				// Use fixed heatwave roster as source-of-truth for teacher-facing views
-				const validTeacherNames = HEATWAVE_TEACHER_ROSTER.slice();
+				const validTeacherNames = ACTIVE_TEACHER_ROSTER.slice();
 				validTeacherNames.forEach((teacherName) => {
 					if (!teacherDetails[teacherName]) {
 						teacherDetails[teacherName] = {
@@ -1966,7 +2066,7 @@ Class 12 Arts,Geography (Prakash),English Literature (Harshita),Economics (Praka
 				const vacantClassName = vacantPeriod?.className || '';
 				const vacantClassGrade = extractClassGrade(vacantClassName);
 				
-				for (const teacher of HEATWAVE_TEACHER_ROSTER) {
+				for (const teacher of ACTIVE_TEACHER_ROSTER) {
 					// Skip if absent
 					if (absentTeachers.includes(teacher)) continue;
 					if (EXCLUDED_TEACHER_NAMES.has(teacher)) continue;
@@ -2216,28 +2316,10 @@ Class 12 Arts,Geography (Prakash),English Literature (Harshita),Economics (Praka
 			if (subjectCount > 3) bonus += 3;
 			else if (subjectCount > 1) bonus += 1;
 			
-			// Reliability adjustments for specific teachers
-			const reliabilityAdjustments = {
-				'Hemlata': 2,    // Science specialist
-				'Pradhyuman': 2, // Senior teacher
-				'Nathulal': 2,   // Math specialist
-				'Harshita': 1,   // English specialist
-				'Jainendra': 1,  // Hindi specialist
-				'Antima': 1,     // Sanskrit specialist
-				'Maya': -1,      // Limited availability
-				'Rakesh': -2     // Sports only
-			};
-			
-			if (reliabilityAdjustments[teacher]) {
-				bonus += reliabilityAdjustments[teacher];
-			}
-			
 			return Math.max(0, Math.min(15, bonus)); // Cap between 0-15
 		}
 
 		function isTeacherUnavailableForPeriod(teacher, periodIndex) {
-			if (teacher === 'Mahesh' && periodIndex > 2) return true;
-			if (teacher === 'Anjana' && periodIndex < 4) return true;
 			return !isTeacherAvailableForPeriod(teacher, periodIndex);
 		}
 
@@ -2336,20 +2418,11 @@ Class 12 Arts,Geography (Prakash),English Literature (Harshita),Economics (Praka
 											<p>${teacherObj.reason}</p>
 										</div>
 									</div>
-									<div class="finder-meta-block">
-										<span class="finder-pill">Score ${teacherObj.score}</span>
-										<span class="finder-workload">${totalWorkload} periods today</span>
-									</div>
+								<div class="finder-meta-block">
+									<span class="finder-workload">${totalWorkload} periods today</span>
 								</div>
-								${teacherObj.breakdown ? `
-									<div class="finder-breakdown">
-										${teacherObj.breakdown.subjectMatch > 0 ? `<span>Subject +${teacherObj.breakdown.subjectMatch}</span>` : ''}
-										${teacherObj.breakdown.gradeMatch > 0 ? `<span>Grade +${teacherObj.breakdown.gradeMatch}</span>` : ''}
-										${teacherObj.breakdown.workloadBonus > 0 ? `<span>Workload +${teacherObj.breakdown.workloadBonus}</span>` : ''}
-										${teacherObj.breakdown.availabilityBonus > 0 ? `<span>Availability +${teacherObj.breakdown.availabilityBonus}</span>` : ''}
-									</div>
-								` : ''}
-							</article>
+							</div>
+						</article>
 						`;
 					}).join('')
 					: `
@@ -2605,7 +2678,12 @@ Class 12 Arts,Geography (Prakash),English Literature (Harshita),Economics (Praka
 			}
 		}
 
-		// --- FIXED DAY VIEW RENDER ---
+		function renderDayPeriod(day, periodIndex) {
+			state.mobileDayPeriod = Number(periodIndex);
+			state.mobileDayContext = day;
+			renderDayView(day);
+		}
+
 		function renderDayView(day = null) {
 			try {
 				const selectedDay = arguments.length > 0 && day ? day : (state.uiSelection.day || getCurrentDay());
@@ -2660,6 +2738,29 @@ Class 12 Arts,Geography (Prakash),English Literature (Harshita),Economics (Praka
 				if (selectedDay === getCurrentDay() && typeof getActivePeriodIndex === 'function') {
 					currentPeriodIdx = getActivePeriodIndex();
 				}
+				if (state.mobileDayContext !== selectedDay) {
+					state.mobileDayContext = selectedDay;
+					const nextPeriodIndex = selectedDay === getCurrentDay() ? getNextScheduledSlotIndex() : null;
+					state.mobileDayPeriod = currentPeriodIdx >= 0 ? currentPeriodIdx : (nextPeriodIndex ?? 0);
+				}
+				const mobilePeriodIndex = Number.isFinite(Number(state.mobileDayPeriod))
+					? Math.max(0, Math.min(periodHeaders.length - 1, Number(state.mobileDayPeriod)))
+					: 0;
+				const mobilePeriod = periodHeaders[mobilePeriodIndex];
+				const mobilePeriodCards = classNames.map(className => {
+					const period = timetable[selectedDay]?.[className]?.[mobilePeriodIndex];
+					if (!period) return '';
+					const substitute = daySubs[className]?.[mobilePeriodIndex];
+					return `
+						<article class="day-period-card ${mobilePeriodIndex === currentPeriodIdx ? 'day-period-card--live' : ''}">
+							<div><strong>${escapeHtml(className)}</strong><span>${escapeHtml(period.subject || '--')}</span></div>
+							<div class="day-period-card__teacher">
+								<span class="${substitute ? 'line-through' : ''}">${escapeHtml(period.teacher || '--')}</span>
+								${substitute ? `<strong>${escapeHtml(substitute)}</strong>` : ''}
+							</div>
+						</article>
+					`;
+				}).join('');
 
 				const tableHeader = getPeriodTableHeaderMarkup(
 					`day-table-header:${currentPeriodIdx}`,
@@ -2694,16 +2795,16 @@ Class 12 Arts,Geography (Prakash),English Literature (Harshita),Economics (Praka
 					<div class="card view-shell">
 						<div class="view-header">
 							<div>
-								<div class="section-kicker">Day View</div>
-								<h2 class="section-title section-title--with-tag">${selectedDay} Schedule${selectedDay === getCurrentDay() && currentPeriodIdx !== -1 ? '<span class="live-status-tag">Live now</span>' : ''}</h2>
+							<div class="section-kicker">${escapeHtml(t('nav.today'))}</div>
+							<h2 class="section-title section-title--with-tag">${escapeHtml(t('day.heading', { day: selectedDay }))}${selectedDay === getCurrentDay() && currentPeriodIdx !== -1 ? '<span class="live-status-tag">Live now</span>' : ''}</h2>
 								<p class="section-subtitle">Updated against the official 2026-27 day-wise PDF timetable.</p>
 							</div>
 							<div class="view-actions">
 								<button onclick="handlePrint()" class="button button-secondary">
-									<i data-lucide="printer"></i> Print ${selectedDay}
+								<i data-lucide="printer"></i> ${escapeHtml(t('action.print'))}
 								</button>
 								<button onclick="handleShareScreenshot()" class="button button-whatsapp">
-									<i data-lucide="share-2"></i> Share Image
+								<i data-lucide="share-2"></i> ${escapeHtml(t('action.shareImage'))}
 								</button>
 								<button onclick="handleShareAsPDF()" class="button button-primary no-capture">
 									<i data-lucide="file-text"></i> Share as PDF
@@ -2716,7 +2817,21 @@ Class 12 Arts,Geography (Prakash),English Literature (Harshita),Economics (Praka
 						<div class="day-tabs" role="tablist" aria-label="Select day">
 							${tabs}
 						</div>
-						<div class="table-container sticky-first-col">
+						<section class="mobile-day-focus" aria-label="${escapeHtml(t('day.choosePeriod'))}">
+							<div class="mobile-period-picker">
+								${periodHeaders.map((header, index) => `
+									<button class="mobile-period-chip ${index === mobilePeriodIndex ? 'active' : ''}" onclick="renderDayPeriod('${selectedDay}', ${index})" aria-pressed="${index === mobilePeriodIndex}">
+										<span>P${index + 1}</span><small>${escapeHtml((header.time || '').split('–')[0].trim())}</small>
+									</button>
+								`).join('')}
+							</div>
+							<div class="mobile-day-focus__header">
+								<div><span>${escapeHtml(mobilePeriod?.name || `Period ${mobilePeriodIndex + 1}`)}</span><strong>${escapeHtml(mobilePeriod?.time || '')}</strong></div>
+								<small>${escapeHtml(t('day.classesCount', { count: classNames.length }))}</small>
+							</div>
+							<div class="day-period-list">${mobilePeriodCards}</div>
+						</section>
+						<div class="table-container sticky-first-col desktop-day-table">
 							<table class="responsive" role="table" aria-label="${selectedDay} timetable by class">
 								<thead><tr>${tableHeader}</tr></thead>
 								<tbody>${tableBody}</tbody>
@@ -2751,7 +2866,6 @@ Class 12 Arts,Geography (Prakash),English Literature (Harshita),Economics (Praka
 			}
 		}
 
-		// --- COMPLETE MISSING RENDER FUNCTIONS ---
 		function renderClassView(selectedClass = '') {
 			try {
 				const { timetable, periodHeaders } = state.allData;
@@ -3630,11 +3744,120 @@ Class 12 Arts,Geography (Prakash),English Literature (Harshita),Economics (Praka
 				state.substitutions[day] = { plan: {}, absentTeachers: [] };
 			}
 			state.substitutions[day].absentTeachers = [...absentTeachers];
+			if (state.substitutionDate && getDayForIsoDate(state.substitutionDate) === day) {
+				persistCurrentSubstitutionPlan();
+			}
 		}
 
 		function getTeacherLoadForDay(teacher, day) {
 			const schedule = state.allData?.teacherDetails?.[teacher]?.schedule?.[day] || [];
 			return schedule.filter(Boolean).length;
+		}
+
+		function getSubstitutionTeacherProfiles() {
+			if (!state.substitutionTeacherProfiles) {
+				state.substitutionTeacherProfiles = window.SubstitutionEngine.buildTeacherProfiles({
+					teacherDetails: state.allData.teacherDetails,
+					roster: ACTIVE_TEACHER_ROSTER,
+					policyOverrides: TEACHER_POLICY_OVERRIDES
+				});
+			}
+			return state.substitutionTeacherProfiles;
+		}
+
+		function getSubstitutionSlotId(day, className, periodIndex) {
+			return `${day}|${className}|${periodIndex}`;
+		}
+
+		function flattenSubstitutionPlan(day, excludedClassName = '', excludedPeriodIndex = -1) {
+			const plan = state.substitutions?.[day]?.plan || {};
+			const metadata = state.substitutionMetadata?.[state.substitutionDate] || {};
+			const assignments = [];
+			Object.entries(plan).forEach(([className, classPlan]) => {
+				Object.entries(classPlan || {}).forEach(([periodIndexValue, teacher]) => {
+					const periodIndex = Number(periodIndexValue);
+					if (className === excludedClassName && periodIndex === Number(excludedPeriodIndex)) return;
+					const slotId = getSubstitutionSlotId(day, className, periodIndex);
+					assignments.push({
+						slotId,
+						className,
+						periodIndex,
+						teacher,
+						...(metadata[slotId] || {})
+					});
+				});
+			});
+			return assignments;
+		}
+
+		function persistCurrentSubstitutionPlan() {
+			if (!substitutionPlanStore || !state.substitutionDate) return;
+			const day = getDayForIsoDate(state.substitutionDate);
+			if (!day) return;
+			const assignments = flattenSubstitutionPlan(day);
+			const metadata = state.substitutionMetadata?.[state.substitutionDate] || {};
+			substitutionPlanStore.savePlan(state.substitutionDate, {
+				weekday: day,
+				absentTeachers: getSavedAbsentTeachers(day),
+				assignments: assignments.map(assignment => ({
+					...assignment,
+					matchTier: assignment.matchTier || metadata[assignment.slotId]?.matchTier || 'manual',
+					warnings: assignment.warnings || metadata[assignment.slotId]?.warnings || [],
+					source: assignment.source || metadata[assignment.slotId]?.source || 'manual'
+				}))
+			});
+		}
+
+		function restoreSubstitutionPlanForDate(date) {
+			const day = getDayForIsoDate(date);
+			if (!day) return false;
+			state.substitutionDate = date;
+			state.currentSubstitutionDay = day;
+			if (!state.substitutions[day]) state.substitutions[day] = { plan: {}, absentTeachers: [] };
+			const stored = substitutionPlanStore?.getPlan(date);
+			state.substitutions[day] = { plan: {}, absentTeachers: [...(stored?.absentTeachers || [])] };
+			state.substitutionMetadata[date] = {};
+			(stored?.assignments || []).forEach(assignment => {
+				if (!assignment.teacher || !assignment.className || !Number.isFinite(Number(assignment.periodIndex))) return;
+				const periodIndex = Number(assignment.periodIndex);
+				if (!state.substitutions[day].plan[assignment.className]) state.substitutions[day].plan[assignment.className] = {};
+				state.substitutions[day].plan[assignment.className][periodIndex] = assignment.teacher;
+				const slotId = assignment.slotId || getSubstitutionSlotId(day, assignment.className, periodIndex);
+				state.substitutionMetadata[date][slotId] = {
+					matchTier: assignment.matchTier || 'manual',
+					warnings: assignment.warnings || [],
+					source: assignment.source || 'manual'
+				};
+			});
+			return Boolean(stored);
+		}
+
+		function handleSubstitutionDateChange(date) {
+			const day = getDayForIsoDate(date);
+			if (!day || !state.allData.days.includes(day)) {
+				showToast(t('sub.invalidDate'), 3200, 'warning');
+				return;
+			}
+			closeSubstitutionAssignmentSheet();
+			state.substitutionTeacherSearch = '';
+			restoreSubstitutionPlanForDate(date);
+			persistUiSessionState();
+			renderSubstitutionView(day);
+		}
+
+		function buildEngineCandidateInput(day, planEntry, absentTeachers, assignments) {
+			return {
+				day,
+				periodCount: getExpectedPeriodCount(),
+				teacherProfiles: getSubstitutionTeacherProfiles(),
+				absentTeachers,
+				assignments,
+				policy: { maxConsecutive: 4 },
+				vacancy: {
+					...planEntry,
+					slotId: getSubstitutionSlotId(day, planEntry.className, planEntry.periodIndex)
+				}
+			};
 		}
 
 		function getSubstitutionVacantSlots(day, absentTeachers = []) {
@@ -3699,8 +3922,8 @@ Class 12 Arts,Geography (Prakash),English Literature (Harshita),Economics (Praka
 			if (topCandidate) {
 				return {
 					isCovered: false,
-					label: 'Not assigned',
-					detail: `Best free: ${topCandidate.teacher}`,
+					label: t('sub.reviewRequired'),
+					detail: `${topCandidate.teacher} · ${topCandidate.reason}`,
 					topCandidate
 				};
 			}
@@ -3722,32 +3945,32 @@ Class 12 Arts,Geography (Prakash),English Literature (Harshita),Economics (Praka
 			const isToday = day === getCurrentDay();
 
 			let mode = 'upcoming';
-			let statusLabel = isToday ? 'Today' : 'Planning ahead';
-			let headline = `Plan substitutions for ${day}`;
-			let message = 'Select absent teachers to preview affected classes and generate a smart coverage plan.';
+			let statusLabel = t('sub.statusGenerate');
+			let headline = t('sub.planFor', { day });
+			let message = t('sub.setupHelp');
 
 			if (absentTeachers.length === 0) {
-				statusLabel = 'Setup needed';
+				statusLabel = t('sub.statusSetup');
 			} else if (planEntries.length === 0) {
 				mode = 'complete';
-				statusLabel = 'Nothing to cover';
-				headline = `${day} has no classes to cover`;
-				message = 'The selected teachers do not have scheduled periods on this day.';
+				statusLabel = t('sub.statusNothing');
+				headline = t('sub.noClasses', { day });
+				message = t('sub.noAffected');
 			} else if (coveredCount === planEntries.length) {
 				mode = 'live';
-				statusLabel = 'Plan ready';
-				headline = `${coveredCount} substitution slots covered`;
-				message = `Review the assignments below, then share or print the final plan for ${day}.`;
+				statusLabel = t('sub.statusReady');
+				headline = t('sub.coveredCount', { count: coveredCount });
+				message = t('sub.shareHelp');
 			} else if (coveredCount > 0) {
 				mode = 'break';
-				statusLabel = 'Needs review';
-				headline = `${coveredCount} covered, ${uncoveredCount} still open`;
-				message = 'Most classes are covered. Check the open slots below before sharing the plan.';
+				statusLabel = t('sub.statusReview');
+				headline = t('sub.partialCount', { covered: coveredCount, open: uncoveredCount });
+				message = t('sub.reviewHelp');
 			} else {
 				mode = 'upcoming';
-				statusLabel = 'Ready to generate';
-				headline = `${planEntries.length} slots need coverage`;
-				message = 'Generate the smart plan to assign the best available teachers for each affected class.';
+				statusLabel = t('sub.statusGenerate');
+				headline = t('sub.slotsNeed', { count: planEntries.length });
+				message = t('sub.setupHelp');
 			}
 
 			return {
@@ -3790,8 +4013,26 @@ Class 12 Arts,Geography (Prakash),English Literature (Harshita),Economics (Praka
 
 		function getRecommendedSubstitutionCandidates(day, planEntry, absentTeachers = [], limit = 8) {
 			if (!planEntry) return [];
-			const currentDaySubs = getSubstitutionPlanWithoutSlot(day, planEntry.className, planEntry.periodIndex);
-			return findFreeTeachers(day, planEntry.periodIndex, absentTeachers, currentDaySubs, planEntry).slice(0, limit);
+			const assignments = flattenSubstitutionPlan(day, planEntry.className, planEntry.periodIndex);
+			return window.SubstitutionEngine.rankCandidates(
+				buildEngineCandidateInput(day, planEntry, absentTeachers, assignments)
+			)
+				.filter(candidate => candidate.blocked.length === 0)
+				.slice(0, limit)
+				.map(candidate => ({
+					...candidate,
+					reason: [
+						t(candidate.reasonKey),
+						candidate.exactGrade ? t('sub.sameGrade', { grade: candidate.grade }) : '',
+						t('sub.load', { regular: candidate.load.regular, substitutions: candidate.load.substitutions })
+					].filter(Boolean).join(' · '),
+					breakdown: {
+						subjectMatch: candidate.matchTier === 'exact' ? 40 : candidate.matchTier === 'approved' ? 35 : 0,
+						gradeMatch: candidate.exactGrade ? 25 : candidate.sameBand ? 10 : 0,
+						workloadBonus: Math.max(0, getExpectedPeriodCount() - candidate.load.totalAfter),
+						availabilityBonus: 0
+					}
+				}));
 		}
 
 		function cleanupSubstitutionClassPlan(day, className) {
@@ -3835,6 +4076,9 @@ Class 12 Arts,Geography (Prakash),English Literature (Harshita),Economics (Praka
 						delete state.substitutions[day].plan[className][periodIndex];
 						cleanupSubstitutionClassPlan(day, className);
 					}
+					const slotId = getSubstitutionSlotId(day, className, periodIndex);
+					if (state.substitutionMetadata?.[state.substitutionDate]) delete state.substitutionMetadata[state.substitutionDate][slotId];
+					persistCurrentSubstitutionPlan();
 
 					closeSubstitutionAssignmentSheet();
 					renderSubstitutionView(day, absentTeachers);
@@ -3843,15 +4087,29 @@ Class 12 Arts,Geography (Prakash),English Literature (Harshita),Economics (Praka
 				}
 
 				const availableTeachers = getRecommendedSubstitutionCandidates(day, planEntry, absentTeachers, 50);
-				const isStillAvailable = availableTeachers.some(candidate => candidate.teacher === teacher);
+				const selectedCandidate = availableTeachers.find(candidate => candidate.teacher === teacher);
+				const isStillAvailable = Boolean(selectedCandidate);
 
 				if (!isStillAvailable) {
 					showToast(`${teacher} is no longer free for this slot.`, 3200, 'warning');
 					return;
 				}
+				if (selectedCandidate.warnings.length > 0) {
+					const warningText = selectedCandidate.warnings.map(code => t(`warning.${code}`)).join('\n• ');
+					const approved = confirm(`${t('sub.fallbackNotice')}\n\n• ${warningText}\n\n${t('action.approve')}?`);
+					if (!approved) return;
+				}
 
 				ensureSubstitutionStructures(day, className);
 				state.substitutions[day].plan[className][periodIndex] = teacher;
+				const slotId = getSubstitutionSlotId(day, className, periodIndex);
+				if (!state.substitutionMetadata[state.substitutionDate]) state.substitutionMetadata[state.substitutionDate] = {};
+				state.substitutionMetadata[state.substitutionDate][slotId] = {
+					matchTier: selectedCandidate.matchTier,
+					warnings: selectedCandidate.warnings,
+					source: 'manual'
+				};
+				persistCurrentSubstitutionPlan();
 
 				closeSubstitutionAssignmentSheet();
 				renderSubstitutionView(day, absentTeachers);
@@ -3892,11 +4150,8 @@ Class 12 Arts,Geography (Prakash),English Literature (Harshita),Economics (Praka
 				persistAbsentTeachers(day, nextAbsentTeachers);
 				closeSubstitutionAssignmentSheet();
 
-				if (nextAbsentTeachers.length > 0) {
-					handleGeneratePlan(day, nextAbsentTeachers, { silent: true });
-					return;
-				}
-
+				pruneSubstitutionPlanForAbsentTeachers(day, nextAbsentTeachers);
+				persistCurrentSubstitutionPlan();
 				renderSubstitutionView(day, nextAbsentTeachers);
 			} catch (error) {
 				console.error('Error removing absent teacher:', error);
@@ -3914,11 +4169,8 @@ Class 12 Arts,Geography (Prakash),English Literature (Harshita),Economics (Praka
 				persistAbsentTeachers(day, nextTeachers);
 				closeSubstitutionAssignmentSheet();
 
-				if (nextTeachers.length > 0) {
-					handleGeneratePlan(day, nextTeachers, { silent: true });
-					return;
-				}
-
+				pruneSubstitutionPlanForAbsentTeachers(day, nextTeachers);
+				persistCurrentSubstitutionPlan();
 				renderSubstitutionView(day, nextTeachers);
 			} catch (error) {
 				console.error('Error toggling absent teacher selection:', error);
@@ -4101,7 +4353,9 @@ Class 12 Arts,Geography (Prakash),English Literature (Harshita),Economics (Praka
 									<strong>${escapeHtml(candidate.teacher)}</strong>
 									<p>${escapeHtml(candidate.reason)}</p>
 								</div>
-								<span class="substitution-mini-pill">${index === 0 ? 'Best match' : `Score ${candidate.score}`}</span>
+								<span class="substitution-mini-pill ${candidate.warnings.length ? 'substitution-mini-pill--warning' : ''}">
+									${candidate.warnings.length ? t('sub.reviewRequired') : (index === 0 ? t('sub.exact') : t(candidate.reasonKey))}
+								</span>
 							</button>
 						`).join('') : `
 							<div class="substitution-empty substitution-empty--inline">
@@ -4243,7 +4497,9 @@ Class 12 Arts,Geography (Prakash),English Literature (Harshita),Economics (Praka
 		function renderSubstitutionView(day = null, absentTeachers = []) {
 			const { days } = state.allData;
 			const currentDay = getCurrentDay();
-			const selectedDay = day || state.currentSubstitutionDay || state.uiSelection.substitutionDay || currentDay;
+			if (!state.substitutionDate) restoreSubstitutionPlanForDate(getDefaultSubstitutionDate());
+			const selectedDate = /^\d{4}-\d{2}-\d{2}$/.test(String(day || '')) ? day : state.substitutionDate;
+			const selectedDay = getDayForIsoDate(selectedDate) || day || state.currentSubstitutionDay || state.uiSelection.substitutionDay || currentDay;
 			const hasExplicitAbsentTeachers = arguments.length >= 2;
 			const selectedAbsentTeachers = hasExplicitAbsentTeachers ? absentTeachers : getSavedAbsentTeachers(selectedDay);
 			const currentTimeLabel = new Date().toLocaleTimeString('en-US', {
@@ -4255,6 +4511,7 @@ Class 12 Arts,Geography (Prakash),English Literature (Harshita),Economics (Praka
 			const searchValue = escapeHtml(state.substitutionTeacherSearch);
 
 			persistAbsentTeachers(selectedDay, selectedAbsentTeachers);
+			state.substitutionDate = selectedDate;
 			state.currentSubstitutionDay = selectedDay;
 			updateUiSelection({ substitutionDay: selectedDay });
 			document.getElementById('print-header-subtitle').textContent = `Substitution Plan for ${selectedDay}`;
@@ -4263,19 +4520,59 @@ Class 12 Arts,Geography (Prakash),English Literature (Harshita),Economics (Praka
 			const overview = getSubstitutionOverview(selectedDay, selectedAbsentTeachers, planEntries);
 			const hasAnySavedPlan = Object.values(state.substitutions[selectedDay]?.plan || {}).some(classPlan => Object.keys(classPlan).length > 0);
 			const heroMessage = selectedAbsentTeachers.length === 0
-				? 'Add absent teachers, then use Auto Assign or choose substitutes directly from the table.'
+				? t('sub.setupHelp')
 				: planEntries.length === 0
-					? 'The selected teachers do not have scheduled classes on this day.'
+					? t('sub.noAffected')
 					: overview.uncoveredCount > 0
-						? `${overview.uncoveredCount} slot${overview.uncoveredCount === 1 ? '' : 's'} still need attention.`
-						: 'Every visible slot is assigned and ready to share.';
+						? t('sub.needsReview', { count: overview.uncoveredCount })
+						: t('sub.shareHelp');
 
-			const dayTabsHtml = getDayTabsMarkup('substitution', selectedDay);
 			const selectedTeacherChips = buildSubstitutionSelectedTeacherChips(selectedDay, selectedAbsentTeachers);
 			const searchResultsHtml = buildSubstitutionSearchResultsMarkup(selectedDay, selectedAbsentTeachers);
 
+			const planCardsHtml = planEntries.length > 0 ? `
+				<div class="substitution-plan-grid" aria-label="${escapeHtml(t('sub.coveragePlan'))}">
+					${planEntries.map(entry => {
+						const coverageState = getSubstitutionCoverageState(selectedDay, entry, selectedAbsentTeachers);
+						const isCovered = coverageState.isCovered;
+						const topCandidate = coverageState.topCandidate;
+						const slotId = getSubstitutionSlotId(selectedDay, entry.className, entry.periodIndex);
+						const metadata = state.substitutionMetadata?.[state.substitutionDate]?.[slotId] || {};
+						const matchLabel = isCovered && metadata.matchTier ? t(`sub.${metadata.matchTier}`) : '';
+						const status = isCovered ? t('sub.assigned') : topCandidate ? t('sub.reviewRequired') : t('sub.unassigned');
+						return `
+							<article class="substitution-plan-card substitution-plan-card--${isCovered ? 'covered' : topCandidate ? 'review' : 'open'}" data-plan-key="${encodeURIComponent(`${selectedDay}|${entry.className}|${entry.periodIndex}`)}">
+								<div class="substitution-plan-top">
+									<div class="substitution-plan-slot-block">
+										<span class="substitution-plan-slot">${escapeHtml(entry.periodName)}</span>
+										<small>${escapeHtml(entry.periodTime || '')}</small>
+									</div>
+									<span class="substitution-plan-status substitution-plan-status--${isCovered ? 'covered' : topCandidate ? 'review' : 'open'}">${escapeHtml(status)}</span>
+								</div>
+								<div class="substitution-plan-copy">
+									<strong>${escapeHtml(entry.className)} · ${escapeHtml(entry.subject || '--')}</strong>
+									<p>${escapeHtml(entry.originalTeacher)} → <strong>${escapeHtml(entry.substitute || topCandidate?.teacher || t('sub.noCandidates'))}</strong></p>
+									${matchLabel ? `<small class="substitution-match-note">${escapeHtml(matchLabel)}</small>` : ''}
+									${topCandidate && !isCovered ? `<small class="substitution-warning-note">${escapeHtml(topCandidate.reason)}</small>` : ''}
+								</div>
+								<div class="substitution-plan-card-actions">
+									${topCandidate && !isCovered ? `
+										<button class="button button-warning" onclick='handleQuickAssignSuggestion(${JSON.stringify(selectedDay)}, ${JSON.stringify(entry.className)}, ${entry.periodIndex})'>
+											<i data-lucide="shield-alert"></i>${escapeHtml(t('action.approve'))} ${escapeHtml(topCandidate.teacher)}
+										</button>` : ''}
+									<button class="button button-secondary" onclick='openSubstitutionAssignmentSheet(${JSON.stringify(selectedDay)}, ${JSON.stringify(entry.className)}, ${entry.periodIndex})'>
+										<i data-lucide="user-cog"></i>${escapeHtml(isCovered ? t('action.change') : t('action.choose'))}
+									</button>
+								</div>
+							</article>
+						`;
+					}).join('')}
+				</div>
+			` : '';
+
 			const planTableHtml = planEntries.length > 0
 				? `
+					${planCardsHtml}
 					<div class="table-container substitution-plan-table">
 						<table>
 							<thead>
@@ -4350,15 +4647,15 @@ Class 12 Arts,Geography (Prakash),English Literature (Harshita),Economics (Praka
 					<div class="substitution-plan-actions">
 						<button onclick='handleQuickShareSubstitutionPlan(${JSON.stringify(selectedDay)})' class="button button-whatsapp">
 							<i data-lucide="share-2"></i>
-							Share Image
+								${escapeHtml(t('action.shareImage'))}
 						</button>
 						<button onclick='handleShareSubstitutionPlanText(${JSON.stringify(selectedDay)})' class="button button-secondary">
 							<i data-lucide="clipboard"></i>
-							Share Table
+								${escapeHtml(t('action.shareText'))}
 						</button>
 						<button onclick='handlePrintSubstitutionPlan(${JSON.stringify(selectedDay)})' class="button button-secondary">
 							<i data-lucide="printer"></i>
-							Print
+								${escapeHtml(t('action.print'))}
 						</button>
 					</div>
 				`
@@ -4386,38 +4683,44 @@ Class 12 Arts,Geography (Prakash),English Literature (Harshita),Economics (Praka
 								<div class="substitution-toolbar-actions">
 									<button id="generate-plan-btn" class="button button-primary" ${selectedAbsentTeachers.length === 0 ? 'disabled' : ''}>
 										<i data-lucide="wand-2"></i>
-										Auto Assign
+										${escapeHtml(t('action.autoAssign'))}
 									</button>
 									<button class="button button-secondary" onclick='openAbsentTeacherPicker(${JSON.stringify(selectedDay)})'>
 										<i data-lucide="users"></i>
-										Browse Teachers
+										${escapeHtml(t('action.browseTeachers'))}
 									</button>
 									<button class="button button-secondary substitution-clear-btn" onclick="clearSubstitutionTeacherSelection()" ${selectedAbsentTeachers.length === 0 ? 'disabled' : ''}>
 										<i data-lucide="x"></i>
-										Clear
+										${escapeHtml(t('action.clear'))}
 									</button>
 								</div>
 							</div>
-							<div class="day-tabs substitution-day-tabs" role="tablist" aria-label="Select substitution day">
-								${dayTabsHtml}
-							</div>
+								<div class="substitution-date-control">
+									<label for="substitution-date">${escapeHtml(t('sub.date'))}</label>
+									<div class="substitution-date-row">
+										<button type="button" class="button button-secondary icon-button" onclick="shiftSubstitutionDate(-1)" aria-label="Previous school day"><i data-lucide="chevron-left"></i></button>
+										<input type="date" id="substitution-date" value="${escapeHtml(selectedDate)}" onchange="handleSubstitutionDateChange(this.value)">
+										<button type="button" class="button button-secondary icon-button" onclick="shiftSubstitutionDate(1)" aria-label="Next school day"><i data-lucide="chevron-right"></i></button>
+									</div>
+									<small><i data-lucide="cloud-off"></i>${escapeHtml(t('sub.saved'))}</small>
+								</div>
 							<div class="metric-strip substitution-metric-strip">
 								<div class="metric-chip">
-									<span>Absent</span>
+									<span>${escapeHtml(t('sub.absentTeachers'))}</span>
 									<strong>${selectedAbsentTeachers.length}</strong>
 								</div>
 								<div class="metric-chip">
-									<span>Open</span>
+									<span>${escapeHtml(t('sub.openLabel'))}</span>
 									<strong>${overview.uncoveredCount}</strong>
 								</div>
 								<div class="metric-chip">
-									<span>Covered</span>
+									<span>${escapeHtml(t('sub.coveredLabel'))}</span>
 									<strong>${overview.coveredCount}</strong>
 								</div>
 							</div>
 							<div class="substitution-search substitution-search--prominent">
 								<i data-lucide="search"></i>
-								<input type="search" id="substitution-teacher-search" value="${searchValue}" placeholder="Search teacher name">
+								<input type="search" id="substitution-teacher-search" value="${searchValue}" placeholder="${escapeHtml(t('sub.searchTeacher'))}">
 							</div>
 							<div class="substitution-selected-panel">
 								<div class="substitution-selected-list" id="substitution-selected-list">
@@ -4431,14 +4734,14 @@ Class 12 Arts,Geography (Prakash),English Literature (Harshita),Economics (Praka
 					<section class="card substitution-plan-panel" id="substitution-plan-panel">
 						<div class="view-header">
 							<div>
-								<h2 class="section-title">Coverage Plan</h2>
+								<h2 class="section-title">${escapeHtml(t('sub.coveragePlan'))}</h2>
 								<p class="section-subtitle">${planEntries.length > 0
 									? (overview.uncoveredCount > 0
 										? 'Use Quick for the best available teacher, or open a row to choose manually.'
 										: 'All current slots are assigned and ready to share.')
 									: 'The coverage table appears here after you add absent teachers.'}</p>
 							</div>
-							${planEntries.length > 0 ? `<span class="finder-pill finder-pill--accent">${overview.uncoveredCount > 0 ? `${overview.uncoveredCount} open` : 'Ready to share'}</span>` : ''}
+							${planEntries.length > 0 ? `<span class="finder-pill finder-pill--accent">${overview.uncoveredCount > 0 ? `${overview.uncoveredCount} ${escapeHtml(t('sub.openLabel'))}` : escapeHtml(t('sub.statusReady'))}</span>` : ''}
 						</div>
 						${planActionsHtml}
 						<div id="substitution-plan-content" class="substitution-plan-shell">
@@ -4619,7 +4922,10 @@ Class 12 Arts,Geography (Prakash),English Literature (Harshita),Economics (Praka
 		function clearSubstitutionTeacherSelection() {
 			try {
 				const day = state.currentSubstitutionDay || getCurrentDay();
-				persistAbsentTeachers(day, []);
+				state.substitutions[day] = { plan: {}, absentTeachers: [] };
+				state.substitutionMetadata[state.substitutionDate] = {};
+				state.substitutionSuggestions[state.substitutionDate] = [];
+				persistCurrentSubstitutionPlan();
 				closeSubstitutionAssignmentSheet();
 				renderSubstitutionView(day, []);
 			} catch (error) {
@@ -4643,6 +4949,22 @@ Class 12 Arts,Geography (Prakash),English Literature (Harshita),Economics (Praka
 		}
 
 		// --- VIEW SWITCHING ---
+		function renderMoreView() {
+			queueViewRender(`
+				<section class="card more-tools-view">
+					<div class="section-kicker">${escapeHtml(t('nav.more'))}</div>
+					<h2 class="section-title">${escapeHtml(t('more.title'))}</h2>
+					<p class="section-subtitle">${escapeHtml(t('more.description'))}</p>
+					<div class="more-tools-grid">
+						<button class="more-tool-card" onclick="switchView('Class')"><i data-lucide="school"></i><span>${escapeHtml(t('nav.class'))}</span><i data-lucide="chevron-right"></i></button>
+						<button class="more-tool-card" onclick="switchView('Teacher')"><i data-lucide="users"></i><span>${escapeHtml(t('nav.teacher'))}</span><i data-lucide="chevron-right"></i></button>
+						<button class="more-tool-card" onclick="toggleAppLanguage()"><i data-lucide="languages"></i><span>${escapeHtml(t('nav.language'))}: ${escapeHtml(window.I18n?.getLanguage() === 'hi' ? t('language.hindi') : t('language.english'))}</span><i data-lucide="repeat-2"></i></button>
+						<button class="more-tool-card" onclick="toggleTheme()"><i data-lucide="sun-moon"></i><span>${escapeHtml(t('nav.theme'))}</span><i data-lucide="repeat-2"></i></button>
+					</div>
+				</section>
+			`);
+		}
+
 		function switchView(view) {
 			// Clear intervals
 			if (window.dashboardInterval) {
@@ -4664,6 +4986,10 @@ Class 12 Arts,Geography (Prakash),English Literature (Harshita),Economics (Praka
 			document.querySelectorAll('.nav-button').forEach(btn => btn.classList.remove('active'));
 			const activeBtn = document.getElementById(`nav-${view}`);
 			if (activeBtn) activeBtn.classList.add('active');
+			document.querySelectorAll('.mobile-bottom-nav__button').forEach(btn => btn.classList.remove('active'));
+			const mobileView = ['Class', 'Teacher', 'More'].includes(view) ? 'More' : view;
+			const mobileActiveBtn = document.getElementById(`mobile-nav-${mobileView}`);
+			if (mobileActiveBtn) mobileActiveBtn.classList.add('active');
 
 			// Render view
 			switch(view) {
@@ -4681,6 +5007,9 @@ Class 12 Arts,Geography (Prakash),English Literature (Harshita),Economics (Praka
 					break;
 				case 'Teacher':
 					renderTeacherView();
+					break;
+				case 'More':
+					renderMoreView();
 					break;
 				default:
 					renderDashboard();
@@ -4729,6 +5058,9 @@ Class 12 Arts,Geography (Prakash),English Literature (Harshita),Economics (Praka
 
 				const absentTeachers = state.substitutions[day].absentTeachers || [];
 				state.substitutions[day] = { plan: {}, absentTeachers };
+				state.substitutionMetadata[state.substitutionDate] = {};
+				state.substitutionSuggestions[state.substitutionDate] = [];
+				persistCurrentSubstitutionPlan();
 				closeSubstitutionAssignmentSheet();
 				
 				showToast('Substitution plan reset successfully', 3000, 'success');
@@ -4815,77 +5147,54 @@ Class 12 Arts,Geography (Prakash),English Literature (Harshita),Economics (Praka
 		function handleGeneratePlan(day, absentTeachers, options = {}) {
 			try {
 				const silent = options?.silent === true;
-
 				if (!day || !absentTeachers || absentTeachers.length === 0) {
-					if (!silent) {
-						showToast('Please select at least one absent teacher', 3000, 'warning');
-					}
+					if (!silent) showToast(t('sub.noAbsent'), 3000, 'warning');
 					return;
 				}
-
-				const { teacherDetails } = state.allData;
-				const vacantSlots = [];
-
-				absentTeachers.forEach(teacher => {
-					const schedule = teacherDetails[teacher]?.schedule?.[day];
-					if (!schedule) return;
-
-					schedule.forEach((period, periodIndex) => {
-						if (!period) return;
-						vacantSlots.push({
-							...period,
-							periodIndex,
-							originalTeacher: teacher
-						});
-					});
-				});
-
+				const vacantSlots = getSubstitutionVacantSlots(day, absentTeachers).map(slot => ({
+					...slot,
+					slotId: getSubstitutionSlotId(day, slot.className, slot.periodIndex)
+				}));
 				if (vacantSlots.length === 0) {
-					if (!silent) {
-						showToast('The selected teachers have no classes to cover on this day', 3000, 'info');
-					}
+					if (!silent) showToast(t('sub.noAffected'), 3000, 'info');
 					renderSubstitutionView(day, absentTeachers);
 					return;
 				}
-
 				if (!state.substitutions[day]) {
 					state.substitutions[day] = { plan: {}, absentTeachers: [] };
 				}
-
 				state.substitutions[day].absentTeachers = [...absentTeachers];
 				closeSubstitutionAssignmentSheet();
-				pruneSubstitutionPlanForAbsentTeachers(day, absentTeachers);
-
-				vacantSlots.forEach(slot => {
-					if (!state.substitutions[day].plan[slot.className]) {
-						state.substitutions[day].plan[slot.className] = {};
-					}
-					delete state.substitutions[day].plan[slot.className][slot.periodIndex];
-					cleanupSubstitutionClassPlan(day, slot.className);
+				const result = window.SubstitutionEngine.generatePlan({
+					day,
+					periodCount: getExpectedPeriodCount(),
+					teacherProfiles: getSubstitutionTeacherProfiles(),
+					absentTeachers,
+					vacancies: vacantSlots,
+					existingAssignments: [],
+					policy: { maxConsecutive: 4 }
 				});
-
-				const newPlan = state.substitutions[day].plan;
-				vacantSlots.forEach(slot => {
-					const freeTeachers = findFreeTeachers(
-						day,
-						slot.periodIndex,
-						absentTeachers,
-						newPlan,
-						slot
-					);
-
-					if (freeTeachers.length === 0) return;
-					if (!newPlan[slot.className]) {
-						newPlan[slot.className] = {};
-					}
-
-					newPlan[slot.className][slot.periodIndex] = freeTeachers[0].teacher;
-					console.log(`Assigned ${freeTeachers[0].teacher} to ${slot.className} Period ${slot.periodIndex + 1} (Score: ${freeTeachers[0].score}, Reason: ${freeTeachers[0].reason})`);
+				state.substitutions[day].plan = {};
+				state.substitutionMetadata[state.substitutionDate] = {};
+				result.assignments.forEach(assignment => {
+					ensureSubstitutionStructures(day, assignment.className);
+					state.substitutions[day].plan[assignment.className][assignment.periodIndex] = assignment.teacher;
+					state.substitutionMetadata[state.substitutionDate][assignment.slotId] = {
+						matchTier: assignment.matchTier,
+						warnings: assignment.warnings || [],
+						source: assignment.source || 'auto'
+					};
 				});
-
-				state.substitutions[day].plan = newPlan;
+				state.substitutionSuggestions[state.substitutionDate] = result.reviewSuggestions;
+				persistCurrentSubstitutionPlan();
 				if (!silent) {
-					showToast('Substitution plan generated successfully', 3000, 'success');
+					const tone = result.reviewSuggestions.length || result.openSlots.length ? 'warning' : 'success';
+					const message = result.reviewSuggestions.length
+						? t('sub.needsReview', { count: result.reviewSuggestions.length })
+						: result.openSlots.length
+							? t('sub.open', { count: result.openSlots.length })
+							: t('sub.ready');
+					showToast(message, 3400, tone);
 				}
 				renderSubstitutionView(day, absentTeachers);
 				if (!silent) {
@@ -5443,6 +5752,12 @@ Class 12 Arts,Geography (Prakash),English Literature (Harshita),Economics (Praka
 						state.substitutions[day] = { plan: {}, absentTeachers: [] };
 					}
 				});
+				const storedPlans = substitutionPlanStore?.load();
+				state.substitutionDate = getDefaultSubstitutionDate();
+				restoreSubstitutionPlanForDate(state.substitutionDate);
+				if (storedPlans?.invalidated) {
+					showToast(t('sub.planExpired'), 4200, 'warning');
+				}
 
 				restoreUiSessionState();
 				bindMainContentEvents();
@@ -5604,10 +5919,18 @@ Class 12 Arts,Geography (Prakash),English Literature (Harshita),Economics (Praka
 					case 'Teacher':
 						renderTeacherView();
 						break;
+					case 'More':
+						renderMoreView();
+						break;
 					default:
 						renderDashboard();
 				}
 			};
+			window.addEventListener('languagechange', () => {
+				updateStaticTranslations();
+				rerenderCurrentView();
+			});
+			updateStaticTranslations();
 			const mobileLayoutQuery = window.matchMedia('(max-width: 768px)');
 			const getLayoutMode = (matchesMobile = mobileLayoutQuery.matches) => matchesMobile ? 'mobile' : 'desktop';
 			let currentLayoutMode = getLayoutMode();
