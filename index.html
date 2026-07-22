@@ -131,11 +131,11 @@
 			</button>
 			<button id="nav-Class" class="nav-button" onclick="switchView('Class')">
 				<i data-lucide="school"></i>
-				<span data-i18n="nav.class">Class View</span>
+				<span data-i18n="nav.class">Classes</span>
 			</button>
 			<button id="nav-Teacher" class="nav-button" onclick="switchView('Teacher')">
 				<i data-lucide="users"></i>
-				<span data-i18n="nav.teacher">Teacher View</span>
+				<span data-i18n="nav.teacher">Teachers</span>
 			</button>
 		</nav>
 
@@ -146,11 +146,14 @@
 			<button id="mobile-nav-Day" class="mobile-bottom-nav__button" onclick="switchView('Day')">
 				<i data-lucide="calendar-days"></i><span data-i18n="nav.today">Today</span>
 			</button>
+			<button id="mobile-nav-Class" class="mobile-bottom-nav__button" onclick="switchView('Class')">
+				<i data-lucide="school"></i><span data-i18n="nav.class">Classes</span>
+			</button>
+			<button id="mobile-nav-Teacher" class="mobile-bottom-nav__button" onclick="switchView('Teacher')">
+				<i data-lucide="users"></i><span data-i18n="nav.teacher">Teachers</span>
+			</button>
 			<button id="mobile-nav-Substitution" class="mobile-bottom-nav__button" onclick="switchView('Substitution')">
 				<i data-lucide="user-round-check"></i><span data-i18n="nav.substitutions">Substitutions</span>
-			</button>
-			<button id="mobile-nav-More" class="mobile-bottom-nav__button" onclick="switchView('More')">
-				<i data-lucide="menu"></i><span data-i18n="nav.more">More</span>
 			</button>
 		</nav>
 
@@ -509,6 +512,9 @@ Class 12 Arts,Geography (Prakash),English Literature (Harshita),Economics (Praka
 				period: null,
 				manual: false
 			},
+			homeSetup: {
+				picking: false
+			},
 			allData: {},
 			cache: new Map(),
 			lastUpdate: null,
@@ -527,7 +533,7 @@ Class 12 Arts,Geography (Prakash),English Literature (Harshita),Economics (Praka
 		const mainContent = document.getElementById('main-content');
 		const SESSION_UI_KEY = 'vpps-ui-state-v2';
 		const SCHEDULE_VERSION = '2026-27-v4';
-		const VALID_VIEWS = ['Dashboard', 'Day', 'Substitution', 'Class', 'Teacher', 'More'];
+		const VALID_VIEWS = ['Dashboard', 'Day', 'Substitution', 'Class', 'Teacher'];
 		const PARSED_TIMETABLE_CACHE_KEY = 'parsed_timetable_data_v2';
 		const t = (key, params = {}) => window.I18n?.t(key, params) || key;
 		window.I18n?.init();
@@ -2537,6 +2543,181 @@ Class 12 Arts,Geography (Prakash),English Literature (Harshita),Economics (Praka
 
 		const debouncedRenderFreeTeacher = debounce(renderFreeTeacherFinder, 150);
 
+		// --- PERSONALIZATION: "This is my phone" ---
+		const MY_TEACHER_KEY = 'vpps_my_teacher';
+		const MY_ROLE_KEY = 'vpps_my_role';
+
+		function getPinnedTeacher() {
+			try {
+				const name = localStorage.getItem(MY_TEACHER_KEY);
+				return name && state.allData.teacherNames?.includes(name) ? name : '';
+			} catch (error) {
+				return '';
+			}
+		}
+
+		function getMyRole() {
+			try {
+				return localStorage.getItem(MY_ROLE_KEY) || '';
+			} catch (error) {
+				return '';
+			}
+		}
+
+		function pinMyTeacher(name) {
+			try {
+				localStorage.setItem(MY_TEACHER_KEY, name);
+				localStorage.setItem(MY_ROLE_KEY, 'teacher');
+			} catch (error) { /* storage is optional */ }
+			state.homeSetup.picking = false;
+			renderMyDayCard();
+		}
+
+		function setBrowsingRole() {
+			try { localStorage.setItem(MY_ROLE_KEY, 'admin'); } catch (error) { /* storage is optional */ }
+			state.homeSetup.picking = false;
+			renderMyDayCard();
+		}
+
+		function changeMyProfile() {
+			try {
+				localStorage.removeItem(MY_TEACHER_KEY);
+				localStorage.removeItem(MY_ROLE_KEY);
+			} catch (error) { /* storage is optional */ }
+			state.homeSetup.picking = false;
+			renderMyDayCard();
+		}
+
+		function toggleTeacherPicking(picking) {
+			state.homeSetup.picking = picking;
+			renderMyDayCard();
+		}
+
+		function buildMyDayAgenda(teacherName, day) {
+			const { teacherDetails, periodHeaders } = state.allData;
+			const schedule = teacherDetails?.[teacherName]?.schedule?.[day] || [];
+			const today = getCurrentDay();
+			const liveIndex = day === today ? getActivePeriodIndex() : -1;
+			return periodHeaders.map((header, i) => {
+				const slot = schedule[i];
+				return {
+					index: i,
+					label: header?.name || `Period ${i + 1}`,
+					time: header?.time || '',
+					subject: slot ? slot.subject : '',
+					className: slot ? slot.className : '',
+					isFree: !slot,
+					isNow: i === liveIndex
+				};
+			});
+		}
+
+		function renderMyDayCard() {
+			const container = document.getElementById('my-day-container');
+			if (!container) return;
+			const teacherName = getPinnedTeacher();
+			const role = getMyRole();
+			let html;
+
+			if (teacherName) {
+				const today = getCurrentDay();
+				const agenda = today === 'Sunday' ? [] : buildMyDayAgenda(teacherName, today);
+				const loadCount = agenda.filter(slot => !slot.isFree).length;
+				html = `
+					<div class="card my-day-card">
+						<div class="my-day-card__header">
+							<div>
+								<div class="section-kicker">${escapeHtml(t('home.yourDay'))}</div>
+								<h2 class="section-title">${escapeHtml(teacherName)}</h2>
+							</div>
+							<div class="my-day-card__meta">
+								${today !== 'Sunday' ? `<span>${escapeHtml(t('home.periodsLoad', { count: loadCount, total: agenda.length }))}</span>` : ''}
+								<button class="my-day-link" onclick="changeMyProfile()">${escapeHtml(t('action.change'))}</button>
+							</div>
+						</div>
+						${today === 'Sunday'
+							? `<p class="my-day-card__empty">${escapeHtml(t('dashboard.closed'))}</p>`
+							: `<div class="my-day-list">
+								${agenda.map(slot => `
+									<div class="my-day-row ${slot.isNow ? 'is-now' : ''} ${slot.isFree ? 'is-free' : ''}">
+										<span class="my-day-row__bubble">${slot.index + 1}</span>
+										<div class="my-day-row__body">
+											<strong class="subject">${slot.isFree ? escapeHtml(t('home.freePeriod')) : escapeHtml(slot.subject)}</strong>
+											<span>${escapeHtml(slot.time)}${slot.className ? ` · ${escapeHtml(slot.className)}` : ''}</span>
+										</div>
+										${slot.isNow ? `<span class="my-day-row__live"><span class="dashboard-live-dot"></span>${escapeHtml(t('dashboard.now'))}</span>` : ''}
+									</div>
+								`).join('')}
+							</div>
+							<button class="button button-secondary my-day-share" onclick="shareMyDay()">
+								<i data-lucide="share-2"></i> ${escapeHtml(t('home.shareDay'))}
+							</button>`
+						}
+					</div>
+				`;
+			} else if (role === 'admin' && !state.homeSetup.picking) {
+				html = `
+					<div class="card my-day-card my-day-card--dismissed">
+						<div class="my-day-card__header">
+							<div>
+								<div class="section-kicker">${escapeHtml(t('home.setupTitle'))}</div>
+								<p class="section-subtitle">${escapeHtml(t('home.setupSub'))}</p>
+							</div>
+							<button class="my-day-link" onclick="toggleTeacherPicking(true)">${escapeHtml(t('home.iTeach'))}</button>
+						</div>
+					</div>
+				`;
+			} else {
+				html = `
+					<div class="card my-day-card my-day-card--setup">
+						<div class="section-kicker">${escapeHtml(t('home.setupTitle'))}</div>
+						<p class="section-subtitle">${escapeHtml(t('home.setupSub'))}</p>
+						${state.homeSetup.picking ? `
+							<div class="my-day-picker">
+								${(state.allData.teacherNames || []).map(name => `
+									<button class="my-day-chip" onclick="pinMyTeacher('${name.replace(/'/g, "\\'")}')">${escapeHtml(name)}</button>
+								`).join('')}
+							</div>
+							<button class="my-day-link" onclick="toggleTeacherPicking(false)">${escapeHtml(t('action.cancel'))}</button>
+						` : `
+							<div class="my-day-card__actions">
+								<button class="button button-primary" onclick="toggleTeacherPicking(true)">${escapeHtml(t('home.iTeach'))}</button>
+								<button class="button button-secondary" onclick="setBrowsingRole()">${escapeHtml(t('home.justBrowse'))}</button>
+							</div>
+						`}
+					</div>
+				`;
+			}
+
+			queueElementRender(container, html, { renderKey: 'my-day' });
+		}
+
+		async function shareMyDay() {
+			const teacherName = getPinnedTeacher();
+			if (!teacherName) return;
+			const today = getCurrentDay();
+			if (today === 'Sunday') {
+				showToast(t('dashboard.closed'), 3000, 'info');
+				return;
+			}
+			const agenda = buildMyDayAgenda(teacherName, today);
+			const lines = agenda.map(slot => `P${slot.index + 1} ${slot.time}: ${slot.isFree ? t('home.freePeriod') : `${slot.subject} · ${slot.className}`}`);
+			const text = `${teacherName} — ${today} (VPPS)\n${lines.join('\n')}`;
+
+			if (navigator.share) {
+				try {
+					await navigator.share({ title: `${teacherName} — ${today}`, text });
+					return;
+				} catch (error) {
+					if (error.name === 'AbortError') return;
+					console.warn('Native text share failed, falling back to clipboard.', error);
+				}
+			}
+
+			const copied = await copyTextToClipboard(text);
+			showToast(copied ? t('home.copied') : t('home.shareFailed'), 3000, copied ? 'success' : 'error');
+		}
+
 		function renderDashboard() {
 			try {
 				const { classNames, teacherNames, days } = state.allData;
@@ -2578,6 +2759,10 @@ Class 12 Arts,Geography (Prakash),English Literature (Harshita),Economics (Praka
 							<div class="card hero-panel dashboard-spotlight">
 								${renderDashboardSummaryMarkup(overview)}
 							</div>
+						</section>
+
+						<section class="dashboard-my-day" aria-label="${escapeHtml(t('home.yourDay'))}">
+							<div id="my-day-container"></div>
 						</section>
 
 						<section class="dashboard-assist-grid" aria-label="Dashboard shortcuts and official session coverage">
@@ -2652,6 +2837,7 @@ Class 12 Arts,Geography (Prakash),English Literature (Harshita),Economics (Praka
 					</div>
 				`, {
 					afterRender: () => {
+						renderMyDayCard();
 						renderFreeTeacherFinder();
 						if (!window.dashboardInterval) {
 							window.dashboardInterval = setInterval(() => {
@@ -4949,22 +5135,6 @@ Class 12 Arts,Geography (Prakash),English Literature (Harshita),Economics (Praka
 		}
 
 		// --- VIEW SWITCHING ---
-		function renderMoreView() {
-			queueViewRender(`
-				<section class="card more-tools-view">
-					<div class="section-kicker">${escapeHtml(t('nav.more'))}</div>
-					<h2 class="section-title">${escapeHtml(t('more.title'))}</h2>
-					<p class="section-subtitle">${escapeHtml(t('more.description'))}</p>
-					<div class="more-tools-grid">
-						<button class="more-tool-card" onclick="switchView('Class')"><i data-lucide="school"></i><span>${escapeHtml(t('nav.class'))}</span><i data-lucide="chevron-right"></i></button>
-						<button class="more-tool-card" onclick="switchView('Teacher')"><i data-lucide="users"></i><span>${escapeHtml(t('nav.teacher'))}</span><i data-lucide="chevron-right"></i></button>
-						<button class="more-tool-card" onclick="toggleAppLanguage()"><i data-lucide="languages"></i><span>${escapeHtml(t('nav.language'))}: ${escapeHtml(window.I18n?.getLanguage() === 'hi' ? t('language.hindi') : t('language.english'))}</span><i data-lucide="repeat-2"></i></button>
-						<button class="more-tool-card" onclick="toggleTheme()"><i data-lucide="sun-moon"></i><span>${escapeHtml(t('nav.theme'))}</span><i data-lucide="repeat-2"></i></button>
-					</div>
-				</section>
-			`);
-		}
-
 		function switchView(view) {
 			// Clear intervals
 			if (window.dashboardInterval) {
@@ -4987,8 +5157,7 @@ Class 12 Arts,Geography (Prakash),English Literature (Harshita),Economics (Praka
 			const activeBtn = document.getElementById(`nav-${view}`);
 			if (activeBtn) activeBtn.classList.add('active');
 			document.querySelectorAll('.mobile-bottom-nav__button').forEach(btn => btn.classList.remove('active'));
-			const mobileView = ['Class', 'Teacher', 'More'].includes(view) ? 'More' : view;
-			const mobileActiveBtn = document.getElementById(`mobile-nav-${mobileView}`);
+			const mobileActiveBtn = document.getElementById(`mobile-nav-${view}`);
 			if (mobileActiveBtn) mobileActiveBtn.classList.add('active');
 
 			// Render view
@@ -5007,9 +5176,6 @@ Class 12 Arts,Geography (Prakash),English Literature (Harshita),Economics (Praka
 					break;
 				case 'Teacher':
 					renderTeacherView();
-					break;
-				case 'More':
-					renderMoreView();
 					break;
 				default:
 					renderDashboard();
@@ -5918,9 +6084,6 @@ Class 12 Arts,Geography (Prakash),English Literature (Harshita),Economics (Praka
 						break;
 					case 'Teacher':
 						renderTeacherView();
-						break;
-					case 'More':
-						renderMoreView();
 						break;
 					default:
 						renderDashboard();

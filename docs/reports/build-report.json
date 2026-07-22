@@ -1,11 +1,11 @@
 {
-  "timestamp": "2026-07-10T18:45:14.439Z",
+  "timestamp": "2026-07-22T06:58:24.208Z",
   "files": [
     {
       "file": "index.html",
-      "rawSize": 237509,
-      "gzippedSize": 51929,
-      "compression": "78.1%"
+      "rawSize": 242911,
+      "gzippedSize": 53049,
+      "compression": "78.2%"
     },
     {
       "file": "scripts/perf.js",
@@ -33,9 +33,9 @@
     },
     {
       "file": "scripts/i18n.js",
-      "rawSize": 16379,
-      "gzippedSize": 4346,
-      "compression": "73.5%"
+      "rawSize": 17248,
+      "gzippedSize": 4601,
+      "compression": "73.3%"
     },
     {
       "file": "scripts/substitution.js",
@@ -69,14 +69,14 @@
     },
     {
       "file": "styles/app.css",
-      "rawSize": 91571,
-      "gzippedSize": 15177,
+      "rawSize": 93500,
+      "gzippedSize": 15497,
       "compression": "83.4%"
     },
     {
       "file": "sw.js",
       "rawSize": 7035,
-      "gzippedSize": 2272,
+      "gzippedSize": 2271,
       "compression": "67.7%"
     },
     {
@@ -87,7 +87,7 @@
     }
   ],
   "totals": {
-    "raw": 511981,
-    "gzipped": 111326
+    "raw": 520181,
+    "gzipped": 113020
   }
 }
