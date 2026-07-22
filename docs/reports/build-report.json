@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-07-22T07:30:06.433Z",
+  "timestamp": "2026-07-22T07:33:45.732Z",
   "files": [
     {
       "file": "index.html",
@@ -45,13 +45,13 @@
     },
     {
       "file": "manifest.webmanifest",
-      "rawSize": 421,
-      "gzippedSize": 272,
-      "compression": "35.4%"
+      "rawSize": 426,
+      "gzippedSize": 268,
+      "compression": "37.1%"
     }
   ],
   "totals": {
-    "raw": 116718,
-    "gzipped": 29576
+    "raw": 116723,
+    "gzipped": 29572
   }
 }
