@@ -142,10 +142,10 @@ Ensure these references match your icon filenames.
 ### Scripts Directory (`scripts/`)
 
 JavaScript modules organized by functionality:
-- `ui.js` - UI logic and DOM manipulation
-- `perf.js` - Performance optimizations
-- `a11y.js` - Accessibility features
-- `colors.js` - Color coding system
+- `data.js` - Timetable data, bell schedule, and parser
+- `i18n.js` - English/Hindi dictionaries and label translation
+- `substitution.js` - Substitution matching engine
+- `app.js` - Application state, view renderers, and event handling
 
 **Guidelines:**
 - Keep modules focused on single responsibility
@@ -156,10 +156,7 @@ JavaScript modules organized by functionality:
 ### Styles Directory (`styles/`)
 
 CSS stylesheets organized by concern:
-- `theme.css` - Core theme and layout
-- `ui.css` - UI component styles
-- `a11y.css` - Accessibility-specific styles
-- `colors.css` - Color system definitions
+- `app.css` - The whole design system: tokens, components, light and dark themes
 
 **Guidelines:**
 - Use CSS custom properties (variables) for theming
@@ -174,7 +171,7 @@ The application uses several strategies for optimal asset loading:
 1. **Critical CSS**: Inline in `<head>` or high-priority external sheets
 2. **JavaScript Modules**: Loaded with `<script>` tags (not bundled)
 3. **Service Worker Precaching**: Static assets cached on install
-4. **Lazy Loading**: Heavy libraries loaded on-demand (see `scripts/perf.js`)
+4. **No third-party runtime**: no CDN scripts or libraries to load at all
 
 ### Asset Optimization
 

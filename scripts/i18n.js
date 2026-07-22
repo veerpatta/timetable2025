@@ -7,88 +7,74 @@
 
 	const STORAGE_KEY = 'vpps-language';
 	const DEFAULT_LANGUAGE = 'en';
+
+	// English and Hindi must expose exactly the same keys - the substitution
+	// engine test asserts parity, and a missing key silently falls back to English.
 	const dictionaries = {
 		en: {
 			'app.name': 'VPPS Timetable',
 			'app.school': 'Veer Patta Public School, Amet',
+
 			'nav.home': 'Home',
 			'nav.today': 'Today',
-			'nav.substitutions': 'Substitutions',
-			'nav.more': 'More',
-			'nav.class': 'Class View',
-			'nav.teacher': 'Teacher View',
-			'nav.theme': 'Theme',
-			'nav.language': 'Language',
-			'action.autoAssign': 'Auto Assign',
-			'action.browseTeachers': 'Browse Teachers',
-			'action.clear': 'Clear',
-			'action.change': 'Change',
-			'action.choose': 'Choose',
-			'action.approve': 'Approve',
-			'action.cancel': 'Cancel',
-			'action.reset': 'Reset Plan',
-			'action.shareImage': 'Share Image',
-			'action.shareText': 'Share Table',
-			'action.print': 'Print',
-			'action.viewToday': 'View Today',
-			'action.planSubstitutions': 'Plan Substitutions',
-			'action.fullTable': 'Full Table',
-			'action.mobileList': 'Mobile List',
-			'dashboard.now': 'Now',
-			'dashboard.glance': 'Today at a glance',
-			'dashboard.statusLive': 'Live school day',
-			'dashboard.statusBreak': 'Short break',
-			'dashboard.statusUpcoming': 'Before school',
-			'dashboard.statusComplete': 'School day complete',
-			'dashboard.liveHeadline': '{day} is in {period}',
-			'dashboard.breakHeadline': 'Break before {period}',
-			'dashboard.upcomingHeadline': '{day} starts with {period}',
-			'dashboard.completeHeadline': 'Classes are complete for {day}',
-			'dashboard.liveMessage': '{time} is active now.',
-			'dashboard.breakMessage': '{period} begins at {time}.',
-			'dashboard.upcomingMessage': 'School starts with {period} at {time}.',
-			'dashboard.completeMessage': 'Use the timetable or plan the next school day.',
-			'dashboard.classesScheduled': '{count} classes scheduled',
-			'dashboard.currentSlot': 'Current period',
-			'dashboard.nextSlot': 'Next period',
-			'dashboard.bestAvailable': 'Best available',
-			'dashboard.freeTeachers': 'Free teachers',
-			'dashboard.teacherOne': '1 teacher',
-			'dashboard.teacherMany': '{count} teachers',
-			'dashboard.available': '{count} teachers free',
-			'dashboard.closed': 'School is closed today',
-			'dashboard.nextSchoolDay': 'Next school day: {day}',
-			'day.heading': '{day} timetable',
-			'day.choosePeriod': 'Choose a period',
-			'day.classesCount': '{count} classes',
-			'sub.title': 'Plan substitutions',
-			'sub.planFor': 'Plan substitutions for {day}',
-			'sub.statusSetup': 'Setup needed',
-			'sub.statusNothing': 'Nothing to cover',
-			'sub.statusReady': 'Plan ready',
-			'sub.statusReview': 'Needs review',
-			'sub.statusGenerate': 'Ready to generate',
-			'sub.noClasses': '{day} has no classes to cover',
-			'sub.coveredCount': '{count} substitution periods covered',
-			'sub.partialCount': '{covered} covered, {open} still open',
-			'sub.slotsNeed': '{count} periods need coverage',
-			'sub.setupHelp': 'Select absent teachers, preview affected classes, then generate the qualified coverage plan.',
-			'sub.reviewHelp': 'Review every warning before sharing the plan.',
-			'sub.shareHelp': 'All qualified assignments are ready to share.',
-			'sub.date': 'School date',
-			'sub.absentTeachers': 'Absent teachers',
-			'sub.searchTeacher': 'Search teacher name',
+			'nav.class': 'Classes',
+			'nav.teacher': 'Teachers',
+			'nav.subs': 'Substitutes',
+
+			'ui.now': 'NOW',
+			'ui.live': 'LIVE',
+			'ui.free': 'Free period',
+			'ui.freeShort': 'Free',
+			'ui.periods': 'periods',
+			'ui.noFree': 'No one free',
+			'ui.team': 'Team covers',
+			'ui.copied': 'Copied to clipboard',
+			'ui.list': 'List',
+			'ui.table': 'Table',
+			'ui.day': 'Day',
+			'ui.week': 'Week',
+			'ui.classCol': 'Class',
+			'ui.periodShort': 'P',
+
+			'setup.title': 'Set up this phone',
+			'setup.sub': 'Teachers get their own schedule on the home screen. You can change this anytime.',
+			'setup.teacher': 'I am a teacher',
+			'setup.admin': 'Admin / just browsing',
+			'setup.back': 'Back',
+			'setup.change': 'Change',
+
+			'status.closed': 'Sunday · School closed',
+			'status.before': 'Opens 8:00 AM · Period 1 at 8:30 AM',
+			'status.complete': 'School day complete · Closes 2:10 PM',
+			'status.break': 'Short break · 11:10 – 11:30 AM',
+			'status.closedTitle': 'School is closed today',
+			'status.beforeTitle': 'School opens soon',
+			'status.completeTitle': 'Classes are complete',
+			'status.breakTitle': 'Short break',
+
+			'hero.yourDay': 'Your day',
+			'hero.next': 'Next',
+			'hero.periodLive': 'Period {n} is live',
+			'hero.nextMonday': 'Next: {day} · P1 8:30 AM',
+			'hero.nextAfterBreak': 'Next: P5 · 11:30 AM',
+
+			'home.freeRightNow': 'Free right now',
+			'home.shareDay': 'Share this day',
+
+			'board.title': 'Who is teaching?',
+			'board.freeThisPeriod': 'Free this period',
+
+			'class.title': 'Class timetable',
+			'teacher.title': 'Teacher timetable',
+
+			'subs.title': 'Substitution planner',
+			'subs.sub': 'Pick a day, mark absent teachers, and get free-teacher suggestions for every affected period.',
+			'subs.markAbsent': 'Mark absent teachers',
+			'subs.share': 'Share this plan',
+			'subs.clear': 'Clear selection',
+			'subs.empty': 'No teachers marked absent yet. Tap names above to build a coverage plan.',
+
 			'sub.selected': '{count} selected',
-			'sub.affected': '{count} affected periods',
-			'sub.coveragePlan': 'Coverage plan',
-			'sub.saved': 'Saved on this device',
-			'sub.noAbsent': 'Select absent teachers to begin.',
-			'sub.noAffected': 'These teachers have no scheduled classes on this date.',
-			'sub.ready': 'Qualified assignments are ready for review.',
-			'sub.needsReview': '{count} periods need coordinator review.',
-			'sub.open': '{count} periods are still open.',
-			'sub.openLabel': 'Open',
-			'sub.coveredLabel': 'Covered',
 			'sub.assigned': 'Assigned',
 			'sub.reviewRequired': 'Review required',
 			'sub.unassigned': 'Open',
@@ -96,110 +82,91 @@
 			'sub.approved': 'Approved subject cover',
 			'sub.related': 'Related subject only',
 			'sub.general': 'General availability only',
-			'sub.load': '{regular} regular + {substitutions} substitutions',
-			'sub.sameGrade': 'Grade {grade} experience',
-			'sub.otherGrade': 'Different grade experience',
-			'sub.fallbackNotice': 'This teacher is not verified for the subject. Review before assigning.',
-			'sub.overrideNotice': 'This assignment exceeds the recommended workload. Continue only after review.',
-			'sub.invalidDate': 'Choose a Monday–Saturday school date.',
-			'sub.planExpired': 'The saved plan used an older timetable and was cleared.',
 			'sub.noCandidates': 'No available teacher found.',
+
 			'warning.subject_mismatch': 'Subject qualification is not verified',
 			'warning.related_subject': 'Related subject only',
 			'warning.over_substitution_limit': 'Daily substitution limit exceeded',
 			'warning.full_day': 'Teacher would have no free period',
 			'warning.excessive_consecutive': 'Creates a long consecutive teaching run',
+
 			'error.absent': 'Teacher is marked absent',
 			'error.regular_class': 'Teacher already has a regular class',
 			'error.double_booked': 'Teacher is already covering another class',
 			'error.unavailable': 'Teacher is unavailable in this period',
 			'error.loadFailed': 'The timetable could not be loaded.',
-			'more.title': 'More tools',
-			'more.description': 'Open class or teacher schedules and adjust app preferences.',
+
+			'a11y.language': 'Switch language',
+			'a11y.theme': 'Toggle dark mode',
+			'a11y.nav': 'Primary navigation',
+
 			'language.english': 'English',
 			'language.hindi': 'हिंदी'
 		},
 		hi: {
 			'app.name': 'वीपीपीएस समय-सारणी',
 			'app.school': 'वीर पट्टा पब्लिक स्कूल, आमेट',
+
 			'nav.home': 'होम',
 			'nav.today': 'आज',
-			'nav.substitutions': 'प्रतिस्थापन',
-			'nav.more': 'अधिक',
-			'nav.class': 'कक्षा समय-सारणी',
-			'nav.teacher': 'शिक्षक समय-सारणी',
-			'nav.theme': 'थीम',
-			'nav.language': 'भाषा',
-			'action.autoAssign': 'स्वतः नियुक्त करें',
-			'action.browseTeachers': 'शिक्षक चुनें',
-			'action.clear': 'साफ़ करें',
-			'action.change': 'बदलें',
-			'action.choose': 'चुनें',
-			'action.approve': 'स्वीकृत करें',
-			'action.cancel': 'रद्द करें',
-			'action.reset': 'योजना रीसेट करें',
-			'action.shareImage': 'चित्र साझा करें',
-			'action.shareText': 'तालिका साझा करें',
-			'action.print': 'प्रिंट करें',
-			'action.viewToday': 'आज देखें',
-			'action.planSubstitutions': 'प्रतिस्थापन बनाएं',
-			'action.fullTable': 'पूरी तालिका',
-			'action.mobileList': 'मोबाइल सूची',
-			'dashboard.now': 'अभी',
-			'dashboard.glance': 'आज की जानकारी',
-			'dashboard.statusLive': 'विद्यालय चल रहा है',
-			'dashboard.statusBreak': 'अल्पावकाश',
-			'dashboard.statusUpcoming': 'विद्यालय शुरू होने से पहले',
-			'dashboard.statusComplete': 'विद्यालय दिवस पूरा',
-			'dashboard.liveHeadline': '{day} में अभी {period}',
-			'dashboard.breakHeadline': '{period} से पहले अवकाश',
-			'dashboard.upcomingHeadline': '{day} की शुरुआत {period} से',
-			'dashboard.completeHeadline': '{day} की कक्षाएं पूरी हुईं',
-			'dashboard.liveMessage': '{time} का पीरियड अभी चल रहा है।',
-			'dashboard.breakMessage': '{period} {time} पर शुरू होगा।',
-			'dashboard.upcomingMessage': 'विद्यालय {time} पर {period} से शुरू होगा।',
-			'dashboard.completeMessage': 'समय-सारणी देखें या अगले विद्यालय दिवस की योजना बनाएं।',
-			'dashboard.classesScheduled': '{count} कक्षाएं निर्धारित',
-			'dashboard.currentSlot': 'वर्तमान पीरियड',
-			'dashboard.nextSlot': 'अगला पीरियड',
-			'dashboard.bestAvailable': 'सर्वोत्तम उपलब्ध',
-			'dashboard.freeTeachers': 'उपलब्ध शिक्षक',
-			'dashboard.teacherOne': '1 शिक्षक',
-			'dashboard.teacherMany': '{count} शिक्षक',
-			'dashboard.available': '{count} शिक्षक उपलब्ध',
-			'dashboard.closed': 'आज विद्यालय बंद है',
-			'dashboard.nextSchoolDay': 'अगला विद्यालय दिवस: {day}',
-			'day.heading': '{day} की समय-सारणी',
-			'day.choosePeriod': 'पीरियड चुनें',
-			'day.classesCount': '{count} कक्षाएं',
-			'sub.title': 'प्रतिस्थापन योजना',
-			'sub.planFor': '{day} के लिए प्रतिस्थापन योजना',
-			'sub.statusSetup': 'सेटअप आवश्यक',
-			'sub.statusNothing': 'कोई कवरेज आवश्यक नहीं',
-			'sub.statusReady': 'योजना तैयार',
-			'sub.statusReview': 'समीक्षा आवश्यक',
-			'sub.statusGenerate': 'योजना बनाने के लिए तैयार',
-			'sub.noClasses': '{day} के लिए कोई कक्षा कवर नहीं करनी है',
-			'sub.coveredCount': '{count} प्रतिस्थापन पीरियड कवर',
-			'sub.partialCount': '{covered} कवर, {open} अभी खुले',
-			'sub.slotsNeed': '{count} पीरियड को कवरेज चाहिए',
-			'sub.setupHelp': 'अनुपस्थित शिक्षक चुनें, प्रभावित कक्षाएं देखें और योग्य कवरेज योजना बनाएं।',
-			'sub.reviewHelp': 'योजना साझा करने से पहले हर चेतावनी की समीक्षा करें।',
-			'sub.shareHelp': 'सभी योग्य नियुक्तियां साझा करने के लिए तैयार हैं।',
-			'sub.date': 'विद्यालय की तारीख',
-			'sub.absentTeachers': 'अनुपस्थित शिक्षक',
-			'sub.searchTeacher': 'शिक्षक का नाम खोजें',
+			'nav.class': 'कक्षा',
+			'nav.teacher': 'शिक्षक',
+			'nav.subs': 'प्रतिस्थापन',
+
+			'ui.now': 'अभी',
+			'ui.live': 'लाइव',
+			'ui.free': 'खाली पीरियड',
+			'ui.freeShort': 'खाली',
+			'ui.periods': 'पीरियड',
+			'ui.noFree': 'कोई खाली नहीं',
+			'ui.team': 'टीम संभालेगी',
+			'ui.copied': 'क्लिपबोर्ड पर कॉपी हुआ',
+			'ui.list': 'सूची',
+			'ui.table': 'तालिका',
+			'ui.day': 'दिन',
+			'ui.week': 'सप्ताह',
+			'ui.classCol': 'कक्षा',
+			'ui.periodShort': 'पी',
+
+			'setup.title': 'यह फ़ोन सेट करें',
+			'setup.sub': 'शिक्षकों को होम स्क्रीन पर अपनी समय-सारणी मिलती है। इसे कभी भी बदल सकते हैं।',
+			'setup.teacher': 'मैं शिक्षक हूँ',
+			'setup.admin': 'एडमिन / केवल देखना',
+			'setup.back': 'वापस',
+			'setup.change': 'बदलें',
+
+			'status.closed': 'रविवार · स्कूल बंद',
+			'status.before': 'स्कूल 8:00 AM · पीरियड 1 — 8:30 AM',
+			'status.complete': 'स्कूल का दिन पूरा · छुट्टी 2:10 PM',
+			'status.break': 'छोटा अवकाश · 11:10 – 11:30 AM',
+			'status.closedTitle': 'आज स्कूल बंद है',
+			'status.beforeTitle': 'स्कूल जल्द खुलेगा',
+			'status.completeTitle': 'आज की कक्षाएँ पूरी हुईं',
+			'status.breakTitle': 'छोटा अवकाश',
+
+			'hero.yourDay': 'आपका दिन',
+			'hero.next': 'आगे',
+			'hero.periodLive': 'पीरियड {n} चल रहा है',
+			'hero.nextMonday': 'आगे: {day} · पी1 8:30 AM',
+			'hero.nextAfterBreak': 'आगे: पी5 · 11:30 AM',
+
+			'home.freeRightNow': 'अभी खाली',
+			'home.shareDay': 'यह दिन साझा करें',
+
+			'board.title': 'कौन पढ़ा रहा है?',
+			'board.freeThisPeriod': 'इस पीरियड में खाली',
+
+			'class.title': 'कक्षा समय-सारणी',
+			'teacher.title': 'शिक्षक समय-सारणी',
+
+			'subs.title': 'प्रतिस्थापन योजना',
+			'subs.sub': 'दिन चुनें, अनुपस्थित शिक्षकों को चिह्नित करें, और हर प्रभावित पीरियड के लिए खाली शिक्षक के सुझाव पाएँ।',
+			'subs.markAbsent': 'अनुपस्थित शिक्षक चुनें',
+			'subs.share': 'योजना साझा करें',
+			'subs.clear': 'चयन हटाएँ',
+			'subs.empty': 'अभी कोई शिक्षक अनुपस्थित नहीं चुना गया। ऊपर नाम पर टैप करें।',
+
 			'sub.selected': '{count} चयनित',
-			'sub.affected': '{count} प्रभावित पीरियड',
-			'sub.coveragePlan': 'कवरेज योजना',
-			'sub.saved': 'इस डिवाइस पर सहेजा गया',
-			'sub.noAbsent': 'शुरू करने के लिए अनुपस्थित शिक्षक चुनें।',
-			'sub.noAffected': 'इस तारीख को इन शिक्षकों की कोई कक्षा नहीं है।',
-			'sub.ready': 'योग्य नियुक्तियां समीक्षा के लिए तैयार हैं।',
-			'sub.needsReview': '{count} पीरियड की समीक्षा आवश्यक है।',
-			'sub.open': '{count} पीरियड अभी खुले हैं।',
-			'sub.openLabel': 'खुले',
-			'sub.coveredLabel': 'कवर',
 			'sub.assigned': 'नियुक्त',
 			'sub.reviewRequired': 'समीक्षा आवश्यक',
 			'sub.unassigned': 'खुला',
@@ -207,28 +174,41 @@
 			'sub.approved': 'स्वीकृत विषय कवरेज',
 			'sub.related': 'केवल संबंधित विषय',
 			'sub.general': 'केवल सामान्य उपलब्धता',
-			'sub.load': '{regular} नियमित + {substitutions} प्रतिस्थापन',
-			'sub.sameGrade': 'कक्षा {grade} का अनुभव',
-			'sub.otherGrade': 'अन्य कक्षाओं का अनुभव',
-			'sub.fallbackNotice': 'इस शिक्षक की विषय योग्यता सत्यापित नहीं है। नियुक्ति से पहले समीक्षा करें।',
-			'sub.overrideNotice': 'यह नियुक्ति अनुशंसित कार्यभार से अधिक है। समीक्षा के बाद ही जारी रखें।',
-			'sub.invalidDate': 'सोमवार से शनिवार के बीच विद्यालय की तारीख चुनें।',
-			'sub.planExpired': 'पुरानी समय-सारणी वाली सहेजी योजना हटा दी गई है।',
 			'sub.noCandidates': 'कोई उपलब्ध शिक्षक नहीं मिला।',
+
 			'warning.subject_mismatch': 'विषय योग्यता सत्यापित नहीं है',
 			'warning.related_subject': 'केवल संबंधित विषय',
 			'warning.over_substitution_limit': 'दैनिक प्रतिस्थापन सीमा पार',
 			'warning.full_day': 'शिक्षक का कोई खाली पीरियड नहीं बचेगा',
 			'warning.excessive_consecutive': 'लगातार बहुत अधिक पीरियड बनेंगे',
+
 			'error.absent': 'शिक्षक अनुपस्थित चिह्नित हैं',
 			'error.regular_class': 'शिक्षक की नियमित कक्षा पहले से है',
 			'error.double_booked': 'शिक्षक दूसरी कक्षा कवर कर रहे हैं',
 			'error.unavailable': 'इस पीरियड में शिक्षक उपलब्ध नहीं हैं',
 			'error.loadFailed': 'समय-सारणी लोड नहीं हो सकी।',
-			'more.title': 'अधिक उपकरण',
-			'more.description': 'कक्षा या शिक्षक समय-सारणी खोलें और ऐप सेटिंग बदलें।',
+
+			'a11y.language': 'भाषा बदलें',
+			'a11y.theme': 'डार्क मोड बदलें',
+			'a11y.nav': 'मुख्य नेविगेशन',
+
 			'language.english': 'English',
 			'language.hindi': 'हिंदी'
+		}
+	};
+
+	// Day and class names are data values, not UI copy, so they are translated
+	// by lookup rather than by dictionary key.
+	const DAY_NAMES = {
+		hi: {
+			Monday: 'सोमवार', Tuesday: 'मंगलवार', Wednesday: 'बुधवार',
+			Thursday: 'गुरुवार', Friday: 'शुक्रवार', Saturday: 'शनिवार'
+		}
+	};
+	const DAY_NAMES_SHORT = {
+		hi: {
+			Monday: 'सोम', Tuesday: 'मंगल', Wednesday: 'बुध',
+			Thursday: 'गुरु', Friday: 'शुक्र', Saturday: 'शनि'
 		}
 	};
 
@@ -244,6 +224,35 @@
 		const lang = dictionaries[language] ? language : currentLanguage;
 		const fallback = dictionaries[DEFAULT_LANGUAGE][key] || key;
 		return interpolate(dictionaries[lang][key] || fallback, params || {});
+	}
+
+	function dayLabel(day, short, language) {
+		const lang = dictionaries[language] ? language : currentLanguage;
+		if (lang !== 'hi') return short ? String(day).slice(0, 3) : day;
+		const table = short ? DAY_NAMES_SHORT.hi : DAY_NAMES.hi;
+		return table[day] || day;
+	}
+
+	function classLabel(className, short, language) {
+		const lang = dictionaries[language] ? language : currentLanguage;
+		if (lang === 'hi') {
+			const translated = String(className)
+				.replace('Class ', 'कक्षा ')
+				.replace('Science', 'विज्ञान')
+				.replace('Commerce', 'वाणिज्य')
+				.replace('Arts', 'कला');
+			return short ? translated.replace('कक्षा ', '') : translated;
+		}
+		if (!short) return className;
+		return String(className)
+			.replace('Class ', '')
+			.replace('Science', 'Sci')
+			.replace('Commerce', 'Com');
+	}
+
+	function locale(language) {
+		const lang = dictionaries[language] ? language : currentLanguage;
+		return lang === 'hi' ? 'hi-IN' : 'en-IN';
 	}
 
 	function setLanguage(language, options) {
@@ -270,5 +279,9 @@
 	function getLanguage() { return currentLanguage; }
 	function getDictionaries() { return dictionaries; }
 
-	return { STORAGE_KEY, DEFAULT_LANGUAGE, dictionaries, t, init, setLanguage, getLanguage, getDictionaries };
+	return {
+		STORAGE_KEY, DEFAULT_LANGUAGE, dictionaries,
+		t, init, setLanguage, getLanguage, getDictionaries,
+		dayLabel, classLabel, locale
+	};
 });

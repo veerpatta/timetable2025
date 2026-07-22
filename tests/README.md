@@ -1,26 +1,17 @@
 # Tests
 
-This repository uses lightweight manual and script-based checks instead of a full automated test runner. The app is a static PWA, so the main validation loop is:
+This repository uses one automated Node test plus manual browser verification. The app is a static PWA, so the main validation loop is:
 
-1. Serve the app locally.
-2. Run the small Node-based validation scripts.
-3. Open the browser test pages for visual and interaction checks.
-4. Manually confirm the specific view or timetable change you touched.
+1. Run the Node test.
+2. Serve the app locally.
+3. Manually confirm the specific view or timetable change you touched.
 
 ## Test Layout
 
 ```text
 tests/
   README.md
-  manual/
-    accessibility/
-      test-a11y.html
-    colors/
-      test-colors.html
-      verify-contrast.js
-    performance/
-      perf-test.html
-    test-mapping.js
+  substitution-engine.test.js
 ```
 
 ## Fast Validation
@@ -28,78 +19,50 @@ tests/
 Run these from the repository root:
 
 ```powershell
-npx http-server . -p 8080 -c-1
-node tests/manual/colors/verify-contrast.js
-node tests/manual/test-mapping.js
 node --test tests/substitution-engine.test.js
+node --check scripts/app.js
+npx http-server . -p 8080 -c-1
 ```
 
-Then open:
+Then open `http://localhost:8080/`.
 
-- `http://localhost:8080/`
-- `http://localhost:8080/tests/manual/accessibility/test-a11y.html`
-- `http://localhost:8080/tests/manual/colors/test-colors.html`
-- `http://localhost:8080/tests/manual/performance/perf-test.html`
-
-## What Each Test Covers
-
-### `tests/manual/colors/verify-contrast.js`
-
-CLI check for subject color contrast ratios. Use this after editing:
-
-- `scripts/colors.js`
-- `styles/colors.css`
-- theme tokens that affect contrast
-
-Expected result: every category passes WCAG AA contrast requirements.
-
-### `tests/manual/test-mapping.js`
-
-CLI check for subject-to-category mapping. Use this after editing:
-
-- subject names in timetable data
-- subject categorization logic in `scripts/colors.js`
-
-Expected result: mappings still classify known subjects and preserve edge cases such as `Political Science`, `Home Work`, and `Self Study`.
-
-### `tests/manual/accessibility/test-a11y.html`
-
-Interactive page for keyboard and accessibility checks. Use this after editing:
-
-- `scripts/a11y.js`
-- `styles/a11y.css`
-- navigation and modal behavior in `index.html`
-
-Minimum manual checks:
-
-- Press `?` to open shortcuts.
-- Confirm `m` toggles theme.
-- Confirm `k` toggles high contrast.
-- Tab through interactive controls.
-- Press `Esc` to close dialogs.
-
-### `tests/manual/colors/test-colors.html`
-
-Visual check for subject color styling and legend rendering.
-
-### `tests/manual/performance/perf-test.html`
-
-Interactive page for performance helpers such as caching, debouncing, lazy loading, and virtual scrolling. Use this after editing `scripts/perf.js`.
+## What The Test Covers
 
 ### `tests/substitution-engine.test.js`
 
-Automated Node tests for whole-day subject matching, hard availability rules, workload limits, deterministic allocation, manual override warnings, date-keyed persistence, and English/Hindi translation parity.
+Automated Node tests for whole-day subject matching, hard availability rules (absent, regular class, double-booked, unavailable), workload limits, deterministic allocation, manual override warnings, date-keyed plan persistence, and English/Hindi dictionary parity.
+
+The parity check is the one that catches the most common UI mistake: adding a new string to `en` in `scripts/i18n.js` but not to `hi`.
+
+## Manual Verification
+
+There is no automated UI test, so check the view you changed by hand. A full pass covers:
+
+- **Home** — hero shows the right state for the time of day (before school, live period with progress bar, short break, day complete, Sunday closed); teacher setup flow; "free right now" list.
+- **Today** — day and period chips, list mode, table mode, live-period highlighting.
+- **Classes** — class chips, day mode, week grid.
+- **Teachers** — teacher chips, day mode, week grid, period load counts.
+- **Substitutes** — mark absent teachers, coverage rows, share, clear.
+
+Check each in **both languages** (header language button) and **both themes** (header theme button).
+
+Time-dependent states are hard to reach on demand. To force one in DevTools, stub the clock before re-rendering, for example:
+
+```js
+Date.prototype.getHours = () => 11;
+Date.prototype.getMinutes = () => 20;   // short break
+document.querySelector('[data-action="go"][data-value="home"]').click();
+```
 
 ## When To Run What
 
-- Timetable data change in `index.html`: run the app locally and verify the affected class/day/teacher views.
-- Color or subject mapping change: run both Node scripts and open `test-colors.html`.
-- Accessibility or UI change: open `test-a11y.html` and the main app.
-- Performance change: open `perf-test.html` and verify the main app still renders correctly.
-- Service worker change: test with a local server and verify cache/update behavior in DevTools.
+- Timetable data change in `scripts/data.js`: verify the affected class, day, and teacher views.
+- Any `scripts/i18n.js` or `scripts/substitution.js` change: run the Node test.
+- Any UI change: verify the view in both languages and both themes.
+- Service worker change: verify cache and update behaviour in DevTools → Application. Unregister the old worker first, or you will be testing a cached build.
 
 ## Notes For Agents
 
 - There is no `package.json`; use `npx http-server` directly.
-- These tests are intentionally lightweight. A clean run does not replace checking the exact UI path you changed.
-- `docs/reports/build-report.json` is generated by `node build-report.js` and is useful for size validation, but it is not a test by itself.
+- A clean test run does not replace checking the exact UI path you changed.
+- `docs/reports/build-report.json` is generated by `node build-report.js`. It is a size report, not a test.

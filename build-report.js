@@ -15,17 +15,11 @@ const REPORT_DIR = path.join(PROJECT_ROOT, 'docs', 'reports');
 const MAX_BUNDLE_SIZE = 500 * 1024; // 500KB target
 const FILES_TO_ANALYZE = [
   'index.html',
-  'scripts/perf.js',
-  'scripts/a11y.js',
-  'scripts/colors.js',
-  'scripts/ui.js',
-	'scripts/i18n.js',
-	'scripts/substitution.js',
-  'styles/theme.css',
-  'styles/a11y.css',
-  'styles/colors.css',
-  'styles/ui.css',
-	'styles/app.css',
+  'scripts/data.js',
+  'scripts/i18n.js',
+  'scripts/substitution.js',
+  'scripts/app.js',
+  'styles/app.css',
   'sw.js',
   'manifest.webmanifest'
 ];
@@ -179,12 +173,12 @@ function generateReport() {
 
   // Performance Features
   console.log('⚡ PERFORMANCE FEATURES IMPLEMENTED\n');
-  console.log('✅ Lazy Loading:        html2canvas, jsPDF loaded on-demand');
-  console.log('✅ Caching:             SessionStorage with TTL (10 min)');
-  console.log('✅ Debouncing:          Input handlers debounced (300ms)');
-  console.log('✅ Virtual Scrolling:   Enabled for 100+ items');
-  console.log('✅ Lazy Images:         IntersectionObserver with 50px margin');
-  console.log('✅ Code Splitting:      Heavy libraries lazy loaded');
+  console.log('✅ No frameworks:       Vanilla JS, no runtime dependencies');
+  console.log('✅ No CDN scripts:      Only self-hosted assets plus Google Fonts');
+  console.log('✅ Offline first:       Service worker precaches the whole shell');
+  console.log('✅ Single stylesheet:   One design-token sheet, no per-view CSS');
+  console.log('✅ Event delegation:    One document-level click handler');
+  console.log('✅ Deferred paint:      Theme applied inline before first paint');
 
   // Recommendations
   console.log('\n💡 OPTIMIZATION RECOMMENDATIONS\n');

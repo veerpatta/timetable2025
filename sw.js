@@ -1,8 +1,8 @@
 // Service Worker for Veer Patta Public School Timetable
 // Provides offline-first caching for the page shell and timetable data
 
-const CACHE_NAME = 'vpps-timetable-v42';
-const STATIC_CACHE_NAME = 'vpps-static-v42';
+const CACHE_NAME = 'vpps-timetable-v43';
+const STATIC_CACHE_NAME = 'vpps-static-v43';
 
 // Core resources required for offline shell
 const CORE_ASSETS = [
@@ -10,24 +10,15 @@ const CORE_ASSETS = [
   './index.html',
   './manifest.webmanifest',
   './icons/icon-512.png',
-  './scripts/perf.js',
-	'./scripts/i18n.js',
-	'./scripts/substitution.js',
-  './scripts/a11y.js',
-  './scripts/colors.js',
-  './scripts/ui.js',
-  './styles/theme.css',
-  './styles/a11y.css',
-  './styles/colors.css',
-  './styles/ui.css',
+  './scripts/data.js',
+  './scripts/i18n.js',
+  './scripts/substitution.js',
+  './scripts/app.js',
   './styles/app.css'
 ];
 
 // Optional external resources: cache when available but don't fail install
 const OPTIONAL_EXTERNAL_ASSETS = [
-  'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js',
-  'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js',
-  'https://cdn.jsdelivr.net/npm/lucide@latest/dist/umd/lucide.min.js',
   'https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap'
 ];
 

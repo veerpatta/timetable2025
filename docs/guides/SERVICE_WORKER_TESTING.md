@@ -21,22 +21,16 @@ The `CORE_ASSETS` list currently precaches:
 - `./index.html`
 - `./manifest.webmanifest`
 - `./icons/icon-512.png`
-- `./scripts/perf.js`
-- `./scripts/a11y.js`
-- `./scripts/colors.js`
-- `./scripts/ui.js`
-- `./styles/theme.css`
-- `./styles/a11y.css`
-- `./styles/colors.css`
-- `./styles/ui.css`
+- `./scripts/data.js`
+- `./scripts/i18n.js`
+- `./scripts/substitution.js`
+- `./scripts/app.js`
+- `./styles/app.css`
 
 ### Optional external assets
 
 The `OPTIONAL_EXTERNAL_ASSETS` list attempts to cache these when available:
 
-- `html2canvas`
-- `jsPDF`
-- `lucide`
 - Google Fonts stylesheet
 
 Optional external asset failures do not fail installation.

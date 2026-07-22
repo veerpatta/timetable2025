@@ -1,6 +1,8 @@
 # Veer Patta Public School Timetable PWA
 
-Static, offline-first timetable application for Veer Patta Public School. The app is built with vanilla JavaScript, plain CSS, and a service worker. There is no framework, no backend, and no build pipeline for the runtime app.
+Static, offline-first timetable application for Veer Patta Public School. Vanilla JavaScript, plain CSS, a service worker. No framework, no backend, no build step.
+
+The interface implements the **VPPS Mobile Timetable** design canvas: a single 430px-wide app shell with five views — Home, Today, Classes, Teachers, Substitutes — bilingual English/Hindi, light and dark.
 
 This README is the best starting point for anyone touching the repo. For AI-agent specific operating rules, read [AGENTS.md](AGENTS.md) next.
 
@@ -8,30 +10,32 @@ This README is the best starting point for anyone touching the repo. For AI-agen
 
 ### Runtime app
 
-- `index.html`: main entry point, main UI markup, app state, parsing logic, renderers, and the full timetable dataset.
-- `scripts/`: feature modules loaded by `index.html`.
-- `styles/`: shared CSS for theme, UI, accessibility, and subject colors.
+- `index.html`: the app shell only — head, header, empty `<main>`, bottom nav, script tags. Roughly 90 lines.
+- `scripts/data.js`: the timetable dataset (`rawData`), bell schedule, subject categories, and the parser. Exposes `window.VPPSData`.
+- `scripts/i18n.js`: English/Hindi dictionaries plus day and class name translation. Exposes `window.I18n`.
+- `scripts/substitution.js`: subject-aware substitution matching, workload policy, and date-keyed plan storage. Exposes `window.SubstitutionEngine`.
+- `scripts/app.js`: the application controller — state, the five view renderers, and event handling. Exposes nothing.
+- `styles/app.css`: the entire design system — tokens, components, light and dark themes.
 - `sw.js`: service worker and cache strategy.
-- `manifest.webmanifest`: install metadata for the PWA.
-- `icons/`: app icon assets used by the manifest and the app shell.
+- `manifest.webmanifest`, `icons/`: PWA install metadata and icon assets.
 
 ### Supporting repo tooling
 
-- `build-report.js`: measures raw and gzipped asset sizes and writes reports to `docs/reports/`.
-- `tests/`: manual browser test pages and small Node-based validation scripts.
+- `build-report.js`: measures raw and gzipped asset sizes, writes to `docs/reports/`.
+- `tests/`: Node test for the substitution engine, plus manual browser test pages.
 
 ### Documentation and reference material
 
 - `AGENTS.md`: repo operating guide for AI agents.
 - `docs/README.md`: documentation index.
-- `docs/TIMETABLE_DATA.md`: authoritative explanation of the timetable data format and parsing model.
-- `docs/guides/`: focused guides for flags, service worker behavior, QA, assets, and feature areas.
+- `docs/TIMETABLE_DATA.md`: the timetable data format and parsing model.
+- `docs/guides/`: focused guides for service worker behaviour, QA, assets, and feature areas.
 - `docs/reports/`: generated reports such as `build-report.json`.
-- `docs/sources/`: source PDFs used as reference material for the timetable session. These are not loaded by the app.
+- `docs/sources/`: source PDFs for the timetable session. Not loaded by the app.
 
 ### Historical and one-off artifacts
 
-- `tools/one-off/`: helper scripts and an old patch artifact kept for traceability. These are not part of the runtime app and should usually be ignored unless you are reconstructing earlier edits.
+- `tools/one-off/`: helper scripts kept for traceability. Not part of the runtime app.
 
 ## Repository Map
 
@@ -51,150 +55,109 @@ timetable2025/
     sources/
   icons/
   scripts/
-    a11y.js
-    colors.js
-    perf.js
-    ui.js
+    app.js
+    data.js
+    i18n.js
+    substitution.js
   styles/
-    a11y.css
-    colors.css
-    theme.css
-    ui.css
+    app.css
   tests/
     README.md
     manual/
+    substitution-engine.test.js
   tools/
     one-off/
 ```
 
 ## Architecture
 
-The app is intentionally simple, but most of the logic still lives in `index.html`.
+Four scripts load in order; each one only depends on the ones before it.
+
+```
+data.js  ->  i18n.js  ->  substitution.js  ->  app.js
+```
 
 ### `index.html`
 
-`index.html` is the real application core. It contains:
+Markup only. It holds the header (logo, title, language and theme buttons, status strip), an empty `<main id="app-main">`, the toast element, and an empty `<nav id="app-nav">`. Everything inside `main` and `nav` is rendered by `app.js`.
 
-- the app shell markup
-- the top-level `FEATURE_FLAGS` object
-- the theme system
-- the inline timetable data block in `rawData`
-- timetable parsing logic
-- render functions for the major views
-- export and print handlers
-- app initialization and service worker registration
+The one piece of logic it carries is an inline script that reads the saved theme and sets `data-theme` before first paint, so the shell never flashes light.
 
-Important view renderers in `index.html`:
+### `scripts/app.js`
 
-- `renderDashboard()`
-- `renderDayView()`
-- `renderClassView()`
-- `renderTeacherView()`
-- `renderSubstitutionView()`
+The controller. A single `state` object drives a full re-render of `main` and `nav` on every change — there is no diffing and no virtual DOM, because the whole view is a few hundred nodes.
 
-### `scripts/`
+View renderers:
 
-- `scripts/perf.js`: debouncing, throttling, session cache, lazy loading, lazy images, and virtual scrolling helpers exposed as `window.PerformanceOptimization`.
-- `scripts/a11y.js`: keyboard shortcuts, announcements, skip link, high-contrast support, and focus enhancements exposed as `window.A11y`.
-- `scripts/colors.js`: subject-to-category mapping, legend rendering, and dynamic subject coloring exposed as `window.SubjectColorCoding`.
-- `scripts/ui.js`: modern UI primitives such as FABs, snackbars, bottom sheets, pull-to-refresh, and swipe cards exposed as `window.ModernUI`.
-- `scripts/substitution.js`: pure whole-day substitution matching, workload validation, and date-keyed local plan storage exposed as `window.SubstitutionEngine`.
-- `scripts/i18n.js`: English/Hindi interface dictionaries and persisted language switching exposed as `window.I18n`.
+- `renderHome()` — hero card (live period and progress), first-run teacher setup, the signed-in teacher's day, and who is free right now.
+- `renderBoard()` — "Who is teaching?" for one period across all classes, plus a full-day table.
+- `renderClassView()` — one class, by day or as a week grid.
+- `renderTeacherView()` — one teacher, by day or as a week grid.
+- `renderSubs()` — substitution planner.
 
-### `styles/`
+Interaction uses one delegated `click` handler on `document.body`. Buttons declare `data-action` and `data-value`; `ACTIONS` maps the action name to a state mutation, then `render()` runs.
 
-- `styles/theme.css`: theme tokens and layout variables.
-- `styles/ui.css`: component styling for modern UI helpers.
-- `styles/a11y.css`: accessibility-specific helpers such as focus and modal treatment.
-- `styles/colors.css`: subject color classes and legend styling.
+Preferences persist in `localStorage` under `vppsm_theme`, `vppsm_me`, `vppsm_cls`, `vppsm_tsel`. Language persists under `vpps-language` via `I18n`.
+
+### `scripts/data.js`
+
+`VPPSData.load()` parses `rawData` once and returns:
+
+- `days`, `classNames`, `teacherNames`
+- `timetable[day][className][periodIndex]` — `{ subject, teachers[] }` or `{ free: true }`
+- `teacherMap[teacher][day][periodIndex]` — `{ className, subject, shared }` or `null`
+
+`shared` marks co-taught periods (the ELGA blocks), which the planner treats as covered by the remaining team rather than needing a substitute.
+
+### Substitution planner
+
+`app.js` builds teacher profiles and a vacancy list from the absent teachers, then calls `SubstitutionEngine.generatePlan()`. Results are grouped per absent teacher.
+
+A named cover renders as a green pill; only a genuinely unstaffable period renders amber. The engine's match tier (exact subject, related subject, general availability) is carried in the pill's `title` attribute, so a coordinator can see how well qualified each suggestion is without the UI shouting.
 
 ### `sw.js`
 
-The service worker precaches the app shell and uses:
-
-- cache-first for static assets
-- network-first for future timetable or API-like requests
-
-Whenever you change a cached asset, bump both cache constants in `sw.js` and verify the live values before editing.
+Precaches the app shell; cache-first for static assets, network-first for anything else. **Whenever you change a cached asset, bump both cache constants in `sw.js`.**
 
 ## Timetable Data Model
 
-The source of truth is the inline `rawData` string in `index.html`.
+The source of truth is `rawData` in `scripts/data.js`.
 
-The current format is:
+Format:
 
 1. Day header such as `Monday`
 2. Header row beginning with `Class`
 3. One row per class
 
-Each class row currently contains the class name followed by `Period 1` through `Period 8`.
-The parser therefore expects 9 CSV columns per class row: 1 class column plus 8 timetable slots.
+Each class row is the class name followed by `Period 1` through `Period 8` — 9 CSV columns.
 
-Cell values are usually one of:
-
-- `Assembly`
-- `Subject (Teacher)`
-- `Free`
-
-Real examples from the live data include:
+Cell values are either `Subject (Teacher)`, `Subject (Teacher A / Teacher B)` for co-taught periods, or `Free`. Real examples:
 
 - `English compulsory (Pradhyuman)`
-- `Business Studies (Nidhika)`
+- `ELGA (Bindu / Anita / Rashmita / Kusum / Ravina)`
 - `NoteBook Checking (Antima)`
-- `Robotics (Maya)`
 
-Changing teacher names affects teacher views, substitution logic, and free-teacher calculations because teacher schedules are derived from this dataset.
+Teacher names are keys, not labels: renaming a teacher changes teacher views, free-teacher lists, and substitution matching. See [docs/TIMETABLE_DATA.md](docs/TIMETABLE_DATA.md).
 
-See [docs/TIMETABLE_DATA.md](docs/TIMETABLE_DATA.md) for the full editing rules.
-
-## Feature Flags
-
-There are two flag layers in the current repo:
-
-### Inline app flags in `index.html`
-
-These are the main switches used by the app shell:
-
-- `feat_dark_mode`
-- `feat_color_coding`
-- `feat_modern_ui`
-- `feat_perf_opt`
-
-### Module-local flags in `localStorage`
-
-Some modules also read their own persisted flags:
-
-- `scripts/a11y.js` uses `feat_accessibility` and defaults to enabled if unset.
-- `scripts/colors.js` can be forced on or off via `feat_color_coding` in `localStorage`.
-- `scripts/ui.js` can also read `feat_modern_ui` from `localStorage`.
-- `scripts/perf.js` stores a JSON object under `feat_perf_opt` for sub-feature toggles.
-
-If you are debugging flag behavior, check both `window.FEATURE_FLAGS` and `localStorage`.
-
-See [docs/guides/FEATURE_FLAGS.md](docs/guides/FEATURE_FLAGS.md).
+The bell schedule (`PERIODS`, `BREAK`, `REPORTING_MIN`, `CLOSE_MIN`) also lives in `scripts/data.js` and drives the live-period highlighting, the status strip, and the hero progress bar.
 
 ## Local Development
 
-There is no install step required for the runtime app.
-
-### Serve locally
+No install step.
 
 ```powershell
 npx http-server . -p 8080 -c-1
 ```
 
-Open `http://localhost:8080`.
-
-Use `-c-1` during development so cached assets do not hide local changes.
+Open `http://localhost:8080`. Use `-c-1` so cached assets do not hide local changes. If the service worker serves a stale file, unregister it in DevTools → Application → Service Workers and clear the cache storage.
 
 ### Useful commands
 
 ```powershell
 node build-report.js
-node tests/manual/colors/verify-contrast.js
-node tests/manual/test-mapping.js
 node --test tests/substitution-engine.test.js
-rg -n "const FEATURE_FLAGS|const rawData|function parseTimetableData" index.html
+node --check scripts/app.js
+rg -n "const rawData|function parseTimetable" scripts/data.js
 rg -n "CACHE_NAME|STATIC_CACHE_NAME|CORE_ASSETS" sw.js
 ```
 
@@ -202,66 +165,42 @@ rg -n "CACHE_NAME|STATIC_CACHE_NAME|CORE_ASSETS" sw.js
 
 ### Update timetable data
 
-1. Edit the relevant class row inside `rawData` in `index.html`.
-2. Preserve the `Subject (Teacher)` pattern where applicable.
-3. Keep the column count aligned with the header row.
-4. Verify the affected day, class, and teacher views locally.
-5. If the runtime app changed, bump the service worker cache version in `sw.js`.
+1. Edit the relevant class row inside `rawData` in `scripts/data.js`.
+2. Keep the `Subject (Teacher)` pattern and the column count.
+3. Verify the affected day, class, and teacher views locally.
+4. Bump the service worker cache version in `sw.js`.
 
-### Update a JS or CSS module
+### Change the UI
 
-1. Edit the file in `scripts/` or `styles/`.
-2. Verify the relevant UI path in the browser.
+1. Layout and copy live in `scripts/app.js`; tokens and component styling live in `styles/app.css`.
+2. Any new user-facing string needs a key in **both** `en` and `hi` in `scripts/i18n.js` — the test asserts parity.
 3. Bump the cache version in `sw.js`.
-4. Run any targeted checks from `tests/`.
 
 ### Update only documentation
 
-Documentation-only changes do not require a service worker version bump because the cached app shell is unchanged.
+No service worker bump needed; the cached shell is unchanged.
 
 ## Validation Checklist
 
-Run the minimum set that matches your change:
-
-- `node tests/manual/colors/verify-contrast.js` after subject color or theme edits.
-- `node tests/manual/test-mapping.js` after subject naming or category mapping edits.
+- `node --test tests/substitution-engine.test.js` after substitution, policy, or translation changes.
 - `node build-report.js` after meaningful runtime changes.
-- Manual browser verification for the specific day/class/teacher/substitution flow you changed.
-- `node --test tests/substitution-engine.test.js` after substitution policy, persistence, or translation changes.
+- Manual browser check of the specific view you changed, in both languages and both themes.
 - Service worker check in DevTools after `sw.js` edits.
 
 See [tests/README.md](tests/README.md) and [docs/guides/QA_CHECKLIST.md](docs/guides/QA_CHECKLIST.md).
 
 ## Guidance For AI Agents
 
-Read these in order:
-
-1. `README.md`
-2. `AGENTS.md`
-3. `docs/TIMETABLE_DATA.md`
-4. The live code in `index.html`, `sw.js`, and the touched module
-
-When locating implementation quickly, start with:
+Read in order: `README.md`, `AGENTS.md`, `docs/TIMETABLE_DATA.md`, then the live code.
 
 ```powershell
-rg -n "const rawData|function renderDashboard|function renderDayView|function renderClassView|function renderTeacherView|function renderSubstitutionView" index.html
-rg -n "feat_accessibility|FEATURE_FLAG|window.A11y" scripts/a11y.js
-rg -n "SubjectColorCoding|getSubjectCategory" scripts/colors.js
-rg -n "window.PerformanceOptimization|VirtualScroller|CacheManager" scripts/perf.js
-rg -n "window.ModernUI|ModernFAB|ModernSnackbar" scripts/ui.js
+rg -n "function render" scripts/app.js
+rg -n "const ACTIONS|const state" scripts/app.js
+rg -n "const rawData|const PERIODS" scripts/data.js
 ```
 
-Do not assume the older narrative docs are more accurate than the live code. If a guide conflicts with the implementation, prefer the implementation and then update the guide.
+Do not assume the narrative docs are more accurate than the live code. If a guide conflicts with the implementation, prefer the implementation and then update the guide.
 
-## Notes On Documentation Status
+## Design Source
 
-The repo contains both current operational docs and historical/reference material. The authoritative operational surface is:
-
-- `README.md`
-- `AGENTS.md`
-- `docs/TIMETABLE_DATA.md`
-- `docs/guides/FEATURE_FLAGS.md`
-- `docs/guides/SERVICE_WORKER_TESTING.md`
-- live code
-
-The remaining docs in `docs/guides/` are helpful background, but if they conflict with runtime behavior, update them or treat them as secondary to the code.
+The UI is a direct port of the **VPPS Mobile Timetable** design canvas. Colour tokens, radii, type sizes, and spacing in `styles/app.css` come from that design — keep them in sync with it rather than hand-tuning values.

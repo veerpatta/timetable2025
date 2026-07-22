@@ -9,41 +9,37 @@ Use this checklist before merging meaningful runtime changes. The goal is to kee
 - the timetable still parses correctly
 - no obvious layout regression appears on desktop or mobile width
 
-## If You Changed Timetable Data In `index.html`
+## If You Changed Timetable Data In `scripts/data.js`
 
 - verify the affected day view
 - verify the affected class view
 - verify the affected teacher view
-- confirm the edited row still matches the header width
-- confirm `Assembly` plus `Period 1` through `Period 8` remain aligned
+- confirm the edited row still matches the header width (1 class column + 8 periods = 9 CSV columns)
 - bump the service worker cache version in `sw.js`
 
-## If You Changed `scripts/colors.js` Or Color Tokens
+## If You Changed The UI
+
+- check the view in both languages (header language button)
+- check the view in both themes (header theme button)
+- check at phone width and at desktop width
+- confirm no horizontal page scroll appears; wide grids must scroll inside their own container
+- confirm the bottom nav still clears the last card
+
+## If You Changed Copy Or `scripts/i18n.js`
 
 - run:
 
 ```powershell
-node tests/manual/test-mapping.js
-node tests/manual/colors/verify-contrast.js
+node --test tests/substitution-engine.test.js
 ```
 
-- open `tests/manual/colors/test-colors.html`
-- verify no new subject naming broke category mapping
+- the dictionary parity test fails if a key exists in `en` but not `hi`
 
-## If You Changed Accessibility Or UI Behavior
+## If You Changed Substitution Logic
 
-- open `tests/manual/accessibility/test-a11y.html`
-- test keyboard navigation
-- press `?` for shortcuts
-- press `m` for theme toggle
-- press `k` for high contrast
-- press `Esc` to close dialogs
-
-## If You Changed Performance Logic
-
-- open `tests/manual/performance/perf-test.html`
-- verify the main app still renders correctly
-- confirm search or render interactions still feel responsive
+- run the same Node test
+- mark two or three teachers absent in the app and confirm the plan groups, cover pills, and share output look right
+- confirm co-taught (ELGA) periods still show "Team covers"
 
 ## If You Changed A Cached Runtime Asset
 

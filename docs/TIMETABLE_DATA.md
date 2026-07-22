@@ -1,12 +1,12 @@
 # Timetable Data Guide
 
-This file documents the live timetable data model used by the application. The source of truth is the inline `rawData` string inside `index.html`.
+This file documents the live timetable data model used by the application. The source of truth is the `rawData` string inside `scripts/data.js`.
 
 Do not treat this document as a second copy of the timetable. It exists to explain the format, constraints, and safe editing rules so the data does not drift between multiple files.
 
 ## Where The Data Lives
 
-Search `index.html` for:
+Search `scripts/data.js` for:
 
 ```javascript
 const rawData = `Monday
@@ -64,7 +64,7 @@ Examples from the current dataset:
 
 ## Parsing Expectations
 
-The parser in `index.html` derives these structures:
+The parser in `scripts/data.js` (`parseTimetable`) derives these structures:
 
 ```javascript
 {
@@ -120,16 +120,14 @@ These values have app-level meaning and should not be normalized away without ch
 
 Changing subject names can affect:
 
-- subject color coding in `scripts/colors.js`
+- subject colour coding via `SUBJECT_CATEGORIES` in `scripts/data.js`
 - teacher lookup and free-teacher calculations
-- substitution suggestions
-- search and filter behavior
+- substitution suggestions, which match on canonical subject names in `scripts/substitution.js`
 
-If you add a new subject term, review `scripts/colors.js` and run:
+If you add a new subject term, check that `SUBJECT_CATEGORIES` in `scripts/data.js` classifies it (otherwise it falls back to the grey `default` category) and that `SUBJECT_ALIASES` / `SUBJECT_GROUPS` in `scripts/substitution.js` place it in the right group for cover matching. Then run:
 
 ```powershell
-node tests/manual/test-mapping.js
-node tests/manual/colors/verify-contrast.js
+node --test tests/substitution-engine.test.js
 ```
 
 ## Recommended Edit Workflow
@@ -145,7 +143,7 @@ node tests/manual/colors/verify-contrast.js
 
 ## Version History Note
 
-The 6-period heatwave timetable that was active for summer 2026 has been superseded by Timetable 2026–27 (v4), an 8-period schedule (`Period 1`–`Period 8`). If a prior schedule ever needs to be restored, check out the relevant `rawData` block from git history (for example via `git log -p index.html`) and revalidate all derived views, including the column count and header row expected by the parser at that point in history.
+The 6-period heatwave timetable that was active for summer 2026 has been superseded by Timetable 2026–27 (v4), an 8-period schedule (`Period 1`–`Period 8`). If a prior schedule ever needs to be restored, check out the relevant `rawData` block from git history (for example via `git log -p scripts/data.js index.html`) and revalidate all derived views, including the column count and header row expected by the parser at that point in history.
 
 ## Reference Inputs
 
