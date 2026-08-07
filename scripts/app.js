@@ -17,6 +17,7 @@
 
 	const PERIODS = Data.PERIODS;
 	const PERIOD_COUNT = PERIODS.length;
+	const ZERO_PERIOD = Data.ZERO_PERIOD;
 
 	const STORE = {
 		theme: 'vppsm_theme',
@@ -137,11 +138,28 @@
 			now,
 			index: PERIODS.findIndex(p => now >= p.s && now < p.e),
 			inBreak: now >= Data.BREAK.s && now < Data.BREAK.e,
+			inZero: !!ZERO_PERIOD && now >= ZERO_PERIOD.s && now < ZERO_PERIOD.e,
 			before: now < PERIODS[0].s,
 			after: now >= Data.CLOSE_MIN,
 			reporting: now >= Data.REPORTING_MIN && now < PERIODS[0].s,
 			nextIndex: PERIODS.findIndex(p => now < p.s)
 		};
+	}
+
+	/** Break wording follows the active schedule: a short break, or lunch. */
+	function breakKey(suffix) {
+		const base = Data.BREAK.kind === 'lunch' ? 'status.lunch' : 'status.break';
+		return suffix ? base + suffix : base;
+	}
+
+	/** What follows the break, phrased for the hero and status strip. */
+	function afterBreakText() {
+		const next = PERIODS.findIndex(p => p.s >= Data.BREAK.e);
+		if (next < 0) return '';
+		return t('hero.nextAfterBreak', {
+			period: periodName(next),
+			time: PERIODS[next].label.split(' - ')[0]
+		});
 	}
 
 	/** Index of the period running right now, or -1 outside teaching time. */
@@ -255,7 +273,14 @@
 		if (!day) text = t('status.closed');
 		else if (live.before) text = t('status.before');
 		else if (live.after) text = t('status.complete');
-		else if (live.inBreak) { text = t('status.break'); dotClass = ' status-strip__dot--warn status-strip__dot--pulse'; }
+		else if (live.inBreak) {
+			text = t(breakKey(), { time: Data.BREAK.label });
+			dotClass = ' status-strip__dot--warn status-strip__dot--pulse';
+		}
+		else if (live.inZero) {
+			text = t('status.zero', { time: ZERO_PERIOD.label });
+			dotClass = ' status-strip__dot--warn status-strip__dot--pulse';
+		}
 		else if (period >= 0) {
 			text = t('ui.live') + ' · ' + dayLabel(day) + ' · ' + periodName(period) + ' (' + PERIODS[period].label + ')';
 			dotClass = ' status-strip__dot--ok status-strip__dot--pulse';
@@ -302,8 +327,12 @@
 			title = t('status.completeTitle');
 			sub = t('status.complete');
 		} else if (live.inBreak) {
-			title = t('status.breakTitle');
-			sub = t('hero.nextAfterBreak');
+			title = t(breakKey('Title'));
+			sub = afterBreakText();
+		} else if (live.inZero) {
+			title = t('status.zeroTitle');
+			sub = t('hero.zeroSub', { time: ZERO_PERIOD.label });
+			percent = Math.round(((live.now - ZERO_PERIOD.s) / (ZERO_PERIOD.e - ZERO_PERIOD.s)) * 100);
 		} else if (period >= 0) {
 			const current = PERIODS[period];
 			title = t('hero.periodLive', { n: period + 1 });
@@ -322,6 +351,14 @@
 				? '<div class="hero__track"><div class="hero__bar" style="width:' + Math.min(100, percent) + '%"></div></div>'
 				: '') +
 			'</section>';
+
+		// Temporary bells: say so, so nobody assumes the app is stale.
+		if (Data.SCHEDULE.id === 'practice') {
+			html += '<section class="schedule-note">' +
+				'<div class="schedule-note__title">' + esc(t('schedule.practiceNote')) + '</div>' +
+				'<div class="schedule-note__sub">' + esc(t('schedule.practiceSub')) + '</div>' +
+				'</section>';
+		}
 
 		// First-run role setup
 		if (!state.role) {

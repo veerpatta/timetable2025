@@ -123,20 +123,81 @@ Class 12 Commerce,Accountancy (Nathulal),Accountancy (Nathulal),Economics (Praka
 Class 12 Arts,Geography (Prakash),English Literature (Harshita),Economics (Prakash),Economics (Prakash),Political Science (Pradhyuman),English Literature (Harshita),English compulsory (Pradhyuman),Hindi (Jainendra)
 `;
 
-	// Bell schedule - Timetable 2026-27 (v4). Times are minutes past midnight.
-	const PERIODS = [
-		{ n: 1, s: 510, e: 550, label: "8:30 - 9:10 AM" },
-		{ n: 2, s: 550, e: 590, label: "9:10 - 9:50 AM" },
-		{ n: 3, s: 590, e: 630, label: "9:50 - 10:30 AM" },
-		{ n: 4, s: 630, e: 670, label: "10:30 - 11:10 AM" },
-		{ n: 5, s: 690, e: 730, label: "11:30 AM - 12:10 PM" },
-		{ n: 6, s: 730, e: 770, label: "12:10 - 12:50 PM" },
-		{ n: 7, s: 770, e: 810, label: "12:50 - 1:30 PM" },
-		{ n: 8, s: 810, e: 850, label: "1:30 - 2:10 PM" }
-	];
-	const BREAK = { s: 670, e: 690, label: "11:10 - 11:30 AM" };
-	const REPORTING_MIN = 480; // 8:00 AM reporting
-	const CLOSE_MIN = 850;     // 2:10 PM dispersal
+	/*
+	 * Bell schedules. Times are minutes past midnight.
+	 *
+	 * Two sets of bells exist. Which one applies is decided by the date, so
+	 * neither has to be edited by hand when the changeover comes:
+	 *
+	 *   practice - in force up to and including 15 August 2026. Eight shorter
+	 *              periods, lunch pulled forward to 11:00, teaching finished by
+	 *              1:00 PM, and 1:00 - 2:10 PM held as a zero period for
+	 *              preparation. The period *content* is unchanged: Period 1-8
+	 *              still map to the same rows in `rawData`.
+	 *   regular  - Timetable 2026-27 (v4). Resumes automatically from
+	 *              16 August 2026.
+	 */
+	const SCHEDULES = {
+		practice: {
+			id: "practice",
+			periods: [
+				{ n: 1, s: 510, e: 540, label: "8:30 - 9:00 AM" },
+				{ n: 2, s: 540, e: 570, label: "9:00 - 9:30 AM" },
+				{ n: 3, s: 570, e: 600, label: "9:30 - 10:00 AM" },
+				{ n: 4, s: 600, e: 630, label: "10:00 - 10:30 AM" },
+				{ n: 5, s: 630, e: 660, label: "10:30 - 11:00 AM" },
+				{ n: 6, s: 680, e: 720, label: "11:20 AM - 12:00 noon" },
+				{ n: 7, s: 720, e: 750, label: "12:00 - 12:30 PM" },
+				{ n: 8, s: 750, e: 780, label: "12:30 - 1:00 PM" }
+			],
+			break: { s: 660, e: 680, kind: "lunch", label: "11:00 - 11:20 AM" },
+			zero: { s: 780, e: 850, label: "1:00 - 2:10 PM" },
+			reporting: 480, // 8:00 AM reporting
+			close: 850      // 2:10 PM dispersal
+		},
+		regular: {
+			id: "regular",
+			periods: [
+				{ n: 1, s: 510, e: 550, label: "8:30 - 9:10 AM" },
+				{ n: 2, s: 550, e: 590, label: "9:10 - 9:50 AM" },
+				{ n: 3, s: 590, e: 630, label: "9:50 - 10:30 AM" },
+				{ n: 4, s: 630, e: 670, label: "10:30 - 11:10 AM" },
+				{ n: 5, s: 690, e: 730, label: "11:30 AM - 12:10 PM" },
+				{ n: 6, s: 730, e: 770, label: "12:10 - 12:50 PM" },
+				{ n: 7, s: 770, e: 810, label: "12:50 - 1:30 PM" },
+				{ n: 8, s: 810, e: 850, label: "1:30 - 2:10 PM" }
+			],
+			break: { s: 670, e: 690, kind: "break", label: "11:10 - 11:30 AM" },
+			zero: null,
+			reporting: 480,
+			close: 850
+		}
+	};
+
+	// Last calendar day the practice bells apply, as YYYYMMDD so the comparison
+	// stays free of timezone and DST surprises.
+	const PRACTICE_LAST_DAY = 20260815;
+
+	function stampOf(date) {
+		return (date.getFullYear() * 10000) + ((date.getMonth() + 1) * 100) + date.getDate();
+	}
+
+	/** The bell schedule in force on `date` (defaults to today). */
+	function scheduleFor(date) {
+		return stampOf(date || new Date()) <= PRACTICE_LAST_DAY
+			? SCHEDULES.practice
+			: SCHEDULES.regular;
+	}
+
+	// Resolved once at load. The app is reopened daily, so a device left running
+	// across the 15/16 August changeover simply picks the new bells up on its
+	// next reload.
+	const SCHEDULE = scheduleFor();
+	const PERIODS = SCHEDULE.periods;
+	const BREAK = SCHEDULE.break;
+	const ZERO_PERIOD = SCHEDULE.zero;
+	const REPORTING_MIN = SCHEDULE.reporting;
+	const CLOSE_MIN = SCHEDULE.close;
 
 	// Subject -> colour category. First matching keyword wins, so longer, more
 	// specific phrases must come before their shorter substrings.
@@ -251,7 +312,8 @@ Class 12 Arts,Geography (Prakash),English Literature (Harshita),Economics (Praka
 	}
 
 	return {
-		rawData, PERIODS, BREAK, REPORTING_MIN, CLOSE_MIN,
+		rawData, PERIODS, BREAK, ZERO_PERIOD, REPORTING_MIN, CLOSE_MIN,
+		SCHEDULES, SCHEDULE, PRACTICE_LAST_DAY, scheduleFor,
 		SUBJECT_CATEGORIES, SHORT_SUBJECTS,
 		categoryOf, shortSubject, parseTimetable, buildTeacherMap, load
 	};
