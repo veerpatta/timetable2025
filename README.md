@@ -151,6 +151,8 @@ npx http-server . -p 8080 -c-1
 
 Open `http://localhost:8080`. Use `-c-1` so cached assets do not hide local changes. If the service worker serves a stale file, unregister it in DevTools → Application → Service Workers and clear the cache storage.
 
+The same server is defined in `.claude/launch.json` as the `timetable` configuration, so an agent working in this repo can start the preview itself rather than reinventing the command.
+
 ### Useful commands
 
 ```powershell

@@ -2,6 +2,7 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 const Engine = require('../scripts/substitution.js');
 const I18n = require('../scripts/i18n.js');
+const Data = require('../scripts/data.js');
 
 function schedule(periods = {}) {
 	const result = Array(8).fill(null);
@@ -185,6 +186,52 @@ test('schedule changes invalidate saved plans', () => {
 	const changed = Engine.createPlanStore(storage, { scheduleVersion: 'v5', now }).load();
 	assert.equal(changed.invalidated, true);
 	assert.deepEqual(changed.plans, {});
+});
+
+test('practice bells apply through 15 August and the regular bells resume on the 16th', () => {
+	const on = (year, month, day) => Data.scheduleFor(new Date(year, month - 1, day)).id;
+
+	assert.equal(on(2026, 8, 7), 'practice');
+	assert.equal(on(2026, 8, 15), 'practice', '15 August is the last practice day');
+	assert.equal(on(2026, 8, 16), 'regular', 'regular bells must resume unaided on 16 August');
+	assert.equal(on(2026, 9, 1), 'regular');
+	assert.equal(on(2027, 1, 1), 'regular', 'the practice window must not reopen in a later year');
+
+	// Late on the last practice day and a minute into the first regular one:
+	// the switch is by calendar date, so the time of day must not matter.
+	assert.equal(Data.scheduleFor(new Date(2026, 7, 15, 23, 59)).id, 'practice');
+	assert.equal(Data.scheduleFor(new Date(2026, 7, 16, 0, 1)).id, 'regular');
+
+	// The restored schedule is the real 2026-27 one, not a mutated copy.
+	const regular = Data.SCHEDULES.regular;
+	assert.equal(regular.periods.length, 8);
+	assert.equal(regular.periods[0].label, '8:30 - 9:10 AM');
+	assert.equal(regular.periods[7].label, '1:30 - 2:10 PM');
+	assert.equal(regular.break.label, '11:10 - 11:30 AM');
+	assert.equal(regular.break.kind, 'break');
+	assert.equal(regular.zero, null, 'the zero period belongs to the practice bells only');
+});
+
+test('both bell schedules run 8:30 AM to 2:10 PM with no gaps or overlaps', () => {
+	Object.values(Data.SCHEDULES).forEach(plan => {
+		const blocks = plan.periods
+			.concat([plan.break], plan.zero ? [plan.zero] : [])
+			.sort((a, b) => a.s - b.s);
+
+		assert.equal(blocks[0].s, 510, plan.id + ': first bell is 8:30 AM');
+		assert.equal(blocks[blocks.length - 1].e, plan.close, plan.id + ': last block ends at dispersal');
+		assert.equal(plan.close, 850, plan.id + ': dispersal stays 2:10 PM');
+		assert.ok(plan.reporting < blocks[0].s, plan.id + ': reporting precedes the first bell');
+
+		blocks.slice(1).forEach((block, index) => {
+			assert.equal(block.s, blocks[index].e, plan.id + ': no gap or overlap before ' + block.label);
+		});
+
+		plan.periods.forEach((period, index) => {
+			assert.equal(period.n, index + 1, plan.id + ': periods stay numbered 1-8 in order');
+			assert.ok(period.e > period.s, plan.id + ': period ' + period.n + ' has positive length');
+		});
+	});
 });
 
 test('English and Hindi dictionaries expose the same complete interface keys', () => {
