@@ -396,6 +396,34 @@ button {
 }
 
 /* ==========================================================================
+   Temporary schedule notice
+   ========================================================================== */
+
+.schedule-note {
+	border-radius: 16px;
+	padding: 12px 14px;
+	background: var(--warnsoft);
+	border: 1px solid var(--warn);
+	display: flex;
+	flex-direction: column;
+	gap: 3px;
+}
+
+.schedule-note__title {
+	font-size: 13px;
+	font-weight: 800;
+	color: var(--warn);
+	letter-spacing: 0.02em;
+}
+
+.schedule-note__sub {
+	font-size: 12.5px;
+	font-weight: 600;
+	color: var(--tx2);
+	line-height: 1.45;
+}
+
+/* ==========================================================================
    Setup card
    ========================================================================== */
 

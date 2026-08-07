@@ -1,41 +1,41 @@
 {
-  "timestamp": "2026-07-22T07:33:45.732Z",
+  "timestamp": "2026-08-07T03:11:10.198Z",
   "files": [
     {
       "file": "index.html",
-      "rawSize": 3598,
-      "gzippedSize": 1441,
-      "compression": "59.9%"
+      "rawSize": 3686,
+      "gzippedSize": 1445,
+      "compression": "60.8%"
     },
     {
       "file": "scripts/data.js",
-      "rawSize": 23158,
-      "gzippedSize": 3840,
-      "compression": "83.4%"
+      "rawSize": 25760,
+      "gzippedSize": 4705,
+      "compression": "81.7%"
     },
     {
       "file": "scripts/i18n.js",
-      "rawSize": 12385,
-      "gzippedSize": 3953,
-      "compression": "68.1%"
+      "rawSize": 13596,
+      "gzippedSize": 4193,
+      "compression": "69.2%"
     },
     {
       "file": "scripts/substitution.js",
-      "rawSize": 17414,
-      "gzippedSize": 4990,
-      "compression": "71.3%"
+      "rawSize": 17923,
+      "gzippedSize": 5013,
+      "compression": "72.0%"
     },
     {
       "file": "scripts/app.js",
-      "rawSize": 33957,
-      "gzippedSize": 8907,
-      "compression": "73.8%"
+      "rawSize": 36303,
+      "gzippedSize": 9346,
+      "compression": "74.3%"
     },
     {
       "file": "styles/app.css",
-      "rawSize": 19113,
-      "gzippedSize": 4033,
-      "compression": "78.9%"
+      "rawSize": 20743,
+      "gzippedSize": 4123,
+      "compression": "80.1%"
     },
     {
       "file": "sw.js",
@@ -51,7 +51,7 @@
     }
   ],
   "totals": {
-    "raw": 116723,
-    "gzipped": 29572
+    "raw": 125109,
+    "gzipped": 31233
   }
 }

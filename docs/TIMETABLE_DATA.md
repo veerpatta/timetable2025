@@ -141,6 +141,36 @@ node --test tests/substitution-engine.test.js
    - the teacher view for any renamed teacher
 5. If the runtime app changed, bump the service worker cache version in `sw.js`.
 
+## Bell Schedules
+
+Period *content* lives in `rawData`; period *times* live in `SCHEDULES` in the same file. The two are independent — `Period 1`–`Period 8` always mean the same eight columns, whichever bells are ringing.
+
+Two schedules are defined, and `scheduleFor(date)` picks between them by calendar date:
+
+| Schedule | Applies | Shape |
+| --- | --- | --- |
+| `practice` | up to and including **15 August 2026** | 8 short periods, lunch 11:00–11:20 AM, classes end 1:00 PM, zero period 1:00–2:10 PM for preparation |
+| `regular` | from **16 August 2026** | Timetable 2026–27 (v4): 8 × 40-minute periods, short break 11:10–11:30 AM, classes end 2:10 PM |
+
+The `practice` bells (source: handwritten schedule issued for the preparation period):
+
+| Period | Time |
+| --- | --- |
+| 1 | 8:30 – 9:00 AM |
+| 2 | 9:00 – 9:30 AM |
+| 3 | 9:30 – 10:00 AM |
+| 4 | 10:00 – 10:30 AM |
+| 5 | 10:30 – 11:00 AM |
+| Lunch | 11:00 – 11:20 AM |
+| 6 | 11:20 AM – 12:00 noon |
+| 7 | 12:00 – 12:30 PM |
+| 8 | 12:30 – 1:00 PM |
+| Zero period | 1:00 – 2:10 PM (preparation) |
+
+The changeover needs no code edit — the regular bells resume on their own on 16 August 2026. To extend or shorten the practice window, change the single `PRACTICE_LAST_DAY` constant (format `YYYYMMDD`). The schedule is resolved when the page loads, so a device left open across the changeover picks up the new bells on its next reload.
+
+While the practice bells are active, the home screen shows an amber notice so staff can tell the times are deliberately temporary rather than stale.
+
 ## Version History Note
 
 The 6-period heatwave timetable that was active for summer 2026 has been superseded by Timetable 2026–27 (v4), an 8-period schedule (`Period 1`–`Period 8`). If a prior schedule ever needs to be restored, check out the relevant `rawData` block from git history (for example via `git log -p scripts/data.js index.html`) and revalidate all derived views, including the column count and header row expected by the parser at that point in history.
