@@ -118,11 +118,17 @@ Anjana reports after Period 4. Enforcement runs through `isAvailableByPolicy` vi
 
 The credential file is gitignored, so a fresh clone cannot deploy a working build — copy `scripts/config.sample.js` first. Ship to staging and exercise it there before the live target. See `docs/guides/DEPLOYMENT.md`.
 
-### 9. Uncovered periods are self study, not a gap
+### 9. Two caching layers, and both must let a deploy through
+
+Firebase Hosting's default `max-age=3600` plus a precaching service worker once meant a deploy reached nobody: the browser held the old `app.js`, `cache.addAll` precached that stale copy, and the cache-first worker then served it forever. `firebase.json` now sends `no-cache` for js/css/html, and `sw.js` precaches with `fetch(asset, { cache: 'reload' })`. Do not revert either.
+
+The signature of this failure is that `curl` sees the new file and the browser does not. Suspect it before suspecting the code.
+
+### 10. Uncovered periods are self study, not a gap
 
 When nobody is free the period reads **Self Study**, styled neutrally, marked 📖 in the shared message. It is an outcome, not an unresolved hole, and the red state is reserved for a period the coordinator deliberately held. Do not reintroduce "No one free" as an outcome.
 
-### 10. Print/PDF export and the free-teacher finder were removed
+### 11. Print/PDF export and the free-teacher finder were removed
 
 The design has no place for them. Do not reintroduce them without an explicit request.
 

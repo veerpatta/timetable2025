@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-08-17T05:20:45.107Z",
+  "timestamp": "2026-08-17T05:42:30.551Z",
   "files": [
     {
       "file": "index.html",
@@ -15,9 +15,9 @@
     },
     {
       "file": "scripts/i18n.js",
-      "rawSize": 20046,
-      "gzippedSize": 5898,
-      "compression": "70.6%"
+      "rawSize": 21067,
+      "gzippedSize": 6104,
+      "compression": "71.0%"
     },
     {
       "file": "scripts/substitution.js",
@@ -33,21 +33,21 @@
     },
     {
       "file": "scripts/app.js",
-      "rawSize": 72329,
-      "gzippedSize": 19058,
-      "compression": "73.7%"
+      "rawSize": 77298,
+      "gzippedSize": 20949,
+      "compression": "72.9%"
     },
     {
       "file": "styles/app.css",
-      "rawSize": 32213,
-      "gzippedSize": 6436,
-      "compression": "80.0%"
+      "rawSize": 33707,
+      "gzippedSize": 6819,
+      "compression": "79.8%"
     },
     {
       "file": "sw.js",
-      "rawSize": 7343,
-      "gzippedSize": 2424,
-      "compression": "67.0%"
+      "rawSize": 7967,
+      "gzippedSize": 2682,
+      "compression": "66.3%"
     },
     {
       "file": "manifest.webmanifest",
@@ -57,7 +57,7 @@
     }
   ],
   "totals": {
-    "raw": 199472,
-    "gzipped": 52046
+    "raw": 207580,
+    "gzipped": 54784
   }
 }

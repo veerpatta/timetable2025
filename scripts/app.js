@@ -98,6 +98,7 @@
 	let tickTimer = null;
 	let planCache = null;
 	let profileCache = null;
+	let overlayCache = null;
 
 	/* ------------------------------------------------------------------ *
 	 * Small helpers
@@ -300,7 +301,7 @@
 	 * One period row. `cell` may be a timetable cell, a teacher slot shaped as
 	 * { subject }, or null/free. `subLead` adds the class or teacher line.
 	 */
-	function periodCard(cell, periodIndex, isNow, subLead, offShift) {
+	function periodCard(cell, periodIndex, isNow, subLead, offShift, swap, isDuty) {
 		const period = PERIODS[periodIndex];
 		const free = !cell || cell.free;
 		const category = free ? 'default' : Data.categoryOf(cell.subject);
@@ -310,12 +311,15 @@
 		if (isNow) classes.push('period-card--now');
 		if (free) classes.push('period-card--free');
 		if (free && offShift) classes.push('period-card--offshift');
+		if (swap) classes.push('period-card--substituted');
+		if (isDuty) classes.push('period-card--duty');
 
 		return '<div class="' + classes.join(' ') + '">' +
 			'<div class="period-card__bubble cat-' + category + '">' + esc(periodName(periodIndex)) + '</div>' +
 			'<div class="period-card__body">' +
 			'<div class="period-card__title">' + esc(title) + '</div>' +
 			'<div class="period-card__sub">' + esc(sub) + '</div>' +
+			(swap ? '<div class="period-card__swap">' + replacedBy(swap.was, swap.now) + '</div>' : '') +
 			'</div>' +
 			(isNow ? nowBadge(t('ui.now')) : '') +
 			'</div>';
@@ -351,14 +355,29 @@
 			: (teachers.length > 1 ? teachers[0] + ' +' + (teachers.length - 1) : (teachers[0] || ''));
 
 		classes.push('cell-' + category);
-		return '<td class="' + classes.join(' ') + '"' + (full ? ' title="' + esc(full) + '"' : '') + '>' +
+		if (settings.sub) classes.push('grid__cell--substituted');
+		if (settings.cover) classes.push('grid__cell--duty');
+
+		let teacherLine = full
+			? '<span class="grid__teacher-short">' + esc(short) + '</span>' +
+				'<span class="grid__teacher-full">' + esc(full) + '</span>'
+			: '';
+		let title = full;
+
+		if (settings.sub) {
+			teacherLine = replacedBy(settings.sub.was, settings.sub.now);
+			title = settings.sub.was + ' → ' + settings.sub.now;
+		} else if (settings.cover) {
+			// A free period that has become cover duty.
+			teacherLine = '<span class="grid__duty">' + esc(full) + '</span>';
+			title = t('ui.coveringFor', { teacher: settings.cover.coveringFor });
+		}
+
+		return '<td class="' + classes.join(' ') + '"' + (title ? ' title="' + esc(title) + '"' : '') + '>' +
 			(isLive ? '<span class="grid__live-dot" aria-hidden="true"></span>' : '') +
 			'<div class="grid__subject text-' + category + '">' +
 			esc(Data.shortSubject(cell.subject)) + '</div>' +
-			(full
-				? '<div class="grid__teacher"><span class="grid__teacher-short">' + esc(short) + '</span>' +
-					'<span class="grid__teacher-full">' + esc(full) + '</span></div>'
-				: '') +
+			(teacherLine ? '<div class="grid__teacher">' + teacherLine + '</div>' : '') +
 			'</td>';
 	}
 
@@ -406,6 +425,67 @@
 		return Object.prototype.hasOwnProperty.call(state.pins, slotId);
 	}
 
+	/*
+	 * A substitution is not private to the planner: it changes who stands in
+	 * front of a class, so it has to show wherever that period is displayed.
+	 * These two indexes are what let the class, teacher and board views draw
+	 * the replaced name struck through with its cover.
+	 *
+	 * Both are keyed for the planned day only. A plan is made for one date;
+	 * showing it against every Monday of the year would be a lie.
+	 */
+	function substitutionOverlay() {
+		const key = planCacheKey();
+		if (overlayCache && overlayCache.key === key) return overlayCache.value;
+
+		const byClass = {};   // className|periodIndex -> { was, now, status }
+		const byTeacher = {}; // teacher|periodIndex   -> { className, subject, coveringFor }
+
+		if (state.absent.length) {
+			planFor().groups.forEach(group => group.rows.forEach(row => {
+				byClass[row.className + '|' + row.periodIndex] = {
+					was: group.title,
+					now: row.cover,
+					status: row.status,
+					pinned: row.pinned
+				};
+				if (row.coverTeacher) {
+					byTeacher[row.coverTeacher + '|' + row.periodIndex] = {
+						className: row.className,
+						subject: row.subject,
+						coveringFor: group.title,
+						status: row.status
+					};
+				}
+			}));
+		}
+
+		overlayCache = { key: key, value: { day: state.subsDay, byClass: byClass, byTeacher: byTeacher } };
+		return overlayCache.value;
+	}
+
+	/** The substitution for one class period, or null when the day is not planned. */
+	function subForClass(day, className, periodIndex) {
+		const overlay = substitutionOverlay();
+		if (day !== overlay.day) return null;
+		return overlay.byClass[className + '|' + periodIndex] || null;
+	}
+
+	/** The extra duty a teacher has picked up in this period, if any. */
+	function subForTeacher(day, teacher, periodIndex) {
+		const overlay = substitutionOverlay();
+		if (day !== overlay.day) return null;
+		return overlay.byTeacher[teacher + '|' + periodIndex] || null;
+	}
+
+	/** "Bindu → Kusum", with the replaced name struck through. */
+	function replacedBy(was, now) {
+		return '<span class="sub-swap">' +
+			'<s class="sub-swap__was">' + esc(was) + '</s>' +
+			'<span class="sub-swap__now">' + esc(now) + '</span>' +
+			'</span>';
+	}
+
 	/**
 	 * Why this teacher, in one phrase. The tier answers it better than a bare
 	 * "Assigned" ever did, and the familiarity count makes it concrete.
@@ -416,6 +496,39 @@
 		return item.classPeriods
 			? base + ' · ' + t('edit.classPeriods', { n: item.classPeriods })
 			: base;
+	}
+
+	/**
+	 * One period on a teacher's own day, with the substitution plan applied.
+	 *
+	 * Two things can happen to a teacher's period: a class they teach gets
+	 * handed to somebody else, or a free period turns into cover duty. Both
+	 * have to be visible here - a teacher who opens the app and sees an empty
+	 * P3 will not turn up to cover it.
+	 */
+	function teacherPeriodCard(teacher, slot, index, day, isNow) {
+		const duty = slot ? null : subForTeacher(day, teacher, index);
+		if (duty) {
+			return periodCard(
+				{ subject: duty.subject, teachers: [] },
+				index,
+				isNow,
+				classLabel(duty.className) + ' · ' + t('ui.coveringFor', { teacher: duty.coveringFor }),
+				false,
+				null,
+				true
+			);
+		}
+
+		const handover = slot ? subForClass(day, slot.className, index) : null;
+		return periodCard(
+			slot ? { subject: slot.subject, teachers: [] } : null,
+			index,
+			isNow,
+			slot ? classLabel(slot.className) : '',
+			!onShift(teacher, index),
+			handover && handover.was === teacher ? handover : null
+		);
 	}
 
 	/** Spells out a restricted shift, so nobody wonders why P1 is greyed out. */
@@ -562,11 +675,8 @@
 				'<button type="button" class="link-button" data-action="change-profile">' + esc(t('setup.change')) + '</button>' +
 				'</div>' +
 				'<div class="period-list">' +
-				schedule.map((slot, index) => periodCard(
-					slot ? { subject: slot.subject, teachers: [] } : null,
-					index,
-					day === myDay && index === period,
-					slot ? classLabel(slot.className) : ''
+				schedule.map((slot, index) => teacherPeriodCard(
+					state.me, slot, index, myDay, day === myDay && index === period
 				)).join('') +
 				'</div>' +
 				shareButton('share-my-day', t('home.shareDay')) +
@@ -629,13 +739,15 @@
 			html += '<div class="period-list">' + db.classNames.map(className => {
 				const cell = db.timetable[boardDay][className][selected];
 				const category = cell.free ? 'default' : Data.categoryOf(cell.subject);
-				return '<div class="board-row">' +
+				const swap = subForClass(boardDay, className, selected);
+				return '<div class="board-row' + (swap ? ' board-row--substituted' : '') + '">' +
 					'<div class="board-row__class">' + esc(classLabel(className, true)) + '</div>' +
 					'<div class="board-row__rule rule-' + category + '"></div>' +
 					'<div class="board-row__body">' +
 					'<div class="board-row__subject' + (cell.free ? ' board-row__subject--free' : '') + '">' +
 					esc(cell.free ? t('ui.freeShort') : cell.subject) + '</div>' +
-					'<div class="board-row__teacher">' + esc(cell.teachers.join(' / ')) + '</div>' +
+					'<div class="board-row__teacher">' +
+					(swap ? replacedBy(swap.was, swap.now) : esc(cell.teachers.join(' / '))) + '</div>' +
 					'</div></div>';
 			}).join('') + '</div>';
 
@@ -661,7 +773,7 @@
 							cell,
 							boardDay === day && index === period,
 							null,
-							{ beforeBreak: index === beforeBreak }
+							{ beforeBreak: index === beforeBreak, sub: subForClass(boardDay, className, index) }
 						)).join('') +
 						'</tr>').join('')
 				);
@@ -691,9 +803,17 @@
 		if (!state.gridClass) {
 			html += dayChips(state.selDay, 'sel-day') +
 				'<div class="period-list">' +
-				db.timetable[state.selDay][state.selClass].map((cell, index) => periodCard(
-					cell, index, state.selDay === day && index === period, cell.teachers.join(' / ')
-				)).join('') +
+				db.timetable[state.selDay][state.selClass].map((cell, index) => {
+					const swap = subForClass(state.selDay, state.selClass, index);
+					// When a period is substituted the swap line already names
+					// who is teaching it; repeating the original above it just
+					// reads as a contradiction.
+					return periodCard(
+						cell, index, state.selDay === day && index === period,
+						swap ? '' : cell.teachers.join(' / '),
+						false, swap
+					);
+				}).join('') +
 				'</div>' +
 				shareButton('share-class', t('home.shareDay'));
 		} else {
@@ -710,7 +830,9 @@
 						gridPeriodRowLabel(index) +
 						db.days.map(d => gridCell(
 							db.timetable[d][state.selClass][index],
-							d === day && index === period
+							d === day && index === period,
+							null,
+							{ sub: subForClass(d, state.selClass, index) }
 						)).join('') +
 						'</tr>').join('')
 				);
@@ -747,12 +869,8 @@
 				'</div>' +
 				shiftNote(state.selTeacher) +
 				'<div class="period-list">' +
-				schedule.map((slot, index) => periodCard(
-					slot ? { subject: slot.subject, teachers: [] } : null,
-					index,
-					state.selDay === day && index === period,
-					slot ? classLabel(slot.className) : '',
-					!onShift(state.selTeacher, index)
+				schedule.map((slot, index) => teacherPeriodCard(
+					state.selTeacher, slot, index, state.selDay, state.selDay === day && index === period
 				)).join('') +
 				'</div>' +
 				shareButton('share-teacher', t('home.shareDay'));
@@ -773,13 +891,26 @@
 					PERIODS.map((slot, index) =>
 						'<tr' + (index === breakAfterIndex() ? ' class="grid__row--beforebreak"' : '') + '>' +
 						gridPeriodRowLabel(index) +
-						db.days.map(d => {
+							db.days.map(d => {
 							const cell = db.teacherMap[state.selTeacher][d][index];
+							const duty = cell ? null : subForTeacher(d, state.selTeacher, index);
+							const handover = cell ? subForClass(d, cell.className, index) : null;
+							if (duty) {
+								return gridCell(
+									{ subject: duty.subject, teachers: [] },
+									d === day && index === period,
+									classLabel(duty.className, true),
+									{ cover: duty }
+								);
+							}
 							return gridCell(
 								cell ? { subject: cell.subject, teachers: [] } : null,
 								d === day && index === period,
 								cell ? classLabel(cell.className, true) : null,
-								{ offShift: !onShift(state.selTeacher, index) }
+								{
+									offShift: !onShift(state.selTeacher, index),
+									sub: handover && handover.was === state.selTeacher ? handover : null
+								}
 							);
 						}).join('') +
 						'</tr>').join('')
@@ -967,9 +1098,8 @@
 		return { groups: groups, totals: totals };
 	}
 
-	/** One allocation per render; sharing used to run the whole flow twice. */
-	function planFor() {
-		const key = [
+	function planCacheKey() {
+		return [
 			state.subsDay,
 			state.absent.join(','),
 			JSON.stringify(state.shifts),
@@ -977,6 +1107,11 @@
 			JSON.stringify(state.coverHistory),
 			I18n.getLanguage()
 		].join('|');
+	}
+
+	/** One allocation per render; sharing used to run the whole flow twice. */
+	function planFor() {
+		const key = planCacheKey();
 		if (planCache && planCache.key === key) return planCache.value;
 		planCache = { key: key, value: buildPlan() };
 		return planCache.value;
@@ -1346,42 +1481,91 @@
 		return '*' + row.cover + '*';
 	}
 
+	function padCell(value, width) {
+		const text = String(value == null ? '' : value);
+		return text.length >= width ? text : text + ' '.repeat(width - text.length);
+	}
+
+	/** "Mon 17 Aug" - enough to be sure which day, short enough for a heading. */
+	function shortDate(date) {
+		return date.toLocaleDateString(I18n.locale(), { weekday: 'short', day: 'numeric', month: 'short' });
+	}
+
 	/**
-	 * The message that actually reaches the staff group. WhatsApp reads
-	 * *asterisks* as bold and _underscores_ as italic, so the plan can be
-	 * skimmed: who is out, which period, who covers it, and what still needs
-	 * a human decision.
+	 * The message that reaches the staff group.
+	 *
+	 * One aligned row per period inside WhatsApp's monospace block, sorted by
+	 * period so the day reads top to bottom. Deliberately not the screen: the
+	 * planner keeps the reasons, warnings and times because that is where the
+	 * decisions get made, whereas twenty people on a phone need to find their
+	 * own name and stop reading. Team-covered periods are left out entirely -
+	 * they need nobody to do anything - and counted in the summary instead.
 	 */
 	function buildPlanMessage() {
 		const plan = planFor();
 		const totals = plan.totals;
-		const lines = [];
 
-		lines.push('🏫 *' + t('app.school') + '*');
-		lines.push('🔄 *' + t('msg.title') + '*');
-		lines.push('📅 ' + longDate(dateForDay(state.subsDay)));
-
-		plan.groups.forEach(group => {
-			lines.push('');
-			lines.push('🔴 *' + group.title + '* — ' + t('msg.absent') + ' · ' + group.count);
-			group.rows.forEach(row => {
-				lines.push(statusEmoji(row) + ' ' + row.period + ' · ' + row.time + ' · ' + row.what);
-				lines.push('       → ' + coverSentence(row));
+		const entries = [];
+		plan.groups.forEach(group => group.rows.forEach(row => {
+			if (row.status === 'team') return;
+			entries.push({
+				period: String(row.periodIndex + 1),
+				className: classLabel(row.className, true),
+				subject: Data.shortSubject(row.subject),
+				cover: messageCover(row),
+				periodIndex: row.periodIndex
 			});
-		});
+		}));
+		entries.sort((a, b) => a.periodIndex - b.periodIndex || a.className.localeCompare(b.className));
 
+		const head = {
+			period: t('msg.colPeriod'),
+			className: t('msg.colClass'),
+			subject: t('msg.colSubject'),
+			cover: t('msg.colCover')
+		};
+		const width = key => Math.max(head[key].length, ...entries.map(entry => entry[key].length));
+		const widths = {
+			period: width('period'),
+			className: width('className'),
+			subject: width('subject')
+		};
+		const row = item => (
+			padCell(item.period, widths.period) + '  ' +
+			padCell(item.className, widths.className) + '  ' +
+			padCell(item.subject, widths.subject) + '  ' +
+			item.cover
+		).replace(/\s+$/, '');
+
+		const lines = [];
+		lines.push('🏫 *' + t('app.short') + ' · ' + t('msg.title') + '* — ' + shortDate(dateForDay(state.subsDay)));
 		lines.push('');
-		lines.push('📊 ' + (totals.review + totals.open + totals.selfstudy === 0
-			? t('msg.allClear', { total: totals.total })
-			: t('msg.summary', {
-				total: totals.total,
-				covered: totals.assigned + totals.team,
-				review: totals.review,
-				selfStudy: totals.selfstudy
-			})));
-		lines.push('_' + t('msg.footer') + '_');
+
+		if (entries.length) {
+			lines.push('```');
+			lines.push(row(head));
+			entries.forEach(entry => lines.push(row(entry)));
+			lines.push('```');
+			lines.push('');
+		}
+
+		const summary = [];
+		if (totals.assigned) summary.push('✅ ' + t('msg.sumCovered', { n: totals.assigned }));
+		if (totals.review) summary.push('⚠️ ' + t('msg.sumCheck', { n: totals.review }));
+		if (totals.selfstudy) summary.push('📖 ' + t('msg.sumSelfStudy', { n: totals.selfstudy }));
+		if (totals.open) summary.push('📌 ' + t('msg.sumHeld', { n: totals.open }));
+		if (totals.team) summary.push('👥 ' + t('msg.sumTeam', { n: totals.team }));
+		lines.push(summary.join(' · '));
 
 		return lines.join('\n');
+	}
+
+	/** The cover column: a name, or the short reason there is not one. */
+	function messageCover(row) {
+		if (row.status === 'selfstudy') return t('msg.shortSelfStudy');
+		if (row.status === 'open') return t('msg.shortHeld');
+		if (row.status === 'review') return row.cover + ' ?';
+		return row.cover;
 	}
 
 	function shareCurrent(action) {

@@ -14,6 +14,7 @@
 		en: {
 			'app.name': 'VPPS Timetable',
 			'app.school': 'Veer Patta Public School, Amet',
+			'app.short': 'VPPS',
 
 			'nav.home': 'Home',
 			'nav.today': 'Today',
@@ -38,6 +39,7 @@
 			'ui.offShift': 'Off shift',
 			'ui.break': 'Break',
 			'ui.selfStudy': 'Self Study',
+			'ui.coveringFor': 'covering for {teacher}',
 
 			'setup.title': 'Set up this phone',
 			'setup.sub': 'Teachers get their own schedule on the home screen. You can change this anytime.',
@@ -108,6 +110,17 @@
 			'msg.selfStudy': '*SELF STUDY* — no teacher was free',
 			'msg.check': 'please confirm',
 			'msg.summary': '{total} periods · {covered} covered · {review} to check · {selfStudy} self study',
+			'msg.colPeriod': 'P',
+			'msg.colClass': 'CLASS',
+			'msg.colSubject': 'SUBJECT',
+			'msg.colCover': 'COVER',
+			'msg.shortSelfStudy': 'self study',
+			'msg.shortHeld': 'office',
+			'msg.sumCovered': '{n} covered',
+			'msg.sumCheck': '{n} to check',
+			'msg.sumSelfStudy': '{n} self study',
+			'msg.sumHeld': '{n} with office',
+			'msg.sumTeam': '{n} team',
 			'msg.allClear': '{total} periods · all covered',
 			'msg.footer': 'Sent from the VPPS Timetable app',
 
@@ -165,6 +178,7 @@
 		hi: {
 			'app.name': 'वीपीपीएस समय-सारणी',
 			'app.school': 'वीर पट्टा पब्लिक स्कूल, आमेट',
+			'app.short': 'वीपीपीएस',
 
 			'nav.home': 'होम',
 			'nav.today': 'आज',
@@ -189,6 +203,7 @@
 			'ui.offShift': 'ड्यूटी से बाहर',
 			'ui.break': 'अवकाश',
 			'ui.selfStudy': 'स्वयं अध्ययन',
+			'ui.coveringFor': '{teacher} के स्थान पर',
 
 			'setup.title': 'यह फ़ोन सेट करें',
 			'setup.sub': 'शिक्षकों को होम स्क्रीन पर अपनी समय-सारणी मिलती है। इसे कभी भी बदल सकते हैं।',
@@ -259,6 +274,17 @@
 			'msg.selfStudy': '*स्वयं अध्ययन* — कोई शिक्षक खाली नहीं था',
 			'msg.check': 'कृपया पुष्टि करें',
 			'msg.summary': '{total} पीरियड · {covered} कवर · {review} जाँचें · {selfStudy} स्वयं अध्ययन',
+			'msg.colPeriod': 'पी',
+			'msg.colClass': 'कक्षा',
+			'msg.colSubject': 'विषय',
+			'msg.colCover': 'कवर',
+			'msg.shortSelfStudy': 'स्वयं अध्ययन',
+			'msg.shortHeld': 'कार्यालय',
+			'msg.sumCovered': '{n} कवर',
+			'msg.sumCheck': '{n} जाँचें',
+			'msg.sumSelfStudy': '{n} स्वयं अध्ययन',
+			'msg.sumHeld': '{n} कार्यालय',
+			'msg.sumTeam': '{n} टीम',
 			'msg.allClear': '{total} पीरियड · सभी कवर',
 			'msg.footer': 'वीपीपीएस समय-सारणी ऐप से भेजा गया',
 

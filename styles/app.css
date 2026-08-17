@@ -674,6 +674,65 @@ button {
 	animation: vpps-pulse 1.4s ease-in-out infinite;
 }
 
+/* ==========================================================================
+   Substitutions shown in the timetables
+   ========================================================================== */
+
+/*
+ * A substitution changes who stands in front of a class, so it shows
+ * everywhere that period appears - not only in the planner. The replaced
+ * name is struck in red and the cover follows it.
+ */
+.sub-swap {
+	display: inline-flex;
+	align-items: baseline;
+	gap: 5px;
+	flex-wrap: wrap;
+}
+
+.sub-swap__was {
+	color: var(--err);
+	text-decoration-line: line-through;
+	text-decoration-color: var(--err);
+	text-decoration-thickness: 1.5px;
+	opacity: 0.85;
+}
+
+.sub-swap__now {
+	color: var(--ok);
+	font-weight: 800;
+}
+
+/* An arrow, so the direction is not carried by colour alone. */
+.sub-swap__now::before {
+	content: "→ ";
+	color: var(--mut);
+	font-weight: 600;
+}
+
+.grid__cell--substituted { box-shadow: inset 3px 0 0 var(--err); }
+.grid__cell--duty { box-shadow: inset 3px 0 0 var(--ok); }
+
+.grid__duty { color: var(--ok); font-weight: 800; }
+
+.board-row--substituted { border-color: var(--err); }
+
+.period-card--substituted { border-color: var(--err); }
+
+/* A free period that has become cover duty. Loud, because a teacher who
+   misses it does not turn up. */
+.period-card--duty {
+	border-color: var(--ok);
+	background: var(--oksoft);
+	opacity: 1;
+}
+
+.period-card__swap {
+	margin-top: 3px;
+	font-size: 12px;
+	font-weight: 700;
+}
+
 /* Subject category tinting for bubbles and grid text. */
 .cat-languages { background: var(--t-languages); color: var(--c-languages); }
 .cat-sciences { background: var(--t-sciences); color: var(--c-sciences); }

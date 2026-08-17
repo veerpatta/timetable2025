@@ -49,6 +49,21 @@ The deployed page serves the connection string to anyone who opens it. That is t
 
 Devices pick the new credential up on their next load. The service worker fetches `config.local.js` **network-first** specifically so that a rotation cannot be masked by a cached copy — every other asset is cache-first, and a stale credential would otherwise keep failing on every installed device with no visible cause. Prefer a Neon role limited to `teacher_shifts` and `substitution_plans` over `neondb_owner`.
 
+## Why deploys used to not arrive
+
+Firebase Hosting serves everything with `Cache-Control: max-age=3600` by default. With a precaching service worker on top, that produced a deploy that reached nobody:
+
+1. The browser held the old `app.js` for an hour.
+2. The new worker installed, and `cache.addAll` **reused that stale copy** from the HTTP cache.
+3. Being cache-first, the worker then served the old build indefinitely — a version bump that changed nothing.
+
+Two fixes, both needed:
+
+- `firebase.json` serves `**/*.@(js|css|html|webmanifest)` as `no-cache`. The service worker is the cache; an HTTP cache on top of it only ever serves stale builds.
+- `sw.js` precaches with `fetch(asset, { cache: 'reload' })` instead of `cache.addAll`, so install always fetches fresh bytes regardless of what the browser is holding.
+
+If a change ever appears not to deploy, check that both are still in place before suspecting the code. `curl` sees the new file while the browser does not — that asymmetry is the signature.
+
 ## After deploying
 
 Check the live site rather than assuming:

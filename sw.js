@@ -1,8 +1,8 @@
 // Service Worker for Veer Patta Public School Timetable
 // Provides offline-first caching for the page shell and timetable data
 
-const CACHE_NAME = 'vpps-timetable-v50';
-const STATIC_CACHE_NAME = 'vpps-static-v50';
+const CACHE_NAME = 'vpps-timetable-v55';
+const STATIC_CACHE_NAME = 'vpps-static-v55';
 
 // Core resources required for offline shell.
 // scripts/config.local.js is deliberately absent: it is gitignored, may not
@@ -35,7 +35,16 @@ self.addEventListener('install', event => {
         const cache = await caches.open(STATIC_CACHE_NAME);
 
         console.log('Service Worker: Caching core assets');
-        await cache.addAll(CORE_ASSETS);
+        // Fetch past the HTTP cache. `cache.addAll` reuses whatever the
+        // browser already holds, so a build cached under an older, longer
+        // max-age would be precached here and then served from the worker
+        // forever - a deploy that never reaches the device. Bypassing the
+        // HTTP cache on install is what makes a version bump mean something.
+        await Promise.all(CORE_ASSETS.map(async asset => {
+          const response = await fetch(asset, { cache: 'reload' });
+          if (!response.ok) throw new Error('precache failed: ' + asset + ' (' + response.status + ')');
+          await cache.put(asset, response);
+        }));
 
         console.log('Service Worker: Attempting optional external asset cache');
         const optionalResults = await Promise.allSettled(

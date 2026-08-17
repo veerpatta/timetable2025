@@ -86,7 +86,7 @@ Only add an override when it is backed by school policy. Do not use this configu
 
 ## Coverage states
 
-Every planned period ends in exactly one of four states, and the same state drives the pill in the UI and the marker in the shared message:
+Every planned period ends in exactly one of five states, and the same state drives the pill in the UI and the marker in the shared message:
 
 | State | UI | Message | Meaning |
 | --- | --- | --- | --- |
@@ -101,6 +101,37 @@ Two of these are deliberate choices about how the plan reads:
 `review` used to be presented as settled, which meant an unvetted suggestion reached WhatsApp looking exactly like a decision. It no longer does.
 
 `selfstudy` is styled neutrally rather than as an alarm. An uncovered period is an outcome, not a hole in the chart — leaving it as "no one free" made it look unresolved right up to the bell, and drew the eye away from the periods that genuinely still need a decision. A period the coordinator held is the one that reads as pending, because it is.
+
+## A substitution shows everywhere, not just in the planner
+
+A substitution changes who stands in front of a class, so it appears wherever that period is drawn: the Today board, the class timetable, the teacher timetable and a teacher's own day on Home. The replaced name is struck through in red with the cover beside it, and an arrow carries the direction so the meaning is not left to colour alone.
+
+Two indexes in `app.js` do this, both built from the current plan and keyed for the planned day only — a plan is made for one date, and showing it against every Monday of the year would be a lie:
+
+- `subForClass(day, className, periodIndex)` — the class period that changed hands.
+- `subForTeacher(day, teacher, periodIndex)` — the **free period that became cover duty**. This one matters most: a teacher who opens the app and sees an empty P3 does not turn up to cover it. Those periods render in green as duty, reading "Class 1 · covering for Bindu".
+
+## The shared message
+
+Deliberately not the screen. The planner keeps reasons, warnings and times because that is where decisions are made; twenty people on a phone need to find their own name and stop reading.
+
+One aligned row per period inside WhatsApp's monospace block, sorted by period so the day reads top to bottom:
+
+```
+🏫 *VPPS · Substitution Plan* — Mon, 17 Aug
+
+P  CLASS    SUBJECT  COVER
+1  1        Maths    self study
+2  2        EVS      Ravina ?
+4  6        Sports   Jainendra
+
+✅ 4 covered · ⚠️ 4 to check · 📖 1 self study · 👥 3 team
+```
+
+- A trailing `?` marks a cover that still needs confirming; the count is in the summary.
+- Team-covered periods are left out of the table entirely — nobody has to do anything about them — and counted in the summary instead.
+- Class names use the short form to keep lines from wrapping on a narrow phone. The column header carries the meaning.
+- In Hindi the columns only align approximately: Devanagari glyphs are not monospace width, so padding by character count cannot line them up exactly. The table is still readable; it is a limitation of the medium, not a bug to chase.
 
 ## Plan storage
 

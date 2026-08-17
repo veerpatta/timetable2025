@@ -25,16 +25,7 @@
           ]
         },
         {
-          "source": "/index.html",
-          "headers": [
-            {
-              "key": "Cache-Control",
-              "value": "no-cache"
-            }
-          ]
-        },
-        {
-          "source": "/scripts/config.local.js",
+          "source": "**/*.@(js|css|html|webmanifest)",
           "headers": [
             {
               "key": "Cache-Control",
@@ -69,16 +60,7 @@
           ]
         },
         {
-          "source": "/index.html",
-          "headers": [
-            {
-              "key": "Cache-Control",
-              "value": "no-cache"
-            }
-          ]
-        },
-        {
-          "source": "/scripts/config.local.js",
+          "source": "**/*.@(js|css|html|webmanifest)",
           "headers": [
             {
               "key": "Cache-Control",
