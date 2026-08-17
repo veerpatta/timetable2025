@@ -920,11 +920,18 @@
 					: (item.reasonKey ? t(item.reasonKey) : t('sub.reviewRequired'))
 			};
 		});
+		// Nobody free is still an outcome, not a hole in the chart. The class
+		// sits self study, which is what the school does anyway - saying "no
+		// one free" left the period looking unresolved right up to the bell.
 		plan.openSlots.forEach(item => {
-			cover[item.slotId] = { name: t('ui.noFree'), status: 'open', note: t('sub.noCandidates') };
+			cover[item.slotId] = {
+				name: t('ui.selfStudy'),
+				status: 'selfstudy',
+				note: t('sub.selfStudyWhy')
+			};
 		});
 
-		const totals = { total: 0, assigned: 0, review: 0, team: 0, open: 0, pinned: 0 };
+		const totals = { total: 0, assigned: 0, review: 0, team: 0, open: 0, selfstudy: 0, pinned: 0 };
 		const groups = absent.map(name => {
 			const rows = [];
 			db.teacherMap[name][day].forEach((slot, index) => {
@@ -932,7 +939,8 @@
 				const slotId = name + '|' + index;
 				const result = teamCovered[slotId]
 					? { name: t('ui.team'), status: 'team', note: t('ui.team') }
-					: (cover[slotId] || { name: t('ui.noFree'), status: 'open', note: t('sub.noCandidates') });
+					: (cover[slotId] ||
+						{ name: t('ui.selfStudy'), status: 'selfstudy', note: t('sub.selfStudyWhy') });
 				totals.total += 1;
 				totals[result.status] += 1;
 				if (result.pinned) totals.pinned += 1;
@@ -1094,7 +1102,7 @@
 			'<span class="plan-summary__counts">' + esc(t('subs.summary', {
 				covered: totals.assigned + totals.team,
 				review: totals.review,
-				open: totals.open
+				selfStudy: totals.selfstudy
 			})) + '</span>' +
 			(totals.pinned
 				? '<span class="plan-summary__pins">📌 ' + esc(t('subs.pinned', { count: totals.pinned })) + '</span>'
@@ -1321,7 +1329,7 @@
 	}
 
 	// One marker per row, and each one means something specific.
-	const STATUS_EMOJI = { assigned: '✅', review: '⚠️', team: '👥', open: '❌' };
+	const STATUS_EMOJI = { assigned: '✅', review: '⚠️', team: '👥', open: '❌', selfstudy: '📖' };
 
 	function statusEmoji(row) {
 		return row.status === 'open' && row.pinned ? '📌' : STATUS_EMOJI[row.status];
@@ -1330,6 +1338,7 @@
 	/** What goes after the arrow for a single covered - or uncovered - period. */
 	function coverSentence(row) {
 		if (row.status === 'team') return t('msg.team');
+		if (row.status === 'selfstudy') return t('msg.selfStudy');
 		// A period the coordinator chose to handle is not a period nobody
 		// could cover; telling the staff group otherwise invites a scramble.
 		if (row.status === 'open') return t(row.pinned ? 'msg.heldOpen' : 'msg.noCover');
@@ -1362,13 +1371,13 @@
 		});
 
 		lines.push('');
-		lines.push('📊 ' + (totals.review + totals.open === 0
+		lines.push('📊 ' + (totals.review + totals.open + totals.selfstudy === 0
 			? t('msg.allClear', { total: totals.total })
 			: t('msg.summary', {
 				total: totals.total,
 				covered: totals.assigned + totals.team,
 				review: totals.review,
-				open: totals.open
+				selfStudy: totals.selfstudy
 			})));
 		lines.push('_' + t('msg.footer') + '_');
 

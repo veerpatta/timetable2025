@@ -90,12 +90,17 @@ Every planned period ends in exactly one of four states, and the same state driv
 
 | State | UI | Message | Meaning |
 | --- | --- | --- | --- |
-| `assigned` | green | ✅ | The engine allocated this automatically: right subject, within workload limits. |
+| `assigned` | green | ✅ | The engine allocated this automatically: right subject or the class's own teacher, within workload limits. |
 | `team` | blue | 👥 | Co-taught period; a remaining co-teacher covers it. Nothing to arrange. |
 | `review` | amber | ⚠️ | A suggestion the engine declined to auto-assign. The message names the actual reason — subject not verified, workload limit, long consecutive run — not the match tier. |
-| `open` | red | ❌ | Nobody is available. This needs a human. |
+| `selfstudy` | neutral | 📖 | Nobody was free. The class sits self study, which is what the school does anyway. |
+| `open` | red | 📌 | The coordinator deliberately held the period to arrange themselves. |
+
+Two of these are deliberate choices about how the plan reads:
 
 `review` used to be presented as settled, which meant an unvetted suggestion reached WhatsApp looking exactly like a decision. It no longer does.
+
+`selfstudy` is styled neutrally rather than as an alarm. An uncovered period is an outcome, not a hole in the chart — leaving it as "no one free" made it look unresolved right up to the bell, and drew the eye away from the periods that genuinely still need a decision. A period the coordinator held is the one that reads as pending, because it is.
 
 ## Plan storage
 

@@ -37,6 +37,7 @@
 			'ui.periodShort': 'P',
 			'ui.offShift': 'Off shift',
 			'ui.break': 'Break',
+			'ui.selfStudy': 'Self Study',
 
 			'setup.title': 'Set up this phone',
 			'setup.sub': 'Teachers get their own schedule on the home screen. You can change this anytime.',
@@ -84,7 +85,7 @@
 			'subs.whatsapp': 'Send on WhatsApp',
 			'subs.clear': 'Clear selection',
 			'subs.empty': 'No teachers marked absent yet. Tap names above to build a coverage plan.',
-			'subs.summary': '{covered} covered · {review} to check · {open} open',
+			'subs.summary': '{covered} covered · {review} to check · {selfStudy} self study',
 			'subs.pinned': '{count} changed by hand',
 
 			'shift.title': 'Shift timings',
@@ -103,8 +104,9 @@
 			'msg.noCover': 'NO TEACHER FREE — please arrange',
 			'msg.heldOpen': 'being arranged by the office',
 			'msg.team': 'covered by the co-teacher',
+			'msg.selfStudy': '*SELF STUDY* — no teacher was free',
 			'msg.check': 'please confirm',
-			'msg.summary': '{total} periods · {covered} covered · {review} to check · {open} open',
+			'msg.summary': '{total} periods · {covered} covered · {review} to check · {selfStudy} self study',
 			'msg.allClear': '{total} periods · all covered',
 			'msg.footer': 'Sent from the VPPS Timetable app',
 
@@ -119,6 +121,7 @@
 			'sub.related': 'Related subject only',
 			'sub.general': 'General availability only',
 			'sub.noCandidates': 'No available teacher found.',
+			'sub.selfStudyWhy': 'No teacher free · the class sits self study',
 			'sub.pinned': 'Chosen by the coordinator',
 			'sub.heldOpen': 'Left open on purpose',
 			'sub.openShort': 'Left open',
@@ -184,6 +187,7 @@
 			'ui.periodShort': 'पी',
 			'ui.offShift': 'ड्यूटी से बाहर',
 			'ui.break': 'अवकाश',
+			'ui.selfStudy': 'स्वयं अध्ययन',
 
 			'setup.title': 'यह फ़ोन सेट करें',
 			'setup.sub': 'शिक्षकों को होम स्क्रीन पर अपनी समय-सारणी मिलती है। इसे कभी भी बदल सकते हैं।',
@@ -231,7 +235,7 @@
 			'subs.whatsapp': 'व्हाट्सऐप पर भेजें',
 			'subs.clear': 'चयन हटाएँ',
 			'subs.empty': 'अभी कोई शिक्षक अनुपस्थित नहीं चुना गया। ऊपर नाम पर टैप करें।',
-			'subs.summary': '{covered} कवर · {review} जाँचें · {open} खुले',
+			'subs.summary': '{covered} कवर · {review} जाँचें · {selfStudy} स्वयं अध्ययन',
 			'subs.pinned': '{count} स्वयं बदले गए',
 
 			'shift.title': 'ड्यूटी समय',
@@ -250,8 +254,9 @@
 			'msg.noCover': 'कोई शिक्षक खाली नहीं — कृपया व्यवस्था करें',
 			'msg.heldOpen': 'कार्यालय द्वारा व्यवस्था की जा रही है',
 			'msg.team': 'सह-शिक्षक द्वारा कवर',
+			'msg.selfStudy': '*स्वयं अध्ययन* — कोई शिक्षक खाली नहीं था',
 			'msg.check': 'कृपया पुष्टि करें',
-			'msg.summary': '{total} पीरियड · {covered} कवर · {review} जाँचें · {open} खुले',
+			'msg.summary': '{total} पीरियड · {covered} कवर · {review} जाँचें · {selfStudy} स्वयं अध्ययन',
 			'msg.allClear': '{total} पीरियड · सभी कवर',
 			'msg.footer': 'वीपीपीएस समय-सारणी ऐप से भेजा गया',
 
@@ -266,6 +271,7 @@
 			'sub.related': 'केवल संबंधित विषय',
 			'sub.general': 'केवल सामान्य उपलब्धता',
 			'sub.noCandidates': 'कोई उपलब्ध शिक्षक नहीं मिला।',
+			'sub.selfStudyWhy': 'कोई शिक्षक खाली नहीं · कक्षा स्वयं अध्ययन करेगी',
 			'sub.pinned': 'प्रभारी द्वारा चुना गया',
 			'sub.heldOpen': 'जानबूझकर खुला रखा गया',
 			'sub.openShort': 'खुला रखा',

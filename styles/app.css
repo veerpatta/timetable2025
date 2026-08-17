@@ -945,6 +945,7 @@ button {
 .grid__cell--team { box-shadow: inset 3px 0 0 var(--pri); }
 .grid__cell--review { box-shadow: inset 3px 0 0 var(--warn); background: var(--warnsoft); }
 .grid__cell--open { box-shadow: inset 3px 0 0 var(--err); background: var(--errsoft); }
+.grid__cell--selfstudy { box-shadow: inset 3px 0 0 var(--c-default); }
 .grid td.grid__cell--pinned { border-bottom-style: dashed; }
 .grid td.grid__cell--editing { outline: 2px solid var(--pri); outline-offset: -2px; }
 
@@ -1100,6 +1101,14 @@ button {
 .cover-pill--open {
 	background: var(--errsoft);
 	color: var(--err);
+}
+
+/* Self study is a resolution, not a failure. Neutral, so the eye is drawn
+   to the periods that still need a decision. */
+.cover-pill--selfstudy {
+	background: var(--card2);
+	color: var(--tx2);
+	border-color: var(--bd);
 }
 
 .plan-row--review { background: color-mix(in srgb, var(--warnsoft) 45%, transparent); }

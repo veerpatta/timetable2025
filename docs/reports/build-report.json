@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-08-17T03:54:42.193Z",
+  "timestamp": "2026-08-17T04:57:11.369Z",
   "files": [
     {
       "file": "index.html",
@@ -15,9 +15,9 @@
     },
     {
       "file": "scripts/i18n.js",
-      "rawSize": 19695,
-      "gzippedSize": 5749,
-      "compression": "70.8%"
+      "rawSize": 20275,
+      "gzippedSize": 5861,
+      "compression": "71.1%"
     },
     {
       "file": "scripts/substitution.js",
@@ -33,15 +33,15 @@
     },
     {
       "file": "scripts/app.js",
-      "rawSize": 71410,
-      "gzippedSize": 18728,
-      "compression": "73.8%"
+      "rawSize": 71806,
+      "gzippedSize": 18875,
+      "compression": "73.7%"
     },
     {
       "file": "styles/app.css",
-      "rawSize": 31731,
-      "gzippedSize": 6295,
-      "compression": "80.2%"
+      "rawSize": 32036,
+      "gzippedSize": 6369,
+      "compression": "80.1%"
     },
     {
       "file": "sw.js",
@@ -57,7 +57,7 @@
     }
   ],
   "totals": {
-    "raw": 197213,
-    "gzipped": 51226
+    "raw": 198494,
+    "gzipped": 51559
   }
 }
