@@ -2,24 +2,75 @@
 
 The live app uses `scripts/substitution.js` for substitution recommendations. The module is pure JavaScript, works offline, and is shared by the browser and Node tests.
 
-## Qualification and workload rules
+## What makes cover good
 
-Automatic assignments must satisfy all of these rules:
+School policy is that **familiarity with the class comes first**. A teacher those children already know can hold a useful lesson; a stranger with the right subject often cannot. The tier ladder encodes that, best first:
 
-- the teacher is not absent;
-- the teacher has no regular class or other substitution in that period;
-- the teacher is inside any configured availability window;
-- the subject appears in the teacher's weekly timetable history or in an explicit `canCover` policy override;
-- the teacher has fewer than two automatic substitutions for that calendar date;
-- the assignment does not remove the final free period or extend an already long teaching run.
+| Tier | Meaning | Automatic |
+| --- | --- | --- |
+| `class_subject` | Teaches this class **and** this subject | yes |
+| `class` | Teaches this class, any subject | yes |
+| `exact` | Teaches this subject, other classes | yes |
+| `approved` | Explicit `canCover` policy override | yes |
+| `related` | Same subject group only | review |
+| `general` | No connection to class or subject | review |
 
-Related-department and general free teachers are suggestions only. The coordinator must review and explicitly approve them. Named reliability bonuses are not used.
+`class` is automatic on the school's own evidence: the timetable says this teacher works with these children every week. It still carries a `class_not_subject` warning so nobody is misled about what is being taught. `related` and `general` remain review-only.
+
+### "First" is arithmetic, not aspiration
+
+Tier bases in `TIER_SCORE` are spaced `TIER_GAP` (1500) apart, and every other signal is clamped to ±`MODIFIER_CAP` (700). Since a full ±700 swing cannot cross a 1500 gap, tier order holds no matter how tired, overloaded or over-used a candidate is. That keeps the score a single scalar — which the min-cost flow needs — while ordering lexicographically. `Engine.tierDominates(a, b)` states the invariant, and a test asserts it for every adjacent pair.
+
+All weights live in one `WEIGHTS` object in `scripts/substitution.js`. Change policy there, not in scattered arithmetic.
+
+### Within a tier
+
+- **Familiarity strength** — eight periods a week with a class beats one.
+- **Fatigue** — the length of the unbroken teaching run this would create, and whether it takes the teacher's last free period. Preparation and marking time is real.
+- **Repetition today** — each cover already assigned makes the next one dearer.
+- **Recent history** — periods covered in the last 30 days, capped, so a heavy fortnight is not a permanent demotion.
+
+### Hard blocks, which no score can overcome
+
+The teacher is absent, already has a regular class, is already covering another class that period, or is outside their shift.
+
+## Spreading the load
+
+Two mechanisms, because the plan is built in two passes.
+
+**Automatic assignments** run through a min-cost max-flow. Each teacher's `source` edge is split into unit-capacity edges of increasing cost (`0, Δ, 2Δ …`), so a second cover genuinely costs the optimiser more than a first. A single edge of capacity 2 priced them identically, which is why work used to pile onto whoever scored highest. `Δ` sits below `TIER_GAP`, so spreading reorders within a tier and never overrides familiarity. Flow is still maximised before cost, so fairness never means covering fewer periods.
+
+**Review suggestions** are made one at a time, each re-ranked against everything already proposed. Reading them all from a matrix built before the flow ran meant two vacancies in the same period could be offered the same teacher — a double booking — and one willing teacher collected every leftover period.
 
 The engine matches the whole day together, with teacher-day and teacher-period capacities, so a flexible teacher is not consumed before a scarce specialist vacancy is considered.
 
+## Editing before the plan goes out
+
+The coordinator outranks the engine. Tapping any period opens a sheet listing every teacher the engine considered, in its order, with the reason it ranked them there and the reason it would not use them — blocked candidates are shown greyed out rather than hidden, because knowing *who* is unavailable and *why* saves a second look.
+
+A choice becomes a **pin**: `state.pins[slotId]` is a teacher name, or `null` for "deliberately left open". Pins are fed to `generatePlan` as `existingAssignments`, so they consume the teacher's capacity and block their period while everything else re-allocates around them — regenerating is simply a re-run. `Engine.validateAssignment` gates the choice: a hard block is refused with its reason, a warning is allowed with one.
+
+In the shared message a pinned assignment reads ✅ with no "please confirm", because a human already decided; a deliberately-open period reads 📌 "being arranged by the office", not ❌ "no teacher free", which would send the staff group scrambling for a period that is already handled.
+
+## Shift timings
+
+A shift is a teacher's standing working window — every day, not one day. It is the difference between "free this period" and "not in the building". Anjana reports after the first four periods, so P1–P4 look empty in her timetable when in fact she is not at school; without a shift the planner hands her cover before she arrives.
+
+Shifts live in `state.shifts` in `scripts/app.js`, keyed by teacher:
+
+```javascript
+{ Anjana: { allowedPeriodIndexes: [4, 5, 6, 7], note: 'Reports after Period 4' } }
+```
+
+`Engine.shiftsToPolicyOverrides()` converts them into the `policyOverrides` shape below, so enforcement happens in `isAvailableByPolicy` — there is no second code path. A teacher with no entry works the full day.
+
+Three sources, in order: `Engine.DEFAULT_SHIFTS` ships in the code, `localStorage.vppsm_shifts` holds this device's copy, and the `teacher_shifts` table is the shared truth once the database is reachable. An admin edits them in the Substitutes view; see [BACKEND_SYNC.md](BACKEND_SYNC.md).
+
+Shifts also drive the free-teacher lists on Home and the Today board, and render as "Off shift" rather than "Free period" in the teacher views.
+
 ## Teacher policy overrides
 
-Runtime policy overrides live beside the active roster in `index.html` and are merged with timetable-derived subjects and grades. Each entry may define:
+Runtime policy overrides are passed to `Engine.buildTeacherProfiles()` by `buildPlan()` in `scripts/app.js`, and are merged with timetable-derived subjects and grades. Each entry may define:
 
 ```javascript
 {
@@ -33,12 +84,29 @@ Runtime policy overrides live beside the active roster in `index.html` and are m
 
 Only add an override when it is backed by school policy. Do not use this configuration to invent teacher qualifications.
 
-## Local plan storage
+## Coverage states
 
-Plans are stored under `localStorage.vpps-substitution-plans-v1`, keyed by ISO calendar date. Each record includes the timetable version, weekday, absent teachers, assignments, match tier, warnings, source, and update time.
+Every planned period ends in exactly one of four states, and the same state drives the pill in the UI and the marker in the shared message:
 
-- Plans are local to the current browser/device.
-- Past plans are deleted after 30 days.
+| State | UI | Message | Meaning |
+| --- | --- | --- | --- |
+| `assigned` | green | ✅ | The engine allocated this automatically: right subject, within workload limits. |
+| `team` | blue | 👥 | Co-taught period; a remaining co-teacher covers it. Nothing to arrange. |
+| `review` | amber | ⚠️ | A suggestion the engine declined to auto-assign. The message names the actual reason — subject not verified, workload limit, long consecutive run — not the match tier. |
+| `open` | red | ❌ | Nobody is available. This needs a human. |
+
+`review` used to be presented as settled, which meant an unvetted suggestion reached WhatsApp looking exactly like a decision. It no longer does.
+
+## Plan storage
+
+Plans are keyed by ISO calendar date — not by weekday — so they can expire. The date is resolved from the selected weekday within the current school week.
+
+- `localStorage.vpps-substitution-plans-v1` is the source of truth and works offline. Past plans are deleted after 30 days.
+- The `substitution_plans` table mirrors them so a plan made in the office is visible on a phone. Same 30-day retention, enforced on every sync. Pins live in a `pins` column and travel with the plan.
+
+Each stored assignment carries **both** `cover` and `coverTeacher`. `cover` is what a human reads and is translated — for a co-taught period it holds the word "Team", or "टीम संभालेगी" if the plan was saved in Hindi. `coverTeacher` is always a real name or `null`. The fairness history counts `coverTeacher` only; counting `cover` would have credited a teacher named "Team" and produced different history depending on the language the plan happened to be saved in.
+
+The current plan is excluded from its own history — letting it count would make the ranking depend on its own output.
 - A timetable-version change invalidates incompatible saved plans.
 - Sunday is rejected as a planning date; the app defaults to the next school day.
 

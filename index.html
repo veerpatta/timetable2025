@@ -70,9 +70,15 @@
 
 	<nav class="app-nav" id="app-nav" aria-label="Primary navigation"></nav>
 
+	<!--
+		config.local.js is gitignored and may simply not exist. A 404 here is
+		expected and harmless: the app then keeps every plan on this device.
+	-->
+	<script src="./scripts/config.local.js" onerror="void 0"></script>
 	<script src="./scripts/data.js"></script>
 	<script src="./scripts/i18n.js"></script>
 	<script src="./scripts/substitution.js"></script>
+	<script src="./scripts/sync.js"></script>
 	<script src="./scripts/app.js"></script>
 
 	<script>

@@ -33,6 +33,81 @@
 		sports: ['sports']
 	};
 
+	// A shift is a teacher's standing working window - not a one-off absence.
+	// Anjana reports after the first four periods, so P1-P4 look "free" in her
+	// timetable when in fact she is not in the building. Without this the
+	// planner happily hands her cover duty before she arrives.
+	const DEFAULT_SHIFTS = {
+		Anjana: { fromPeriodIndex: 4, note: 'Reports after Period 4' }
+	};
+
+	/*
+	 * Ranking policy, in one place.
+	 *
+	 * The tiers are ordered by how useful the cover actually is to the class,
+	 * and school policy is that familiarity with the class comes first: a
+	 * teacher those children already know can hold a useful lesson, where a
+	 * stranger with the right subject often cannot.
+	 *
+	 * "First" here is arithmetic, not aspiration. Tier bases are spaced
+	 * TIER_GAP apart and every other signal is clamped to +/- MODIFIER_CAP,
+	 * with MODIFIER_CAP < TIER_GAP / 2. No combination of fatigue, repetition
+	 * and history can therefore lift one tier above another - the score stays
+	 * a single scalar for the min-cost flow while ordering lexicographically.
+	 * `tierDominates()` is the executable statement of that invariant.
+	 */
+	const TIER_ORDER = ['class_subject', 'class', 'exact', 'approved', 'related', 'general'];
+	const TIER_GAP = 1500;
+	const MODIFIER_CAP = 700;
+	const TIER_SCORE = {
+		class_subject: 13500,
+		class: 12000,
+		exact: 10500,
+		approved: 9000,
+		related: 4000,
+		general: 2500
+	};
+	// Tiers the engine may assign without a coordinator confirming. `class`
+	// qualifies on the school's own evidence: the timetable says this teacher
+	// works with these children every week.
+	const AUTO_TIERS = ['class_subject', 'class', 'exact', 'approved'];
+
+	const WEIGHTS = {
+		// Familiarity, inside a tier: eight periods a week beats one.
+		classPeriod: 26,
+		classPeriodMax: 210,
+		sameGrade: 90,
+		sameBand: 45,
+		lightDay: 22,
+		// Fatigue.
+		consecutiveEach: 45,
+		consecutiveOver: 210,
+		lastFreePeriod: 620,
+		nearlyFullDay: 150,
+		// Repetition, today and over the retention window.
+		repeatToday: 260,
+		historyEach: 70,
+		historyMax: 420,
+		// Cost added to each successive cover in the flow. Below TIER_GAP, so
+		// spreading reorders within a tier and never overrides familiarity.
+		spreadStep: 600
+	};
+
+	function clamp(value, limit) {
+		return Math.max(-limit, Math.min(limit, value));
+	}
+
+	function tierRank(tier) {
+		const at = TIER_ORDER.indexOf(tier);
+		return at === -1 ? TIER_ORDER.length : at;
+	}
+
+	/** True when `better` outranks `worse` on tier alone, whatever the load. */
+	function tierDominates(better, worse) {
+		return tierRank(better) < tierRank(worse) &&
+			TIER_SCORE[better] - TIER_SCORE[worse] > 2 * MODIFIER_CAP;
+	}
+
 	function canonicalSubject(value) {
 		const normalized = String(value || '')
 			.toLowerCase()
@@ -59,6 +134,64 @@
 		return Object.keys(SUBJECT_GROUPS).find(group => SUBJECT_GROUPS[group].includes(canonical)) || '';
 	}
 
+	/**
+	 * The period indexes a teacher is actually in school for. A shift may be
+	 * expressed as an explicit list, or as a from/to range; no entry at all
+	 * means the whole day.
+	 */
+	function shiftPeriods(shift, periodCount) {
+		const count = periodCount || 8;
+		const all = Array.from({ length: count }, (_, index) => index);
+		if (!shift) return all;
+		if (Array.isArray(shift.allowedPeriodIndexes)) {
+			return all.filter(index => shift.allowedPeriodIndexes.indexOf(index) !== -1);
+		}
+		const from = Number.isFinite(shift.fromPeriodIndex) ? shift.fromPeriodIndex : 0;
+		const to = Number.isFinite(shift.toPeriodIndex) ? shift.toPeriodIndex : count - 1;
+		return all.filter(index => index >= from && index <= to);
+	}
+
+	function isFullDayShift(shift, periodCount) {
+		return shiftPeriods(shift, periodCount).length === (periodCount || 8);
+	}
+
+	/** Is this teacher in the building for this period? */
+	function isOnShift(shifts, teacher, periodIndex, periodCount) {
+		const shift = shifts && shifts[teacher];
+		if (!shift) return true;
+		return shiftPeriods(shift, periodCount).indexOf(Number(periodIndex)) !== -1;
+	}
+
+	/** One canonical storage shape, whatever the caller wrote. */
+	function normalizeShifts(shifts, periodCount) {
+		const normalized = {};
+		Object.keys(shifts || {}).forEach(teacher => {
+			const shift = shifts[teacher] || {};
+			normalized[teacher] = {
+				allowedPeriodIndexes: shiftPeriods(shift, periodCount),
+				note: shift.note || ''
+			};
+		});
+		return normalized;
+	}
+
+	/**
+	 * Shifts expressed as the `policyOverrides` shape `buildTeacherProfiles`
+	 * already understands, so `isAvailableByPolicy` does the enforcing.
+	 * Full-day teachers are omitted - an override with no restriction is noise.
+	 */
+	function shiftsToPolicyOverrides(shifts, periodCount) {
+		const overrides = {};
+		Object.keys(shifts || {}).forEach(teacher => {
+			const shift = shifts[teacher];
+			if (isFullDayShift(shift, periodCount)) return;
+			overrides[teacher] = {
+				availability: { allowedPeriodIndexes: shiftPeriods(shift, periodCount) }
+			};
+		});
+		return overrides;
+	}
+
 	function toArray(value) {
 		if (!value) return [];
 		if (value instanceof Set) return Array.from(value);
@@ -82,12 +215,23 @@
 			const override = overrides[teacher] || {};
 			const subjects = new Set(toArray(data.subjects).map(canonicalSubject).filter(Boolean));
 			const grades = new Set();
+			// Which classes this teacher actually stands in front of, and how
+			// often. `grades` only ever kept the grade number, so "teaches
+			// Class 5" and "teaches some other Class 5 stream" were the same
+			// thing to the scorer, and "teaches this class" was unknowable.
+			const classLoad = {};
+			const classSubjects = {};
 			Object.values(data.schedule || {}).forEach(daySchedule => {
 				(daySchedule || []).forEach(period => {
 					if (!period) return;
 					if (period.subject) subjects.add(canonicalSubject(period.subject));
 					const grade = extractGrade(period.className);
 					if (grade) grades.add(grade);
+					if (period.className) {
+						classLoad[period.className] = (classLoad[period.className] || 0) + 1;
+						if (!classSubjects[period.className]) classSubjects[period.className] = new Set();
+						if (period.subject) classSubjects[period.className].add(canonicalSubject(period.subject));
+					}
 				});
 			});
 			toArray(override.canTeach).forEach(subject => subjects.add(canonicalSubject(subject)));
@@ -97,6 +241,8 @@
 				subjects,
 				canCover: new Set(toArray(override.canCover).map(canonicalSubject).filter(Boolean)),
 				grades,
+				classLoad,
+				classSubjects,
 				gradeBands: new Set([
 					...Array.from(grades).map(gradeBand),
 					...toArray(override.gradeBands)
@@ -163,10 +309,15 @@
 		const before = regular.map((busy, index) => busy || planned[index]);
 		const after = before.slice();
 		after[periodIndex] = true;
+		const totalAfter = after.filter(Boolean).length;
 		return {
 			regular: regular.filter(Boolean).length,
 			substitutions,
-			totalAfter: after.filter(Boolean).length,
+			totalAfter,
+			// Free periods left once this cover is taken. Preparation and
+			// marking time is real: taking the last one is not the same as
+			// taking one of four.
+			freeAfter: Math.max(0, periodCount - totalAfter),
 			consecutiveBefore: longestConsecutiveRun(before),
 			consecutiveAfter: longestConsecutiveRun(after)
 		};
@@ -188,12 +339,27 @@
 		if (!isAvailableByPolicy(profile, periodIndex)) blocked.push('unavailable');
 
 		const targetSubject = canonicalSubject(vacancy.subject);
-		let matchTier = 'general';
-		if (profile.subjects.has(targetSubject)) matchTier = 'exact';
-		else if (profile.canCover.has(targetSubject)) matchTier = 'approved';
-		else if (subjectGroup(targetSubject) && subjectGroup(targetSubject) === subjectGroup(Array.from(profile.subjects)[0])) matchTier = 'related';
-		else if (subjectGroup(targetSubject) && Array.from(profile.subjects).some(subject => subjectGroup(subject) === subjectGroup(targetSubject))) matchTier = 'related';
+		const className = vacancy.className;
+		const classPeriods = (className && profile.classLoad?.[className]) || 0;
+		const teachesThisClass = classPeriods > 0;
+		const teachesSubjectHere = Boolean(
+			className && profile.classSubjects?.[className]?.has(targetSubject)
+		);
+		const teachesSubject = profile.subjects.has(targetSubject);
 
+		// Familiarity with the class leads; subject qualification decides the
+		// order among strangers to it.
+		let matchTier = 'general';
+		if (teachesThisClass && (teachesSubjectHere || teachesSubject)) matchTier = 'class_subject';
+		else if (teachesThisClass) matchTier = 'class';
+		else if (teachesSubject) matchTier = 'exact';
+		else if (profile.canCover.has(targetSubject)) matchTier = 'approved';
+		else if (subjectGroup(targetSubject) &&
+			Array.from(profile.subjects).some(subject => subjectGroup(subject) === subjectGroup(targetSubject))) {
+			matchTier = 'related';
+		}
+
+		if (matchTier === 'class') warnings.push('class_not_subject');
 		if (matchTier === 'related') warnings.push('related_subject');
 		if (matchTier === 'general') warnings.push('subject_mismatch');
 		const load = getLoadFacts(profile, input.day, periodIndex, assignments, periodCount, vacancy.slotId);
@@ -205,17 +371,26 @@
 		const grade = extractGrade(vacancy.className);
 		const exactGrade = grade != null && profile.grades.has(grade);
 		const sameBand = grade != null && profile.gradeBands.has(gradeBand(grade));
-		const tierScore = { exact: 10000, approved: 9500, related: 3000, general: 1000 }[matchTier];
-		let score = tierScore;
-		if (exactGrade) score += 500;
-		else if (sameBand) score += 220;
-		score += Math.max(0, (periodCount - load.regular) * 35);
-		score -= load.substitutions * 500;
-		score -= Math.max(0, load.consecutiveAfter - maxConsecutive) * 180;
-		if (load.totalAfter >= periodCount) score -= 900;
+		const recentCovers = Number(input.coverHistory?.[teacher]) || 0;
+
+		// Everything that is not the tier. Clamped, so it can only reorder
+		// candidates inside a tier - see the note on TIER_SCORE.
+		let modifiers = 0;
+		modifiers += Math.min(classPeriods * WEIGHTS.classPeriod, WEIGHTS.classPeriodMax);
+		if (exactGrade) modifiers += WEIGHTS.sameGrade;
+		else if (sameBand) modifiers += WEIGHTS.sameBand;
+		modifiers += Math.max(0, (periodCount - load.regular) * WEIGHTS.lightDay);
+		modifiers -= load.consecutiveAfter * WEIGHTS.consecutiveEach;
+		modifiers -= Math.max(0, load.consecutiveAfter - maxConsecutive) * WEIGHTS.consecutiveOver;
+		if (load.freeAfter === 0) modifiers -= WEIGHTS.lastFreePeriod;
+		else if (load.freeAfter === 1) modifiers -= WEIGHTS.nearlyFullDay;
+		modifiers -= load.substitutions * WEIGHTS.repeatToday;
+		modifiers -= Math.min(recentCovers * WEIGHTS.historyEach, WEIGHTS.historyMax);
+
+		const score = TIER_SCORE[matchTier] + clamp(modifiers, MODIFIER_CAP);
 
 		const autoEligible = blocked.length === 0 &&
-			(matchTier === 'exact' || matchTier === 'approved') &&
+			AUTO_TIERS.indexOf(matchTier) !== -1 &&
 			!warnings.includes('over_substitution_limit') &&
 			!warnings.includes('full_day') &&
 			!warnings.includes('excessive_consecutive');
@@ -231,6 +406,8 @@
 			grade,
 			exactGrade,
 			sameBand,
+			classPeriods,
+			recentCovers,
 			reasonKey: `sub.${matchTier}`
 		};
 	}
@@ -336,7 +513,16 @@
 			const profile = teacherProfiles[teacher];
 			const used = countTeacherAssignments(teacher, existingAssignments);
 			const capacity = Math.max(0, profile.maxAutoSubstitutions - used);
-			if (capacity > 0) addEdge(graph, source, teacherNodes[teacher], capacity, 0);
+			// One unit-capacity edge per cover, each dearer than the last, so a
+			// teacher's second period genuinely costs the optimiser more than
+			// their first. A single edge of capacity 2 priced them the same,
+			// which is why the load used to pile onto whoever scored highest.
+			// The step sits below TIER_GAP: spreading reorders within a tier,
+			// it never overrides class familiarity. Max flow is still
+			// maximised first, so this never covers fewer periods.
+			for (let unit = 0; unit < capacity; unit++) {
+				addEdge(graph, source, teacherNodes[teacher], 1, (used + unit) * WEIGHTS.spreadStep);
+			}
 			for (let period = 0; period < (input.periodCount || 8); period++) {
 				addEdge(graph, teacherNodes[teacher], teacherPeriodNodes[teacher][period], 1, 0);
 			}
@@ -372,6 +558,9 @@
 				matchTier: edge.metadata.candidate.matchTier,
 				warnings: edge.metadata.candidate.warnings,
 				load: edge.metadata.candidate.load,
+				classPeriods: edge.metadata.candidate.classPeriods,
+				recentCovers: edge.metadata.candidate.recentCovers,
+				reasonKey: edge.metadata.candidate.reasonKey,
 				source: 'auto'
 			}))
 			.sort((a, b) => a.periodIndex - b.periodIndex || a.className.localeCompare(b.className));
@@ -379,16 +568,49 @@
 		const assignedSlotIds = new Set(generated.map(item => item.slotId));
 		const reviewSuggestions = [];
 		const openSlots = [];
+
+		/*
+		 * Suggestions are made one at a time, each re-ranked against
+		 * everything already proposed. Reading them all off the matrix built
+		 * before the flow ran meant two vacancies in the same period could be
+		 * offered the same teacher - a double booking - and that one willing
+		 * teacher collected every leftover period, because the repetition
+		 * penalty never saw the suggestions being made alongside it.
+		 */
+		const proposed = existingAssignments.concat(generated);
 		vacancies.filter(vacancy => !assignedSlotIds.has(vacancy.slotId)).forEach(vacancy => {
-			const candidates = candidateMatrix[vacancy.slotId].filter(candidate => candidate.blocked.length === 0);
-			const suggestion = candidates[0] || null;
+			const candidates = rankCandidates({
+				...input,
+				vacancy,
+				assignments: proposed,
+				teacherProfiles
+			}).filter(candidate => candidate.blocked.length === 0);
+
+			/*
+			 * Nobody takes a third period while somebody else can take a
+			 * first. The daily cap has to be a rule rather than a score: the
+			 * repetition penalty is clamped (so tier order stays guaranteed),
+			 * which means past a few covers it stops growing and a
+			 * well-connected teacher would keep winning every leftover period.
+			 * Only when everyone under the cap is unavailable do we go over.
+			 */
+			const underCap = candidates.filter(candidate =>
+				!candidate.warnings.includes('over_substitution_limit'));
+			const suggestion = (underCap.length ? underCap : candidates)[0] || null;
 			if (suggestion) {
+				proposed.push({
+					slotId: vacancy.slotId,
+					teacher: suggestion.teacher,
+					periodIndex: vacancy.periodIndex
+				});
 				reviewSuggestions.push({
 					...vacancy,
 					teacher: suggestion.teacher,
 					matchTier: suggestion.matchTier,
 					warnings: suggestion.warnings,
 					load: suggestion.load,
+					classPeriods: suggestion.classPeriods,
+					recentCovers: suggestion.recentCovers,
 					reasonKey: suggestion.reasonKey,
 					source: 'suggestion'
 				});
@@ -497,9 +719,23 @@
 		DEFAULT_MAX_CONSECUTIVE,
 		SUBJECT_ALIASES,
 		SUBJECT_GROUPS,
+		DEFAULT_SHIFTS,
+		TIER_ORDER,
+		TIER_SCORE,
+		TIER_GAP,
+		MODIFIER_CAP,
+		AUTO_TIERS,
+		WEIGHTS,
+		tierRank,
+		tierDominates,
 		canonicalSubject,
 		extractGrade,
 		gradeBand,
+		shiftPeriods,
+		isFullDayShift,
+		isOnShift,
+		normalizeShifts,
+		shiftsToPolicyOverrides,
 		buildTeacherProfiles,
 		rankCandidates,
 		generatePlan,

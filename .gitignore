@@ -1,0 +1,8 @@
+# The live database credential. Copy scripts/config.sample.js to
+# scripts/config.local.js and fill it in - never commit the real one.
+scripts/config.local.js
+
+# Local tooling noise
+node_modules/
+.DS_Store
+Thumbs.db

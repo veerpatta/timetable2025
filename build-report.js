@@ -18,6 +18,7 @@ const FILES_TO_ANALYZE = [
   'scripts/data.js',
   'scripts/i18n.js',
   'scripts/substitution.js',
+  'scripts/sync.js',
   'scripts/app.js',
   'styles/app.css',
   'sw.js',

@@ -17,22 +17,25 @@ If documentation disagrees with the implementation, trust the implementation and
 
 - Static PWA
 - Vanilla JavaScript and CSS
-- No framework, no backend, no runtime build step
+- No framework, no server, no runtime build step
 - The UI is a port of the **VPPS Mobile Timetable** design canvas: one 430px shell, five views (Home, Today, Classes, Teachers, Substitutes), EN/HI, light/dark
+- Shift timings and substitution plans sync to Neon Postgres straight from the browser. There is still no server: `scripts/sync.js` posts to Neon's SQL-over-HTTP endpoint. It is optional and best-effort — the app is fully usable without it
 
 ## Source Of Truth
 
 ### Runtime
 
 - `index.html`: markup shell only — header, empty `<main>`, bottom nav, script tags, pre-paint theme script
+- `scripts/config.sample.js`: template for the database credential. Copy to `scripts/config.local.js`, which is **gitignored**
 - `scripts/data.js`: `rawData`, bell schedule, subject categories, parser (`window.VPPSData`)
 - `scripts/i18n.js`: EN/HI dictionaries and day/class translation (`window.I18n`)
-- `scripts/substitution.js`: substitution matching and plan storage (`window.SubstitutionEngine`)
+- `scripts/substitution.js`: substitution matching, shift timings, plan storage (`window.SubstitutionEngine`)
+- `scripts/sync.js`: Neon SQL-over-HTTP client for shifts and plans (`window.VPPSSync`)
 - `scripts/app.js`: state, view renderers, event handling
 - `styles/app.css`: the whole design system
 - `sw.js`: cache names, precache list, offline behaviour
 
-Scripts load in dependency order: `data.js` → `i18n.js` → `substitution.js` → `app.js`.
+Scripts load in dependency order: `config.local.js` (optional) → `data.js` → `i18n.js` → `substitution.js` → `sync.js` → `app.js`.
 
 ### Documentation
 
@@ -81,9 +84,32 @@ Changing any `Subject (Teacher)` cell affects the class view, the teacher view, 
 
 ### 5. There is no feature-flag system any more
 
-The old `feat_*` flags went away with `perf.js`, `ui.js`, `a11y.js`, and `colors.js`. `localStorage` now holds only preferences: `vppsm_theme`, `vppsm_me`, `vppsm_cls`, `vppsm_tsel`, and `vpps-language`.
+The old `feat_*` flags went away with `perf.js`, `ui.js`, `a11y.js`, and `colors.js`. `localStorage` holds preferences and saved state:
 
-### 6. Print/PDF export and the free-teacher finder were removed
+| Key | Holds |
+| --- | --- |
+| `vppsm_theme` | light/dark |
+| `vppsm_me` | the teacher profile on this phone |
+| `vppsm_role` | `teacher` or `admin` — admin defaults to the table views |
+| `vppsm_grid` | which of the four views are in table/week mode |
+| `vppsm_shifts` | this device's copy of the shift timings |
+| `vppsm_cls`, `vppsm_tsel` | last selected class and teacher |
+| `vpps-language` | EN/HI |
+| `vpps-substitution-plans-v1` | date-keyed substitution plans |
+
+### 6. Substitution ranking is tiered, and the tiers are load-bearing
+
+Cover is ranked by how useful it is to the class, familiarity first: `class_subject` → `class` → `exact` → `approved` → `related` → `general`. Fatigue, repetition and history reorder candidates *within* a tier and can never cross one — tier bases are spaced further apart than twice the modifier clamp, and `Engine.tierDominates()` plus a test hold that line.
+
+All weights live in the `WEIGHTS` object in `scripts/substitution.js`. Change policy there rather than adding arithmetic at a call site, and keep `MODIFIER_CAP < TIER_GAP / 2` or the ordering guarantee silently disappears.
+
+### 7. A shift is not an absence
+
+An absence is one day. A **shift** is a teacher's standing working window, and the whole app respects it: the planner will not give someone cover duty before they arrive, the free-teacher lists exclude them, and the teacher views read "Off shift" rather than "Free period".
+
+Anjana reports after Period 4. Enforcement runs through `isAvailableByPolicy` via `Engine.shiftsToPolicyOverrides()` — do not add a second code path for it. See `docs/guides/SUBSTITUTION_ENGINE.md`.
+
+### 8. Print/PDF export and the free-teacher finder were removed
 
 The design has no place for them. Do not reintroduce them without an explicit request.
 

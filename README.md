@@ -1,6 +1,8 @@
 # Veer Patta Public School Timetable PWA
 
-Static, offline-first timetable application for Veer Patta Public School. Vanilla JavaScript, plain CSS, a service worker. No framework, no backend, no build step.
+Static, offline-first timetable application for Veer Patta Public School. Vanilla JavaScript, plain CSS, a service worker. No framework, no server, no build step.
+
+Shift timings and substitution plans sync to a Neon Postgres database directly from the browser, so a plan made in the office shows up on a phone. It is optional and best-effort: `localStorage` stays the source of truth and the app works fully offline, or with no database configured at all. See [docs/guides/BACKEND_SYNC.md](docs/guides/BACKEND_SYNC.md).
 
 The interface implements the **VPPS Mobile Timetable** design canvas: a single 430px-wide app shell with five views — Home, Today, Classes, Teachers, Substitutes — bilingual English/Hindi, light and dark.
 
@@ -13,7 +15,9 @@ This README is the best starting point for anyone touching the repo. For AI-agen
 - `index.html`: the app shell only — head, header, empty `<main>`, bottom nav, script tags. Roughly 90 lines.
 - `scripts/data.js`: the timetable dataset (`rawData`), bell schedule, subject categories, and the parser. Exposes `window.VPPSData`.
 - `scripts/i18n.js`: English/Hindi dictionaries plus day and class name translation. Exposes `window.I18n`.
-- `scripts/substitution.js`: subject-aware substitution matching, workload policy, and date-keyed plan storage. Exposes `window.SubstitutionEngine`.
+- `scripts/substitution.js`: subject-aware substitution matching, workload policy, shift timings, and date-keyed plan storage. Exposes `window.SubstitutionEngine`.
+- `scripts/sync.js`: Neon SQL-over-HTTP client for shift timings and substitution plans. Exposes `window.VPPSSync`.
+- `scripts/config.sample.js`: template for the database credential. Copy to `scripts/config.local.js`, which is gitignored.
 - `scripts/app.js`: the application controller — state, the five view renderers, and event handling. Exposes nothing.
 - `styles/app.css`: the entire design system — tokens, components, light and dark themes.
 - `sw.js`: service worker and cache strategy.
@@ -56,9 +60,11 @@ timetable2025/
   icons/
   scripts/
     app.js
+    config.sample.js
     data.js
     i18n.js
     substitution.js
+    sync.js
   styles/
     app.css
   tests/
@@ -71,11 +77,13 @@ timetable2025/
 
 ## Architecture
 
-Four scripts load in order; each one only depends on the ones before it.
+The scripts load in order; each one only depends on the ones before it.
 
 ```
-data.js  ->  i18n.js  ->  substitution.js  ->  app.js
+[config.local.js]  ->  data.js  ->  i18n.js  ->  substitution.js  ->  sync.js  ->  app.js
 ```
+
+`config.local.js` is gitignored and optional — a 404 there is expected and harmless.
 
 ### `index.html`
 
@@ -97,7 +105,9 @@ View renderers:
 
 Interaction uses one delegated `click` handler on `document.body`. Buttons declare `data-action` and `data-value`; `ACTIONS` maps the action name to a state mutation, then `render()` runs.
 
-Preferences persist in `localStorage` under `vppsm_theme`, `vppsm_me`, `vppsm_cls`, `vppsm_tsel`. Language persists under `vpps-language` via `I18n`.
+Preferences persist in `localStorage` under `vppsm_theme`, `vppsm_me`, `vppsm_role`, `vppsm_grid`, `vppsm_shifts`, `vppsm_cls`, `vppsm_tsel`. Language persists under `vpps-language` via `I18n`, and substitution plans under `vpps-substitution-plans-v1` via the engine's plan store.
+
+`vppsm_role` matters for layout: an admin opens straight into the table views, a teacher into the phone lists. An explicit switch is remembered in `vppsm_grid` and outranks the role default.
 
 ### `scripts/data.js`
 

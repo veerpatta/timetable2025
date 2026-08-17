@@ -26,6 +26,8 @@
 	--oksoft: #d1fae5;
 	--warn: #b45309;
 	--warnsoft: #fef3c7;
+	--err: #b91c1c;
+	--errsoft: #fee2e2;
 	--shadow: rgba(17, 24, 39, 0.07);
 
 	--c-languages: #2563eb;
@@ -63,6 +65,8 @@
 	--oksoft: #0d3b2e;
 	--warn: #fbbf24;
 	--warnsoft: #3a3626;
+	--err: #f87171;
+	--errsoft: #451015;
 	--shadow: rgba(0, 0, 0, 0.35);
 
 	--c-languages: #60a5fa;
@@ -606,6 +610,15 @@ button {
 
 .period-card--free { opacity: 0.65; }
 
+/* Not free - not in the building. Worth distinguishing on the teacher view. */
+.period-card--offshift {
+	opacity: 1;
+	border-style: dashed;
+	background: var(--card2);
+}
+
+.period-card--offshift .period-card__title { color: var(--warn); }
+
 .period-card__bubble {
 	width: 44px;
 	height: 44px;
@@ -772,30 +785,47 @@ button {
    Grids (day board table, class week, teacher week)
    ========================================================================== */
 
+/*
+ * The wrapper scrolls in both directions and constrains its own height, which
+ * is what lets the header row and the label column stay stuck: `position:
+ * sticky` needs a scrollport, and an unconstrained box never provides one.
+ */
 .grid-wrap {
 	border-radius: 16px;
 	border: 1px solid var(--bd);
 	background: var(--card);
-	overflow-x: auto;
+	overflow: auto;
+	max-height: min(70vh, 560px);
+	overscroll-behavior: contain;
 }
 
 .grid {
-	border-collapse: collapse;
+	border-collapse: separate;
+	border-spacing: 0;
 	width: 100%;
 }
 
 .grid th,
 .grid td {
 	border-bottom: 1px solid var(--bd);
+	/* Column separators: a timetable is read across, and eight columns of
+	   small type with no vertical rules is where the eye slips a row. */
+	border-right: 1px solid var(--bd);
 }
 
+.grid th:last-child,
+.grid td:last-child { border-right: none; }
+
 .grid__head {
-	padding: 8px 10px;
-	font-size: 11px;
+	position: sticky;
+	top: 0;
+	z-index: 3;
+	padding: 9px 10px;
+	font-size: 11.5px;
 	font-weight: 800;
 	text-align: left;
 	white-space: nowrap;
-	color: var(--mut);
+	color: var(--tx2);
 	background: var(--card2);
 }
 
@@ -805,47 +835,142 @@ button {
 }
 
 .grid__head--corner {
-	position: sticky;
 	left: 0;
-	z-index: 2;
+	z-index: 4;
 }
 
 .grid__head-time {
-	font-size: 9.5px;
+	font-size: 10px;
 	font-weight: 600;
-	opacity: 0.75;
+	color: var(--mut);
+}
+
+.grid__head-break {
+	display: block;
+	font-size: 9px;
+	font-weight: 800;
+	letter-spacing: 0.04em;
+	text-transform: uppercase;
+	color: var(--warn);
 }
 
 .grid__rowlabel {
-	padding: 8px 10px;
-	font-size: 11.5px;
+	position: sticky;
+	left: 0;
+	z-index: 2;
+	padding: 9px 10px;
+	font-size: 12px;
 	font-weight: 800;
 	text-align: left;
 	white-space: nowrap;
-	position: sticky;
-	left: 0;
 	background: var(--card);
-	z-index: 1;
+	color: var(--tx);
+}
+
+.grid__rowlabel-time {
+	font-size: 10px;
+	font-weight: 600;
+	color: var(--mut);
 }
 
 .grid__cell {
-	padding: 7px 10px;
+	position: relative;
+	padding: 8px 10px;
 	vertical-align: top;
-	min-width: 86px;
+	min-width: 92px;
+	background: var(--card);
 }
 
-.grid__cell--live { background: var(--prisoft); }
+/* Zebra striping, so a long class list stays trackable across the row. */
+.grid tbody tr:nth-child(even) .grid__cell,
+.grid tbody tr:nth-child(even) .grid__rowlabel { background: var(--card2); }
+
+/* The break is a real gap in the day; the table used to imply eight
+   contiguous periods. Qualified with .grid so it outranks the plain
+   `.grid th, .grid td` border rule above. */
+.grid th.grid__head--beforebreak,
+.grid td.grid__cell--beforebreak { border-right: 3px double var(--tx2); }
+
+.grid .grid__row--beforebreak .grid__cell,
+.grid .grid__row--beforebreak .grid__rowlabel { border-bottom: 3px double var(--tx2); }
+
+.grid__cell--live,
+.grid tbody tr:nth-child(even) .grid__cell--live { background: var(--prisoft); }
+
+.grid__live-dot {
+	position: absolute;
+	top: 6px;
+	right: 6px;
+	width: 7px;
+	height: 7px;
+	border-radius: 50%;
+	background: var(--pri);
+	animation: vpps-pulse 1.4s ease-in-out infinite;
+}
+
+/* Category as a colour bar as well as coloured text - at this size hue alone
+   is not a reliable channel, and orange/red sit very close together. */
+.cell-languages { box-shadow: inset 3px 0 0 var(--c-languages); }
+.cell-sciences { box-shadow: inset 3px 0 0 var(--c-sciences); }
+.cell-math { box-shadow: inset 3px 0 0 var(--c-math); }
+.cell-social { box-shadow: inset 3px 0 0 var(--c-social); }
+.cell-sports { box-shadow: inset 3px 0 0 var(--c-sports); }
+.cell-default { box-shadow: inset 3px 0 0 var(--c-default); }
 
 .grid__subject {
-	font-size: 11px;
+	font-size: 11.5px;
 	font-weight: 800;
 	line-height: 1.25;
+	color: var(--tx);
+}
+
+/* A labelled free period; a bare em dash read as a parsing failure. */
+.grid__subject--free {
+	color: var(--mut);
+	font-weight: 700;
+	font-size: 10.5px;
 }
 
 .grid__teacher {
-	font-size: 9.5px;
-	color: var(--mut);
+	font-size: 10px;
+	color: var(--tx2);
 	font-weight: 600;
+	line-height: 1.3;
+}
+
+.grid__teacher-full { display: none; }
+
+/* Coverage grid in the substitution planner reuses the same table. */
+.grid__cell--assigned { box-shadow: inset 3px 0 0 var(--ok); }
+.grid__cell--team { box-shadow: inset 3px 0 0 var(--pri); }
+.grid__cell--review { box-shadow: inset 3px 0 0 var(--warn); background: var(--warnsoft); }
+.grid__cell--open { box-shadow: inset 3px 0 0 var(--err); background: var(--errsoft); }
+.grid td.grid__cell--pinned { border-bottom-style: dashed; }
+.grid td.grid__cell--editing { outline: 2px solid var(--pri); outline-offset: -2px; }
+
+/*
+ * A school office reads these on a laptop. The phone shell stays 430px; the
+ * table alone breaks out of the column and grows its type.
+ */
+@media (min-width: 900px) {
+	.grid-wrap {
+		width: min(94vw, 1280px);
+		max-width: none;
+		margin-left: calc((100% - min(94vw, 1280px)) / 2);
+		max-height: min(76vh, 780px);
+	}
+
+	.grid__head { font-size: 13px; padding: 11px 12px; }
+	.grid__head-time { font-size: 11px; }
+	.grid__rowlabel { font-size: 13.5px; padding: 11px 12px; }
+	.grid__cell { padding: 10px 12px; min-width: 118px; }
+	.grid__subject { font-size: 13.5px; }
+	.grid__subject--free { font-size: 12px; }
+	.grid__teacher { font-size: 11.5px; }
+
+	/* Room to name every co-teacher instead of "+4". */
+	.grid__teacher-short { display: none; }
+	.grid__teacher-full { display: inline; }
 }
 
 /* ==========================================================================
@@ -938,19 +1063,364 @@ button {
 }
 
 .cover-pill {
+	display: inline-flex;
+	align-items: center;
+	gap: 4px;
 	padding: 5px 11px;
 	border-radius: 999px;
+	border: 1px solid transparent;
 	font-size: 12px;
 	font-weight: 800;
+	font-family: var(--font-body);
 	flex-shrink: 0;
+	max-width: 46%;
+	text-align: center;
 	background: var(--oksoft);
 	color: var(--ok);
 }
 
+/* Every decision is a control: tapping one opens the swap sheet. */
+.cover-pill:hover { border-color: currentColor; }
+
+.cover-pill--pinned { border-style: dashed; border-color: currentColor; }
+
+.cover-pill__pin { font-size: 10px; }
+
+.cover-pill--team {
+	background: var(--prisoft);
+	color: var(--pri);
+}
+
+/* An unvetted suggestion must not look like a settled decision. */
 .cover-pill--review {
 	background: var(--warnsoft);
 	color: var(--warn);
 }
+
+.cover-pill--open {
+	background: var(--errsoft);
+	color: var(--err);
+}
+
+.plan-row--review { background: color-mix(in srgb, var(--warnsoft) 45%, transparent); }
+.plan-row--open { background: color-mix(in srgb, var(--errsoft) 45%, transparent); }
+
+.plan-summary {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: baseline;
+	gap: 4px 10px;
+	padding: 11px 14px;
+	border-radius: 14px;
+	background: var(--card2);
+	border: 1px solid var(--bd);
+}
+
+.plan-summary__date {
+	font-size: 13px;
+	font-weight: 800;
+	color: var(--tx);
+}
+
+.plan-summary__counts {
+	font-size: 12px;
+	font-weight: 700;
+	color: var(--mut);
+}
+
+.plan-summary__pins {
+	font-size: 12px;
+	font-weight: 800;
+	color: var(--pri);
+}
+
+.plan-row.is-editing { background: var(--prisoft); }
+
+.plan-actions {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+}
+
+/* ==========================================================================
+   Swap sheet
+   ========================================================================== */
+
+.slot-editor {
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+	padding: 14px;
+	border-radius: 16px;
+	background: var(--card);
+	border: 1px solid var(--pri);
+	box-shadow: 0 8px 24px var(--shadow);
+}
+
+.slot-editor__head {
+	display: flex;
+	align-items: flex-start;
+	gap: 10px;
+}
+
+.slot-editor__title {
+	font-size: 14px;
+	font-weight: 800;
+	line-height: 1.3;
+}
+
+.slot-editor__sub {
+	font-size: 12px;
+	font-weight: 600;
+	color: var(--mut);
+}
+
+.slot-editor__head .icon-button { margin-left: auto; }
+
+.slot-editor__options {
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+	max-height: 46vh;
+	overflow-y: auto;
+}
+
+.slot-option {
+	display: flex;
+	flex-direction: column;
+	gap: 3px;
+	width: 100%;
+	text-align: left;
+	padding: 9px 12px;
+	border-radius: 12px;
+	border: 1px solid var(--bd);
+	background: var(--card2);
+	color: var(--tx);
+}
+
+.slot-option.is-active {
+	border-color: var(--pri);
+	background: var(--prisoft);
+}
+
+/* Shown, not hidden: knowing who is unavailable and why saves a second look. */
+.slot-option.is-blocked {
+	opacity: 0.55;
+	border-style: dashed;
+}
+
+.slot-option__name {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	font-size: 13.5px;
+	font-weight: 800;
+}
+
+.slot-option__tier {
+	padding: 2px 7px;
+	border-radius: 999px;
+	font-size: 10px;
+	font-weight: 800;
+	background: var(--t-default);
+	color: var(--c-default);
+}
+
+.slot-option__tier--class_subject,
+.slot-option__tier--class { background: var(--oksoft); color: var(--ok); }
+.slot-option__tier--exact,
+.slot-option__tier--approved { background: var(--prisoft); color: var(--pri); }
+.slot-option__tier--related,
+.slot-option__tier--general { background: var(--warnsoft); color: var(--warn); }
+
+.slot-option__why {
+	font-size: 11.5px;
+	font-weight: 600;
+	color: var(--mut);
+	line-height: 1.4;
+}
+
+/* ==========================================================================
+   Fairness ledger
+   ========================================================================== */
+
+.ledger {
+	display: flex;
+	flex-direction: column;
+	gap: 5px;
+}
+
+.ledger__row {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	font-size: 12px;
+	font-weight: 700;
+}
+
+.ledger__name {
+	width: 84px;
+	flex-shrink: 0;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.ledger__bar {
+	flex: 1;
+	height: 8px;
+	border-radius: 999px;
+	background: var(--card2);
+	overflow: hidden;
+}
+
+.ledger__fill {
+	display: block;
+	height: 100%;
+	border-radius: 999px;
+	background: var(--pri);
+}
+
+.ledger__count {
+	width: 22px;
+	text-align: right;
+	color: var(--mut);
+	flex-shrink: 0;
+}
+
+/* ==========================================================================
+   Shift timings (admin)
+   ========================================================================== */
+
+.shift-panel {
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+	padding: 14px;
+	border-radius: 16px;
+	background: var(--card);
+	border: 1px solid var(--bd);
+}
+
+.shift-list {
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+}
+
+.shift-item {
+	display: flex;
+	align-items: baseline;
+	gap: 8px;
+	width: 100%;
+	text-align: left;
+	padding: 9px 12px;
+	border-radius: 12px;
+	border: 1px solid var(--bd);
+	background: var(--card2);
+	color: var(--tx);
+}
+
+.shift-item.is-active {
+	border-color: var(--pri);
+	background: var(--prisoft);
+}
+
+.shift-item__name {
+	font-size: 13px;
+	font-weight: 800;
+	flex-shrink: 0;
+}
+
+.shift-item__periods {
+	font-size: 11.5px;
+	font-weight: 700;
+	color: var(--mut);
+}
+
+.shift-edit {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+	padding: 12px;
+	border-radius: 14px;
+	background: var(--card2);
+	border: 1px dashed var(--bd);
+}
+
+.shift-edit__name {
+	font-size: 13px;
+	font-weight: 800;
+}
+
+.shift-edit__periods {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 6px;
+}
+
+.shift-toggle {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 1px;
+	min-width: 46px;
+	padding: 6px 8px;
+	border-radius: 10px;
+	border: 1px solid var(--bd);
+	background: var(--card);
+	color: var(--mut);
+	font-size: 12px;
+	font-weight: 800;
+}
+
+.shift-toggle.is-on {
+	border-color: var(--ok);
+	background: var(--oksoft);
+	color: var(--ok);
+}
+
+.shift-toggle__time {
+	font-size: 9.5px;
+	font-weight: 600;
+	opacity: 0.85;
+}
+
+.shift-note {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: baseline;
+	gap: 8px;
+	padding: 9px 12px;
+	border-radius: 12px;
+	background: var(--warnsoft);
+	color: var(--warn);
+	font-size: 12px;
+	font-weight: 700;
+}
+
+.shift-note__label {
+	font-size: 10px;
+	letter-spacing: 0.05em;
+	text-transform: uppercase;
+	font-weight: 800;
+	opacity: 0.8;
+}
+
+.sync-pill {
+	padding: 4px 9px;
+	border-radius: 999px;
+	font-size: 10.5px;
+	font-weight: 800;
+	white-space: nowrap;
+	background: var(--card2);
+	color: var(--mut);
+}
+
+.sync-pill--ok { background: var(--oksoft); color: var(--ok); }
+.sync-pill--warn { background: var(--warnsoft); color: var(--warn); }
+
+.section-note--quiet { color: var(--mut); font-size: 12.5px; }
 
 .empty-state {
 	border-radius: 16px;
