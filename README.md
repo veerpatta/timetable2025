@@ -4,6 +4,10 @@ Static, offline-first timetable application for Veer Patta Public School. Vanill
 
 Shift timings and substitution plans sync to a Neon Postgres database directly from the browser, so a plan made in the office shows up on a phone. It is optional and best-effort: `localStorage` stays the source of truth and the app works fully offline, or with no database configured at all. See [docs/guides/BACKEND_SYNC.md](docs/guides/BACKEND_SYNC.md).
 
+**Live:** https://vpps-timetable.web.app · **Staging:** https://vpps-timetable-test.web.app
+
+Staging runs the same code against a separate database, so cover can be planned, pinned and shared there without a single teacher seeing it. Try changes there first — see [docs/guides/DEPLOYMENT.md](docs/guides/DEPLOYMENT.md).
+
 The interface implements the **VPPS Mobile Timetable** design canvas: a single 430px-wide app shell with five views — Home, Today, Classes, Teachers, Substitutes — bilingual English/Hindi, light and dark.
 
 This README is the best starting point for anyone touching the repo. For AI-agent specific operating rules, read [AGENTS.md](AGENTS.md) next.
@@ -123,7 +127,21 @@ Preferences persist in `localStorage` under `vppsm_theme`, `vppsm_me`, `vppsm_ro
 
 `app.js` builds teacher profiles and a vacancy list from the absent teachers, then calls `SubstitutionEngine.generatePlan()`. Results are grouped per absent teacher.
 
-A named cover renders as a green pill; only a genuinely unstaffable period renders amber. The engine's match tier (exact subject, related subject, general availability) is carried in the pill's `title` attribute, so a coordinator can see how well qualified each suggestion is without the UI shouting.
+**Cover is ranked by how useful it is to the class, familiarity first** — a teacher those children already know can hold a useful lesson where a stranger with the right subject often cannot. The tiers run `class_subject` → `class` → `exact` → `approved` → `related` → `general`, and fatigue, repetition and 30 days of cover history reorder candidates *within* a tier but can never cross one. Full rules in [docs/guides/SUBSTITUTION_ENGINE.md](docs/guides/SUBSTITUTION_ENGINE.md).
+
+Every period ends in one of five honest states, and the pill colour, the grid cell and the WhatsApp marker all agree:
+
+| State | Meaning |
+| --- | --- |
+| ✅ assigned | Allocated automatically, within workload limits |
+| 👥 team | Co-taught; a remaining co-teacher covers it |
+| ⚠️ review | A suggestion the engine declined to auto-assign, with the actual reason |
+| 📖 self study | Nobody was free, so the class sits self study |
+| 📌 open | The coordinator held this period to arrange themselves |
+
+**The plan is editable before it goes out.** Tapping any period lists every candidate the engine considered, with the reason it ranked them there and the reason it cannot use them. Choosing pins the period; pinned choices survive a regenerate while the rest re-allocate around them.
+
+**Shift timings** are separate from absences: a shift is a teacher's standing working window, every day. Someone who reports after the fourth period is never offered cover before they arrive, is excluded from the free-teacher lists, and reads "Off shift" rather than "Free period".
 
 ### `sw.js`
 
@@ -163,6 +181,8 @@ Open `http://localhost:8080`. Use `-c-1` so cached assets do not hide local chan
 
 The same server is defined in `.claude/launch.json` as the `timetable` configuration, so an agent working in this repo can start the preview itself rather than reinventing the command.
 
+**localhost talks to the test database, never the live one.** `scripts/config.local.js` picks its database from the hostname. Without that, trying something out on a laptop writes a fictional absence into the plan the whole staff is reading — which is how the rule was learned.
+
 ### Useful commands
 
 ```powershell
@@ -197,9 +217,10 @@ No service worker bump needed; the cached shell is unchanged.
 - `node --test tests/substitution-engine.test.js` after substitution, policy, or translation changes.
 - `node build-report.js` after meaningful runtime changes.
 - Manual browser check of the specific view you changed, in both languages and both themes.
-- Service worker check in DevTools after `sw.js` edits.
+- Service worker check in DevTools after `sw.js` edits — bump both cache constants.
+- Deploy to **staging** and exercise it there before the live site.
 
-See [tests/README.md](tests/README.md) and [docs/guides/QA_CHECKLIST.md](docs/guides/QA_CHECKLIST.md).
+See [tests/README.md](tests/README.md), [docs/guides/QA_CHECKLIST.md](docs/guides/QA_CHECKLIST.md) and [docs/guides/DEPLOYMENT.md](docs/guides/DEPLOYMENT.md).
 
 ## Guidance For AI Agents
 

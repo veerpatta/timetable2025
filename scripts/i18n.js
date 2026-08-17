@@ -98,6 +98,7 @@
 			'sync.ok': 'Saved to the school database',
 			'sync.offline': 'Saved on this device only',
 			'sync.off': 'Database not connected',
+			'sync.test': 'TEST database · not the live plan',
 
 			'msg.title': 'Substitution Plan',
 			'msg.absent': 'absent',
@@ -248,6 +249,7 @@
 			'sync.ok': 'विद्यालय डेटाबेस में सहेजा गया',
 			'sync.offline': 'केवल इस डिवाइस पर सहेजा गया',
 			'sync.off': 'डेटाबेस जुड़ा नहीं है',
+			'sync.test': 'परीक्षण डेटाबेस · वास्तविक योजना नहीं',
 
 			'msg.title': 'प्रतिस्थापन योजना',
 			'msg.absent': 'अनुपस्थित',

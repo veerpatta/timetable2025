@@ -19,7 +19,9 @@ These are the most useful docs when editing the app today:
 - `TIMETABLE_DATA.md`: source-of-truth rules for the timetable dataset in `scripts/data.js`
 - `guides/SERVICE_WORKER_TESTING.md`: cache versioning and service worker validation workflow
 - `guides/QA_CHECKLIST.md`: practical pre-merge validation checklist
-- `guides/SUBSTITUTION_ENGINE.md`: subject qualification, workload policy, persistence, and substitution-engine validation
+- `guides/SUBSTITUTION_ENGINE.md`: ranking tiers, shift timings, fatigue and load spreading, coverage states, editing before posting
+- `guides/BACKEND_SYNC.md`: the Neon tables, how the browser reaches them, retention, and the fairness history
+- `guides/DEPLOYMENT.md`: the live and staging sites, and how to ship to them
 - `guides/assets.md`: icon and asset notes
 - `../tests/README.md`: how to run the validation test and what to check by hand
 

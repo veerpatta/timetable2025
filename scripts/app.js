@@ -1447,8 +1447,21 @@
 	 * Persistence - this device first, the school database as a mirror
 	 * ------------------------------------------------------------------ */
 
+	/** 'live' or 'test' - which database this build is pointed at. */
+	function syncEnvironment() {
+		return (window.VPPS_CONFIG && window.VPPS_CONFIG.environment) || 'live';
+	}
+
 	function syncPill() {
-		const status = Sync && Sync.isConfigured() ? Sync.status() : 'unconfigured';
+		const configured = Boolean(Sync && Sync.isConfigured());
+		const status = configured ? Sync.status() : 'unconfigured';
+
+		// On staging, say so instead of reporting success. Somebody has to be
+		// able to tell at a glance that this is not the plan the staff read.
+		if (configured && syncEnvironment() === 'test') {
+			return '<span class="sync-pill sync-pill--test">' + esc(t('sync.test')) + '</span>';
+		}
+
 		const key = status === 'ok' ? 'sync.ok' : (status === 'unconfigured' ? 'sync.off' : 'sync.offline');
 		const tone = status === 'ok' ? 'ok' : (status === 'error' ? 'warn' : 'quiet');
 		return '<span class="sync-pill sync-pill--' + tone + '">' + esc(t(key)) + '</span>';

@@ -2,6 +2,17 @@
   "projects": {
     "default": "schoolfeespro"
   },
-  "targets": {},
+  "targets": {
+    "schoolfeespro": {
+      "hosting": {
+        "live": [
+          "vpps-timetable"
+        ],
+        "test": [
+          "vpps-timetable-test"
+        ]
+      }
+    }
+  },
   "etags": {}
 }

@@ -41,6 +41,9 @@ Scripts load in dependency order: `config.local.js` (optional) → `data.js` →
 
 - `README.md`: repo overview, architecture, workflows
 - `docs/TIMETABLE_DATA.md`: timetable format and safe editing rules
+- `docs/guides/SUBSTITUTION_ENGINE.md`: ranking tiers, shifts, coverage states, editing
+- `docs/guides/BACKEND_SYNC.md`: the Neon tables, sync behaviour, retention
+- `docs/guides/DEPLOYMENT.md`: the two hosted sites and how to ship to them
 - `docs/guides/SERVICE_WORKER_TESTING.md`: service worker workflow
 - `tests/README.md`: validation entry point
 
@@ -109,7 +112,17 @@ An absence is one day. A **shift** is a teacher's standing working window, and t
 
 Anjana reports after Period 4. Enforcement runs through `isAvailableByPolicy` via `Engine.shiftsToPolicyOverrides()` — do not add a second code path for it. See `docs/guides/SUBSTITUTION_ENGINE.md`.
 
-### 8. Print/PDF export and the free-teacher finder were removed
+### 8. There are two deployed sites, and localhost is not the live one
+
+`vpps-timetable.web.app` is what the staff read; `vpps-timetable-test.web.app` is staging. `scripts/config.local.js` picks its database from the hostname, so localhost and any `-test` host write to `neondb_test` and never to `neondb`. Do not "simplify" that away: before it existed, local testing put fictional absences into the live plan.
+
+The credential file is gitignored, so a fresh clone cannot deploy a working build — copy `scripts/config.sample.js` first. Ship to staging and exercise it there before the live target. See `docs/guides/DEPLOYMENT.md`.
+
+### 9. Uncovered periods are self study, not a gap
+
+When nobody is free the period reads **Self Study**, styled neutrally, marked 📖 in the shared message. It is an outcome, not an unresolved hole, and the red state is reserved for a period the coordinator deliberately held. Do not reintroduce "No one free" as an outcome.
+
+### 10. Print/PDF export and the free-teacher finder were removed
 
 The design has no place for them. Do not reintroduce them without an explicit request.
 
@@ -140,6 +153,7 @@ npx http-server . -p 8080 -c-1
 node --test tests/substitution-engine.test.js
 node --check scripts/app.js
 node build-report.js
+firebase deploy --only hosting:test --project schoolfeespro
 git diff --stat
 ```
 
@@ -148,6 +162,7 @@ Minimum expectations:
 - inspect the exact view you changed
 - run the substitution test after any `i18n.js` or `substitution.js` edit
 - regenerate the build report after meaningful runtime edits
+- deploy to staging and exercise it there before the live site
 
 ## Fast Code Navigation
 

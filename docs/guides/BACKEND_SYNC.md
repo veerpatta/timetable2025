@@ -16,11 +16,21 @@ Neon-Connection-String: postgresql://user:password@<endpoint>.../neondb?sslmode=
 
 **Do not set a `Content-Type` header.** Neon's CORS preflight allows only `Authorization` and its own `Neon-*` headers. Setting `Content-Type: application/json` fails preflight in a browser; omitting it lets `fetch` default to the safelisted `text/plain`, which the endpoint parses as JSON anyway. `scripts/sync.js` says as much at the call site — it is not an oversight to tidy up.
 
+## Two databases, chosen by hostname
+
+| Where | Database |
+| --- | --- |
+| https://vpps-timetable.web.app | `neondb` — the plan the staff read |
+| https://vpps-timetable-test.web.app | `neondb_test` |
+| `localhost` / `127.0.0.1` | `neondb_test` |
+
+`config.local.js` does the selecting, so one file and one deploy directory serve both sites. This is not a nicety: before it existed, trying something out on a laptop wrote a fictional absence straight into the live plan — which is how the rule was learned. The Substitutes screen shows a red **TEST database · not the live plan** badge whenever the app is not on `neondb`.
+
 ## Setup
 
 1. Copy `scripts/config.sample.js` to `scripts/config.local.js`.
-2. Fill in `neonSqlUrl` (the connection host with `/sql` appended) and `neonConnectionString`.
-3. Reload. The tables are created on first use, and `Engine.DEFAULT_SHIFTS` seeds `teacher_shifts` if it is empty.
+2. Fill in `neonSqlUrl` (the connection host with `/sql` appended) and both connection strings.
+3. Reload. The tables are created on first use, in whichever database you are pointed at, and `Engine.DEFAULT_SHIFTS` seeds `teacher_shifts` if it is empty.
 
 `scripts/config.local.js` is **gitignored on purpose**. This repository is public, and a Postgres URL committed to a public repo is picked up by GitHub secret scanning, which asks Neon to reset the password — the app then breaks with no warning and no obvious cause. Keep the credential out of git and deploy the file alongside the site.
 
@@ -103,5 +113,6 @@ In the browser console, `window.VPPSSync` exposes the whole surface: `isConfigur
 ## Things worth knowing
 
 - `scripts/config.local.js` is **not** precached by the service worker. It is optional and may 404; precaching a 404 fails the whole install.
+- It is also fetched **network-first**, unlike every other asset. The worker is cache-first by design for an offline timetable, but that would let a rotated password keep failing on every installed device from a cached copy, with nothing on screen explaining why.
 - The `<script>` tag for it in `index.html` is expected to fail when the file is absent. That is not a bug.
 - Sync never runs before the first render. The app paints from `localStorage`, then catches up.

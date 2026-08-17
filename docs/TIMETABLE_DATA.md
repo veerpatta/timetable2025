@@ -92,6 +92,8 @@ The parser in `scripts/data.js` (`parseTimetable`) derives these structures:
 
 The exact derived shape may evolve, but the key point is that teacher schedules and substitution helpers are generated from the timetable rows. Editing a teacher name changes downstream behavior.
 
+This carries more weight than it used to. The substitution engine now derives **which classes each teacher stands in front of, and how often**, straight from these rows, and ranks cover by that familiarity first. Moving a teacher out of a class here does not just change that cell — it changes who the planner will send to cover that class when someone is away.
+
 ## Safe Editing Rules
 
 ### Preserve CSV structure

@@ -1429,6 +1429,13 @@ button {
 .sync-pill--ok { background: var(--oksoft); color: var(--ok); }
 .sync-pill--warn { background: var(--warnsoft); color: var(--warn); }
 
+/* Staging. Loud on purpose: nobody should mistake it for the real plan. */
+.sync-pill--test {
+	background: var(--err);
+	color: var(--onpri);
+	letter-spacing: 0.03em;
+}
+
 .section-note--quiet { color: var(--mut); font-size: 12.5px; }
 
 .empty-state {

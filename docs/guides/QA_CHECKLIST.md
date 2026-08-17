@@ -9,6 +9,29 @@ Use this checklist before merging meaningful runtime changes. The goal is to kee
 - the timetable still parses correctly
 - no obvious layout regression appears on desktop or mobile width
 
+## Before The Live Site
+
+Deploy to staging and exercise it there. It runs the same code against a
+separate database, so nothing you try reaches the staff.
+
+```powershell
+firebase deploy --only hosting:test --project schoolfeespro
+```
+
+Then open <https://vpps-timetable-test.web.app> and confirm the Substitutes
+screen shows the red **TEST database** badge. If it says "Saved to the school
+database" you are on the live site - stop.
+
+## If You Changed The Substitution Engine
+
+- a teacher who takes that class is preferred over an outside subject specialist
+- nobody is proposed for two classes in the same period
+- no single teacher collects most of the chart
+- a teacher with a restricted shift is never given cover outside it
+- a period nobody can cover reads **Self Study**, not an error
+- tap a period, swap the cover, confirm the pin survives and the rest re-allocates
+- send the WhatsApp message and read it as a teacher would
+
 ## If You Changed Timetable Data In `scripts/data.js`
 
 - verify the affected day view

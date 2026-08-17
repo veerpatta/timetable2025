@@ -1,8 +1,8 @@
 // Service Worker for Veer Patta Public School Timetable
 // Provides offline-first caching for the page shell and timetable data
 
-const CACHE_NAME = 'vpps-timetable-v48';
-const STATIC_CACHE_NAME = 'vpps-static-v48';
+const CACHE_NAME = 'vpps-timetable-v50';
+const STATIC_CACHE_NAME = 'vpps-static-v50';
 
 // Core resources required for offline shell.
 // scripts/config.local.js is deliberately absent: it is gitignored, may not
@@ -87,6 +87,16 @@ self.addEventListener('fetch', event => {
 
   // Only handle GET requests
   if (request.method !== 'GET') {
+    return;
+  }
+
+  // The database credential is the one file that must never be served stale.
+  // Everything else is cache-first, which is right for an offline timetable -
+  // but a rotated password would otherwise keep failing on every device
+  // holding the old config, with no way for the user to tell why. Network
+  // first, cache only as an offline fallback.
+  if (request.url.indexOf('/scripts/config.local.js') !== -1) {
+    event.respondWith(networkFirstWithCache(request, STATIC_CACHE_NAME));
     return;
   }
 
