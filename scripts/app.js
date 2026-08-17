@@ -319,7 +319,12 @@
 			'<div class="period-card__body">' +
 			'<div class="period-card__title">' + esc(title) + '</div>' +
 			'<div class="period-card__sub">' + esc(sub) + '</div>' +
-			(swap ? '<div class="period-card__swap">' + replacedBy(swap.was, swap.now) + '</div>' : '') +
+			(swap && swap.was
+				? '<div class="period-card__swap">' + replacedBy(swap.was, swap.now) + '</div>'
+				: '') +
+			(swap && swap.joined
+				? '<div class="period-card__joined">🔗 ' + esc(joinedLabel(swap.joined)) + '</div>'
+				: '') +
 			'</div>' +
 			(isNow ? nowBadge(t('ui.now')) : '') +
 			'</div>';
@@ -364,8 +369,17 @@
 			: '';
 		let title = full;
 
-		if (settings.sub) {
-			teacherLine = replacedBy(settings.sub.was, settings.sub.now);
+		if (settings.sub && settings.sub.joined && !settings.sub.was) {
+			// The host of a merge: its own teacher, plus who arrived.
+			classes.push('grid__cell--host');
+			teacherLine = (full ? esc(short) : '') +
+				'<span class="grid__joined">' + esc(joinedLabel(settings.sub.joined)) + '</span>';
+			title = full + ' · ' + joinedLabel(settings.sub.joined);
+		} else if (settings.sub) {
+			teacherLine = replacedBy(settings.sub.was, settings.sub.now) +
+				(settings.sub.joined
+					? '<span class="grid__joined">' + esc(joinedLabel(settings.sub.joined)) + '</span>'
+					: '');
 			title = settings.sub.was + ' → ' + settings.sub.now;
 		} else if (settings.cover) {
 			// A free period that has become cover duty.
@@ -425,6 +439,37 @@
 		return Object.prototype.hasOwnProperty.call(state.pins, slotId);
 	}
 
+	/** The class a pin says to merge into, or '' for the other pin kinds. */
+	function pinnedCombine(slotId) {
+		const pin = state.pins[slotId];
+		return pin && typeof pin === 'object' && pin.combineWith ? pin.combineWith : '';
+	}
+
+	/**
+	 * Every class still being taught in this period, so a stranded class has
+	 * somewhere to go. `cover` is the plan built so far, so a class whose own
+	 * teacher is away counts as hosted only once somebody is covering it - and
+	 * a class that is itself self study can never host.
+	 */
+	function hostsInPeriod(day, periodIndex, cover, absent) {
+		const db = state.db;
+		return db.classNames.map(className => {
+			const cell = db.timetable[day][className][periodIndex];
+			if (!cell || cell.free || !cell.teachers.length) return null;
+
+			const away = cell.teachers.filter(name => absent.indexOf(name) !== -1);
+			const present = cell.teachers.filter(name => absent.indexOf(name) === -1);
+			if (present.length) return { className: className, teacher: present[0], substituted: false };
+
+			// Everyone who teaches it is away: only a covered period can host.
+			const slotId = away.length ? away[0] + '|' + periodIndex : '';
+			const result = slotId ? cover[slotId] : null;
+			if (!result) return null;
+			if (result.status !== 'assigned' && result.status !== 'review') return null;
+			return { className: className, teacher: result.name, substituted: true };
+		}).filter(Boolean);
+	}
+
 	/*
 	 * A substitution is not private to the planner: it changes who stands in
 	 * front of a class, so it has to show wherever that period is displayed.
@@ -442,13 +487,25 @@
 		const byTeacher = {}; // teacher|periodIndex   -> { className, subject, coveringFor }
 
 		if (state.absent.length) {
-			planFor().groups.forEach(group => group.rows.forEach(row => {
-				byClass[row.className + '|' + row.periodIndex] = {
-					was: group.title,
-					now: row.cover,
-					status: row.status,
-					pinned: row.pinned
-				};
+			const plan = planFor();
+
+			// A merge changes two classes: the one that moves, and the one
+			// that receives thirty extra children. The host teacher finding
+			// out when they arrive at the door is not acceptable.
+			Object.keys(plan.joinedByClass || {}).forEach(key => {
+				byClass[key] = { joined: plan.joinedByClass[key] };
+			});
+
+			plan.groups.forEach(group => group.rows.forEach(row => {
+				byClass[row.className + '|' + row.periodIndex] = Object.assign(
+					byClass[row.className + '|' + row.periodIndex] || {},
+					{
+						was: group.title,
+						now: row.cover,
+						status: row.status,
+						pinned: row.pinned
+					}
+				);
 				if (row.coverTeacher) {
 					byTeacher[row.coverTeacher + '|' + row.periodIndex] = {
 						className: row.className,
@@ -476,6 +533,11 @@
 		const overlay = substitutionOverlay();
 		if (day !== overlay.day) return null;
 		return overlay.byTeacher[teacher + '|' + periodIndex] || null;
+	}
+
+	/** "+ Class 7" - who has joined this period. */
+	function joinedLabel(joined) {
+		return '+ ' + (joined || []).map(name => classLabel(name, true)).join(', ');
 	}
 
 	/** "Bindu → Kusum", with the replaced name struck through. */
@@ -520,14 +582,18 @@
 			);
 		}
 
-		const handover = slot ? subForClass(day, slot.className, index) : null;
+		// A host of a merge already has a class this period, so the duty path
+		// above never fires for them. Their own period record is what carries
+		// the joined class, and they need to see it.
+		const record = slot ? subForClass(day, slot.className, index) : null;
+		const mine = record && (record.was === teacher || (record.joined && !record.was));
 		return periodCard(
 			slot ? { subject: slot.subject, teachers: [] } : null,
 			index,
 			isNow,
 			slot ? classLabel(slot.className) : '',
 			!onShift(teacher, index),
-			handover && handover.was === teacher ? handover : null
+			mine ? record : null
 		);
 	}
 
@@ -903,13 +969,17 @@
 									{ cover: duty }
 								);
 							}
+							// `was === teacher` alone hides the host of a merge,
+							// whose own name never appears in the record.
+							const mine = handover &&
+								(handover.was === state.selTeacher || (handover.joined && !handover.was));
 							return gridCell(
 								cell ? { subject: cell.subject, teachers: [] } : null,
 								d === day && index === period,
 								cell ? classLabel(cell.className, true) : null,
 								{
 									offShift: !onShift(state.selTeacher, index),
-									sub: handover && handover.was === state.selTeacher ? handover : null
+									sub: mine ? handover : null
 								}
 							);
 						}).join('') +
@@ -947,6 +1017,10 @@
 			});
 			teacherDetails[name] = { subjects: new Set(), schedule };
 		});
+		// Reserve staff have no timetable at all - that is what makes them
+		// reserve. They get an empty schedule so the engine can reason about
+		// them without inventing periods they do not teach.
+		db.reserveStaff.forEach(name => { teacherDetails[name] = { subjects: new Set(), schedule: {} }; });
 
 		// Shift timings become availability policy, which is what keeps a
 		// teacher who reports late out of the early periods.
@@ -954,7 +1028,8 @@
 			key: key,
 			value: Engine.buildTeacherProfiles({
 				teacherDetails,
-				roster: db.teacherNames,
+				roster: db.coverPool,
+				reserveStaff: db.reserveStaff,
 				policyOverrides: Engine.shiftsToPolicyOverrides(state.shifts, PERIOD_COUNT)
 			})
 		};
@@ -995,15 +1070,21 @@
 		// simply passed an empty array and did the work twice.
 		const pinnedAssignments = [];
 		const heldOpen = {};
+		const combinePins = {};
 		const openVacancies = [];
 		vacancies.forEach(vacancy => {
 			if (!isPinned(vacancy.slotId)) {
 				openVacancies.push(vacancy);
 				return;
 			}
-			const teacher = state.pins[vacancy.slotId];
-			if (!teacher) heldOpen[vacancy.slotId] = true;
-			else pinnedAssignments.push(Object.assign({}, vacancy, { teacher: teacher, source: 'manual' }));
+			// Three pin forms: a teacher's name, null for "held open", and
+			// { combineWith } for "send them next door". A combine is not an
+			// assignment, so it is resolved after the allocator has run and
+			// we know who is actually teaching the host class.
+			const pin = state.pins[vacancy.slotId];
+			if (pin && typeof pin === 'object') combinePins[vacancy.slotId] = vacancy;
+			else if (!pin) heldOpen[vacancy.slotId] = true;
+			else pinnedAssignments.push(Object.assign({}, vacancy, { teacher: pin, source: 'manual' }));
 		});
 
 		let plan = { assignments: pinnedAssignments, reviewSuggestions: [], openSlots: [] };
@@ -1062,7 +1143,46 @@
 			};
 		});
 
-		const totals = { total: 0, assigned: 0, review: 0, team: 0, open: 0, selfstudy: 0, pinned: 0 };
+		// Now that we know who is teaching what, offer somewhere for the
+		// stranded classes to go. Offer only - a merge costs the host class
+		// part of its lesson, so a coordinator makes that call.
+		plan.openSlots.forEach(item => {
+			const host = Engine.chooseMergeHost(
+				item.className,
+				hostsInPeriod(day, item.periodIndex, cover, absent)
+			);
+			if (host) cover[item.slotId].suggestCombine = host;
+		});
+
+		// Merges the coordinator has already accepted.
+		const joinedByClass = {};
+		Object.keys(combinePins).forEach(slotId => {
+			const vacancy = combinePins[slotId];
+			const wanted = pinnedCombine(slotId);
+			const host = hostsInPeriod(day, vacancy.periodIndex, cover, absent)
+				.find(candidate => candidate.className === wanted);
+			if (!host) {
+				// The host lost its teacher since the merge was chosen.
+				cover[slotId] = { name: t('ui.selfStudy'), status: 'selfstudy', note: t('sub.combineLost') };
+				return;
+			}
+			cover[slotId] = {
+				name: t('sub.joins', { class: classLabel(host.className, true), teacher: host.teacher }),
+				status: 'combined',
+				pinned: true,
+				combinedInto: host,
+				note: t('sub.combinedWhy', { class: classLabel(host.className), teacher: host.teacher })
+			};
+			const key = host.className + '|' + vacancy.periodIndex;
+			(joinedByClass[key] = joinedByClass[key] || []).push(vacancy.className);
+		});
+
+		// Every status must be seeded: the tally below indexes this object by
+		// status name, so a missing key silently becomes NaN.
+		const totals = {
+			total: 0, assigned: 0, review: 0, team: 0,
+			open: 0, selfstudy: 0, combined: 0, pinned: 0
+		};
 		const groups = absent.map(name => {
 			const rows = [];
 			db.teacherMap[name][day].forEach((slot, index) => {
@@ -1089,13 +1209,15 @@
 					coverTeacher: (result.status === 'assigned' || result.status === 'review') ? result.name : null,
 					note: result.note,
 					status: result.status,
-					pinned: Boolean(result.pinned)
+					pinned: Boolean(result.pinned),
+					suggestCombine: result.suggestCombine || null,
+					combinedInto: result.combinedInto || null
 				});
 			});
 			return { title: name, count: rows.length + ' ' + t('ui.periods'), rows };
 		});
 
-		return { groups: groups, totals: totals };
+		return { groups: groups, totals: totals, joinedByClass: joinedByClass };
 	}
 
 	function planCacheKey() {
@@ -1239,6 +1361,10 @@
 				review: totals.review,
 				selfStudy: totals.selfstudy
 			})) + '</span>' +
+			(totals.combined
+				? '<span class="plan-summary__pins">🔗 ' +
+					esc(t('msg.sumCombined', { n: totals.combined })) + '</span>'
+				: '') +
 			(totals.pinned
 				? '<span class="plan-summary__pins">📌 ' + esc(t('subs.pinned', { count: totals.pinned })) + '</span>'
 				: '') +
@@ -1260,6 +1386,22 @@
 			'</div>';
 
 		return html + '</section>';
+	}
+
+	/**
+	 * The one-tap way out of a self study. Offered, never taken automatically:
+	 * a merge costs the host class part of its lesson, and that is a
+	 * coordinator's call rather than an optimiser's.
+	 */
+	function combineOffer(row) {
+		if (!row.suggestCombine) return '';
+		return '<button type="button" class="combine-offer" ' +
+			'data-action="combine-slot" data-value="' + esc(row.slotId) + '" ' +
+			'data-host="' + esc(row.suggestCombine.className) + '">' +
+			'🔗 ' + esc(t('sub.combineOffer', {
+				class: classLabel(row.suggestCombine.className, true),
+				teacher: row.suggestCombine.teacher
+			})) + '</button>';
 	}
 
 	function coverPill(row) {
@@ -1286,7 +1428,10 @@
 		if (!row) return '';
 
 		const ranked = candidatesForSlot(group.title, row);
-		const pinnedTo = isPinned(slotId) ? state.pins[slotId] : undefined;
+		const raw = isPinned(slotId) ? state.pins[slotId] : undefined;
+		// undefined = automatic, null = held open, string = a named teacher.
+		// An object pin is a merge, handled by combineOption.
+		const pinnedTo = (raw && typeof raw === 'object') ? '' : raw;
 
 		return '<div class="slot-editor">' +
 			'<div class="slot-editor__head">' +
@@ -1308,8 +1453,32 @@
 			'<span class="slot-option__name">' + esc(t('edit.leaveOpen')) + '</span>' +
 			'<span class="slot-option__why">' + esc(t('edit.leaveOpenWhy')) + '</span>' +
 			'</button>' +
+			combineOption(row, slotId) +
 			'</div>' +
-			(ranked.length
+			renderCandidateList(ranked.filter(option => !option.reserve), slotId, pinnedTo) +
+			renderReserveList(ranked.filter(option => option.reserve), slotId, pinnedTo) +
+			'</div>';
+	}
+
+	/** "Send them next door", inside the swap sheet. */
+	function combineOption(row, slotId) {
+		const host = row.combinedInto || row.suggestCombine;
+		if (!host) return '';
+		const active = pinnedCombine(slotId) === host.className;
+		return '<button type="button" class="slot-option slot-option--combine' +
+			(active ? ' is-active' : '') + '" ' +
+			'data-action="combine-slot" data-value="' + esc(slotId) + '" ' +
+			'data-host="' + esc(host.className) + '">' +
+			'<span class="slot-option__name">🔗 ' +
+			esc(t('edit.combine', { class: classLabel(host.className) })) + '</span>' +
+			'<span class="slot-option__why">' +
+			esc(t('edit.combineWhy', { teacher: host.teacher })) + '</span>' +
+			'</button>';
+	}
+
+	/** The ordinary teachers, in engine order. */
+	function renderCandidateList(ranked, slotId, pinnedTo) {
+		return (ranked.length
 				? '<div class="slot-editor__options">' + ranked.map(candidate =>
 					'<button type="button" class="slot-option' +
 					(candidate.blocked.length ? ' is-blocked' : '') +
@@ -1322,8 +1491,28 @@
 					'</span>' +
 					'<span class="slot-option__why">' + esc(candidateWhy(candidate)) + '</span>' +
 					'</button>').join('') + '</div>'
-				: '<div class="section-note section-note--quiet">' + esc(t('edit.none')) + '</div>') +
-			'</div>';
+				: '<div class="section-note section-note--quiet">' + esc(t('edit.none')) + '</div>');
+	}
+
+	/**
+	 * Admin staff, kept below a divider. They are never proposed by the
+	 * planner, so the only way one appears in a plan is a coordinator
+	 * deciding to ask them - which is how the school works.
+	 */
+	function renderReserveList(reserve, slotId, pinnedTo) {
+		if (!reserve.length) return '';
+		return '<div class="slot-reserve">' +
+			'<div class="slot-reserve__label">' + esc(t('edit.reserve')) + '</div>' +
+			'<div class="slot-editor__options">' + reserve.map(candidate =>
+				'<button type="button" class="slot-option slot-option--reserve' +
+				(candidate.blocked.length ? ' is-blocked' : '') +
+				(pinnedTo === candidate.teacher ? ' is-active' : '') + '" ' +
+				'data-action="pick-cover" data-value="' + esc(slotId) + '" ' +
+				'data-teacher="' + esc(candidate.teacher) + '">' +
+				'<span class="slot-option__name">' + esc(candidate.teacher) + '</span>' +
+				'<span class="slot-option__why">' + esc(t('edit.reserveWhy')) + '</span>' +
+				'</button>').join('') +
+			'</div></div>';
 	}
 
 	/** The one-line explanation under a candidate's name. */
@@ -1348,7 +1537,7 @@
 			}
 		}));
 
-		return Engine.rankCandidates({
+		const ranked = Engine.rankCandidates({
 			day: state.subsDay,
 			periodCount: PERIOD_COUNT,
 			teacherProfiles: teacherProfiles(),
@@ -1362,7 +1551,12 @@
 				subject: row.subject,
 				originalTeacher: absentTeacher
 			}
-		}).filter(candidate => candidate.teacher !== absentTeacher).slice(0, 12);
+		}).filter(candidate => candidate.teacher !== absentTeacher);
+
+		// Keep the first dozen teachers, but never drop the reserve staff off
+		// the end - they are the whole point of the manual path.
+		const regular = ranked.filter(candidate => !candidate.reserve).slice(0, 12);
+		return regular.concat(ranked.filter(candidate => candidate.reserve));
 	}
 
 	function renderPlanStack(plan) {
@@ -1380,6 +1574,7 @@
 					'<div class="plan-row__body">' +
 					'<div class="plan-row__what">' + esc(row.what) + '</div>' +
 					'<div class="plan-row__time">' + esc(row.time) + '</div>' +
+					combineOffer(row) +
 					'</div>' +
 					coverPill(row) +
 					'</div>').join('') +
@@ -1464,7 +1659,9 @@
 	}
 
 	// One marker per row, and each one means something specific.
-	const STATUS_EMOJI = { assigned: '✅', review: '⚠️', team: '👥', open: '❌', selfstudy: '📖' };
+	const STATUS_EMOJI = {
+		assigned: '✅', review: '⚠️', team: '👥', open: '❌', selfstudy: '📖', combined: '🔗'
+	};
 
 	function statusEmoji(row) {
 		return row.status === 'open' && row.pinned ? '📌' : STATUS_EMOJI[row.status];
@@ -1552,6 +1749,7 @@
 		const summary = [];
 		if (totals.assigned) summary.push('✅ ' + t('msg.sumCovered', { n: totals.assigned }));
 		if (totals.review) summary.push('⚠️ ' + t('msg.sumCheck', { n: totals.review }));
+		if (totals.combined) summary.push('🔗 ' + t('msg.sumCombined', { n: totals.combined }));
 		if (totals.selfstudy) summary.push('📖 ' + t('msg.sumSelfStudy', { n: totals.selfstudy }));
 		if (totals.open) summary.push('📌 ' + t('msg.sumHeld', { n: totals.open }));
 		if (totals.team) summary.push('👥 ' + t('msg.sumTeam', { n: totals.team }));
@@ -1562,6 +1760,9 @@
 
 	/** The cover column: a name, or the short reason there is not one. */
 	function messageCover(row) {
+		if (row.status === 'combined') {
+			return '→ ' + classLabel(row.combinedInto.className, true) + ' · ' + row.combinedInto.teacher;
+		}
 		if (row.status === 'selfstudy') return t('msg.shortSelfStudy');
 		if (row.status === 'open') return t('msg.shortHeld');
 		if (row.status === 'review') return row.cover + ' ?';
@@ -1900,6 +2101,13 @@
 		},
 		'leave-open'(value) {
 			state.pins = Object.assign({}, state.pins, { [value]: null });
+			state.editSlot = null;
+			persistPlan();
+		},
+		'combine-slot'(value, target) {
+			const host = target && target.dataset ? target.dataset.host : '';
+			if (!host) return;
+			state.pins = Object.assign({}, state.pins, { [value]: { combineWith: host } });
 			state.editSlot = null;
 			persistPlan();
 		},

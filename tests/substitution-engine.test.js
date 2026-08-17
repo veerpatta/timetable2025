@@ -393,6 +393,133 @@ test('history debt is capped so a heavy fortnight is not a permanent demotion', 
 });
 
 /* ---------------------------------------------------------------------- *
+ * Combining two classes
+ * ---------------------------------------------------------------------- */
+
+test('classes may only combine within one grade of each other', () => {
+	assert.equal(Engine.canCombine('Class 5', 'Class 6'), true, 'adjacent');
+	assert.equal(Engine.canCombine('Class 5', 'Class 4'), true, 'adjacent the other way');
+	assert.equal(Engine.canCombine('Class 11 Science', 'Class 11 Arts'), true, 'streams of one grade');
+	assert.equal(Engine.canCombine('Class 1', 'Class 9'), false, 'six-year-olds do not join teenagers');
+	assert.equal(Engine.canCombine('Class 5', 'Class 5'), false, 'a class cannot join itself');
+	assert.equal(Engine.canCombine('Class 5', null), false);
+});
+
+test('the merge host is chosen, not just found', () => {
+	const hosts = [
+		{ className: 'Class 10', teacher: 'Far', substituted: false },
+		{ className: 'Class 11 Arts', teacher: 'Covered', substituted: true },
+		{ className: 'Class 11 Science', teacher: 'Own', substituted: false }
+	];
+	// Same grade wins over an adjacent one, and among same-grade hosts the
+	// class that still has its own teacher wins over one already covered.
+	const chosen = Engine.chooseMergeHost('Class 11 Commerce', hosts);
+	assert.equal(chosen.className, 'Class 11 Science');
+
+	// With only the covered same-grade host left, that is still better than
+	// dragging the class down a year.
+	const fallback = Engine.chooseMergeHost('Class 11 Commerce', [hosts[0], hosts[1]]);
+	assert.equal(fallback.className, 'Class 11 Arts');
+});
+
+test('a class with no teacher can never host, and distance rules out the rest', () => {
+	assert.equal(Engine.chooseMergeHost('Class 6', [
+		{ className: 'Class 7', teacher: '', substituted: false },
+		{ className: 'Class 7', teacher: null, substituted: false }
+	]), null, 'a self-study class cannot take another class');
+
+	assert.equal(Engine.chooseMergeHost('Class 2', [
+		{ className: 'Class 9', teacher: 'Someone', substituted: false }
+	]), null, 'too far apart, so no merge is offered at all');
+});
+
+test('host choice is deterministic', () => {
+	const hosts = [
+		{ className: 'Class 7', teacher: 'A', substituted: false },
+		{ className: 'Class 5', teacher: 'B', substituted: false }
+	];
+	const first = Engine.chooseMergeHost('Class 6', hosts);
+	const second = Engine.chooseMergeHost('Class 6', hosts.slice().reverse());
+	assert.equal(first.className, second.className);
+});
+
+/* ---------------------------------------------------------------------- *
+ * Reserve staff
+ * ---------------------------------------------------------------------- */
+
+/** One ordinary teacher and one admin, both free all day. */
+function reserveInput() {
+	return {
+		day: 'Monday',
+		periodCount: 8,
+		teacherProfiles: Engine.buildTeacherProfiles({
+			teacherDetails: {
+				Regular: { subjects: new Set(), schedule: schedule({}) },
+				'Director Mam': { subjects: new Set(), schedule: {} }
+			},
+			roster: ['Regular', 'Director Mam'],
+			reserveStaff: ['Director Mam']
+		}),
+		absentTeachers: [],
+		assignments: [],
+		policy: { maxConsecutive: 3 }
+	};
+}
+
+test('the app ships the three admin staff as reserve', () => {
+	assert.deepEqual(Data.RESERVE_STAFF, ['Director Mam', 'Raj Sir', 'Gyan Sir']);
+	const db = Data.load();
+	db.reserveStaff.forEach(name => {
+		assert.equal(db.teacherNames.includes(name), false, name + ' must stay out of the teaching roster');
+		assert.equal(db.coverPool.includes(name), true, name + ' must be in the cover pool');
+	});
+	assert.equal(db.coverPool.length, db.teacherNames.length + db.reserveStaff.length);
+});
+
+test('reserve staff are offered to a coordinator but never ranked above a teacher', () => {
+	const input = reserveInput();
+	const ranked = Engine.rankCandidates({
+		...input,
+		vacancy: { slotId: 'v', periodIndex: 3, subject: 'Maths', className: 'Class 6' }
+	});
+	const director = ranked.find(item => item.teacher === 'Director Mam');
+
+	assert.ok(director, 'still listed, so the sheet can offer her');
+	assert.equal(director.reserve, true);
+	assert.equal(director.matchTier, 'reserve');
+	assert.equal(director.autoEligible, false);
+	assert.equal(director.warnings.includes('reserve_staff'), true);
+	assert.equal(ranked[ranked.length - 1].teacher, 'Director Mam', 'and ranked last');
+});
+
+test('reserve staff are not suggested even when every teacher is blocked', () => {
+	// The trap: an admin has no timetable, so she reads as free in every
+	// period. With the only teacher absent she would be the top non-blocked
+	// candidate and get quietly proposed for the hardest period of the day.
+	const input = reserveInput();
+	const plan = Engine.generatePlan({
+		...input,
+		absentTeachers: ['Regular'],
+		vacancies: [{ slotId: 'v', periodIndex: 3, subject: 'Maths', className: 'Class 6', originalTeacher: 'Regular' }]
+	});
+
+	const proposed = plan.assignments.concat(plan.reviewSuggestions);
+	assert.deepEqual(proposed, [], 'nothing is proposed at all');
+	assert.equal(plan.openSlots.length, 1, 'the period is reported open, for a human to decide');
+});
+
+test('a reserve pin is still honoured once a coordinator makes it', () => {
+	const input = reserveInput();
+	const check = Engine.validateAssignment({
+		...input,
+		teacher: 'Director Mam',
+		vacancy: { slotId: 'v', periodIndex: 3, subject: 'Maths', className: 'Class 6' }
+	});
+	assert.equal(check.canOverride, true, 'asking her is allowed; volunteering her is not');
+	assert.deepEqual(check.errors, []);
+});
+
+/* ---------------------------------------------------------------------- *
  * Shift timings
  * ---------------------------------------------------------------------- */
 

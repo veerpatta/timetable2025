@@ -127,19 +127,24 @@ Preferences persist in `localStorage` under `vppsm_theme`, `vppsm_me`, `vppsm_ro
 
 `app.js` builds teacher profiles and a vacancy list from the absent teachers, then calls `SubstitutionEngine.generatePlan()`. Results are grouped per absent teacher.
 
-**Cover is ranked by how useful it is to the class, familiarity first** — a teacher those children already know can hold a useful lesson where a stranger with the right subject often cannot. The tiers run `class_subject` → `class` → `exact` → `approved` → `related` → `general`, and fatigue, repetition and 30 days of cover history reorder candidates *within* a tier but can never cross one. Full rules in [docs/guides/SUBSTITUTION_ENGINE.md](docs/guides/SUBSTITUTION_ENGINE.md).
+**Cover is ranked by how useful it is to the class, familiarity first** — a teacher those children already know can hold a useful lesson where a stranger with the right subject often cannot. The tiers run `class_subject` → `class` → `exact` → `approved` → `related` → `general` → `reserve`, and fatigue, repetition and 30 days of cover history reorder candidates *within* a tier but can never cross one. Full rules in [docs/guides/SUBSTITUTION_ENGINE.md](docs/guides/SUBSTITUTION_ENGINE.md).
 
-Every period ends in one of five honest states, and the pill colour, the grid cell and the WhatsApp marker all agree:
+Every period ends in one of six honest states, and the pill colour, the grid cell and the WhatsApp marker all agree:
 
 | State | Meaning |
 | --- | --- |
 | ✅ assigned | Allocated automatically, within workload limits |
 | 👥 team | Co-taught; a remaining co-teacher covers it |
 | ⚠️ review | A suggestion the engine declined to auto-assign, with the actual reason |
+| 🔗 combined | The class joined another under one teacher, once you confirmed it |
 | 📖 self study | Nobody was free, so the class sits self study |
 | 📌 open | The coordinator held this period to arrange themselves |
 
 **The plan is editable before it goes out.** Tapping any period lists every candidate the engine considered, with the reason it ranked them there and the reason it cannot use them. Choosing pins the period; pinned choices survive a regenerate while the rest re-allocate around them.
+
+**Three admin staff** — Director Mam, Raj Sir and Gyan Sir — can be assigned by hand but are never chosen automatically, and never suggested. They are declared in `RESERVE_STAFF` rather than derived from the timetable, and stay out of the Teachers view, the free-teacher lists and the fairness ledger.
+
+**Classes can be combined.** When nobody is free, the planner offers to send the class next door — same or adjacent grade only — and shows the merge on both classes and on the host teacher's own day. It is always an offer.
 
 **Shift timings** are separate from absences: a shift is a teacher's standing working window, every day. Someone who reports after the fourth period is never offered cover before they arrive, is excluded from the free-teacher lists, and reads "Off shift" rather than "Free period".
 

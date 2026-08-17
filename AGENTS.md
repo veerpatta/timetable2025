@@ -124,11 +124,25 @@ Firebase Hosting's default `max-age=3600` plus a precaching service worker once 
 
 The signature of this failure is that `curl` sees the new file and the browser does not. Suspect it before suspecting the code.
 
-### 10. Uncovered periods are self study, not a gap
+### 10. `teacherNames` is teaching staff; `coverPool` is everyone
+
+`db.teacherNames` is derived from timetable cells, so it is exactly the people who teach. The three admin staff are declared in `RESERVE_STAFF` (`scripts/data.js`) and reach the planner through `db.coverPool` only.
+
+Keeping them out of `teacherNames` is what keeps them out of the Teachers view, the free-teacher lists, the shift editor, the absence chips and the fairness ledger — all of which read that list — without a special case in any of them. Do not "tidy" the two lists into one.
+
+They are never auto-assigned **and never suggested**. The suggestion filter is the load-bearing half: a reserve profile has no timetable, so it reads as free in every period and would be proposed the moment every teacher is blocked.
+
+### 11. A merge is offered, never taken
+
+`Engine.chooseMergeHost` proposes sending a stranded class next door, within one grade. A host is available for essentially every period, so applying merges automatically would disrupt a lesson constantly — it stays a suggestion.
+
+Both classes must show it. The teacher views gate duty on `slot ? null : subForTeacher(...)`, which by construction never fires for a host, who already has a class that period; their own period record carries the merge instead.
+
+### 12. Uncovered periods are self study, not a gap
 
 When nobody is free the period reads **Self Study**, styled neutrally, marked 📖 in the shared message. It is an outcome, not an unresolved hole, and the red state is reserved for a period the coordinator deliberately held. Do not reintroduce "No one free" as an outcome.
 
-### 11. Print/PDF export and the free-teacher finder were removed
+### 13. Print/PDF export and the free-teacher finder were removed
 
 The design has no place for them. Do not reintroduce them without an explicit request.
 

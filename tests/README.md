@@ -30,7 +30,7 @@ Then open `http://localhost:8080/`.
 
 ### `tests/substitution-engine.test.js`
 
-26 automated Node tests covering:
+34 automated Node tests covering:
 
 - **Ranking tiers** - the ladder from `class_subject` down to `general`, and that a teacher who knows the class outranks an outside subject specialist.
 - **Tier dominance as a property** - with the worst possible fatigue, repetition and history penalties applied, a higher tier still wins. This is the test that stops a well-meaning weight change from quietly breaking school policy.
@@ -41,6 +41,8 @@ Then open `http://localhost:8080/`.
 - **Hard availability rules** - absent, regular class, double-booked, unavailable.
 - **Persistence** - date-keyed plans, 30-day pruning, schedule-version invalidation, recovery from corrupt data.
 - **Bell schedules** - the practice/regular changeover and gapless period coverage.
+- **Reserve staff** - offered to a coordinator, ranked last, never auto-assigned, and never *suggested* even when every teacher is blocked. That last case is the one that would otherwise slip through, because an admin with no timetable reads as free in every period.
+- **Combining classes** - the one-grade rule, host ranking (same grade first, own teacher over a covered one), a self-study class never hosting, and deterministic choice.
 - **English/Hindi parity.**
 
 The parity check is the one that catches the most common UI mistake: adding a new string to `en` in `scripts/i18n.js` but not to `hi`.

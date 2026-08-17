@@ -34,6 +34,34 @@ All weights live in one `WEIGHTS` object in `scripts/substitution.js`. Change po
 
 The teacher is absent, already has a regular class, is already covering another class that period, or is outside their shift.
 
+## Reserve staff
+
+Three admin staff — Director Mam, Raj Sir and Gyan Sir — will take a period when it is genuinely needed, but the planner must never volunteer them.
+
+They could not be chosen at all before, because `db.teacherNames` is derived from timetable cells: a person with no periods does not exist to the app. They are declared instead, in `RESERVE_STAFF` in `scripts/data.js`, and surface as `db.reserveStaff` plus `db.coverPool` (teaching staff + reserve). **`db.teacherNames` deliberately does not include them**, which is what keeps them out of the Teachers view, the free-teacher lists, the shift editor, the absence chips and the fairness ledger without a single special case in any of those places.
+
+In the engine they are a bottom tier, `reserve`, below `general` — so they sort last by the ordinary rules rather than by an exception bolted onto the sort. `autoEligible` is false for them unconditionally.
+
+**The part that actually matters is the suggestion path.** A reserve profile has no timetable, so it reads as free in every period; the moment every regular teacher is blocked it would be proposed as the fallback — quietly taking the hardest period of the day, which is precisely the one a coordinator wants to decide. `generatePlan` therefore filters reserve candidates out of the review suggestions as well as the flow. A test asserts that with the only teacher absent, **nothing at all** is proposed and the period is reported open.
+
+They still appear in the swap sheet, below a divider, so asking them remains one tap.
+
+## Combining two classes
+
+When nobody is free, a school does not leave thirty children alone — it sends them next door. `Engine.canCombine` allows a merge within one grade (`MAX_GRADE_GAP`), which on this timetable means 27 legal pairs: Class 5 with 4 or 6, the three Class 11 streams with each other, never Class 1 with Class 9.
+
+Finding a host is easy — measured on the real Monday timetable, every taught period has on average **3.3** qualifying hosts and none has zero. Choosing well is the job, so `Engine.chooseMergeHost` ranks them:
+
+1. **Same grade** over an adjacent one.
+2. Then a class still taught by **its own teacher** over one already being covered — handing a substitute a second room is how a plan starts to fall over.
+3. Then class order, for determinism.
+
+A class that is itself self study can never host.
+
+**It is offered, never taken.** Every merge costs the host class part of its lesson, and with a host almost always available an automatic merge would fire constantly. The suggestion appears on the self-study row and in the swap sheet; only tapping it applies anything.
+
+**Both classes are told.** The overlay writes a record for the merged class (where the children went, and to whom) *and* for the host (`joined: ['Class 2']`, rendered "+ 2"). The host teacher's own day shows it too — and note that the teacher views gate duty on `slot ? null : subForTeacher(...)`, so a host, who already has a class that period, is invisible to that path. Their own period record carries the merge instead. Without that, the person acquiring thirty extra children finds out when they arrive.
+
 ## Spreading the load
 
 Two mechanisms, because the plan is built in two passes.
@@ -48,7 +76,7 @@ The engine matches the whole day together, with teacher-day and teacher-period c
 
 The coordinator outranks the engine. Tapping any period opens a sheet listing every teacher the engine considered, in its order, with the reason it ranked them there and the reason it would not use them — blocked candidates are shown greyed out rather than hidden, because knowing *who* is unavailable and *why* saves a second look.
 
-A choice becomes a **pin**: `state.pins[slotId]` is a teacher name, or `null` for "deliberately left open". Pins are fed to `generatePlan` as `existingAssignments`, so they consume the teacher's capacity and block their period while everything else re-allocates around them — regenerating is simply a re-run. `Engine.validateAssignment` gates the choice: a hard block is refused with its reason, a warning is allowed with one.
+A choice becomes a **pin**. `state.pins[slotId]` takes three forms: a teacher's name, `null` for "deliberately left open", and `{ combineWith: 'Class 6' }` for a merge. The object form rides in the existing `pins jsonb` column, so nothing needed migrating. Pins are fed to `generatePlan` as `existingAssignments`, so they consume the teacher's capacity and block their period while everything else re-allocates around them — regenerating is simply a re-run. `Engine.validateAssignment` gates the choice: a hard block is refused with its reason, a warning is allowed with one.
 
 In the shared message a pinned assignment reads ✅ with no "please confirm", because a human already decided; a deliberately-open period reads 📌 "being arranged by the office", not ❌ "no teacher free", which would send the staff group scrambling for a period that is already handled.
 
@@ -86,7 +114,7 @@ Only add an override when it is backed by school policy. Do not use this configu
 
 ## Coverage states
 
-Every planned period ends in exactly one of five states, and the same state drives the pill in the UI and the marker in the shared message:
+Every planned period ends in exactly one of six states, and the same state drives the pill in the UI and the marker in the shared message:
 
 | State | UI | Message | Meaning |
 | --- | --- | --- | --- |
@@ -94,6 +122,7 @@ Every planned period ends in exactly one of five states, and the same state driv
 | `team` | blue | 👥 | Co-taught period; a remaining co-teacher covers it. Nothing to arrange. |
 | `review` | amber | ⚠️ | A suggestion the engine declined to auto-assign. The message names the actual reason — subject not verified, workload limit, long consecutive run — not the match tier. |
 | `selfstudy` | neutral | 📖 | Nobody was free. The class sits self study, which is what the school does anyway. |
+| `combined` | blue | 🔗 | The class joined another under one teacher, at the coordinator's confirmation. |
 | `open` | red | 📌 | The coordinator deliberately held the period to arrange themselves. |
 
 Two of these are deliberate choices about how the plan reads:

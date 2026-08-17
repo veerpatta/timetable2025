@@ -305,16 +305,35 @@ Class 12 Arts,Geography (Prakash),English Literature (Harshita),Economics (Praka
 		return map;
 	}
 
+	/*
+	 * Staff who can take a period but do not appear in the timetable.
+	 *
+	 * The teaching roster is derived from timetable cells, so anyone with no
+	 * periods simply does not exist to the app - which is why these three
+	 * could not be chosen at all. They are declared here instead.
+	 *
+	 * They are never chosen automatically. The planner will not volunteer the
+	 * Director; a coordinator asks her, and records it.
+	 */
+	const RESERVE_STAFF = ['Director Mam', 'Raj Sir', 'Gyan Sir'];
+
 	function load() {
 		const db = parseTimetable(rawData);
 		db.teacherMap = buildTeacherMap(db);
+		// `teacherNames` stays the teaching staff and nothing else: the
+		// Teachers view, the free-teacher lists, the shift editor, the absence
+		// chips and the fairness ledger all read it, and none of them should
+		// show someone who has no timetable.
+		db.reserveStaff = RESERVE_STAFF.slice();
+		// Everyone who could stand in front of a class, for the planner only.
+		db.coverPool = db.teacherNames.concat(db.reserveStaff);
 		return db;
 	}
 
 	return {
 		rawData, PERIODS, BREAK, ZERO_PERIOD, REPORTING_MIN, CLOSE_MIN,
 		SCHEDULES, SCHEDULE, PRACTICE_LAST_DAY, scheduleFor,
-		SUBJECT_CATEGORIES, SHORT_SUBJECTS,
+		SUBJECT_CATEGORIES, SHORT_SUBJECTS, RESERVE_STAFF,
 		categoryOf, shortSubject, parseTimetable, buildTeacherMap, load
 	};
 });

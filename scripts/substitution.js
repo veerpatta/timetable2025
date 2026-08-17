@@ -56,7 +56,7 @@
 	 * a single scalar for the min-cost flow while ordering lexicographically.
 	 * `tierDominates()` is the executable statement of that invariant.
 	 */
-	const TIER_ORDER = ['class_subject', 'class', 'exact', 'approved', 'related', 'general'];
+	const TIER_ORDER = ['class_subject', 'class', 'exact', 'approved', 'related', 'general', 'reserve'];
 	const TIER_GAP = 1500;
 	const MODIFIER_CAP = 700;
 	const TIER_SCORE = {
@@ -65,7 +65,11 @@
 		exact: 10500,
 		approved: 9000,
 		related: 4000,
-		general: 2500
+		general: 2500,
+		// Admin staff who can be asked, but are never volunteered. Bottom of
+		// the ladder so they sort last by the ordinary rules rather than by a
+		// special case bolted onto the sort.
+		reserve: 1000
 	};
 	// Tiers the engine may assign without a coordinator confirming. `class`
 	// qualifies on the school's own evidence: the timetable says this teacher
@@ -192,6 +196,53 @@
 		return overrides;
 	}
 
+	/*
+	 * Combining two classes under one teacher.
+	 *
+	 * When nobody is free, a school does not leave thirty children alone - it
+	 * sends them next door. `MAX_GRADE_GAP` of 1 keeps that sensible: Class 5
+	 * may join Class 4 or 6, and the three Class 11 streams may join each
+	 * other, but Class 1 never joins Class 9.
+	 *
+	 * On the real timetable roughly three hosts qualify for any given period,
+	 * so finding one is easy and *choosing well* is the whole job. Hence the
+	 * ranking below, and hence this being a suggestion rather than an action:
+	 * every merge costs the host class part of its lesson.
+	 */
+	const MAX_GRADE_GAP = 1;
+
+	function canCombine(classA, classB) {
+		if (!classA || !classB || classA === classB) return false;
+		const a = extractGrade(classA);
+		const b = extractGrade(classB);
+		if (a == null || b == null) return false;
+		return Math.abs(a - b) <= MAX_GRADE_GAP;
+	}
+
+	/**
+	 * Pick the class a stranded period should join.
+	 *
+	 * `hosts` is every class still being taught this period, as
+	 * `{ className, teacher, substituted }`. Same grade first, then a class
+	 * with its own teacher over one already being covered - handing a
+	 * substitute a second room is how a plan starts falling over.
+	 */
+	function chooseMergeHost(className, hosts) {
+		const grade = extractGrade(className);
+		return (hosts || [])
+			.filter(host => host && host.teacher && canCombine(className, host.className))
+			.slice()
+			.sort((a, b) => {
+				const sameA = extractGrade(a.className) === grade ? 0 : 1;
+				const sameB = extractGrade(b.className) === grade ? 0 : 1;
+				if (sameA !== sameB) return sameA - sameB;
+				const subA = a.substituted ? 1 : 0;
+				const subB = b.substituted ? 1 : 0;
+				if (subA !== subB) return subA - subB;
+				return String(a.className).localeCompare(String(b.className));
+			})[0] || null;
+	}
+
 	function toArray(value) {
 		if (!value) return [];
 		if (value instanceof Set) return Array.from(value);
@@ -208,6 +259,7 @@
 		const teacherDetails = input?.teacherDetails || {};
 		const roster = input?.roster || Object.keys(teacherDetails);
 		const overrides = input?.policyOverrides || {};
+		const reserve = new Set(toArray(input?.reserveStaff));
 		const profiles = {};
 
 		roster.slice().sort((a, b) => a.localeCompare(b)).forEach(teacher => {
@@ -238,6 +290,8 @@
 
 			profiles[teacher] = {
 				teacher,
+				// Can be asked by a coordinator; never proposed by the planner.
+				reserve: reserve.has(teacher),
 				subjects,
 				canCover: new Set(toArray(override.canCover).map(canonicalSubject).filter(Boolean)),
 				grades,
@@ -348,9 +402,10 @@
 		const teachesSubject = profile.subjects.has(targetSubject);
 
 		// Familiarity with the class leads; subject qualification decides the
-		// order among strangers to it.
-		let matchTier = 'general';
-		if (teachesThisClass && (teachesSubjectHere || teachesSubject)) matchTier = 'class_subject';
+		// order among strangers to it. Reserve staff sit below all of it.
+		let matchTier = profile.reserve ? 'reserve' : 'general';
+		if (profile.reserve) { /* no tier climbing: they are asked, not ranked up */ }
+		else if (teachesThisClass && (teachesSubjectHere || teachesSubject)) matchTier = 'class_subject';
 		else if (teachesThisClass) matchTier = 'class';
 		else if (teachesSubject) matchTier = 'exact';
 		else if (profile.canCover.has(targetSubject)) matchTier = 'approved';
@@ -359,6 +414,7 @@
 			matchTier = 'related';
 		}
 
+		if (matchTier === 'reserve') warnings.push('reserve_staff');
 		if (matchTier === 'class') warnings.push('class_not_subject');
 		if (matchTier === 'related') warnings.push('related_subject');
 		if (matchTier === 'general') warnings.push('subject_mismatch');
@@ -390,6 +446,7 @@
 		const score = TIER_SCORE[matchTier] + clamp(modifiers, MODIFIER_CAP);
 
 		const autoEligible = blocked.length === 0 &&
+			!profile.reserve &&
 			AUTO_TIERS.indexOf(matchTier) !== -1 &&
 			!warnings.includes('over_substitution_limit') &&
 			!warnings.includes('full_day') &&
@@ -400,6 +457,7 @@
 			score,
 			matchTier,
 			autoEligible,
+			reserve: Boolean(profile.reserve),
 			blocked,
 			warnings,
 			load,
@@ -584,7 +642,14 @@
 				vacancy,
 				assignments: proposed,
 				teacherProfiles
-			}).filter(candidate => candidate.blocked.length === 0);
+			})
+				// Reserve staff have no timetable, so they read as free in
+				// every period and would be suggested the moment every regular
+				// teacher is blocked. "Never automatic" has to mean the
+				// suggestion path as well, or they would quietly fill the
+				// hardest periods - exactly the ones a coordinator wants to
+				// decide themselves.
+				.filter(candidate => candidate.blocked.length === 0 && !candidate.reserve);
 
 			/*
 			 * Nobody takes a third period while somebody else can take a
@@ -722,6 +787,9 @@
 		DEFAULT_SHIFTS,
 		TIER_ORDER,
 		TIER_SCORE,
+		MAX_GRADE_GAP,
+		canCombine,
+		chooseMergeHost,
 		TIER_GAP,
 		MODIFIER_CAP,
 		AUTO_TIERS,
