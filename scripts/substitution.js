@@ -19,12 +19,14 @@
 		'games': 'sports',
 		'environmental studies': 'evs',
 		'social studies': 'sst',
-		'accounts': 'accountancy'
+		'accounts': 'accountancy',
+		'eng lit': 'english literature',
+		'gs': 'general studies'
 	};
 	const SUBJECT_GROUPS = {
 		english: ['english compulsory', 'english literature', 'elga'],
 		science: ['science', 'physics', 'chemistry', 'biology', 'evs'],
-		social: ['sst', 'history', 'geography', 'political science', 'civics'],
+		social: ['sst', 'history', 'geography', 'political science', 'civics', 'general studies'],
 		commerce: ['accountancy', 'business studies', 'economics'],
 		computing: ['ccs', 'robotics'],
 		maths: ['maths'],
@@ -34,11 +36,11 @@
 	};
 
 	// A shift is a teacher's standing working window - not a one-off absence.
-	// Anjana reports after the first four periods, so P1-P4 look "free" in her
-	// timetable when in fact she is not in the building. Without this the
-	// planner happily hands her cover duty before she arrives.
+	// Anjana is part-time and is only in the building for P6-P8, so P1-P5 look
+	// "free" in her timetable when in fact she has not arrived. Without this
+	// the planner happily hands her cover duty before she gets there.
 	const DEFAULT_SHIFTS = {
-		Anjana: { fromPeriodIndex: 4, note: 'Reports after Period 4' }
+		Anjana: { fromPeriodIndex: 5, note: 'Part-time: Periods 6-8 only' }
 	};
 
 	/*

@@ -108,6 +108,25 @@
 	function dayLabel(day, short) { return I18n.dayLabel(day, short); }
 	function classLabel(name, short) { return I18n.classLabel(name, short); }
 
+	/**
+	 * Every class a period is taught to, not just the first one.
+	 *
+	 * The senior school sits three sections together for Hindi and English, and
+	 * two for Economics. Naming only the head section would send a covering
+	 * teacher looking for a class that is not sitting on its own, and would
+	 * leave the other sections reading as if nothing had been arranged. The
+	 * head keeps the caller's chosen form; the rest are always short, because
+	 * the full names three times over do not fit anywhere they are shown.
+	 */
+	function slotClassLabel(slot, short) {
+		if (!slot) return '';
+		const also = slot.alsoClassNames || [];
+		const head = classLabel(slot.className, short);
+		return also.length
+			? head + ' + ' + also.map(name => classLabel(name, true)).join(' + ')
+			: head;
+	}
+
 	function esc(value) {
 		return String(value == null ? '' : value)
 			.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
@@ -497,18 +516,25 @@
 			});
 
 			plan.groups.forEach(group => group.rows.forEach(row => {
-				byClass[row.className + '|' + row.periodIndex] = Object.assign(
-					byClass[row.className + '|' + row.periodIndex] || {},
-					{
-						was: group.title,
-						now: row.cover,
-						status: row.status,
-						pinned: row.pinned
-					}
-				);
+				// A combined period is one room, so one arrangement - but it
+				// belongs on all of its sections' timetables. A pupil in
+				// 11 Arts is sitting in front of the cover teacher just as
+				// much as one in 11 Science.
+				[row.className].concat(row.alsoClassNames || []).forEach(className => {
+					byClass[className + '|' + row.periodIndex] = Object.assign(
+						byClass[className + '|' + row.periodIndex] || {},
+						{
+							was: group.title,
+							now: row.cover,
+							status: row.status,
+							pinned: row.pinned
+						}
+					);
+				});
 				if (row.coverTeacher) {
 					byTeacher[row.coverTeacher + '|' + row.periodIndex] = {
 						className: row.className,
+						alsoClassNames: row.alsoClassNames || [],
 						subject: row.subject,
 						coveringFor: group.title,
 						status: row.status
@@ -575,7 +601,7 @@
 				{ subject: duty.subject, teachers: [] },
 				index,
 				isNow,
-				classLabel(duty.className) + ' · ' + t('ui.coveringFor', { teacher: duty.coveringFor }),
+				slotClassLabel(duty) + ' · ' + t('ui.coveringFor', { teacher: duty.coveringFor }),
 				false,
 				null,
 				true
@@ -591,7 +617,7 @@
 			slot ? { subject: slot.subject, teachers: [] } : null,
 			index,
 			isNow,
-			slot ? classLabel(slot.className) : '',
+			slot ? slotClassLabel(slot) : '',
 			!onShift(teacher, index),
 			mine ? record : null
 		);
@@ -965,7 +991,7 @@
 								return gridCell(
 									{ subject: duty.subject, teachers: [] },
 									d === day && index === period,
-									classLabel(duty.className, true),
+									slotClassLabel(duty, true),
 									{ cover: duty }
 								);
 							}
@@ -976,7 +1002,7 @@
 							return gridCell(
 								cell ? { subject: cell.subject, teachers: [] } : null,
 								d === day && index === period,
-								cell ? classLabel(cell.className, true) : null,
+								cell ? slotClassLabel(cell, true) : null,
 								{
 									offShift: !onShift(state.selTeacher, index),
 									sub: mine ? handover : null
@@ -1058,6 +1084,7 @@
 				}
 				vacancies.push({
 					slotId, className: slot.className, periodIndex: index,
+					alsoClassNames: slot.alsoClassNames || [],
 					subject: slot.subject, originalTeacher: name
 				});
 			});
@@ -1201,8 +1228,9 @@
 					period: periodName(index),
 					time: PERIODS[index].label,
 					className: slot.className,
+					alsoClassNames: slot.alsoClassNames || [],
 					subject: slot.subject,
-					what: classLabel(slot.className) + ' · ' + slot.subject,
+					what: slotClassLabel(slot) + ' · ' + slot.subject,
 					cover: result.name,
 					// Always a real name or null - never a translated word, so
 					// the fairness history stays machine-readable.
@@ -1609,7 +1637,7 @@
 						'title="' + esc(row.what + ' · ' + row.note) + '" ' +
 						'data-action="edit-slot" data-value="' + esc(row.slotId) + '">' +
 						'<div class="grid__subject">' + (row.pinned ? '📌 ' : '') + esc(row.cover) + '</div>' +
-						'<div class="grid__teacher">' + esc(classLabel(row.className, true)) + '</div>' +
+						'<div class="grid__teacher">' + esc(slotClassLabel(row, true)) + '</div>' +
 						'</td>';
 				}).join('') +
 				'</tr>').join('')
@@ -1654,7 +1682,7 @@
 		return schedule.map((slot, index) => {
 			const off = teacher && !onShift(teacher, index);
 			return periodName(index) + ' ' + PERIODS[index].label + ': ' +
-				(slot ? slot.subject + ' · ' + classLabel(slot.className) : t(off ? 'ui.offShift' : 'ui.freeShort'));
+				(slot ? slot.subject + ' · ' + slotClassLabel(slot) : t(off ? 'ui.offShift' : 'ui.freeShort'));
 		});
 	}
 
@@ -1707,7 +1735,7 @@
 			if (row.status === 'team') return;
 			entries.push({
 				period: String(row.periodIndex + 1),
-				className: classLabel(row.className, true),
+				className: slotClassLabel(row, true),
 				subject: Data.shortSubject(row.subject),
 				cover: messageCover(row),
 				periodIndex: row.periodIndex

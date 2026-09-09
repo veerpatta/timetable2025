@@ -164,11 +164,14 @@ Format:
 
 Each class row is the class name followed by `Period 1` through `Period 8` — 9 CSV columns.
 
-Cell values are either `Subject (Teacher)`, `Subject (Teacher A / Teacher B)` for co-taught periods, or `Free`. Real examples:
+Cell values are `Subject (Teacher)`, or `Subject (Teacher A / Teacher B)` when more than one teacher is in the period. Real examples:
 
-- `English compulsory (Pradhyuman)`
-- `ELGA (Bindu / Anita / Rashmita / Kusum / Ravina)`
+- `Hindi (Jainendra)`
 - `NoteBook Checking (Antima)`
+- `ELGA (Bindu / Anita / Rashmita / Kusum / Ravina)` — one activity, five teachers
+- `Biology / Maths (Hemlata / Prateek)` — two subjects side by side, one cohort each
+
+Those last two look alike and behave differently: the parser calls the second a **parallel elective**, because the subject splits into as many parts as the cell has teachers. A co-taught block can be absorbed by the teachers still present; a parallel elective cannot, and an absence there needs a real substitute.
 
 Teacher names are keys, not labels: renaming a teacher changes teacher views, free-teacher lists, and substitution matching. See [docs/TIMETABLE_DATA.md](docs/TIMETABLE_DATA.md).
 

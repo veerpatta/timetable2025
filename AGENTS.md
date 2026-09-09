@@ -60,9 +60,18 @@ Do not edit `docs/sources/` or `tools/one-off/` unless the task is explicitly ab
 
 Search for `const rawData`. It moved out of `index.html` when the app was rebuilt to the design.
 
-The current data model (Timetable 2026–27, v4) is `Period 1` through `Period 8` — no `Assembly` column. Each class row is 1 class column + 8 slots = 9 CSV columns.
+The current data model (Timetable 2026–27, **v10**) is `Period 1` through `Period 8` — no `Assembly` column. Each class row is 1 class column + 8 slots = 9 CSV columns.
 
-Cells are `Subject (Teacher)`, `Subject (A / B)` for co-taught periods, or `Free`.
+Cells are `Subject (Teacher)` or `Subject (A / B / …)`. `Free` still parses but v10 uses it nowhere: all 768 cells are taught.
+
+A multi-teacher cell is one of two different things, and `parseTimetable` tells them apart by arithmetic — the subject splitting into as many parts as there are teachers:
+
+| Cell | Kind | If one teacher is away |
+| --- | --- | --- |
+| `ELGA (Bindu / Anita / Rashmita / Kusum / Ravina)` | co-taught block, `shared: true` | the rest absorb it, no vacancy |
+| `Biology / Maths (Hemlata / Prateek)` | parallel elective, `parallel: true` | real cover needed — the other teacher has their own cohort |
+
+Do not collapse that distinction back into "more than one teacher means shared". It is why 26 cells a week get a substitute at all.
 
 ### 2. Service worker versioning is mandatory for cached runtime assets
 
@@ -110,7 +119,7 @@ All weights live in the `WEIGHTS` object in `scripts/substitution.js`. Change po
 
 An absence is one day. A **shift** is a teacher's standing working window, and the whole app respects it: the planner will not give someone cover duty before they arrive, the free-teacher lists exclude them, and the teacher views read "Off shift" rather than "Free period".
 
-Anjana reports after Period 4. Enforcement runs through `isAvailableByPolicy` via `Engine.shiftsToPolicyOverrides()` — do not add a second code path for it. See `docs/guides/SUBSTITUTION_ENGINE.md`.
+Anjana is part-time: **Periods 6–8 only** (v10 moved her; v4 had her arriving after Period 4). Enforcement runs through `isAvailableByPolicy` via `Engine.shiftsToPolicyOverrides()` — do not add a second code path for it. The test suite derives her window from the timetable rather than hard-coding it, so a future revision that moves her fails a test. See `docs/guides/SUBSTITUTION_ENGINE.md`.
 
 ### 8. There are two deployed sites, and localhost is not the live one
 
@@ -132,17 +141,25 @@ Keeping them out of `teacherNames` is what keeps them out of the Teachers view, 
 
 They are never auto-assigned **and never suggested**. The suggestion filter is the load-bearing half: a reserve profile has no timetable, so it reads as free in every period and would be proposed the moment every teacher is blocked.
 
-### 11. A merge is offered, never taken
+### 11. A combined period is one slot with several names
+
+One teacher can hold several sections at once: 11 Science, Commerce and Arts sit together for Hindi and English, 11/12 Commerce joins Arts for Economics — 40 period-instances a week. Nothing marks this in `rawData`; it falls out of the same teacher, subject and period appearing in more than one class row.
+
+`buildTeacherMap` keeps it as **one** slot — one room needs one cover teacher — and lists the others in `alsoClassNames`. Everything user-facing renders it through `slotClassLabel()` in `scripts/app.js`, and `substitutionOverlay()` indexes `byClass` for every section, so all three class timetables show the arrangement. Reach for `slotClassLabel(slot)` rather than `classLabel(slot.className)` whenever you are labelling a period a teacher is teaching.
+
+This is unrelated to the merge in §12 below: a merge is a choice the coordinator makes on the day, a combined period is how the school already timetables the senior school.
+
+### 12. A merge is offered, never taken
 
 `Engine.chooseMergeHost` proposes sending a stranded class next door, within one grade. A host is available for essentially every period, so applying merges automatically would disrupt a lesson constantly — it stays a suggestion.
 
 Both classes must show it. The teacher views gate duty on `slot ? null : subForTeacher(...)`, which by construction never fires for a host, who already has a class that period; their own period record carries the merge instead.
 
-### 12. Uncovered periods are self study, not a gap
+### 13. Uncovered periods are self study, not a gap
 
 When nobody is free the period reads **Self Study**, styled neutrally, marked 📖 in the shared message. It is an outcome, not an unresolved hole, and the red state is reserved for a period the coordinator deliberately held. Do not reintroduce "No one free" as an outcome.
 
-### 13. Print/PDF export and the free-teacher finder were removed
+### 14. Print/PDF export and the free-teacher finder were removed
 
 The design has no place for them. Do not reintroduce them without an explicit request.
 

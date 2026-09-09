@@ -1,11 +1,31 @@
 # Source PDFs
 
-This folder stores timetable PDFs that were used as reference material for the current school session.
+The official timetable PDFs the app's schedule was transcribed from. Reference material only:
 
-These files are:
-
-- useful when reconciling timetable content
 - not loaded by the running web app
 - not part of the service worker precache list
+- not the source of truth — that is the `rawData` block in `scripts/data.js`
 
-If timetable content changes in the app, the source of truth is still the inline `rawData` block in `index.html`. These PDFs are supporting inputs, not runtime data files.
+## Current session
+
+**Timetable 2026–27 (v10)** is what the app serves:
+
+| File | What it holds |
+| --- | --- |
+| `VPPS_Timetable_v10_ClassWise.pdf` | Every class, a page each. The block `rawData` was built from. |
+| `VPPS_Timetable_v10_DayWise.pdf` | The same 96 day×class rows arranged by day — an independent copy, useful for checking a transcription. |
+| `VPPS_Timetable_v10_TeacherWise.pdf` | A page per teacher, each headed with their weekly period count and any role. The counts are asserted in `tests/substitution-engine.test.js`. |
+| `VPPS_Timetable_v10_FreeTeachers.pdf` | Who is free in each period, for arranging cover by hand. The app derives this itself. |
+
+## Superseded
+
+The `v4` files and the earlier `School Timetable 2026-27 (updated)` set are kept for history.
+They describe a different roster — Rakesh, Harshita and Pradhyuman have left, and Nishant,
+Mumal, Roshan and SP joined — so do not reconcile current data against them.
+
+## Reconciling a change
+
+The v10 import was checked by parsing the ClassWise and DayWise PDFs separately and comparing
+them cell by cell (96/96 rows identical), then by checking every teacher's derived weekly load
+against the header on their TeacherWise page. Both checks are worth repeating for the next
+revision; the second one now lives in the test suite.

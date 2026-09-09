@@ -82,12 +82,12 @@ In the shared message a pinned assignment reads ✅ with no "please confirm", be
 
 ## Shift timings
 
-A shift is a teacher's standing working window — every day, not one day. It is the difference between "free this period" and "not in the building". Anjana reports after the first four periods, so P1–P4 look empty in her timetable when in fact she is not at school; without a shift the planner hands her cover before she arrives.
+A shift is a teacher's standing working window — every day, not one day. It is the difference between "free this period" and "not in the building". Anjana is part-time and teaches only P6–P8, so P1–P5 look empty in her timetable when in fact she is not at school; without a shift the planner hands her cover before she arrives.
 
 Shifts live in `state.shifts` in `scripts/app.js`, keyed by teacher:
 
 ```javascript
-{ Anjana: { allowedPeriodIndexes: [4, 5, 6, 7], note: 'Reports after Period 4' } }
+{ Anjana: { allowedPeriodIndexes: [5, 6, 7], note: 'Part-time: Periods 6-8 only' } }
 ```
 
 `Engine.shiftsToPolicyOverrides()` converts them into the `policyOverrides` shape below, so enforcement happens in `isAvailableByPolicy` — there is no second code path. A teacher with no entry works the full day.

@@ -552,9 +552,23 @@ test('shifts normalise to one storage shape and only restricted staff become ove
 	assert.equal('Bela' in overrides, false, 'a full-day teacher needs no override');
 });
 
-test('the built-in default keeps Anjana out of the first four periods', () => {
-	assert.ok(Engine.DEFAULT_SHIFTS.Anjana, 'the late shift ships with the app');
-	assert.deepEqual(Engine.shiftPeriods(Engine.DEFAULT_SHIFTS.Anjana, 8), [4, 5, 6, 7]);
+test('the built-in default matches the window Anjana actually teaches in', () => {
+	assert.ok(Engine.DEFAULT_SHIFTS.Anjana, 'the part-time shift ships with the app');
+	assert.deepEqual(Engine.shiftPeriods(Engine.DEFAULT_SHIFTS.Anjana, 8), [5, 6, 7]);
+
+	// The number above is not a preference, it is a fact about the timetable:
+	// v10 makes Anjana part-time on P6-P8. Deriving it here means a future
+	// timetable that moves her fails this test instead of quietly handing her
+	// cover duty before she is in the building.
+	const db = Data.load();
+	const taught = new Set();
+	db.days.forEach(day => db.teacherMap.Anjana[day]
+		.forEach((slot, index) => { if (slot) taught.add(index); }));
+	assert.deepEqual(
+		Array.from(taught).sort((a, b) => a - b),
+		Engine.shiftPeriods(Engine.DEFAULT_SHIFTS.Anjana, 8),
+		'the shipped shift is exactly the periods she appears in'
+	);
 });
 
 test('a late-shift teacher is blocked before arrival and usable after it', () => {
@@ -690,4 +704,97 @@ test('English and Hindi dictionaries expose the same complete interface keys', (
 	I18n.setLanguage('hi', { persist: false, emit: false });
 	assert.equal(I18n.t('sub.selected', { count: 2 }), '2 चयनित');
 	I18n.setLanguage('en', { persist: false, emit: false });
+});
+
+test('a parallel elective is not a co-taught block, and still needs a substitute', () => {
+	// "Biology / Maths (Hemlata / Prateek)" is two lessons side by side, one
+	// cohort each. Reading it as a shared block would record Hemlata's Biology
+	// group as covered by Prateek, who is teaching Maths in the same room.
+	const db = Data.load();
+	const cell = db.timetable.Monday['Class 11 Science'][1];
+	assert.equal(cell.subject, 'Biology / Maths', 'the class grid still shows both');
+	assert.equal(cell.parallel, true);
+	assert.deepEqual(cell.subjects, ['Biology', 'Maths']);
+
+	const hemlata = db.teacherMap.Hemlata.Monday[1];
+	const prateek = db.teacherMap.Prateek.Monday[1];
+	assert.equal(hemlata.subject, 'Biology', 'each teacher owns their own subject');
+	assert.equal(prateek.subject, 'Maths');
+	assert.equal(hemlata.shared, false, 'a parallel elective is never team-covered');
+	assert.equal(prateek.shared, false);
+});
+
+test('ELGA stays a shared block the rest of the primary team absorbs', () => {
+	// The case the "shared" rule was written for: one activity, five teachers.
+	const db = Data.load();
+	const cell = db.timetable.Monday['Class 1'][2];
+	assert.equal(cell.subject, 'ELGA');
+	assert.equal(cell.parallel, undefined, 'one subject, many teachers - not parallel');
+	assert.equal(cell.teachers.length, 5);
+	assert.equal(db.teacherMap.Bindu.Monday[2].shared, true);
+	assert.deepEqual(db.teacherMap.Bindu.Monday[2].alsoClassNames, [],
+		'a shared block is one activity, not five simultaneous classes');
+});
+
+test('a combined senior period keeps every section it is taught to', () => {
+	// 11 Science, Commerce and Arts sit together for Hindi. That is one room
+	// and one cover teacher, so it stays one slot - but all three timetables
+	// have to name it.
+	const db = Data.load();
+	const hindi = db.teacherMap.Jainendra.Monday[4];
+	assert.equal(hindi.subject, 'Hindi');
+	assert.equal(hindi.className, 'Class 11 Science');
+	assert.deepEqual(hindi.alsoClassNames, ['Class 11 Commerce', 'Class 11 Arts']);
+
+	// Economics runs across two sections rather than three, and one of them
+	// carries it inside a parallel elective - it still groups.
+	const economics = db.teacherMap.Prakash.Monday[1];
+	assert.equal(economics.subject, 'Economics');
+	assert.deepEqual(economics.alsoClassNames, ['Class 11 Arts']);
+
+	// An ordinary single-section period groups with nothing.
+	assert.deepEqual(db.teacherMap.Bindu.Monday[0].alsoClassNames, []);
+});
+
+test('the timetable is the roster the v10 PDFs describe', () => {
+	const db = Data.load();
+	assert.equal(db.days.length, 6);
+	assert.equal(db.classNames.length, 16);
+	assert.deepEqual(db.teacherNames, [
+		'Anita', 'Anjana', 'Antima', 'Bindu', 'Hemlata', 'Jainendra', 'Kusum',
+		'Maya', 'Mumal', 'Nathulal', 'Nidhika', 'Nishant', 'Prakash', 'Prateek',
+		'Rashmita', 'Ravina', 'Roshan', 'SP', 'Toshit'
+	]);
+
+	// Every cell is taught: v10 leaves no section with a free period, so a
+	// "Free" cell appearing again means a row lost a column.
+	let cells = 0;
+	db.days.forEach(day => db.classNames.forEach(className => {
+		const row = db.timetable[day][className];
+		assert.equal(row.length, 8, className + ' on ' + day + ' has eight periods');
+		row.forEach(cell => {
+			cells += 1;
+			assert.equal(Boolean(cell.free), false, className + ' ' + day + ': unexpected free period');
+			assert.ok(cell.teachers.length > 0, className + ' ' + day + ': a period with nobody teaching it');
+		});
+	}));
+	assert.equal(cells, 768);
+});
+
+test('every teacher carries the weekly load their v10 page states', () => {
+	// A combined period and an ELGA block each count once, which is what makes
+	// these numbers comparable with the TeacherWise PDF headers.
+	const db = Data.load();
+	const expected = {
+		Anita: 42, Anjana: 14, Antima: 41, Bindu: 42, Hemlata: 39, Jainendra: 42,
+		Kusum: 41, Maya: 42, Mumal: 42, Nathulal: 37, Nidhika: 38, Nishant: 40,
+		Prakash: 42, Prateek: 41, Rashmita: 37, Ravina: 42, Roshan: 42, SP: 24,
+		Toshit: 42
+	};
+	const actual = {};
+	db.teacherNames.forEach(teacher => {
+		actual[teacher] = db.days.reduce((total, day) =>
+			total + db.teacherMap[teacher][day].filter(Boolean).length, 0);
+	});
+	assert.deepEqual(actual, expected);
 });
