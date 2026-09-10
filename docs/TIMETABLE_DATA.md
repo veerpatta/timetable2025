@@ -230,14 +230,21 @@ If a prior schedule ever needs to be restored, check out the relevant `rawData` 
 history (for example via `git log -p scripts/data.js index.html`) and revalidate all derived
 views, including the column count and header row expected by the parser at that point in history.
 
-## Known, and deliberately not implemented
+## Duty-holders
 
 The v10 free-teacher chart marks **Hemlata, Rashmita, Nidhika and Nathulal** with a `*`: they
-hold coordinator and exam-in-charge duties, and the chart says to give them cover only when
-nobody else is free. The planner does not know this — it will rank them like anyone else. Adding
-it means a new tier in `TIER_ORDER`/`TIER_SCORE` in `scripts/substitution.js`, below `general`
-and above `reserve`, kept outside `AUTO_TIERS`. Recorded here so it is not mistaken for an
-oversight.
+hold coordinator and exam in-charge duties, and the chart's header says to "use them for cover
+only if no one else is free". They are listed in `DUTY_STAFF` in `scripts/data.js`.
+
+They remain ordinary teaching staff in every other respect — full timetables, present in
+`db.teacherNames`, in every view. The planner ranks them in the `last_resort` tier, below
+`general` and above `reserve`, outside `AUTO_TIERS`: never auto-assigned, still suggested when
+no one else is free. The tier does not climb, so a duty-holder who teaches the very class and
+subject still ranks last. See `docs/guides/SUBSTITUTION_ENGINE.md` for the mechanism.
+
+`load()` filters `DUTY_STAFF` against the roster, so if one of these teachers leaves or is
+renamed in `rawData` the star quietly stops applying — a test asserts all four still match a
+teacher, which is what turns that silence into a failure.
 
 ## Reference Inputs
 

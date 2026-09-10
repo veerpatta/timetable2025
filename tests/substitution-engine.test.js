@@ -798,3 +798,117 @@ test('every teacher carries the weekly load their v10 page states', () => {
 	});
 	assert.deepEqual(actual, expected);
 });
+
+/*
+ * Duty-holders - the four names the v10 free-teacher chart marks with a `*`
+ * and tells us to use "only if no one else is free".
+ *
+ * `Duty` below is deliberately the best-qualified person in the room: she
+ * teaches the very class and the very subject. That is the case that has to
+ * come out last, because the star is about protecting coordinator time, not
+ * about what she is able to teach.
+ */
+function dutyInput() {
+	return {
+		day: 'Monday',
+		periodCount: 8,
+		teacherProfiles: Engine.buildTeacherProfiles({
+			teacherDetails: {
+				Duty: {
+					subjects: new Set(['Maths']),
+					schedule: schedule({ 0: { subject: 'Maths', className: 'Class 6' } })
+				},
+				Plain: { subjects: new Set(['Sports']), schedule: schedule({}) }
+			},
+			roster: ['Duty', 'Plain'],
+			dutyStaff: ['Duty']
+		}),
+		absentTeachers: [],
+		assignments: [],
+		policy: { maxConsecutive: 3 }
+	};
+}
+
+test('the app ships the four starred duty-holders, and they are teaching staff', () => {
+	assert.deepEqual(Data.DUTY_STAFF, ['Hemlata', 'Rashmita', 'Nidhika', 'Nathulal']);
+	const db = Data.load();
+	// load() filters the list against the roster, so a name that stopped
+	// matching the timetable would silently stop being protected. Catch that
+	// here rather than in a term's worth of quietly wrong cover.
+	assert.deepEqual(db.dutyStaff, Data.DUTY_STAFF,
+		'every starred name must still match a teacher in the timetable');
+	db.dutyStaff.forEach(name => {
+		assert.equal(db.teacherNames.includes(name), true, name + ' is teaching staff, not reserve');
+		assert.equal(db.reserveStaff.includes(name), false, name + ' must not be reserve');
+	});
+});
+
+test('a duty-holder ranks below an unqualified teacher, however well she fits', () => {
+	const ranked = Engine.rankCandidates({
+		...dutyInput(),
+		vacancy: { slotId: 'v', periodIndex: 3, subject: 'Maths', className: 'Class 6' }
+	});
+	const duty = ranked.find(item => item.teacher === 'Duty');
+	const plain = ranked.find(item => item.teacher === 'Plain');
+
+	// Without the star she would be `class_subject`, the top tier there is.
+	assert.equal(duty.matchTier, 'last_resort', 'her duties set the tier, not her subjects');
+	assert.equal(plain.matchTier, 'general');
+	assert.ok(plain.score > duty.score, 'the teacher who knows neither class nor subject still comes first');
+	assert.equal(ranked[ranked.length - 1].teacher, 'Duty');
+	assert.equal(duty.lastResort, true);
+	assert.equal(duty.warnings.includes('duty_holder'), true);
+});
+
+test('a duty-holder is never assigned automatically, even as the perfect match', () => {
+	const plan = Engine.generatePlan({
+		...dutyInput(),
+		absentTeachers: ['Plain'],
+		vacancies: [{
+			slotId: 'v', periodIndex: 3, subject: 'Maths',
+			className: 'Class 6', originalTeacher: 'Plain'
+		}]
+	});
+	assert.deepEqual(plan.assignments, [], 'a coordinator confirms, the planner does not');
+});
+
+test('a duty-holder is still suggested when nobody else is free', () => {
+	// This is the whole difference from reserve staff, who stay silent even
+	// here. "Only if no one else is free" has to mean she is offered on the
+	// day that actually happens, or the rule would just read as "never".
+	const plan = Engine.generatePlan({
+		...dutyInput(),
+		absentTeachers: ['Plain'],
+		vacancies: [{
+			slotId: 'v', periodIndex: 3, subject: 'Maths',
+			className: 'Class 6', originalTeacher: 'Plain'
+		}]
+	});
+	assert.equal(plan.reviewSuggestions.length, 1);
+	assert.equal(plan.reviewSuggestions[0].teacher, 'Duty');
+	assert.equal(plan.reviewSuggestions[0].matchTier, 'last_resort');
+	assert.deepEqual(plan.openSlots, [], 'the class is not left to sit self study while she is free');
+});
+
+test('an ordinary teacher takes the period whenever one is free', () => {
+	const plan = Engine.generatePlan({
+		...dutyInput(),
+		absentTeachers: ['Absentee'],
+		vacancies: [{
+			slotId: 'v', periodIndex: 3, subject: 'Maths',
+			className: 'Class 6', originalTeacher: 'Absentee'
+		}]
+	});
+	const chosen = plan.assignments.concat(plan.reviewSuggestions);
+	assert.equal(chosen.length, 1);
+	assert.equal(chosen[0].teacher, 'Plain', 'the duty-holder is passed over while anyone else can go');
+});
+
+test('a duty-holder pin is honoured once a coordinator makes it', () => {
+	const check = Engine.validateAssignment({
+		...dutyInput(),
+		teacher: 'Duty',
+		vacancy: { slotId: 'v', periodIndex: 3, subject: 'Maths', className: 'Class 6' }
+	});
+	assert.deepEqual(check.errors, [], 'asking her is allowed; volunteering her is not');
+});

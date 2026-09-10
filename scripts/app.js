@@ -1056,6 +1056,7 @@
 				teacherDetails,
 				roster: db.coverPool,
 				reserveStaff: db.reserveStaff,
+				dutyStaff: db.dutyStaff,
 				policyOverrides: Engine.shiftsToPolicyOverrides(state.shifts, PERIOD_COUNT)
 			})
 		};
@@ -1582,9 +1583,17 @@
 		}).filter(candidate => candidate.teacher !== absentTeacher);
 
 		// Keep the first dozen teachers, but never drop the reserve staff off
-		// the end - they are the whole point of the manual path.
-		const regular = ranked.filter(candidate => !candidate.reserve).slice(0, 12);
-		return regular.concat(ranked.filter(candidate => candidate.reserve));
+		// the end - they are the whole point of the manual path. Duty-holders
+		// need the same protection for the opposite reason: they rank last by
+		// design, so on a day with a big free pool the trim is exactly what
+		// would hide them, and "only if no one else is free" is a day the
+		// coordinator still has to be able to act on.
+		const regular = ranked
+			.filter(candidate => !candidate.reserve && !candidate.lastResort)
+			.slice(0, 12);
+		return regular
+			.concat(ranked.filter(candidate => candidate.lastResort))
+			.concat(ranked.filter(candidate => candidate.reserve));
 	}
 
 	function renderPlanStack(plan) {

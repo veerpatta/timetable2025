@@ -58,16 +58,22 @@
 	 * a single scalar for the min-cost flow while ordering lexicographically.
 	 * `tierDominates()` is the executable statement of that invariant.
 	 */
-	const TIER_ORDER = ['class_subject', 'class', 'exact', 'approved', 'related', 'general', 'reserve'];
+	const TIER_ORDER = ['class_subject', 'class', 'exact', 'approved', 'related', 'general', 'last_resort', 'reserve'];
 	const TIER_GAP = 1500;
 	const MODIFIER_CAP = 700;
 	const TIER_SCORE = {
-		class_subject: 13500,
-		class: 12000,
-		exact: 10500,
-		approved: 9000,
-		related: 4000,
-		general: 2500,
+		class_subject: 15000,
+		class: 13500,
+		exact: 12000,
+		approved: 10500,
+		related: 5500,
+		general: 4000,
+		// Duty-holders: coordinators and exam in-charges. The free-teacher
+		// chart stars them and says to use them "only if no one else is
+		// free", so they sit below every ordinary candidate but above the
+		// reserve - they are still teaching staff and still get suggested,
+		// just last, and never without a coordinator confirming.
+		last_resort: 2500,
 		// Admin staff who can be asked, but are never volunteered. Bottom of
 		// the ladder so they sort last by the ordinary rules rather than by a
 		// special case bolted onto the sort.
@@ -262,6 +268,7 @@
 		const roster = input?.roster || Object.keys(teacherDetails);
 		const overrides = input?.policyOverrides || {};
 		const reserve = new Set(toArray(input?.reserveStaff));
+		const dutyHolders = new Set(toArray(input?.dutyStaff));
 		const profiles = {};
 
 		roster.slice().sort((a, b) => a.localeCompare(b)).forEach(teacher => {
@@ -294,6 +301,10 @@
 				teacher,
 				// Can be asked by a coordinator; never proposed by the planner.
 				reserve: reserve.has(teacher),
+				// Proposed by the planner, but only after everyone else.
+				// Reserve wins the flag if somebody is somehow on both lists:
+				// "never automatic" is the stricter promise of the two.
+				lastResort: !reserve.has(teacher) && dutyHolders.has(teacher),
 				subjects,
 				canCover: new Set(toArray(override.canCover).map(canonicalSubject).filter(Boolean)),
 				grades,
@@ -404,9 +415,15 @@
 		const teachesSubject = profile.subjects.has(targetSubject);
 
 		// Familiarity with the class leads; subject qualification decides the
-		// order among strangers to it. Reserve staff sit below all of it.
-		let matchTier = profile.reserve ? 'reserve' : 'general';
-		if (profile.reserve) { /* no tier climbing: they are asked, not ranked up */ }
+		// order among strangers to it. Reserve staff sit below all of it, and
+		// duty-holders just above them.
+		//
+		// Neither climbs. A duty-holder who teaches the very class and
+		// subject would otherwise rank top and be picked first, which is the
+		// opposite of what the chart asks for - the star is about protecting
+		// their coordinator time, not about what they are qualified to teach.
+		let matchTier = profile.reserve ? 'reserve' : (profile.lastResort ? 'last_resort' : 'general');
+		if (profile.reserve || profile.lastResort) { /* no tier climbing: their duties, not their subjects, set the rank */ }
 		else if (teachesThisClass && (teachesSubjectHere || teachesSubject)) matchTier = 'class_subject';
 		else if (teachesThisClass) matchTier = 'class';
 		else if (teachesSubject) matchTier = 'exact';
@@ -417,6 +434,7 @@
 		}
 
 		if (matchTier === 'reserve') warnings.push('reserve_staff');
+		if (matchTier === 'last_resort') warnings.push('duty_holder');
 		if (matchTier === 'class') warnings.push('class_not_subject');
 		if (matchTier === 'related') warnings.push('related_subject');
 		if (matchTier === 'general') warnings.push('subject_mismatch');
@@ -449,6 +467,9 @@
 
 		const autoEligible = blocked.length === 0 &&
 			!profile.reserve &&
+			// Stated here as well as by tier, so the promise survives anyone
+			// later adding `last_resort` to AUTO_TIERS by mistake.
+			!profile.lastResort &&
 			AUTO_TIERS.indexOf(matchTier) !== -1 &&
 			!warnings.includes('over_substitution_limit') &&
 			!warnings.includes('full_day') &&
@@ -460,6 +481,7 @@
 			matchTier,
 			autoEligible,
 			reserve: Boolean(profile.reserve),
+			lastResort: Boolean(profile.lastResort),
 			blocked,
 			warnings,
 			load,

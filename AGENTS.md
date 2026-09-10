@@ -111,7 +111,9 @@ The old `feat_*` flags went away with `perf.js`, `ui.js`, `a11y.js`, and `colors
 
 ### 6. Substitution ranking is tiered, and the tiers are load-bearing
 
-Cover is ranked by how useful it is to the class, familiarity first: `class_subject` → `class` → `exact` → `approved` → `related` → `general`. Fatigue, repetition and history reorder candidates *within* a tier and can never cross one — tier bases are spaced further apart than twice the modifier clamp, and `Engine.tierDominates()` plus a test hold that line.
+Cover is ranked by how useful it is to the class, familiarity first: `class_subject` → `class` → `exact` → `approved` → `related` → `general` → `last_resort` → `reserve`. Fatigue, repetition and history reorder candidates *within* a tier and can never cross one — tier bases are spaced further apart than twice the modifier clamp, and `Engine.tierDominates()` plus a test hold that line.
+
+The last two tiers rank a person, not a match, and neither climbs: `reserve` is admin staff (§10), `last_resort` is the four duty-holders the free-teacher chart stars (§10a). A duty-holder who teaches the very class and subject still ranks `last_resort` — the star protects coordinator time, it does not describe qualifications.
 
 All weights live in the `WEIGHTS` object in `scripts/substitution.js`. Change policy there rather than adding arithmetic at a call site, and keep `MODIFIER_CAP < TIER_GAP / 2` or the ordering guarantee silently disappears.
 
@@ -140,6 +142,12 @@ The signature of this failure is that `curl` sees the new file and the browser d
 Keeping them out of `teacherNames` is what keeps them out of the Teachers view, the free-teacher lists, the shift editor, the absence chips and the fairness ledger — all of which read that list — without a special case in any of them. Do not "tidy" the two lists into one.
 
 They are never auto-assigned **and never suggested**. The suggestion filter is the load-bearing half: a reserve profile has no timetable, so it reads as free in every period and would be proposed the moment every teacher is blocked.
+
+### 10a. Duty-holders are teaching staff who rank last, not reserve staff
+
+The free-teacher chart stars four names — Hemlata, Rashmita, Nidhika, Nathulal — with "use them for cover only if no one else is free". They are declared in `DUTY_STAFF` (`scripts/data.js`) and reach the engine as `dutyStaff`.
+
+Do not model them like reserve staff. They **stay in `teacherNames`**: they teach full timetables and belong in every view. The only thing the star changes is ranking — tier `last_resort`, never auto-assigned, **but still suggested**. Filtering them out of suggestions the way reserve staff are filtered would turn "only if no one else is free" into "never", and leave a class sitting self study while a teacher was free.
 
 ### 11. A combined period is one slot with several names
 

@@ -14,8 +14,12 @@ School policy is that **familiarity with the class comes first**. A teacher thos
 | `approved` | Explicit `canCover` policy override | yes |
 | `related` | Same subject group only | review |
 | `general` | No connection to class or subject | review |
+| `last_resort` | Duty-holder — coordinator or exam in-charge | review |
+| `reserve` | Admin staff — asked, never volunteered | never |
 
 `class` is automatic on the school's own evidence: the timetable says this teacher works with these children every week. It still carries a `class_not_subject` warning so nobody is misled about what is being taught. `related` and `general` remain review-only.
+
+The bottom two tiers are about **who the person is**, not what they can teach, and neither climbs: a duty-holder who teaches the very class and subject still ranks `last_resort`, because the star protects her coordinator time rather than describing her qualifications.
 
 ### "First" is arithmetic, not aspiration
 
@@ -45,6 +49,18 @@ In the engine they are a bottom tier, `reserve`, below `general` — so they sor
 **The part that actually matters is the suggestion path.** A reserve profile has no timetable, so it reads as free in every period; the moment every regular teacher is blocked it would be proposed as the fallback — quietly taking the hardest period of the day, which is precisely the one a coordinator wants to decide. `generatePlan` therefore filters reserve candidates out of the review suggestions as well as the flow. A test asserts that with the only teacher absent, **nothing at all** is proposed and the period is reported open.
 
 They still appear in the swap sheet, below a divider, so asking them remains one tap.
+
+## Duty-holders
+
+The v10 free-teacher chart marks four names with a `*` — **Hemlata, Rashmita, Nidhika and Nathulal** — and says in its header to "use them for cover only if no one else is free". They hold coordinator and exam in-charge duties: the free periods on their row are that work, not spare capacity.
+
+They are declared in `DUTY_STAFF` in `scripts/data.js` and surface as `db.dutyStaff`. Unlike reserve staff they are **ordinary teaching staff and stay in `db.teacherNames`** — they teach a full timetable, appear in every view, and carry a normal share of the load. The star changes one thing only: where they sit in the ranking.
+
+In the engine they are the `last_resort` tier, below `general` and above `reserve`, and `autoEligible` is false for them unconditionally — the min-cost flow never places them, so a coordinator confirms every time.
+
+**What separates them from reserve staff is that they are still suggested.** Reserve staff are filtered out of the review suggestions too; duty-holders are not. "Only if no one else is free" has to mean they are offered on the day that actually happens, or the rule would just read as "never" and a class would sit self study while a teacher was free. Tests assert both halves: an ordinary teacher takes the period whenever one exists, and the duty-holder is suggested — not auto-assigned — when none does.
+
+The swap sheet keeps them past the twelve-candidate trim, for the same reason: they rank last by design, so the trim is exactly what would hide them on the day they are needed.
 
 ## Combining two classes
 

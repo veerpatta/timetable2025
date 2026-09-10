@@ -358,6 +358,21 @@ Class 12 Arts,Geography (Prakash),Hindi (Jainendra),Hindi (Jainendra),English (M
 	 */
 	const RESERVE_STAFF = ['Director Mam', 'Raj Sir', 'Gyan Sir'];
 
+	/*
+	 * Duty-holders: coordinators and exam in-charges.
+	 *
+	 * The v10 free-teacher chart stars these four and says in its header to
+	 * "use them for cover only if no one else is free" - their free periods
+	 * are the coordinator and exam work, not spare capacity. They are full
+	 * teaching staff with real timetables, so unlike RESERVE_STAFF they are
+	 * still suggested; they simply rank below everyone else and never get
+	 * assigned without a coordinator confirming.
+	 *
+	 * The chart writes Nathulal as "NLK" in its header and "Nathulal*" in the
+	 * body; this is the timetable's spelling.
+	 */
+	const DUTY_STAFF = ['Hemlata', 'Rashmita', 'Nidhika', 'Nathulal'];
+
 	function load() {
 		const db = parseTimetable(rawData);
 		db.teacherMap = buildTeacherMap(db);
@@ -366,6 +381,10 @@ Class 12 Arts,Geography (Prakash),Hindi (Jainendra),Hindi (Jainendra),English (M
 		// chips and the fairness ledger all read it, and none of them should
 		// show someone who has no timetable.
 		db.reserveStaff = RESERVE_STAFF.slice();
+		// Duty-holders are ordinary teaching staff everywhere except the
+		// planner's ranking, so they stay in `teacherNames` and are named
+		// separately rather than being split out of the roster.
+		db.dutyStaff = DUTY_STAFF.filter(name => db.teacherNames.indexOf(name) !== -1);
 		// Everyone who could stand in front of a class, for the planner only.
 		db.coverPool = db.teacherNames.concat(db.reserveStaff);
 		return db;
@@ -374,7 +393,7 @@ Class 12 Arts,Geography (Prakash),Hindi (Jainendra),Hindi (Jainendra),English (M
 	return {
 		rawData, PERIODS, BREAK, ZERO_PERIOD, REPORTING_MIN, CLOSE_MIN,
 		SCHEDULES, SCHEDULE, PRACTICE_LAST_DAY, scheduleFor,
-		SUBJECT_CATEGORIES, SHORT_SUBJECTS, RESERVE_STAFF,
+		SUBJECT_CATEGORIES, SHORT_SUBJECTS, RESERVE_STAFF, DUTY_STAFF,
 		categoryOf, shortSubject, parseTimetable, buildTeacherMap, load
 	};
 });
