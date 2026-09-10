@@ -552,23 +552,52 @@ test('shifts normalise to one storage shape and only restricted staff become ove
 	assert.equal('Bela' in overrides, false, 'a full-day teacher needs no override');
 });
 
-test('the built-in default matches the window Anjana actually teaches in', () => {
+test('the built-in default covers every period Anjana actually teaches', () => {
 	assert.ok(Engine.DEFAULT_SHIFTS.Anjana, 'the part-time shift ships with the app');
-	assert.deepEqual(Engine.shiftPeriods(Engine.DEFAULT_SHIFTS.Anjana, 8), [5, 6, 7]);
+	assert.deepEqual(Engine.shiftPeriods(Engine.DEFAULT_SHIFTS.Anjana, 8), [4, 5, 6, 7],
+		'school policy: she is on site for the last four periods');
 
-	// The number above is not a preference, it is a fact about the timetable:
-	// v10 makes Anjana part-time on P6-P8. Deriving it here means a future
-	// timetable that moves her fails this test instead of quietly handing her
-	// cover duty before she is in the building.
+	// A shift is availability, not teaching load, so the two are not equal:
+	// Anjana is in the building from P5 but the timetable only gives her
+	// P6-P8, which is exactly what makes P5 a period she can be asked to
+	// cover. What must hold is containment - she can never be timetabled to
+	// teach outside the window she is present for. Deriving that here means a
+	// future revision that moves her fails this test rather than quietly
+	// handing her a class before she arrives.
 	const db = Data.load();
+	const window = Engine.shiftPeriods(Engine.DEFAULT_SHIFTS.Anjana, 8);
 	const taught = new Set();
 	db.days.forEach(day => db.teacherMap.Anjana[day]
 		.forEach((slot, index) => { if (slot) taught.add(index); }));
-	assert.deepEqual(
-		Array.from(taught).sort((a, b) => a - b),
-		Engine.shiftPeriods(Engine.DEFAULT_SHIFTS.Anjana, 8),
-		'the shipped shift is exactly the periods she appears in'
-	);
+	const outside = Array.from(taught).filter(index => window.indexOf(index) === -1);
+	assert.deepEqual(outside, [], 'she is never timetabled outside her shift');
+	assert.deepEqual(Array.from(taught).sort((a, b) => a - b), [5, 6, 7],
+		'v10 still teaches her in P6-P8');
+});
+
+test('Anjana is the only teacher on a restricted shift - everyone else is full day', () => {
+	const db = Data.load();
+	assert.deepEqual(Object.keys(Engine.DEFAULT_SHIFTS), ['Anjana']);
+
+	// The claim is about the whole roster, not just the map: a teacher with no
+	// entry is full day by construction, and this is the assertion that says
+	// so out loud, so removing Anjana's entry or adding someone else's is a
+	// deliberate act rather than an accident.
+	const overrides = Engine.shiftsToPolicyOverrides(
+		Engine.normalizeShifts(Engine.DEFAULT_SHIFTS, 8), 8);
+	assert.deepEqual(Object.keys(overrides), ['Anjana']);
+	db.coverPool.filter(name => name !== 'Anjana').forEach(name => {
+		assert.deepEqual(Engine.shiftPeriods(Engine.DEFAULT_SHIFTS[name], 8),
+			[0, 1, 2, 3, 4, 5, 6, 7], name + ' works the full day');
+	});
+});
+
+test('the shift policy version is bumped whenever the shipped default changes', () => {
+	// The stored copy beats the built-in default on every load, so without
+	// this stamp a change to DEFAULT_SHIFTS reaches no device that has ever
+	// run the app. Anything that edits the default must move this number.
+	assert.equal(typeof Engine.SHIFT_POLICY_VERSION, 'number');
+	assert.ok(Engine.SHIFT_POLICY_VERSION >= 2, 'v10 P5-P8 is edition 2');
 });
 
 test('a late-shift teacher is blocked before arrival and usable after it', () => {

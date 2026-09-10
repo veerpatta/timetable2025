@@ -1898,16 +1898,31 @@
 		return pruned;
 	}
 
+	/**
+	 * This device's copy, unless it predates the shipped shift policy.
+	 *
+	 * The stored set deliberately wins over the built-in default, so that the
+	 * admin shift editor survives a refresh. The version stamp is what lets a
+	 * shipped policy change through anyway: a blob written before the current
+	 * SHIFT_POLICY_VERSION - including an unstamped one from before this
+	 * envelope existed - is stale, and gives way to DEFAULT_SHIFTS once.
+	 */
 	function readShifts() {
 		let stored = null;
 		try { stored = JSON.parse(read(STORE.shifts) || 'null'); } catch (error) { stored = null; }
-		return pruneShifts(Engine.normalizeShifts(stored || Engine.DEFAULT_SHIFTS, PERIOD_COUNT));
+		const fresh = stored && Number(stored.policyVersion) >= Engine.SHIFT_POLICY_VERSION;
+		const shifts = fresh ? stored.shifts : Engine.DEFAULT_SHIFTS;
+		return pruneShifts(Engine.normalizeShifts(shifts || Engine.DEFAULT_SHIFTS, PERIOD_COUNT));
 	}
 
 	function writeShifts() {
-		save(STORE.shifts, JSON.stringify(state.shifts));
+		save(STORE.shifts, JSON.stringify({
+			policyVersion: Engine.SHIFT_POLICY_VERSION,
+			shifts: state.shifts
+		}));
 		if (!Sync || !Sync.isConfigured()) return;
-		Sync.saveShifts(state.shifts).catch(error => console.warn('VPPS: shift sync failed', error));
+		Sync.saveShifts(state.shifts, Engine.SHIFT_POLICY_VERSION)
+			.catch(error => console.warn('VPPS: shift sync failed', error));
 	}
 
 	function saveGrid() {
@@ -2061,11 +2076,24 @@
 
 		Sync.purgeOld().catch(() => { /* retention is housekeeping, never fatal */ });
 
-		Sync.loadShifts().then(shifts => {
-			// An empty table on first run: seed it from the built-in default.
-			if (!shifts || !Object.keys(shifts).length) return Sync.saveShifts(state.shifts);
+		Sync.loadShifts().then(stored => {
+			const shifts = (stored && stored.shifts) || {};
+			const version = (stored && Number(stored.policyVersion)) || 0;
+			// An empty table on first run, or a set written before the current
+			// shift policy shipped: seed the database from the built-in default
+			// rather than adopting an answer this release has superseded.
+			if (!Object.keys(shifts).length || version < Engine.SHIFT_POLICY_VERSION) {
+				state.shifts = pruneShifts(Engine.normalizeShifts(Engine.DEFAULT_SHIFTS, PERIOD_COUNT));
+				writeShifts();
+				planCache = null;
+				redraw();
+				return null;
+			}
 			state.shifts = pruneShifts(Engine.normalizeShifts(shifts, PERIOD_COUNT));
-			save(STORE.shifts, JSON.stringify(state.shifts));
+			save(STORE.shifts, JSON.stringify({
+				policyVersion: version,
+				shifts: state.shifts
+			}));
 			planCache = null;
 			redraw();
 			return null;

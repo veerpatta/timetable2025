@@ -36,12 +36,32 @@
 	};
 
 	// A shift is a teacher's standing working window - not a one-off absence.
-	// Anjana is part-time and is only in the building for P6-P8, so P1-P5 look
+	// Anjana is part-time and is only in the building for P5-P8, so P1-P4 look
 	// "free" in her timetable when in fact she has not arrived. Without this
 	// the planner happily hands her cover duty before she gets there.
+	//
+	// Her window is availability, not teaching load: she teaches P6-P8 but is
+	// on site from P5, so P5 is a period she can legitimately be asked to
+	// cover. Everyone else works the full day and needs no entry here.
 	const DEFAULT_SHIFTS = {
-		Anjana: { fromPeriodIndex: 5, note: 'Part-time: Periods 6-8 only' }
+		Anjana: { fromPeriodIndex: 4, note: 'Part-time: Periods 5-8 only' }
 	};
+
+	/*
+	 * Bumped whenever DEFAULT_SHIFTS changes.
+	 *
+	 * Shift timings are shared, editable state: they live in localStorage and
+	 * in Neon, and on every load the stored copy wins over the built-in
+	 * default - otherwise the admin shift editor would be undone by a refresh.
+	 * That means a shipped policy change reaches nobody, because every device
+	 * and the database already hold the previous answer.
+	 *
+	 * The version breaks that tie exactly once. A stored set stamped below the
+	 * shipped version is stale by definition, so it is discarded in favour of
+	 * DEFAULT_SHIFTS and written back at the new version; anything stamped at
+	 * or above it is a deliberate edit and is left alone.
+	 */
+	const SHIFT_POLICY_VERSION = 2;
 
 	/*
 	 * Ranking policy, in one place.
@@ -809,6 +829,7 @@
 		SUBJECT_ALIASES,
 		SUBJECT_GROUPS,
 		DEFAULT_SHIFTS,
+		SHIFT_POLICY_VERSION,
 		TIER_ORDER,
 		TIER_SCORE,
 		MAX_GRADE_GAP,

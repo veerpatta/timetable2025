@@ -104,7 +104,7 @@ The old `feat_*` flags went away with `perf.js`, `ui.js`, `a11y.js`, and `colors
 | `vppsm_me` | the teacher profile on this phone |
 | `vppsm_role` | `teacher` or `admin` — admin defaults to the table views |
 | `vppsm_grid` | which of the four views are in table/week mode |
-| `vppsm_shifts` | this device's copy of the shift timings |
+| `vppsm_shifts` | this device's copy of the shift timings, as `{ policyVersion, shifts }` |
 | `vppsm_cls`, `vppsm_tsel` | last selected class and teacher |
 | `vpps-language` | EN/HI |
 | `vpps-substitution-plans-v1` | date-keyed substitution plans |
@@ -121,7 +121,11 @@ All weights live in the `WEIGHTS` object in `scripts/substitution.js`. Change po
 
 An absence is one day. A **shift** is a teacher's standing working window, and the whole app respects it: the planner will not give someone cover duty before they arrive, the free-teacher lists exclude them, and the teacher views read "Off shift" rather than "Free period".
 
-Anjana is part-time: **Periods 6–8 only** (v10 moved her; v4 had her arriving after Period 4). Enforcement runs through `isAvailableByPolicy` via `Engine.shiftsToPolicyOverrides()` — do not add a second code path for it. The test suite derives her window from the timetable rather than hard-coding it, so a future revision that moves her fails a test. See `docs/guides/SUBSTITUTION_ENGINE.md`.
+Anjana is part-time: **Periods 5–8 only**, and she is the only one — every other teacher works the full day. Enforcement runs through `isAvailableByPolicy` via `Engine.shiftsToPolicyOverrides()` — do not add a second code path for it.
+
+Her shift is **availability, not teaching load**. The timetable gives her P6–P8, but she is in the building from P5, which is exactly what makes P5 a period she can be asked to cover. The test suite therefore asserts containment, not equality: she may never be timetabled outside the window she is present for, so a future revision that moves her still fails a test.
+
+**A change to `DEFAULT_SHIFTS` must bump `Engine.SHIFT_POLICY_VERSION` in the same commit.** The stored copy in `localStorage` and in `teacher_shifts` beats the shipped default on every load — it has to, or the admin shift editor would not survive a refresh — so without the bump a new default reaches no device that has ever run the app. The version makes a stale stored set give way exactly once. See `docs/guides/SUBSTITUTION_ENGINE.md`.
 
 ### 8. There are two deployed sites, and localhost is not the live one
 

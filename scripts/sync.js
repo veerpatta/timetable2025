@@ -108,7 +108,10 @@
 		')',
 		// Added after the first release; idempotent so existing databases
 		// pick it up without a migration step.
-		'alter table substitution_plans add column if not exists pins jsonb not null default \'{}\'::jsonb'
+		'alter table substitution_plans add column if not exists pins jsonb not null default \'{}\'::jsonb',
+		// Which edition of the built-in shift policy these rows were written
+		// against. Rows that predate the column are version 1 by definition.
+		'alter table teacher_shifts add column if not exists policy_version smallint not null default 1'
 	];
 
 	/** Created once per page load, then remembered. */
@@ -153,18 +156,28 @@
 	 * Shift timings
 	 * ---------------------------------------------------------------- */
 
+	/**
+	 * The stored set, plus the policy edition it was written against, so the
+	 * caller can tell a deliberate edit from a copy that predates a shipped
+	 * change. An empty table reports version 0 - nothing is stored yet.
+	 */
 	function loadShifts() {
 		return ensureSchema()
-			.then(() => sql('select teacher, allowed_periods, note from teacher_shifts', []))
+			.then(() => sql('select teacher, allowed_periods, note, policy_version from teacher_shifts', []))
 			.then(rows => {
 				const shifts = {};
+				// The oldest row wins: one stale entry makes the whole set stale.
+				let policyVersion = 0;
 				rows.forEach(row => {
 					shifts[row.teacher] = {
 						allowedPeriodIndexes: parseIntArray(row.allowed_periods),
 						note: row.note || ''
 					};
+					const version = Number(row.policy_version);
+					const stamped = Number.isFinite(version) ? version : 1;
+					policyVersion = policyVersion ? Math.min(policyVersion, stamped) : stamped;
 				});
-				return shifts;
+				return { shifts: shifts, policyVersion: policyVersion };
 			});
 	}
 
@@ -172,20 +185,23 @@
 	 * The stored set becomes exactly what is passed in - a teacher dropped
 	 * from the map is back to a full day.
 	 */
-	function saveShifts(shifts) {
+	function saveShifts(shifts, policyVersion) {
 		const names = Object.keys(shifts || {});
+		const version = Number.isFinite(Number(policyVersion)) ? Number(policyVersion) : 1;
 		return ensureSchema()
 			.then(() => sql('delete from teacher_shifts where teacher <> all($1::text[])',
 				[toTextArrayLiteral(names)]))
 			.then(() => names.reduce((chain, teacher) => chain.then(() => sql(
-				'insert into teacher_shifts (teacher, allowed_periods, note, updated_at) ' +
-				'values ($1, $2::smallint[], $3, now()) ' +
+				'insert into teacher_shifts (teacher, allowed_periods, note, policy_version, updated_at) ' +
+				'values ($1, $2::smallint[], $3, $4, now()) ' +
 				'on conflict (teacher) do update set ' +
-				'allowed_periods = excluded.allowed_periods, note = excluded.note, updated_at = now()',
+				'allowed_periods = excluded.allowed_periods, note = excluded.note, ' +
+				'policy_version = excluded.policy_version, updated_at = now()',
 				[
 					teacher,
 					toIntArrayLiteral(shifts[teacher].allowedPeriodIndexes),
-					shifts[teacher].note || ''
+					shifts[teacher].note || '',
+					version
 				]
 			)), Promise.resolve()))
 			.then(() => true);

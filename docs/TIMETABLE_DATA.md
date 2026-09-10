@@ -135,9 +135,14 @@ This carries more weight than it used to. The substitution engine now derives **
 
 `DEFAULT_SHIFTS` in `scripts/substitution.js` holds standing working windows, which are not
 absences: the planner will not give someone cover before they arrive, and their teacher view
-reads "Off shift" rather than "Free period". v10 ships one — **Anjana is part-time, P6–P8 only**
-— and the test suite derives that window from the timetable itself, so a revision that moves her
-fails a test instead of quietly handing her a first-period duty.
+reads "Off shift" rather than "Free period". v10 ships one — **Anjana is part-time and on
+site for P5–P8**; everyone else works the full day.
+
+Her window is availability, not teaching load: she teaches P6–P8 but is in the building from
+P5, so P5 is a period she can legitimately cover. The test suite checks the timetable never places
+her outside that window, so a revision that moves her fails a test instead of quietly handing her
+a first-period duty. Any edit to `DEFAULT_SHIFTS` must also bump `SHIFT_POLICY_VERSION`, or the
+change will never reach a device that has already stored the old one.
 
 ## Safe Editing Rules
 
@@ -224,7 +229,9 @@ While the practice bells are active, the home screen shows an amber notice so st
 The live data is **Timetable 2026–27 (v10)**, an 8-period schedule (`Period 1`–`Period 8`). It
 replaced v4, which replaced the 6-period heatwave timetable of summer 2026. v10 is not a tweak
 of v4: Rakesh, Harshita and Pradhyuman left, Nishant, Mumal, Roshan and SP joined, Anjana moved
-to P6–P8, and parallel electives and combined senior sections appeared for the first time.
+to teaching P6–P8, and parallel electives and combined senior sections appeared for the first
+time. Her availability window was later widened to P5–P8 — the timetable did not change, the
+record of when she is actually in school did.
 
 If a prior schedule ever needs to be restored, check out the relevant `rawData` block from git
 history (for example via `git log -p scripts/data.js index.html`) and revalidate all derived

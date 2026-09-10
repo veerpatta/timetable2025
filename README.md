@@ -146,7 +146,7 @@ Every period ends in one of six honest states, and the pill colour, the grid cel
 
 **Classes can be combined.** When nobody is free, the planner offers to send the class next door — same or adjacent grade only — and shows the merge on both classes and on the host teacher's own day. It is always an offer.
 
-**Shift timings** are separate from absences: a shift is a teacher's standing working window, every day. Someone who reports after the fourth period is never offered cover before they arrive, is excluded from the free-teacher lists, and reads "Off shift" rather than "Free period".
+**Shift timings** are separate from absences: a shift is a teacher's standing working window, every day. Someone who reports after the fourth period is never offered cover before they arrive, is excluded from the free-teacher lists, and reads "Off shift" rather than "Free period". One teacher ships with a shift — Anjana, on site for P5–P8 — and everyone else works the full day. A shift describes availability rather than teaching load, so it can be wider than the periods the timetable gives that teacher.
 
 ### `sw.js`
 

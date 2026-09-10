@@ -45,6 +45,7 @@ create table if not exists teacher_shifts (
   teacher          text primary key,
   allowed_periods  smallint[] not null,
   note             text,
+  policy_version   smallint    not null default 1,
   updated_at       timestamptz not null default now()
 );
 
@@ -59,7 +60,9 @@ create table if not exists substitution_plans (
 );
 ```
 
-`pins` was added after the first release and is applied with `alter table … add column if not exists` inside the same idempotent schema step, so an existing database picks it up with no migration.
+`pins` and `policy_version` were added after the first release and are applied with `alter table … add column if not exists` inside the same idempotent schema step, so an existing database picks them up with no migration. Rows written before the column existed default to version 1.
+
+`policy_version` records which edition of `Engine.DEFAULT_SHIFTS` a row was written against. The stored set normally wins over the shipped default — otherwise the shift editor would not survive a refresh — so without this stamp a shipped policy change would reach nobody. `loadShifts()` reports the **lowest** version across the rows, and `startSync()` discards a set below `Engine.SHIFT_POLICY_VERSION` in favour of the built-in default, writing it back at the new version. See [SUBSTITUTION_ENGINE.md](SUBSTITUTION_ENGINE.md).
 
 Both writes are upserts. `teacher_shifts` is replaced wholesale on save, so a teacher removed from the map is back to a full day.
 
@@ -97,7 +100,7 @@ No cron job, no scheduler, no extra infrastructure — the table cannot grow wit
 ## What the app does on load
 
 1. `purgeOld()` — drop expired plans.
-2. `loadShifts()` — adopt the shared shift timings, or seed the table on first run.
+2. `loadShifts()` — adopt the shared shift timings, or seed the table from `DEFAULT_SHIFTS` when it is empty **or stamped below the shipped `SHIFT_POLICY_VERSION`**.
 3. `loadPlan(today)` — pick up a plan someone else already made, unless this device is already editing one.
 
 A failure at any step is logged and ignored.

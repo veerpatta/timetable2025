@@ -98,17 +98,27 @@ In the shared message a pinned assignment reads ✅ with no "please confirm", be
 
 ## Shift timings
 
-A shift is a teacher's standing working window — every day, not one day. It is the difference between "free this period" and "not in the building". Anjana is part-time and teaches only P6–P8, so P1–P5 look empty in her timetable when in fact she is not at school; without a shift the planner hands her cover before she arrives.
+A shift is a teacher's standing working window — every day, not one day. It is the difference between "free this period" and "not in the building". Anjana is part-time and is on site for the last four periods only, so P1–P4 look empty in her timetable when in fact she is not at school; without a shift the planner hands her cover before she arrives.
+
+A shift is **availability, not teaching load**, and the two are deliberately different: Anjana arrives for P5 but the timetable gives her P6–P8, which is precisely what makes P5 a period she can be asked to cover. What the test suite enforces is containment — nobody may be timetabled to teach outside the window they are present for. Everyone else on the roster works the full day and has no entry at all.
 
 Shifts live in `state.shifts` in `scripts/app.js`, keyed by teacher:
 
 ```javascript
-{ Anjana: { allowedPeriodIndexes: [5, 6, 7], note: 'Part-time: Periods 6-8 only' } }
+{ Anjana: { allowedPeriodIndexes: [4, 5, 6, 7], note: 'Part-time: Periods 5-8 only' } }
 ```
 
 `Engine.shiftsToPolicyOverrides()` converts them into the `policyOverrides` shape below, so enforcement happens in `isAvailableByPolicy` — there is no second code path. A teacher with no entry works the full day.
 
 Three sources, in order: `Engine.DEFAULT_SHIFTS` ships in the code, `localStorage.vppsm_shifts` holds this device's copy, and the `teacher_shifts` table is the shared truth once the database is reachable. An admin edits them in the Substitutes view; see [BACKEND_SYNC.md](BACKEND_SYNC.md).
+
+### Why the shipped default carries a version
+
+The stored copy beats `DEFAULT_SHIFTS` on every load — it has to, or the admin shift editor would be undone by a refresh. The cost is that a shipped policy change reaches nobody: every phone and the database already hold the previous answer, so deploying a new default changes nothing anyone can see.
+
+`Engine.SHIFT_POLICY_VERSION` breaks that tie exactly once. `localStorage.vppsm_shifts` stores `{ policyVersion, shifts }` and `teacher_shifts` carries a `policy_version` column. A stored set stamped below the shipped version — including an unstamped one from before the envelope existed — is stale by definition and gives way to `DEFAULT_SHIFTS`, which is written back at the new version. A set stamped at or above it is a deliberate admin edit and is left alone.
+
+**Bump `SHIFT_POLICY_VERSION` in the same commit as any change to `DEFAULT_SHIFTS`.** A test asserts it is a number and at least 2; nothing can assert that you remembered to raise it.
 
 Shifts also drive the free-teacher lists on Home and the Today board, and render as "Off shift" rather than "Free period" in the teacher views.
 
