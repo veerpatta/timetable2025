@@ -761,7 +761,7 @@
 
 	function createPlanStore(storage, options) {
 		const target = storage || (typeof localStorage !== 'undefined' ? localStorage : null);
-		const scheduleVersion = options?.scheduleVersion || '2026-27-v4';
+		const scheduleVersion = options?.scheduleVersion || '2026-27-v11';
 		const nowProvider = options?.now || (() => new Date());
 
 		function write(store) {

@@ -11,7 +11,7 @@ School policy is that **familiarity with the class comes first**. A teacher thos
 | `class_subject` | Teaches this class **and** this subject | yes |
 | `class` | Teaches this class, any subject | yes |
 | `exact` | Teaches this subject, other classes | yes |
-| `approved` | Explicit `canCover` policy override | yes |
+| `approved` | Explicit `canCover` policy override | yes — but see below: **dormant in the app today** |
 | `related` | Same subject group only | review |
 | `general` | No connection to class or subject | review |
 | `last_resort` | Duty-holder — coordinator or exam in-charge | review |
@@ -20,6 +20,8 @@ School policy is that **familiarity with the class comes first**. A teacher thos
 `class` is automatic on the school's own evidence: the timetable says this teacher works with these children every week. It still carries a `class_not_subject` warning so nobody is misled about what is being taught. `related` and `general` remain review-only.
 
 The bottom two tiers are about **who the person is**, not what they can teach, and neither climbs: a duty-holder who teaches the very class and subject still ranks `last_resort`, because the star protects her coordinator time rather than describing her qualifications.
+
+**`approved` never fires in the running app.** It is reachable only through a `canCover` policy override, and nothing in the app writes one: the sole `policyOverrides` source is `Engine.shiftsToPolicyOverrides(state.shifts)` (`scripts/app.js:1060`), which emits `{ availability }` and nothing else. There is no UI, no stored setting and no seed data for `canCover` — it is set only in the test suite. Treat the tier as a designed extension point that is wired into the engine but not yet into the product, rather than as behaviour you can rely on or debug against. Wiring it up — for example seeding `canCover` from `SUBJECT_GROUPS` so a Physics teacher is an approved cover for Chemistry — would raise the automatic share without touching the fatigue gates, and is the obvious next move if more auto-assignment is wanted.
 
 ### "First" is arithmetic, not aspiration
 
@@ -38,6 +40,14 @@ All weights live in one `WEIGHTS` object in `scripts/substitution.js`. Change po
 
 The teacher is absent, already has a regular class, is already covering another class that period, or is outside their shift.
 
+### Why most cover needs confirming
+
+Three further conditions do not block a candidate but do disable `autoEligible`, so the period becomes an amber "confirm this" row rather than an automatic assignment: `full_day` (this cover would take the teacher to a full teaching day), `excessive_consecutive` (it would extend their unbroken run past `maxConsecutive`, default 3) and `over_substitution_limit` (they already hold `maxAutoSubstitutions`, default 2).
+
+On the v11 timetable this is what decides the shape of a plan, so it is worth stating plainly. Simulating all 114 single-teacher absences (19 teachers × 6 days) gives **674 vacancies, of which 27% are auto-assigned, 73% come through as amber suggestions, and none is left open** — every vacancy gets a named teacher. Of the 908 candidates who are free, qualified for an automatic tier and not duty-holders, `full_day` rejects **49%**, `excessive_consecutive` **27%**, and `over_substitution_limit` **0%** — the daily cap never binds on this roster.
+
+The cause is load, not calibration drift: teachers here average **6.44 of 8 periods a day**, and 70 of the 114 teacher-days are seven-period days. So `full_day` bars nearly anyone holding a single free period. That is deliberate. Taking a teacher's last free period is a decision a coordinator makes, not one the app makes for them, and the amber row is how it gets asked. Note that `lastFreePeriod` (−620) already penalises the same situation through the score; the gate is the stricter statement of the same policy, and the one that cannot be outweighed. Relaxing it is the single highest-leverage change available if the school ever decides it wants more automatic cover — and it should be a deliberate policy decision, not a tuning tweak.
+
 ## Reserve staff
 
 Three admin staff — Director Mam, Raj Sir and Gyan Sir — will take a period when it is genuinely needed, but the planner must never volunteer them.
@@ -52,7 +62,7 @@ They still appear in the swap sheet, below a divider, so asking them remains one
 
 ## Duty-holders
 
-The v10 free-teacher chart marks four names with a `*` — **Hemlata, Rashmita, Nidhika and Nathulal** — and says in its header to "use them for cover only if no one else is free". They hold coordinator and exam in-charge duties: the free periods on their row are that work, not spare capacity.
+The v11 free-teacher chart marks four names with a `*` — **Hemlata, Rashmita, Nidhika and Nathulal** — and says in its header to "use them for cover only if no one else is free". They hold coordinator and exam in-charge duties: the free periods on their row are that work, not spare capacity.
 
 They are declared in `DUTY_STAFF` in `scripts/data.js` and surface as `db.dutyStaff`. Unlike reserve staff they are **ordinary teaching staff and stay in `db.teacherNames`** — they teach a full timetable, appear in every view, and carry a normal share of the load. The star changes one thing only: where they sit in the ranking.
 

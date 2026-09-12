@@ -572,7 +572,7 @@ test('the built-in default covers every period Anjana actually teaches', () => {
 	const outside = Array.from(taught).filter(index => window.indexOf(index) === -1);
 	assert.deepEqual(outside, [], 'she is never timetabled outside her shift');
 	assert.deepEqual(Array.from(taught).sort((a, b) => a - b), [5, 6, 7],
-		'v10 still teaches her in P6-P8');
+		'v11 still teaches her in P6-P8');
 });
 
 test('Anjana is the only teacher on a restricted shift - everyone else is full day', () => {
@@ -597,7 +597,7 @@ test('the shift policy version is bumped whenever the shipped default changes', 
 	// this stamp a change to DEFAULT_SHIFTS reaches no device that has ever
 	// run the app. Anything that edits the default must move this number.
 	assert.equal(typeof Engine.SHIFT_POLICY_VERSION, 'number');
-	assert.ok(Engine.SHIFT_POLICY_VERSION >= 2, 'v10 P5-P8 is edition 2');
+	assert.ok(Engine.SHIFT_POLICY_VERSION >= 2, 'v11 keeps P5-P8; edition 2 or later');
 });
 
 test('a late-shift teacher is blocked before arrival and usable after it', () => {
@@ -740,13 +740,13 @@ test('a parallel elective is not a co-taught block, and still needs a substitute
 	// cohort each. Reading it as a shared block would record Hemlata's Biology
 	// group as covered by Prateek, who is teaching Maths in the same room.
 	const db = Data.load();
-	const cell = db.timetable.Monday['Class 11 Science'][1];
+	const cell = db.timetable.Monday['Class 11 Science'][6];
 	assert.equal(cell.subject, 'Biology / Maths', 'the class grid still shows both');
 	assert.equal(cell.parallel, true);
 	assert.deepEqual(cell.subjects, ['Biology', 'Maths']);
 
-	const hemlata = db.teacherMap.Hemlata.Monday[1];
-	const prateek = db.teacherMap.Prateek.Monday[1];
+	const hemlata = db.teacherMap.Hemlata.Monday[6];
+	const prateek = db.teacherMap.Prateek.Monday[6];
 	assert.equal(hemlata.subject, 'Biology', 'each teacher owns their own subject');
 	assert.equal(prateek.subject, 'Maths');
 	assert.equal(hemlata.shared, false, 'a parallel elective is never team-covered');
@@ -785,7 +785,7 @@ test('a combined senior period keeps every section it is taught to', () => {
 	assert.deepEqual(db.teacherMap.Bindu.Monday[0].alsoClassNames, []);
 });
 
-test('the timetable is the roster the v10 PDFs describe', () => {
+test('the timetable is the roster the v11 PDFs describe', () => {
 	const db = Data.load();
 	assert.equal(db.days.length, 6);
 	assert.equal(db.classNames.length, 16);
@@ -795,7 +795,7 @@ test('the timetable is the roster the v10 PDFs describe', () => {
 		'Rashmita', 'Ravina', 'Roshan', 'SP', 'Toshit'
 	]);
 
-	// Every cell is taught: v10 leaves no section with a free period, so a
+	// Every cell is taught: v11 leaves no section with a free period, so a
 	// "Free" cell appearing again means a row lost a column.
 	let cells = 0;
 	db.days.forEach(day => db.classNames.forEach(className => {
@@ -810,14 +810,14 @@ test('the timetable is the roster the v10 PDFs describe', () => {
 	assert.equal(cells, 768);
 });
 
-test('every teacher carries the weekly load their v10 page states', () => {
+test('every teacher carries the weekly load their v11 page states', () => {
 	// A combined period and an ELGA block each count once, which is what makes
 	// these numbers comparable with the TeacherWise PDF headers.
 	const db = Data.load();
 	const expected = {
-		Anita: 42, Anjana: 14, Antima: 41, Bindu: 42, Hemlata: 39, Jainendra: 42,
-		Kusum: 41, Maya: 42, Mumal: 42, Nathulal: 37, Nidhika: 38, Nishant: 40,
-		Prakash: 42, Prateek: 41, Rashmita: 37, Ravina: 42, Roshan: 42, SP: 24,
+		Anita: 40, Anjana: 14, Antima: 41, Bindu: 42, Hemlata: 39, Jainendra: 42,
+		Kusum: 41, Maya: 42, Mumal: 42, Nathulal: 38, Nidhika: 38, Nishant: 40,
+		Prakash: 42, Prateek: 44, Rashmita: 37, Ravina: 44, Roshan: 42, SP: 24,
 		Toshit: 42
 	};
 	const actual = {};
@@ -829,7 +829,7 @@ test('every teacher carries the weekly load their v10 page states', () => {
 });
 
 /*
- * Duty-holders - the four names the v10 free-teacher chart marks with a `*`
+ * Duty-holders - the four names the v11 free-teacher chart marks with a `*`
  * and tells us to use "only if no one else is free".
  *
  * `Duty` below is deliberately the best-qualified person in the room: she

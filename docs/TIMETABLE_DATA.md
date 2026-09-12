@@ -35,7 +35,7 @@ Class 11 Science,Physics (Prateek),Biology / Maths (Hemlata / Prateek),Biology /
 
 ## Column Rules
 
-Each class row currently has 9 columns total (Timetable 2026–27, v10):
+Each class row currently has 9 columns total (Timetable 2026–27, v11):
 
 1. Class name
 2. Period 1
@@ -47,12 +47,12 @@ Each class row currently has 9 columns total (Timetable 2026–27, v10):
 8. Period 7
 9. Period 8
 
-There is no separate `Assembly` column in the live v10 data — reporting time, the mid-morning short break, and dispersal are timing metadata in the active schedule profile only. They are not timetable columns in `rawData`.
+There is no separate `Assembly` column in the live v11 data — reporting time, the mid-morning short break, and dispersal are timing metadata in the active schedule profile only. They are not timetable columns in `rawData`.
 
 ## Allowed Cell Shapes
 
 A cell is `Subject (Teacher)`, or `Subject (A / B / …)` when more than one teacher is in the
-period. `Free` is still parsed, but v10 has no free periods left — every one of the 768 cells is
+period. `Free` is still parsed, but v11 has no free periods left — every one of the 768 cells is
 taught, so a `Free` appearing again is more likely a lost column than a real gap.
 
 Examples from the current dataset:
@@ -76,7 +76,7 @@ exactly as many parts as it has teachers. `parseTimetable` then keeps `subjects:
 the full label, and `buildTeacherMap` gives each teacher *their own* subject, so the class grid
 still reads `Biology / Maths` while the planner ranks cover for `Biology`.
 
-v10 has 26 parallel cells (`Biology / Maths`, `Economics / Eng Lit`) and 60 ELGA cells.
+v11 has 30 parallel cells (`Biology / Maths`, `Economics / Eng Lit`) and 60 ELGA cells.
 
 ### Combined senior sections
 
@@ -135,7 +135,7 @@ This carries more weight than it used to. The substitution engine now derives **
 
 `DEFAULT_SHIFTS` in `scripts/substitution.js` holds standing working windows, which are not
 absences: the planner will not give someone cover before they arrive, and their teacher view
-reads "Off shift" rather than "Free period". v10 ships one — **Anjana is part-time and on
+reads "Off shift" rather than "Free period". v11 ships one — **Anjana is part-time and on
 site for P5–P8**; everyone else works the full day.
 
 Her window is availability, not teaching load: she teaches P6–P8 but is in the building from
@@ -163,7 +163,7 @@ change will never reach a device that has already stored the old one.
 
 These carry app-level meaning and should not be normalized away without checking behaviour:
 
-- `Free` — still parsed, but v10 uses it nowhere
+- `Free` — still parsed, but v11 uses it nowhere
 - `Self Study` and `NoteBook Checking` — real scheduled periods, and the two subjects the colour
   map deliberately leaves grey
 - `ELGA` — the primary block; the `shared` rule above depends on it staying one subject with
@@ -226,12 +226,26 @@ While the practice bells are active, the home screen shows an amber notice so st
 
 ## Version History Note
 
-The live data is **Timetable 2026–27 (v10)**, an 8-period schedule (`Period 1`–`Period 8`). It
-replaced v4, which replaced the 6-period heatwave timetable of summer 2026. v10 is not a tweak
-of v4: Rakesh, Harshita and Pradhyuman left, Nishant, Mumal, Roshan and SP joined, Anjana moved
-to teaching P6–P8, and parallel electives and combined senior sections appeared for the first
-time. Her availability window was later widened to P5–P8 — the timetable did not change, the
-record of when she is actually in school did.
+The live data is **Timetable 2026–27 (v11)**, an 8-period schedule (`Period 1`–`Period 8`).
+
+**v11** replaced v10 and is a pure reshuffle: the roster, the subjects, the 16 classes and
+every substitution rule are unchanged, but **349 of the 768 cells moved**. The churn is
+concentrated in the secondary school — Class 6 alone has 38 of its 48 cells in a new place,
+Class 12 Arts 35, Class 8 and Class 12 Science 34 each — while Classes 1 and 2 change by 4
+cells apiece. Four weekly loads shifted with it: Anita 42→40, Prateek 41→44, Ravina 42→44 and
+Nathulal 37→38. Parallel elective cells went 26→30; ELGA stayed at 60.
+
+Because nothing in the roster or the rules moved, `RESERVE_STAFF`, `DUTY_STAFF`,
+`DEFAULT_SHIFTS` and `SHIFT_POLICY_VERSION` were untouched. `SCHEDULE_VERSION` in
+`scripts/app.js` **was** moved, to `2026-27-v11`, which is what discards substitution plans
+saved against the old cell layout. It had been left at `2026-27-v4` across the v10 rollout, so
+plans were surviving a timetable change they no longer matched; v11 corrects that.
+
+**v10** replaced v4, which replaced the 6-period heatwave timetable of summer 2026. v10 was not
+a tweak of v4: Rakesh, Harshita and Pradhyuman left, Nishant, Mumal, Roshan and SP joined,
+Anjana moved to teaching P6–P8, and parallel electives and combined senior sections appeared
+for the first time. Her availability window was later widened to P5–P8 — the timetable did not
+change, the record of when she is actually in school did, and v11 leaves it that way.
 
 If a prior schedule ever needs to be restored, check out the relevant `rawData` block from git
 history (for example via `git log -p scripts/data.js index.html`) and revalidate all derived
@@ -239,7 +253,7 @@ views, including the column count and header row expected by the parser at that 
 
 ## Duty-holders
 
-The v10 free-teacher chart marks **Hemlata, Rashmita, Nidhika and Nathulal** with a `*`: they
+The v11 free-teacher chart marks **Hemlata, Rashmita, Nidhika and Nathulal** with a `*`: they
 hold coordinator and exam in-charge duties, and the chart's header says to "use them for cover
 only if no one else is free". They are listed in `DUTY_STAFF` in `scripts/data.js`.
 

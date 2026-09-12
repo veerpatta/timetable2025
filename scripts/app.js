@@ -19,7 +19,7 @@
 	const PERIODS = Data.PERIODS;
 	const PERIOD_COUNT = PERIODS.length;
 	const ZERO_PERIOD = Data.ZERO_PERIOD;
-	const SCHEDULE_VERSION = '2026-27-v4';
+	const SCHEDULE_VERSION = '2026-27-v11';
 	// How far back the fairness ledger looks. Matches the retention window,
 	// so it never asks for plans that have already been pruned.
 	const HISTORY_DAYS = 30;

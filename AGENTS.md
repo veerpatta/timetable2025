@@ -60,9 +60,9 @@ Do not edit `docs/sources/` or `tools/one-off/` unless the task is explicitly ab
 
 Search for `const rawData`. It moved out of `index.html` when the app was rebuilt to the design.
 
-The current data model (Timetable 2026–27, **v10**) is `Period 1` through `Period 8` — no `Assembly` column. Each class row is 1 class column + 8 slots = 9 CSV columns.
+The current data model (Timetable 2026–27, **v11**) is `Period 1` through `Period 8` — no `Assembly` column. Each class row is 1 class column + 8 slots = 9 CSV columns.
 
-Cells are `Subject (Teacher)` or `Subject (A / B / …)`. `Free` still parses but v10 uses it nowhere: all 768 cells are taught.
+Cells are `Subject (Teacher)` or `Subject (A / B / …)`. `Free` still parses but v11 uses it nowhere: all 768 cells are taught.
 
 A multi-teacher cell is one of two different things, and `parseTimetable` tells them apart by arithmetic — the subject splitting into as many parts as there are teachers:
 
