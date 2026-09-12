@@ -430,12 +430,21 @@
 			'</th>';
 	}
 
-	/** Row header for a period, used by the two week grids. */
-	function gridPeriodRowLabel(index) {
-		const slot = PERIODS[index];
-		return '<th scope="row" class="grid__rowlabel">' +
-			esc(periodName(index)) +
-			'<div class="grid__rowlabel-time">' + esc(shortTime(slot.s)) + '</div></th>';
+	/**
+	 * Row header for a day, used by the two week grids.
+	 *
+	 * The week grids read across the day the way the school's own printed
+	 * timetables do - periods along the top, one row per day - so the row
+	 * label is the weekday. `meta` is an optional second line; the teacher
+	 * grid puts that day's teaching load there, which costs no column width
+	 * on a phone because the label is sticky anyway.
+	 */
+	function gridDayRowLabel(day, isToday, meta) {
+		return '<th scope="row" class="grid__rowlabel' +
+			(isToday ? ' grid__rowlabel--live' : '') + '">' +
+			esc(dayLabel(day, true)) +
+			(meta ? '<div class="grid__rowlabel-time">' + esc(meta) + '</div>' : '') +
+			'</th>';
 	}
 
 	/** The scroll container every grid shares, with its accessibility wiring. */
@@ -913,18 +922,20 @@
 			html += '<div class="slot-label">' + esc(classLabel(state.selClass) + ' · ' + t('ui.week')) + '</div>' +
 				gridWrap(
 					classLabel(state.selClass) + ' · ' + t('ui.week'),
-					'<th scope="col" class="grid__head grid__head--corner">' + esc(t('ui.periodShort')) + '</th>' +
-					db.days.map(d => '<th scope="col" class="grid__head' +
-						(d === day ? ' grid__head--live' : '') + '">' +
-						esc(dayLabel(d, true)) + '</th>').join(''),
+					'<th scope="col" class="grid__head grid__head--corner">' + esc(t('ui.dayCol')) + '</th>' +
 					PERIODS.map((slot, index) =>
-						'<tr' + (index === beforeBreak ? ' class="grid__row--beforebreak"' : '') + '>' +
-						gridPeriodRowLabel(index) +
-						db.days.map(d => gridCell(
+						gridPeriodHead(index, index === period)).join(''),
+					db.days.map(d =>
+						'<tr' + (d === day ? ' class="grid__row--live"' : '') + '>' +
+						gridDayRowLabel(d, d === day, '') +
+						PERIODS.map((slot, index) => gridCell(
 							db.timetable[d][state.selClass][index],
 							d === day && index === period,
 							null,
-							{ sub: subForClass(d, state.selClass, index) }
+							{
+								sub: subForClass(d, state.selClass, index),
+								beforeBreak: index === beforeBreak
+							}
 						)).join('') +
 						'</tr>').join('')
 				);
@@ -976,23 +987,24 @@
 				shiftNote(state.selTeacher) +
 				gridWrap(
 					state.selTeacher + ' · ' + t('ui.week'),
-					'<th scope="col" class="grid__head grid__head--corner">' + esc(t('ui.periodShort')) + '</th>' +
-					db.days.map(d => '<th scope="col" class="grid__head' +
-						(d === day ? ' grid__head--live' : '') + '">' +
-						esc(dayLabel(d, true)) + '</th>').join(''),
+					'<th scope="col" class="grid__head grid__head--corner">' + esc(t('ui.dayCol')) + '</th>' +
 					PERIODS.map((slot, index) =>
-						'<tr' + (index === breakAfterIndex() ? ' class="grid__row--beforebreak"' : '') + '>' +
-						gridPeriodRowLabel(index) +
-							db.days.map(d => {
+						gridPeriodHead(index, index === period)).join(''),
+					db.days.map(d =>
+						'<tr' + (d === day ? ' class="grid__row--live"' : '') + '>' +
+						gridDayRowLabel(d, d === day,
+							dayLoad(state.selTeacher, d) + '/' + PERIOD_COUNT) +
+						PERIODS.map((slot, index) => {
 							const cell = db.teacherMap[state.selTeacher][d][index];
 							const duty = cell ? null : subForTeacher(d, state.selTeacher, index);
 							const handover = cell ? subForClass(d, cell.className, index) : null;
+							const beforeBreak = index === breakAfterIndex();
 							if (duty) {
 								return gridCell(
 									{ subject: duty.subject, teachers: [] },
 									d === day && index === period,
 									slotClassLabel(duty, true),
-									{ cover: duty }
+									{ cover: duty, beforeBreak: beforeBreak }
 								);
 							}
 							// `was === teacher` alone hides the host of a merge,
@@ -1005,7 +1017,8 @@
 								cell ? slotClassLabel(cell, true) : null,
 								{
 									offShift: !onShift(state.selTeacher, index),
-									sub: mine ? handover : null
+									sub: mine ? handover : null,
+									beforeBreak: beforeBreak
 								}
 							);
 						}).join('') +

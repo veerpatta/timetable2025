@@ -175,6 +175,19 @@ When nobody is free the period reads **Self Study**, styled neutrally, marked �
 
 The design has no place for them. Do not reintroduce them without an explicit request.
 
+### 15. Every grid runs periods along the top
+
+All four tables — Today, Class week, Teacher week and the substitution plan — put
+`P1`–`P8` across the column headers and the varying thing (class, day, absent teacher) down
+the rows. This matches the school's own printed timetables, which are laid out the same way,
+so staff read one orientation everywhere.
+
+The two week grids used to be transposed, with periods down the side. If you are adding a
+grid, use `gridPeriodHead()` for the column headers and pass `beforeBreak` to `gridCell()` so
+the lunch gap draws as a vertical rule; the row label is `gridDayRowLabel()` or a plain
+`<th scope="row" class="grid__rowlabel">`. The day column is sticky, so eight periods can
+scroll under it on a phone.
+
 ## Safe Edit Workflow
 
 ### Timetable change

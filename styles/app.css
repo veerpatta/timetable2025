@@ -19,6 +19,7 @@
 	--bd: #e5e7eb;
 	--pri: #2563eb;
 	--prisoft: #dbeafe;
+	--prifaint: #eff6ff;
 	--onpri: #ffffff;
 	--hero1: #dbe8ff;
 	--hero2: #f7efe2;
@@ -58,6 +59,7 @@
 	--bd: #2a3a5e;
 	--pri: #60a5fa;
 	--prisoft: #1e3a5e;
+	--prifaint: #172e4d;
 	--onpri: #0b1325;
 	--hero1: #0b1325;
 	--hero2: #1e2d4d;
@@ -896,6 +898,7 @@ button {
 .grid__head--corner {
 	left: 0;
 	z-index: 4;
+	box-shadow: 6px 0 6px -6px var(--shadow);
 }
 
 .grid__head-time {
@@ -911,6 +914,10 @@ button {
 	letter-spacing: 0.04em;
 	text-transform: uppercase;
 	color: var(--warn);
+	/* The header is nowrap so period labels never break mid-word, but this
+	   note is long enough to widen its whole column by half again - which on
+	   a phone costs most of a period of visible timetable. Let it wrap. */
+	white-space: normal;
 }
 
 .grid__rowlabel {
@@ -924,6 +931,10 @@ button {
 	white-space: nowrap;
 	background: var(--card);
 	color: var(--tx);
+	/* Eight periods do not fit a phone, so the day column stays put while the
+	   week scrolls under it. The shadow is what says there is more to the
+	   right - without it the frozen column just looks like the table edge. */
+	box-shadow: 6px 0 6px -6px var(--shadow);
 }
 
 .grid__rowlabel-time {
@@ -950,11 +961,20 @@ button {
 .grid th.grid__head--beforebreak,
 .grid td.grid__cell--beforebreak { border-right: 3px double var(--tx2); }
 
-.grid .grid__row--beforebreak .grid__cell,
-.grid .grid__row--beforebreak .grid__rowlabel { border-bottom: 3px double var(--tx2); }
+/* Today's row. The week grids read one day per row, so "today" is a row
+   rather than a column - and a whole tinted row is what lets a teacher find
+   it without reading the labels. Placed after the zebra rule, which it has
+   to outrank, and before .grid__cell--live, which outranks it. */
+.grid tbody tr.grid__row--live .grid__cell,
+.grid tbody tr.grid__row--live .grid__rowlabel { background: var(--prifaint); }
 
+.grid__rowlabel--live { color: var(--pri); }
+
+/* The live cell is the intersection of today's row and the running period,
+   so it has to stay louder than the row tint it sits inside. */
 .grid__cell--live,
-.grid tbody tr:nth-child(even) .grid__cell--live { background: var(--prisoft); }
+.grid tbody tr:nth-child(even) .grid__cell--live,
+.grid tbody tr.grid__row--live .grid__cell--live { background: var(--prisoft); }
 
 .grid__live-dot {
 	position: absolute;
