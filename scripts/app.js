@@ -26,6 +26,7 @@
 
 	const STORE = {
 		theme: 'vppsm_theme',
+		adminOpen: 'vppsm_adminopen',
 		me: 'vppsm_me',
 		role: 'vppsm_role',
 		grid: 'vppsm_grid',
@@ -74,7 +75,12 @@
 		selTeacher: '',
 		selPeriod: null,
 		subsDay: 'Monday',
-		absent: [],
+		// teacher -> the period indexes they are away for, on subsDay. A whole
+		// day is simply every period. Not the same thing as a shift: a shift
+		// holds every day, an absence belongs to this date only.
+		absences: {},
+		// Which absent teacher's window is open in the editor, or ''.
+		absenceEditor: '',
 		gridNow: false,
 		gridClass: false,
 		gridTeacher: false,
@@ -83,6 +89,9 @@
 		// today's absences: a shift is every day.
 		shifts: {},
 		shiftEditor: null,
+		// The admin panel is a settings drawer, not the task. Closed by default
+		// so the Substitutes view opens on the day picker and the absence chips.
+		adminOpen: false,
 		planStore: null,
 		syncNote: '',
 		// slotId -> teacher name, or null for "deliberately left open". A pin
@@ -96,6 +105,7 @@
 
 	let toastTimer = null;
 	let tickTimer = null;
+	let lastTickSignature = '';
 	let planCache = null;
 	let profileCache = null;
 	let overlayCache = null;
@@ -224,15 +234,109 @@
 		return state.shifts[teacher] || null;
 	}
 
+	/* --- Absences. A teacher may be away for the day, or for part of it. --- */
+
+	/** Everyone with an absence today, whole day or half. */
+	function absentNames() {
+		return Object.keys(state.absences);
+	}
+
+	function isAbsent(teacher) {
+		return Object.prototype.hasOwnProperty.call(state.absences, teacher);
+	}
+
+	/** The periods this teacher is away for; empty when they are in all day. */
+	function awayPeriods(teacher) {
+		return state.absences[teacher] || [];
+	}
+
+	/** Away *in this period* - the question the planner actually asks. */
+	function isAwayAt(teacher, periodIndex) {
+		return awayPeriods(teacher).indexOf(Number(periodIndex)) !== -1;
+	}
+
+	function isPartlyAbsent(teacher) {
+		const periods = awayPeriods(teacher);
+		return periods.length > 0 && periods.length < PERIOD_COUNT;
+	}
+
+	function allPeriodIndexes() {
+		return PERIODS.map((slot, index) => index);
+	}
+
+	/**
+	 * The two halves of the day, split at the break, because that is how the
+	 * staff room says it: "gone after lunch", "coming in after lunch". The
+	 * bell schedule decides where the line falls, not a hard-coded four.
+	 */
+	function halfDayPeriods(which) {
+		const last = breakAfterIndex();
+		const split = last >= 0 ? last : Math.floor(PERIOD_COUNT / 2) - 1;
+		return allPeriodIndexes().filter(index => which === 'first' ? index <= split : index > split);
+	}
+
+	/** 'day', 'first', 'second' or 'custom' - which preset a window matches. */
+	function absenceShape(teacher) {
+		const periods = awayPeriods(teacher).join(',');
+		if (!periods) return '';
+		if (periods === allPeriodIndexes().join(',')) return 'day';
+		if (periods === halfDayPeriods('first').join(',')) return 'first';
+		if (periods === halfDayPeriods('second').join(',')) return 'second';
+		return 'custom';
+	}
+
+	/** "P1-P4", "P2, P5, P6" - a window a coordinator can check at a glance. */
+	function periodRangeLabel(periods) {
+		if (!periods.length) return '';
+		const runs = [];
+		periods.slice().sort((a, b) => a - b).forEach(index => {
+			const last = runs[runs.length - 1];
+			if (last && index === last[1] + 1) last[1] = index;
+			else runs.push([index, index]);
+		});
+		return runs.map(run => run[0] === run[1]
+			? periodName(run[0])
+			: periodName(run[0]) + '-' + periodName(run[1])).join(', ');
+	}
+
+	/** The one-line summary of an absence window. */
+	function absenceLabel(teacher) {
+		const shape = absenceShape(teacher);
+		if (shape === 'day') return t('absence.allDay');
+		if (shape === 'first') return t('absence.firstHalf') + ' · ' + periodRangeLabel(awayPeriods(teacher));
+		if (shape === 'second') return t('absence.secondHalf') + ' · ' + periodRangeLabel(awayPeriods(teacher));
+		return periodRangeLabel(awayPeriods(teacher));
+	}
+
+	/** Writes a window, and removes the absence entirely when it empties. */
+	function setAbsence(teacher, periods) {
+		const next = Object.assign({}, state.absences);
+		const cleaned = Array.from(new Set(periods.map(Number)))
+			.filter(index => index >= 0 && index < PERIOD_COUNT)
+			.sort((a, b) => a - b);
+		if (cleaned.length) next[teacher] = cleaned;
+		else delete next[teacher];
+		state.absences = next;
+		// A period this teacher is no longer away for has no vacancy, so any
+		// pin on it is an orphan. Left behind it would quietly reappear if the
+		// window were widened again.
+		dropPinsFor(teacher, cleaned);
+		if (!cleaned.length && state.absenceEditor === teacher) state.absenceEditor = '';
+	}
+
 	/**
 	 * Who is genuinely available: no class, on shift, and not marked absent.
 	 * A teacher whose shift has not started is not "free" - they are not here.
 	 */
 	function freeAt(day, periodIndex, exclude) {
 		const skip = exclude || [];
+		// Absences belong to the planned day only, so they narrow this list on
+		// that day and no other. Somebody marked away is not "free right now".
+		const planned = day === state.subsDay;
 		return state.db.teacherNames.filter(name =>
 			skip.indexOf(name) === -1 &&
 			onShift(name, periodIndex) &&
+			!(planned && isAwayAt(name, periodIndex)) &&
 			!state.db.teacherMap[name][day][periodIndex]);
 	}
 
@@ -280,7 +384,12 @@
 				'<button type="button" class="chip' + (item.big ? ' chip--big' : '') + '" ' +
 				'aria-pressed="' + (item.active ? 'true' : 'false') + '" ' +
 				'data-action="' + item.action + '" data-value="' + esc(item.value) + '">' +
-				esc(item.label) + '</button>').join('') +
+				esc(item.label) +
+				// A half day has to be legible from the chip itself; "Anjana"
+				// alone reads as away all day, which is the thing this feature
+				// exists to stop anyone assuming.
+				(item.meta ? '<span class="chip__meta">' + esc(item.meta) + '</span>' : '') +
+				'</button>').join('') +
 			'</div>';
 	}
 
@@ -479,14 +588,16 @@
 	 * teacher is away counts as hosted only once somebody is covering it - and
 	 * a class that is itself self study can never host.
 	 */
-	function hostsInPeriod(day, periodIndex, cover, absent) {
+	function hostsInPeriod(day, periodIndex, cover) {
 		const db = state.db;
 		return db.classNames.map(className => {
 			const cell = db.timetable[day][className][periodIndex];
 			if (!cell || cell.free || !cell.teachers.length) return null;
 
-			const away = cell.teachers.filter(name => absent.indexOf(name) !== -1);
-			const present = cell.teachers.filter(name => absent.indexOf(name) === -1);
+			// Away in *this* period. A teacher who leaves after the fourth is
+			// still standing in front of this class for the first four.
+			const away = cell.teachers.filter(name => isAwayAt(name, periodIndex));
+			const present = cell.teachers.filter(name => !isAwayAt(name, periodIndex));
 			if (present.length) return { className: className, teacher: present[0], substituted: false };
 
 			// Everyone who teaches it is away: only a covered period can host.
@@ -514,7 +625,7 @@
 		const byClass = {};   // className|periodIndex -> { was, now, status }
 		const byTeacher = {}; // teacher|periodIndex   -> { className, subject, coveringFor }
 
-		if (state.absent.length) {
+		if (absentNames().length) {
 			const plan = planFor();
 
 			// A merge changes two classes: the one that moves, and the one
@@ -684,6 +795,16 @@
 		document.getElementById('status-dot').className = 'status-strip__dot' + dotClass;
 		document.getElementById('status-text').textContent = text;
 		document.getElementById('status-clock').textContent = formatClock();
+
+		// Anything else that sticks has to clear this header, and its height is
+		// not a constant: it grows with the notch inset, and Hindi sets the
+		// status line taller than English. Measured here rather than guessed in
+		// the stylesheet, where a wrong guess hides a row under the header.
+		const header = document.querySelector('.app-header');
+		if (header) {
+			document.documentElement.style.setProperty(
+				'--header-h', Math.round(header.getBoundingClientRect().height) + 'px');
+		}
 	}
 
 	/* ------------------------------------------------------------------ *
@@ -961,7 +1082,7 @@
 			'</div>' +
 			chipRow(db.teacherNames.map(name => ({
 				label: name, value: name, action: 'sel-teacher', active: state.selTeacher === name
-			})), true);
+			})));
 
 		if (!state.gridTeacher) {
 			html += dayChips(state.selDay, 'sel-day') +
@@ -1079,7 +1200,7 @@
 	function buildPlan() {
 		const db = state.db;
 		const day = state.subsDay;
-		const absent = state.absent;
+		const absent = absentNames();
 		const profiles = teacherProfiles();
 
 		const vacancies = [];
@@ -1087,8 +1208,12 @@
 		absent.forEach(name => {
 			db.teacherMap[name][day].forEach((slot, index) => {
 				if (!slot) return;
+				// Only the periods inside the absence window are vacancies. A
+				// half day leaves the rest of the teacher's timetable alone.
+				if (!isAwayAt(name, index)) return;
 				const cell = db.timetable[day][slot.className][index];
-				const remaining = cell.teachers.filter(other => other !== name && absent.indexOf(other) === -1);
+				const remaining = cell.teachers.filter(other =>
+					other !== name && !isAwayAt(other, index));
 				const slotId = name + '|' + index;
 				// A pin overrides even a co-taught period: if the coordinator
 				// named someone, they meant it.
@@ -1132,7 +1257,7 @@
 		if (openVacancies.length) {
 			plan = Engine.generatePlan({
 				day, periodCount: PERIOD_COUNT, teacherProfiles: profiles,
-				absentTeachers: absent, vacancies: openVacancies,
+				absentTeachers: state.absences, vacancies: openVacancies,
 				existingAssignments: pinnedAssignments,
 				coverHistory: state.coverHistory
 			});
@@ -1190,7 +1315,7 @@
 		plan.openSlots.forEach(item => {
 			const host = Engine.chooseMergeHost(
 				item.className,
-				hostsInPeriod(day, item.periodIndex, cover, absent)
+				hostsInPeriod(day, item.periodIndex, cover)
 			);
 			if (host) cover[item.slotId].suggestCombine = host;
 		});
@@ -1200,7 +1325,7 @@
 		Object.keys(combinePins).forEach(slotId => {
 			const vacancy = combinePins[slotId];
 			const wanted = pinnedCombine(slotId);
-			const host = hostsInPeriod(day, vacancy.periodIndex, cover, absent)
+			const host = hostsInPeriod(day, vacancy.periodIndex, cover)
 				.find(candidate => candidate.className === wanted);
 			if (!host) {
 				// The host lost its teacher since the merge was chosen.
@@ -1227,7 +1352,7 @@
 		const groups = absent.map(name => {
 			const rows = [];
 			db.teacherMap[name][day].forEach((slot, index) => {
-				if (!slot) return;
+				if (!slot || !isAwayAt(name, index)) return;
 				const slotId = name + '|' + index;
 				const result = teamCovered[slotId]
 					? { name: t('ui.team'), status: 'team', note: t('ui.team') }
@@ -1256,7 +1381,13 @@
 					combinedInto: result.combinedInto || null
 				});
 			});
-			return { title: name, count: rows.length + ' ' + t('ui.periods'), rows };
+			return {
+				title: name,
+				count: rows.length + ' ' + t('ui.periods'),
+				window: absenceLabel(name),
+				partial: isPartlyAbsent(name),
+				rows: rows
+			};
 		});
 
 		return { groups: groups, totals: totals, joinedByClass: joinedByClass };
@@ -1265,7 +1396,7 @@
 	function planCacheKey() {
 		return [
 			state.subsDay,
-			state.absent.join(','),
+			JSON.stringify(state.absences),
 			JSON.stringify(state.shifts),
 			JSON.stringify(state.pins),
 			JSON.stringify(state.coverHistory),
@@ -1294,10 +1425,6 @@
 		});
 
 		let html = '<section class="shift-panel">' +
-			'<div class="section-head">' +
-			'<h3 class="section-title section-title--sm">' + esc(t('shift.title')) + '</h3>' +
-			syncPill() +
-			'</div>' +
 			'<div class="section-note">' + esc(t('shift.sub')) + '</div>';
 
 		html += restricted.length
@@ -1367,6 +1494,127 @@
 			'</div>').join('') + '</div>';
 	}
 
+	/**
+	 * What an absence window means, said in words.
+	 *
+	 * The periods a teacher is present for are only useful if they are also
+	 * on shift, so the sentence intersects the two: telling a coordinator
+	 * that Anjana is "in school P1-P4" because she is not marked away then
+	 * would be exactly wrong.
+	 */
+	function absenceNote(teacher) {
+		const away = awayPeriods(teacher);
+		const here = allPeriodIndexes().filter(index =>
+			away.indexOf(index) === -1 && onShift(teacher, index));
+		const toCover = away.filter(index =>
+			state.db.teacherMap[teacher][state.subsDay][index]).length;
+		return here.length
+			? t('absence.notePart', {
+				away: periodRangeLabel(away),
+				here: periodRangeLabel(here),
+				n: toCover
+			})
+			: t('absence.noteDay', { n: toCover });
+	}
+
+	/**
+	 * The half-day editor.
+	 *
+	 * Three presets cover almost every real case - gone all day, gone after
+	 * the break, in after the break - and the eight toggles underneath are
+	 * there for the ones they do not: a teacher away for one period at a
+	 * board meeting, or for the middle of the morning. A lit toggle means
+	 * away, which is the opposite of the shift editor's lit-means-present;
+	 * the two panels say opposite things and are labelled to match.
+	 */
+	function renderAbsenceEditor(teacher) {
+		const shape = absenceShape(teacher);
+		const presets = [
+			{ value: 'day', label: t('absence.allDay') },
+			{ value: 'first', label: t('absence.firstHalf') },
+			{ value: 'second', label: t('absence.secondHalf') }
+		];
+
+		return '<div class="absence-edit">' +
+			'<div class="absence-edit__presets">' + presets.map(preset =>
+				'<button type="button" class="absence-preset' +
+				(shape === preset.value ? ' is-active' : '') + '" ' +
+				'aria-pressed="' + (shape === preset.value ? 'true' : 'false') + '" ' +
+				'data-action="absence-preset" data-value="' + preset.value + '" ' +
+				'data-teacher="' + esc(teacher) + '">' +
+				esc(preset.label) + '</button>').join('') +
+			'</div>' +
+			'<div class="absence-edit__hint">' + esc(t('absence.pickPeriods')) + '</div>' +
+			'<div class="absence-edit__periods">' + PERIODS.map((slot, index) => {
+				const away = isAwayAt(teacher, index);
+				const teaching = Boolean(state.db.teacherMap[teacher][state.subsDay][index]);
+				return '<button type="button" class="absence-toggle' +
+					(away ? ' is-away' : '') + (teaching ? ' has-class' : '') + '" ' +
+					'aria-pressed="' + (away ? 'true' : 'false') + '" ' +
+					'aria-label="' + esc(periodName(index) + ' - ' +
+						t(away ? 'absence.away' : 'absence.inSchool')) + '" ' +
+					'data-action="absence-toggle" data-value="' + index + '" ' +
+					'data-teacher="' + esc(teacher) + '">' +
+					esc(periodName(index)) +
+					'<span class="absence-toggle__time">' + esc(shortTime(slot.s)) + '</span>' +
+					'</button>';
+			}).join('') +
+			'</div>' +
+			'<div class="absence-edit__note">' + esc(absenceNote(teacher)) + '</div>' +
+			'</div>';
+	}
+
+	/** One row per absent teacher: the window, and a tap to change it. */
+	function renderAbsenceWindows() {
+		const names = absentNames();
+		if (!names.length) return '';
+
+		return '<div class="absence-list">' + names.map(name => {
+			const open = state.absenceEditor === name;
+			const partial = isPartlyAbsent(name);
+			return '<div class="absence-item' + (open ? ' is-open' : '') + '">' +
+				'<button type="button" class="absence-item__head" ' +
+				'aria-expanded="' + (open ? 'true' : 'false') + '" ' +
+				'data-action="absence-open" data-value="' + esc(name) + '">' +
+				'<span class="absence-item__name">' + esc(name) + '</span>' +
+				'<span class="absence-item__window' + (partial ? ' is-part' : '') + '">' +
+				esc(absenceLabel(name)) + '</span>' +
+				'<span class="absence-item__chev" aria-hidden="true">' +
+				(open ? '\u25b4' : '\u25be') + '</span>' +
+				'</button>' +
+				(open ? renderAbsenceEditor(name) : '') +
+				'</div>';
+		}).join('') + '</div>';
+	}
+
+	/**
+	 * Shift timings and the fairness ledger, behind a disclosure.
+	 *
+	 * Both are settings, and both used to open above the day picker - so the
+	 * Substitutes view opened on a wall of nineteen names belonging to a
+	 * panel an admin touches a few times a year, and the day's actual work
+	 * started a full screen further down. They keep their place in the view
+	 * and lose their place in the queue.
+	 */
+	function renderAdminDrawer() {
+		return '<section class="drawer' + (state.adminOpen ? ' is-open' : '') + '">' +
+			'<button type="button" class="drawer__head" ' +
+			'aria-expanded="' + (state.adminOpen ? 'true' : 'false') + '" ' +
+			'data-action="toggle-admin">' +
+			'<span class="drawer__title">' + esc(t('shift.title')) + '</span>' +
+			'<span class="drawer__meta">' + esc(t('shift.drawerMeta', {
+				n: state.db.teacherNames.filter(name => {
+					const shift = shiftOf(name);
+					return shift && !Engine.isFullDayShift(shift, PERIOD_COUNT);
+				}).length
+			})) + '</span>' +
+			'<span class="drawer__chev" aria-hidden="true">' +
+			(state.adminOpen ? '\u25b4' : '\u25be') + '</span>' +
+			'</button>' +
+			(state.adminOpen ? renderShiftEditor() : '') +
+			'</section>';
+	}
+
 	function renderSubs() {
 		const db = state.db;
 		let html = '<section class="view">' +
@@ -1376,28 +1624,34 @@
 			'</div>' +
 			'<div class="section-note">' + esc(t('subs.sub')) + '</div>';
 
-		if (state.role === 'admin') html += renderShiftEditor();
-
 		html += dayChips(state.subsDay, 'subs-day') +
 			'<div class="section-head">' +
 			'<span class="field-label">' + esc(t('subs.markAbsent')) + '</span>' +
-			(state.absent.length
-				? '<span class="section-meta">' + esc(t('sub.selected', { count: state.absent.length })) + '</span>'
+			(absentNames().length
+				? '<span class="section-meta">' +
+					esc(t('sub.selected', { count: absentNames().length })) + '</span>'
 				: '') +
 			'</div>' +
 			chipRow(db.teacherNames.map(name => ({
-				label: name, value: name, action: 'toggle-absent', active: state.absent.indexOf(name) !== -1
-			})), true);
+				label: name,
+				value: name,
+				action: 'toggle-absent',
+				active: isAbsent(name),
+				meta: isPartlyAbsent(name) ? periodRangeLabel(awayPeriods(name)) : ''
+			})), true) +
+			renderAbsenceWindows();
 
-		if (!state.absent.length) {
-			return html + '<div class="empty-state">' + esc(t('subs.empty')) + '</div></section>';
+		if (!absentNames().length) {
+			return html + '<div class="empty-state">' + esc(t('subs.empty')) + '</div>' +
+				(state.role === 'admin' ? renderAdminDrawer() : '') + '</section>';
 		}
 
 		const plan = planFor();
 		const totals = plan.totals;
 
-		html += '<div class="plan-summary">' +
+		html += '<div class="plan-summary plan-summary--sticky">' +
 			'<span class="plan-summary__date">' + esc(longDate(dateForDay(state.subsDay))) + '</span>' +
+			syncPill() +
 			'<span class="plan-summary__counts">' + esc(t('subs.summary', {
 				covered: totals.assigned + totals.team,
 				review: totals.review,
@@ -1412,8 +1666,6 @@
 				: '') +
 			'</div>';
 
-		if (state.editSlot) html += renderSlotEditor(plan);
-
 		html += state.gridSubs ? renderPlanGrid(plan) : renderPlanStack(plan);
 
 		html += '<div class="plan-actions">' +
@@ -1426,6 +1678,15 @@
 			'<button type="button" class="button-quiet" data-action="clear-absent">' +
 			esc(t('subs.clear')) + '</button>' +
 			'</div>';
+
+		if (state.role === 'admin') html += renderAdminDrawer();
+
+		// The swap sheet is anchored to the bottom of the screen rather than
+		// to its row. Rendered in flow it appeared above the plan, so tapping
+		// a period near the end of a long day opened a sheet that was already
+		// scrolled off the top - the one interaction on this screen that has
+		// to be reachable one-handed.
+		if (state.editSlot) html += renderSlotEditor(plan);
 
 		return html + '</section>';
 	}
@@ -1475,7 +1736,11 @@
 		// An object pin is a merge, handled by combineOption.
 		const pinnedTo = (raw && typeof raw === 'object') ? '' : raw;
 
-		return '<div class="slot-editor">' +
+		return '<div class="sheet">' +
+			'<div class="sheet__scrim" data-action="close-editor"></div>' +
+			'<div class="slot-editor" role="dialog" aria-modal="true" ' +
+			'aria-label="' + esc(t('edit.title')) + '">' +
+			'<div class="slot-editor__grip" aria-hidden="true"></div>' +
 			'<div class="slot-editor__head">' +
 			'<div>' +
 			'<div class="slot-editor__title">' + esc(row.period + ' · ' + row.what) + '</div>' +
@@ -1484,6 +1749,7 @@
 			'<button type="button" class="icon-button" data-action="close-editor" ' +
 			'aria-label="' + esc(t('edit.close')) + '">✕</button>' +
 			'</div>' +
+			'<div class="slot-editor__body">' +
 			'<div class="slot-editor__options">' +
 			'<button type="button" class="slot-option' + (pinnedTo === undefined ? ' is-active' : '') + '" ' +
 			'data-action="unpin-slot" data-value="' + esc(slotId) + '">' +
@@ -1499,7 +1765,7 @@
 			'</div>' +
 			renderCandidateList(ranked.filter(option => !option.reserve), slotId, pinnedTo) +
 			renderReserveList(ranked.filter(option => option.reserve), slotId, pinnedTo) +
-			'</div>';
+			'</div></div></div>';
 	}
 
 	/** "Send them next door", inside the swap sheet. */
@@ -1583,7 +1849,7 @@
 			day: state.subsDay,
 			periodCount: PERIOD_COUNT,
 			teacherProfiles: teacherProfiles(),
-			absentTeachers: state.absent,
+			absentTeachers: state.absences,
 			assignments: taken,
 			coverHistory: state.coverHistory,
 			vacancy: {
@@ -1615,6 +1881,9 @@
 				'<div class="plan-group">' +
 				'<div class="plan-group__head">' +
 				'<div class="plan-group__title">' + esc(group.title) + '</div>' +
+				(group.partial
+					? '<div class="plan-group__window">' + esc(group.window) + '</div>'
+					: '') +
 				'<div class="plan-group__count">' + esc(group.count) + '</div>' +
 				'</div>' +
 				group.rows.map(row =>
@@ -1645,7 +1914,11 @@
 			'<th scope="col" class="grid__head grid__head--corner">' + esc(t('nav.teacher')) + '</th>' +
 			PERIODS.map((slot, index) => gridPeriodHead(index, false)).join(''),
 			plan.groups.map(group =>
-				'<tr><th scope="row" class="grid__rowlabel">' + esc(group.title) + '</th>' +
+				'<tr><th scope="row" class="grid__rowlabel">' + esc(group.title) +
+				(group.partial
+					? '<div class="grid__rowlabel-time">' + esc(group.window) + '</div>'
+					: '') +
+				'</th>' +
 				PERIODS.map((slot, index) => {
 					const row = byPeriod[group.title][index];
 					const beforeBreak = index === breakAfterIndex() ? ' grid__cell--beforebreak' : '';
@@ -1788,6 +2061,16 @@
 		lines.push('🏫 *' + t('app.short') + ' · ' + t('msg.title') + '* — ' + shortDate(dateForDay(state.subsDay)));
 		lines.push('');
 
+		// Who is away, and - the part a list of names could never say - for
+		// which part of the day. Somebody reading this has to know Anjana is
+		// back after the break before they go looking for her in Period 3.
+		const away = absentNames().map(name =>
+			name + (isPartlyAbsent(name) ? ' (' + periodRangeLabel(awayPeriods(name)) + ')' : ''));
+		if (away.length) {
+			lines.push('🚫 *' + t('msg.absent') + ':* ' + away.join(', '));
+			lines.push('');
+		}
+
 		if (entries.length) {
 			lines.push('```');
 			lines.push(row(head));
@@ -1844,6 +2127,27 @@
 	 * Render + events
 	 * ------------------------------------------------------------------ */
 
+	/**
+	 * Put the chosen chip where it can be seen.
+	 *
+	 * A sideways row of nineteen names starts at the first one, so a teacher
+	 * whose name is late in the alphabet opens the view with no sign that
+	 * their own timetable is the one being shown. Only rows that actually
+	 * scroll are touched, and only their own scrollLeft - never the page.
+	 */
+	function centreSelectedChips(root) {
+		root.querySelectorAll('.chip-row:not(.chip-row--wrap)').forEach(row => {
+			const chip = row.querySelector('.chip[aria-pressed="true"]');
+			if (!chip || row.scrollWidth <= row.clientWidth) return;
+			// Measured against the row's own box: .chip-row is not positioned,
+			// so offsetLeft is relative to some ancestor further up and would
+			// centre the wrong thing.
+			const offset = chip.getBoundingClientRect().left - row.getBoundingClientRect().left;
+			const target = row.scrollLeft + offset - (row.clientWidth - chip.offsetWidth) / 2;
+			row.scrollLeft = Math.max(0, Math.min(target, row.scrollWidth - row.clientWidth));
+		});
+	}
+
 	function renderNav() {
 		document.getElementById('app-nav').innerHTML = VIEWS.map(view =>
 			'<button type="button" class="app-nav__button' + (state.view === view ? ' is-active' : '') + '" ' +
@@ -1859,11 +2163,14 @@
 		renderHeader();
 		renderNav();
 
-		// The 30-second tick re-serialises all of <main>, which would otherwise
-		// throw away wherever the reader had scrolled a wide table to.
+		// Re-serialising all of <main> throws away wherever the reader had
+		// scrolled - sideways inside a wide table, and down the page itself.
+		// Both are restored, because the 30-second tick calls this and nobody
+		// should have to find their place again every half minute.
 		const main = document.getElementById('app-main');
 		const previous = main.querySelector('.grid-wrap');
 		const scrollLeft = previous ? previous.scrollLeft : 0;
+		const scrollTop = window.scrollY;
 
 		let html = '';
 		if (state.view === 'home') html = renderHome();
@@ -1876,6 +2183,36 @@
 
 		const next = main.querySelector('.grid-wrap');
 		if (next && scrollLeft) next.scrollLeft = scrollLeft;
+		centreSelectedChips(main);
+		// Only worth restoring if the page is still long enough to hold it;
+		// otherwise the browser has already clamped and this would fight it.
+		if (scrollTop && document.documentElement.scrollHeight - window.innerHeight >= scrollTop) {
+			window.scrollTo(0, scrollTop);
+		}
+	}
+
+	/*
+	 * The clock tick, but only when the clock has something new to say.
+	 *
+	 * `render()` rebuilds the whole view. Firing it every thirty seconds
+	 * regardless meant the page was torn down and rebuilt twice a minute -
+	 * dropping keyboard focus, interrupting a scroll, and re-running the
+	 * allocator - to redraw a minute figure that had not changed. The visible
+	 * clock reads in minutes and the progress bar moves with it, so a tick
+	 * that lands inside the same minute has nothing to show.
+	 */
+	function tick() {
+		const live = liveInfo();
+		const signature = [
+			Math.floor(live.now),
+			live.index,
+			live.inBreak,
+			live.inZero,
+			today()
+		].join('|');
+		if (signature === lastTickSignature) return;
+		lastTickSignature = signature;
+		render();
 	}
 
 	/* ------------------------------------------------------------------ *
@@ -1959,10 +2296,22 @@
 		return isoDate(dateForDay(state.subsDay));
 	}
 
-	function dropPinsFor(absentTeacher) {
+	/**
+	 * Drop the pins that no longer sit on a vacancy.
+	 *
+	 * `keptPeriods` is the absence window that survives: a pin inside it is
+	 * still a decision about a real period, and anything outside it is an
+	 * orphan. Passing nothing removes every pin for that teacher, which is
+	 * what unmarking them absent means.
+	 */
+	function dropPinsFor(absentTeacher, keptPeriods) {
+		const kept = keptPeriods || [];
 		const pins = {};
 		Object.keys(state.pins).forEach(slotId => {
-			if (slotId.split('|')[0] !== absentTeacher) pins[slotId] = state.pins[slotId];
+			const parts = slotId.split('|');
+			if (parts[0] !== absentTeacher || kept.indexOf(Number(parts[1])) !== -1) {
+				pins[slotId] = state.pins[slotId];
+			}
 		});
 		state.pins = pins;
 	}
@@ -1988,7 +2337,7 @@
 			day: state.subsDay,
 			periodCount: PERIOD_COUNT,
 			teacherProfiles: teacherProfiles(),
-			absentTeachers: state.absent,
+			absentTeachers: state.absences,
 			assignments: taken,
 			coverHistory: state.coverHistory,
 			teacher: teacher,
@@ -2002,11 +2351,32 @@
 		});
 	}
 
+	/**
+	 * Absences as this app understands them, from a plan written by any
+	 * version of it.
+	 *
+	 * `absent` has always been a list of names and still is, so a plan made
+	 * on an older phone - or read by one - keeps working and simply means
+	 * "away all day". `absencePeriods` is the window each of those names is
+	 * actually away for, and it is the richer answer when it is there.
+	 */
+	function absencesFromStored(stored) {
+		if (!stored) return {};
+		const known = name => state.db.teacherNames.indexOf(name) !== -1;
+		const names = Array.isArray(stored.absent) ? stored.absent.filter(known) : [];
+		const windows = (stored.absencePeriods && typeof stored.absencePeriods === 'object')
+			? stored.absencePeriods
+			: {};
+		const seeded = {};
+		names.forEach(name => { seeded[name] = windows[name] || true; });
+		Object.keys(windows).filter(known).forEach(name => { seeded[name] = windows[name]; });
+		return Engine.normalizeAbsences(seeded, PERIOD_COUNT);
+	}
+
 	function loadStoredPlan() {
 		const stored = state.planStore ? state.planStore.getPlan(planKey()) : null;
-		state.absent = stored && Array.isArray(stored.absent)
-			? stored.absent.filter(name => state.db.teacherNames.indexOf(name) !== -1)
-			: [];
+		state.absences = absencesFromStored(stored);
+		state.absenceEditor = '';
 		state.pins = stored && stored.pins && typeof stored.pins === 'object' ? stored.pins : {};
 	}
 
@@ -2042,7 +2412,7 @@
 		if (!state.planStore) return;
 		const date = planKey();
 
-		if (!state.absent.length) {
+		if (!absentNames().length) {
 			state.planStore.removePlan(date);
 			if (Sync && Sync.isConfigured()) {
 				Sync.removePlan(date).catch(error => console.warn('VPPS: plan sync failed', error));
@@ -2069,7 +2439,12 @@
 		const payload = {
 			day: state.subsDay,
 			scheduleVersion: SCHEDULE_VERSION,
-			absent: state.absent.slice(),
+			// Both shapes travel together. `absent` keeps its old meaning for
+			// anything reading the plan without half-day support - it sees a
+			// whole-day absence, which over-states the cover needed rather
+			// than under-stating it.
+			absent: absentNames(),
+			absencePeriods: Object.assign({}, state.absences),
 			assignments: assignments,
 			pins: Object.assign({}, state.pins)
 		};
@@ -2114,8 +2489,8 @@
 
 		Sync.loadPlan(planKey()).then(plan => {
 			if (!plan || !plan.absent || !plan.absent.length) return;
-			if (state.absent.length) return; // never clobber what this device is editing
-			state.absent = plan.absent.filter(name => state.db.teacherNames.indexOf(name) !== -1);
+			if (absentNames().length) return; // never clobber what this device is editing
+			state.absences = absencesFromStored(plan);
 			if (plan.pins && typeof plan.pins === 'object') state.pins = plan.pins;
 			planCache = null;
 			redraw();
@@ -2148,18 +2523,56 @@
 		'teacher-mode'(value) { state.gridTeacher = value === 'week'; saveGrid(); },
 		'subs-mode'(value) { state.gridSubs = value === 'table'; saveGrid(); },
 		'subs-day'(value) { state.subsDay = value; state.editSlot = null; loadStoredPlan(); },
+		// One tap is the common case: away for the whole day. The window
+		// editor below is how a half day gets said, and it opens on the same
+		// tap so the option is visible rather than hidden behind a second one.
 		'toggle-absent'(value) {
-			const at = state.absent.indexOf(value);
-			if (at === -1) state.absent = state.absent.concat([value]);
-			else {
-				state.absent = state.absent.filter(name => name !== value);
-				// Their periods are gone; the pins on them would be orphans.
-				dropPinsFor(value);
+			if (isAbsent(value)) {
+				setAbsence(value, []);
+				state.absenceEditor = '';
+			} else {
+				setAbsence(value, allPeriodIndexes());
+				state.absenceEditor = value;
 			}
 			state.editSlot = null;
 			persistPlan();
 		},
-		'clear-absent'() { state.absent = []; state.pins = {}; state.editSlot = null; persistPlan(); },
+		'absence-open'(value) {
+			state.absenceEditor = state.absenceEditor === value ? '' : value;
+		},
+		'absence-preset'(value, target) {
+			const teacher = target && target.dataset ? target.dataset.teacher : '';
+			if (!teacher || !isAbsent(teacher)) return;
+			if (value === 'day') setAbsence(teacher, allPeriodIndexes());
+			else if (value === 'first') setAbsence(teacher, halfDayPeriods('first'));
+			else if (value === 'second') setAbsence(teacher, halfDayPeriods('second'));
+			state.editSlot = null;
+			persistPlan();
+		},
+		'absence-toggle'(value, target) {
+			const teacher = target && target.dataset ? target.dataset.teacher : '';
+			if (!teacher || !isAbsent(teacher)) return;
+			const index = Number(value);
+			const current = awayPeriods(teacher);
+			// Turning off the last period is how an absence is undone from
+			// here - it is the same statement as "not away at all".
+			setAbsence(teacher, current.indexOf(index) === -1
+				? current.concat([index])
+				: current.filter(item => item !== index));
+			state.editSlot = null;
+			persistPlan();
+		},
+		'clear-absent'() {
+			state.absences = {};
+			state.absenceEditor = '';
+			state.pins = {};
+			state.editSlot = null;
+			persistPlan();
+		},
+		'toggle-admin'() {
+			state.adminOpen = !state.adminOpen;
+			save(STORE.adminOpen, state.adminOpen ? '1' : '0');
+		},
 		'edit-slot'(value) { state.editSlot = state.editSlot === value ? null : value; },
 		'close-editor'() { state.editSlot = null; },
 		'pick-cover'(value, target) {
@@ -2297,6 +2710,7 @@
 		}
 
 		state.shifts = readShifts();
+		state.adminOpen = read(STORE.adminOpen) === '1';
 
 		const startDay = today() || 'Monday';
 		state.selDay = startDay;
@@ -2318,6 +2732,19 @@
 
 		document.body.addEventListener('click', onClick);
 
+		// A sheet over the whole screen needs a way out that is not a tap on a
+		// scrim, for anyone driving this from a keyboard in the office.
+		document.addEventListener('keydown', event => {
+			if (event.key !== 'Escape') return;
+			if (state.editSlot) {
+				state.editSlot = null;
+				render();
+			} else if (state.absenceEditor) {
+				state.absenceEditor = '';
+				render();
+			}
+		});
+
 		document.getElementById('lang-toggle').addEventListener('click', () => {
 			I18n.setLanguage(I18n.getLanguage() === 'hi' ? 'en' : 'hi');
 			render();
@@ -2336,7 +2763,8 @@
 		startSync();
 
 		// Keeps the live period, clock and progress bar honest without a reload.
-		tickTimer = setInterval(render, 30000);
+		// Ticks are cheap because `tick` only redraws when the minute turns.
+		tickTimer = setInterval(tick, 15000);
 	}
 
 	function boot() {

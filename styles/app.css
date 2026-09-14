@@ -112,6 +112,54 @@ a:hover { text-decoration: underline; }
 button {
 	font-family: var(--font-body);
 	cursor: pointer;
+	/* Kills the 300ms click delay and the double-tap-to-zoom gesture on
+	   controls, which is what made every tap in this app feel a beat late. */
+	touch-action: manipulation;
+}
+
+/*
+ * Something has to happen the instant a finger lands. A phone gives no hover
+ * state, so without this a tap is silent until the re-render finishes - which
+ * on the planner is long enough to make people tap twice.
+ */
+.chip,
+.icon-button,
+.segmented__button,
+.slot-option,
+.cover-pill,
+.button-primary,
+.button-secondary,
+.button-quiet,
+.button-share,
+.shift-toggle,
+.absence-toggle,
+.absence-preset,
+.app-nav__button,
+.absence-item__head,
+.drawer__head,
+.shift-item,
+.combine-offer {
+	transition: transform 0.12s ease, background-color 0.12s ease, border-color 0.12s ease;
+}
+
+.chip:active,
+.icon-button:active,
+.segmented__button:active,
+.slot-option:active,
+.cover-pill:active,
+.button-primary:active,
+.button-secondary:active,
+.button-quiet:active,
+.button-share:active,
+.shift-toggle:active,
+.absence-toggle:active,
+.absence-preset:active,
+.app-nav__button:active,
+.absence-item__head:active,
+.drawer__head:active,
+.shift-item:active,
+.combine-offer:active {
+	transform: scale(0.97);
 }
 
 :focus-visible {
@@ -165,6 +213,9 @@ button {
 	display: flex;
 	flex-direction: column;
 	position: relative;
+	/* Landscape on a notched phone puts the cutout at the side. */
+	padding-left: env(safe-area-inset-left);
+	padding-right: env(safe-area-inset-right);
 }
 
 /* On wide screens the fixed-width column reads as intentional with a hairline. */
@@ -191,7 +242,9 @@ button {
 	display: flex;
 	align-items: center;
 	gap: 10px;
-	padding: 12px 16px 8px 16px;
+	/* Installed to the home screen the app owns the whole screen, notch
+	   included, and the title used to sit under the status bar. */
+	padding: calc(12px + env(safe-area-inset-top)) 16px 8px 16px;
 }
 
 .app-header__logo {
@@ -345,7 +398,9 @@ button {
 	color: var(--pri);
 	font-size: 12.5px;
 	font-weight: 800;
-	padding: 6px 0 6px 6px;
+	/* A 12px text link is a 17px tall target unless it is given room. */
+	padding: 10px 4px 10px 10px;
+	margin: -10px -4px -10px 0;
 }
 
 /* ==========================================================================
@@ -531,7 +586,11 @@ button {
 }
 
 .chip {
-	min-height: 40px;
+	display: inline-flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	min-height: 42px;
 	padding: 0 14px;
 	border-radius: 999px;
 	flex-shrink: 0;
@@ -558,6 +617,16 @@ button {
 	color: var(--onpri);
 }
 
+/* The window under an absent teacher's name. Without it a half day and a
+   whole day look identical on the chip that sets them. */
+.chip__meta {
+	font-size: 9.5px;
+	font-weight: 800;
+	letter-spacing: 0.02em;
+	opacity: 0.85;
+	margin-top: -1px;
+}
+
 .segmented {
 	display: flex;
 	gap: 3px;
@@ -569,8 +638,8 @@ button {
 }
 
 .segmented__button {
-	min-height: 32px;
-	padding: 0 12px;
+	min-height: 36px;
+	padding: 0 13px;
 	border-radius: 9px;
 	border: none;
 	background: transparent;
@@ -1256,6 +1325,21 @@ button {
 .plan-row--review { background: color-mix(in srgb, var(--warnsoft) 45%, transparent); }
 .plan-row--open { background: color-mix(in srgb, var(--errsoft) 45%, transparent); }
 
+/*
+ * Sticky under the header. A day with four absentees runs well past a
+ * screen, and the counts are what tells a coordinator whether they are
+ * finished - which they were reading from the top of a list they had
+ * already scrolled away from.
+ */
+.plan-summary--sticky {
+	position: sticky;
+	/* Clears the app header, which is sticky at the top of the same
+	   scrollport. `--header-h` is measured on every render, because the
+	   header grows with the notch inset and with Hindi. */
+	top: var(--header-h, 86px);
+	z-index: 20;
+}
+
 .plan-summary {
 	display: flex;
 	flex-wrap: wrap;
@@ -1297,15 +1381,62 @@ button {
    Swap sheet
    ========================================================================== */
 
+/*
+ * Anchored to the bottom of the screen, not to the row that opened it.
+ *
+ * In the page flow this panel rendered above the plan, so tapping a period
+ * in the seventh row of a long day opened a sheet that was already scrolled
+ * off the top - and on a phone nothing about that is recoverable, because
+ * the tap is also what re-rendered the page. It is the one control on this
+ * screen that has to be reachable with the thumb that opened it.
+ */
+.sheet {
+	position: fixed;
+	inset: 0;
+	z-index: 70;
+	display: flex;
+	flex-direction: column;
+	justify-content: flex-end;
+}
+
+.sheet__scrim {
+	position: absolute;
+	inset: 0;
+	background: rgba(8, 17, 31, 0.45);
+	border: none;
+	padding: 0;
+	animation: vpps-fade 0.16s ease-out;
+}
+
+@keyframes vpps-fade { from { opacity: 0; } }
+@keyframes vpps-rise { from { transform: translateY(14px); } }
+
 .slot-editor {
+	position: relative;
 	display: flex;
 	flex-direction: column;
 	gap: 10px;
-	padding: 14px;
-	border-radius: 16px;
+	width: 100%;
+	max-width: var(--shell-max);
+	margin: 0 auto;
+	padding: 8px 14px calc(16px + env(safe-area-inset-bottom)) 14px;
+	border-radius: 20px 20px 0 0;
 	background: var(--card);
-	border: 1px solid var(--pri);
-	box-shadow: 0 8px 24px var(--shadow);
+	border: 1px solid var(--bd);
+	border-bottom: none;
+	box-shadow: 0 -10px 34px var(--shadow);
+	max-height: 82dvh;
+	animation: vpps-rise 0.18s ease-out;
+}
+
+/* The handle that says "this pulls up from the bottom and goes back down". */
+.slot-editor__grip {
+	width: 38px;
+	height: 4px;
+	border-radius: 999px;
+	background: var(--bd);
+	margin: 2px auto 4px auto;
+	flex-shrink: 0;
 }
 
 .slot-editor__head {
@@ -1328,12 +1459,22 @@ button {
 
 .slot-editor__head .icon-button { margin-left: auto; }
 
+/* The sheet scrolls as one column, so the presets at the top and the long
+   candidate list below cannot each keep their own scrollbar. */
 .slot-editor__options {
 	display: flex;
 	flex-direction: column;
 	gap: 6px;
-	max-height: 46vh;
+}
+
+.slot-editor__body {
 	overflow-y: auto;
+	overscroll-behavior: contain;
+	-webkit-overflow-scrolling: touch;
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+	padding-bottom: 2px;
 }
 
 .slot-option {
@@ -1341,6 +1482,8 @@ button {
 	flex-direction: column;
 	gap: 3px;
 	width: 100%;
+	min-height: 46px;
+	justify-content: center;
 	text-align: left;
 	padding: 9px 12px;
 	border-radius: 12px;
@@ -1389,6 +1532,220 @@ button {
 	font-weight: 600;
 	color: var(--mut);
 	line-height: 1.4;
+}
+
+/* ==========================================================================
+   Absence windows - half days
+   ========================================================================== */
+
+.absence-list {
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+}
+
+.absence-item {
+	border-radius: 14px;
+	border: 1px solid var(--bd);
+	background: var(--card);
+	overflow: hidden;
+}
+
+.absence-item.is-open { border-color: var(--pri); }
+
+.absence-item__head {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	width: 100%;
+	min-height: 48px;
+	padding: 8px 12px;
+	border: none;
+	background: transparent;
+	color: var(--tx);
+	text-align: left;
+}
+
+.absence-item__name {
+	font-size: 13.5px;
+	font-weight: 800;
+	flex-shrink: 0;
+}
+
+.absence-item__window {
+	flex: 1;
+	min-width: 0;
+	font-size: 11.5px;
+	font-weight: 700;
+	color: var(--mut);
+	text-align: right;
+}
+
+/* A part day is the exception, and has to look like one. */
+.absence-item__window.is-part {
+	color: var(--warn);
+	background: var(--warnsoft);
+	border-radius: 999px;
+	padding: 3px 9px;
+	flex: 0 1 auto;
+}
+
+.absence-item__chev {
+	font-size: 11px;
+	color: var(--mut);
+	flex-shrink: 0;
+}
+
+.absence-edit {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+	padding: 2px 12px 12px 12px;
+	border-top: 1px solid var(--bd);
+	padding-top: 10px;
+}
+
+.absence-edit__presets {
+	display: flex;
+	gap: 6px;
+}
+
+.absence-preset {
+	flex: 1;
+	min-height: 40px;
+	padding: 0 6px;
+	border-radius: 11px;
+	border: 1px solid var(--bd);
+	background: var(--card2);
+	color: var(--tx2);
+	font-size: 12px;
+	font-weight: 800;
+	line-height: 1.2;
+}
+
+.absence-preset.is-active {
+	border-color: var(--pri);
+	background: var(--pri);
+	color: var(--onpri);
+}
+
+.absence-edit__hint {
+	font-size: 11px;
+	font-weight: 800;
+	letter-spacing: 0.04em;
+	text-transform: uppercase;
+	color: var(--mut);
+}
+
+.absence-edit__periods {
+	display: grid;
+	grid-template-columns: repeat(4, 1fr);
+	gap: 6px;
+}
+
+/*
+ * Lit means AWAY here, and lit means PRESENT in the shift editor below.
+ * The two panels answer opposite questions - "when are they not here today"
+ * against "when are they ever here" - so one colour cannot serve both. Away
+ * borrows the warning colour the rest of the app already uses for a period
+ * that needs a decision.
+ */
+.absence-toggle {
+	min-height: 46px;
+	border-radius: 11px;
+	border: 1px solid var(--bd);
+	background: var(--card2);
+	color: var(--tx2);
+	font-size: 12px;
+	font-weight: 800;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	gap: 1px;
+}
+
+.absence-toggle.is-away {
+	border-color: var(--warn);
+	background: var(--warnsoft);
+	color: var(--warn);
+}
+
+/* A dot on the periods the teacher actually teaches: those are the ones that
+   will need a substitute, and the rest cost the plan nothing. */
+.absence-toggle.has-class::after {
+	content: '';
+	width: 4px;
+	height: 4px;
+	border-radius: 50%;
+	background: currentColor;
+	opacity: 0.65;
+}
+
+.absence-toggle__time {
+	font-size: 9.5px;
+	font-weight: 600;
+	opacity: 0.75;
+}
+
+.absence-edit__note {
+	font-size: 11.5px;
+	font-weight: 600;
+	color: var(--tx2);
+	line-height: 1.45;
+}
+
+/* ==========================================================================
+   Admin drawer
+   ========================================================================== */
+
+.drawer {
+	border-radius: 16px;
+	border: 1px solid var(--bd);
+	background: var(--card);
+	overflow: hidden;
+}
+
+.drawer__head {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	width: 100%;
+	min-height: 50px;
+	padding: 8px 14px;
+	border: none;
+	background: transparent;
+	color: var(--tx);
+	text-align: left;
+}
+
+.drawer__title {
+	font-family: var(--font-display);
+	font-size: 14px;
+	font-weight: 700;
+}
+
+.drawer__meta {
+	flex: 1;
+	min-width: 0;
+	font-size: 11.5px;
+	font-weight: 700;
+	color: var(--mut);
+	text-align: right;
+}
+
+.drawer__chev {
+	font-size: 11px;
+	color: var(--mut);
+}
+
+/* Inside the drawer the panel is a section of it, not a card of its own:
+   its border would otherwise draw a second box a pixel inside the first. */
+.drawer.is-open .shift-panel {
+	border: none;
+	border-top: 1px solid var(--bd);
+	border-radius: 0;
+	margin: 0;
 }
 
 /* ==========================================================================
@@ -1598,18 +1955,23 @@ button {
 
 .toast {
 	position: fixed;
-	bottom: 96px;
+	bottom: calc(96px + env(safe-area-inset-bottom));
 	left: 50%;
 	transform: translateX(-50%);
-	z-index: 60;
+	z-index: 90;
 	background: var(--tx);
 	color: var(--bg);
 	padding: 10px 18px;
-	border-radius: 999px;
+	border-radius: 18px;
 	font-size: 13px;
 	font-weight: 700;
+	line-height: 1.4;
+	text-align: center;
 	box-shadow: 0 8px 24px var(--shadow);
-	white-space: nowrap;
+	/* Warnings arrive concatenated - "Daily substitution limit exceeded ·
+	   Creates a long consecutive teaching run" - and nowrap sent them off
+	   both edges of the screen. */
+	max-width: min(calc(100vw - 32px), 380px);
 }
 
 .toast[hidden] { display: none; }

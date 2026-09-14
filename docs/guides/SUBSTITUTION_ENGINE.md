@@ -44,9 +44,52 @@ The teacher is absent, already has a regular class, is already covering another 
 
 Three further conditions do not block a candidate but do disable `autoEligible`, so the period becomes an amber "confirm this" row rather than an automatic assignment: `full_day` (this cover would take the teacher to a full teaching day), `excessive_consecutive` (it would extend their unbroken run past `maxConsecutive`, default 3) and `over_substitution_limit` (they already hold `maxAutoSubstitutions`, default 2).
 
-On the v11 timetable this is what decides the shape of a plan, so it is worth stating plainly. Simulating all 114 single-teacher absences (19 teachers × 6 days) gives **674 vacancies, of which 27% are auto-assigned, 73% come through as amber suggestions, and none is left open** — every vacancy gets a named teacher. Of the 908 candidates who are free, qualified for an automatic tier and not duty-holders, `full_day` rejects **49%**, `excessive_consecutive` **27%**, and `over_substitution_limit` **0%** — the daily cap never binds on this roster.
+On the v11 timetable this is what decides the shape of a plan, so it is worth stating plainly. Simulating all 114 single-teacher absences (19 teachers × 6 days) gives **674 vacancies, of which 27% are auto-assigned, 73% come through as amber suggestions, and none is left open** — every vacancy gets a named teacher. (Re-measured after the half-day work: identical to the period, which is the point — nothing about a full day changed.) Of the 908 candidates who are free, qualified for an automatic tier and not duty-holders, `full_day` rejects **49%**, `excessive_consecutive` **27%**, and `over_substitution_limit` **0%** — the daily cap never binds on this roster.
 
 The cause is load, not calibration drift: teachers here average **6.44 of 8 periods a day**, and 70 of the 114 teacher-days are seven-period days. So `full_day` bars nearly anyone holding a single free period. That is deliberate. Taking a teacher's last free period is a decision a coordinator makes, not one the app makes for them, and the amber row is how it gets asked. Note that `lastFreePeriod` (−620) already penalises the same situation through the score; the gate is the stricter statement of the same policy, and the one that cannot be outweighed. Relaxing it is the single highest-leverage change available if the school ever decides it wants more automatic cover — and it should be a deliberate policy decision, not a tuning tweak.
+
+## Half days
+
+An absence is one date. It is not always the whole of it: teachers leave after the fourth period for a hospital appointment, or arrive at the fifth from one, and until this existed the app could only be told "away" or "here".
+
+Both wrong answers cost something. Marked away all day, the morning she taught becomes four vacancies nobody needs to fill, and the app refuses the cover she could have given in the afternoon. Not marked at all, the periods she really is away go uncovered.
+
+So an absence carries the periods it applies to:
+
+```javascript
+{ Jainendra: [4, 5, 6, 7] }   // away from Period 5; in school, and coverable, for P1-P4
+```
+
+A whole day is simply every period, which is why **the old shape still means what it always did**: `Engine.normalizeAbsences` accepts a bare list of names, a map of names to period lists, or a list of `{ teacher, periods }` objects, and a name with no periods is away all day. Saved plans and database rows written before this existed keep working untouched.
+
+`absentTeachers` on every engine entry point takes any of those shapes. Inside, one `absent` block becomes period-aware — `isAbsentAt(index, teacher, periodIndex)` — and that is the whole of the change to matching. A half-day absentee is an ordinary candidate in the half they are present for, ranked and gated like anybody else.
+
+### A half day is not a shift
+
+The distinction is load-bearing and the two are stored in different places:
+
+| | Shift | Absence |
+| --- | --- | --- |
+| Holds for | every day | one date |
+| Lives in | `teacher_shifts`, `localStorage.vppsm_shifts` | the plan for that date |
+| Example | Anjana is part-time, P5-P8 | Anjana went home after P6 on Tuesday |
+| Edited in | the admin drawer | the absence row, by anyone planning |
+
+Keeping them apart is what lets a part-time teacher have a half day. They compose: the periods a teacher is available for are the ones inside their shift **and** outside their absence.
+
+### The day a teacher is measured against
+
+Fatigue is measured over the periods a teacher is actually in school for, which `getLoadFacts` reports as `dayLength`. That is not always the eight on the bell schedule: a part-timer is on site for four, and somebody who goes home after the break is here for four more.
+
+Measured against eight, both looked as though they had hours of preparation time going spare, and the `full_day` gate would say *"teacher would have no free period"* about periods they are not in the building for — a sentence a coordinator can see is false, on the screen where they are deciding whether to trust the rest of it. Away and off-shift periods are now neither busy nor free: they are not part of today, and they break a consecutive run, because leaving the building is the longest break there is.
+
+For a full-time teacher with no absence `dayLength` is 8 and every number is exactly what it was — a test asserts it, and the whole-day simulation below is unchanged to the period.
+
+### The allocator leaves one free period
+
+`full_day` scores one candidate against a plan that does not yet contain the flow's other choices. The flow decides several covers at once, so on a day with two people away it could hand somebody two automatic covers and fill their day between them, each having looked fine alone.
+
+`autoCoverAllowance()` states the same policy where the flow can act on it: a teacher's source capacity is also capped at *free periods minus one*, so automatic cover never takes the last one. Pinned periods are excluded from the count rather than capped, because a pin is a decision somebody already made. On the whole-day simulation this changes nothing — no plan there ever filled a day — and it closes the multi-absence case that did.
 
 ## Reserve staff
 

@@ -600,6 +600,183 @@ test('the shift policy version is bumped whenever the shipped default changes', 
 	assert.ok(Engine.SHIFT_POLICY_VERSION >= 2, 'v11 keeps P5-P8; edition 2 or later');
 });
 
+/* ---------------------------------------------------------------------- *
+ * Half days
+ * ---------------------------------------------------------------------- */
+
+test('an absence carries the periods it applies to, and a bare name means all day', () => {
+	// Every older caller passed a list of names and meant the whole day. That
+	// has to keep meaning the whole day, because saved plans and the database
+	// are full of them.
+	assert.deepEqual(Engine.normalizeAbsences(['Asha'], 8), { Asha: [0, 1, 2, 3, 4, 5, 6, 7] });
+	assert.deepEqual(Engine.normalizeAbsences({ Asha: true }, 8), { Asha: [0, 1, 2, 3, 4, 5, 6, 7] });
+	assert.deepEqual(Engine.normalizeAbsences([{ teacher: 'Asha', periods: [4, 5, 6, 7] }], 8),
+		{ Asha: [4, 5, 6, 7] });
+	assert.deepEqual(Engine.normalizeAbsences({ Asha: [3, 1, 1] }, 8), { Asha: [1, 3] },
+		'sorted, and each period once');
+	assert.deepEqual(Engine.normalizeAbsences({ Asha: [9, -1] }, 8), {},
+		'a period outside the day is not a period, and an empty window is not an absence');
+	assert.deepEqual(Engine.normalizeAbsences(null, 8), {});
+
+	const index = Engine.normalizeAbsences({ Asha: [4, 5, 6, 7] }, 8);
+	assert.equal(Engine.isAbsentAt(index, 'Asha', 3), false);
+	assert.equal(Engine.isAbsentAt(index, 'Asha', 4), true);
+	assert.equal(Engine.isAbsentAt(index, 'Bela', 4), false);
+	assert.deepEqual(Engine.absentNames(index), ['Asha']);
+});
+
+test('a half-day absence blocks only the periods it covers', () => {
+	const base = baseInput();
+	// Bela goes home after the fourth period. She teaches Class 9 Science in
+	// P4, which is inside her own day, so that period is hers and the ones
+	// after it are not.
+	base.absentTeachers = { Bela: [4, 5, 6, 7] };
+
+	const morning = Engine.rankCandidates({
+		...base,
+		vacancy: { slotId: 'am', periodIndex: 1, subject: 'Science', className: 'Class 9' }
+	}).find(item => item.teacher === 'Bela');
+	assert.deepEqual(morning.blocked, [], 'she is in the building, so she is an ordinary candidate');
+	assert.equal(morning.autoEligible, true, 'and can be given her own subject');
+
+	const afternoon = Engine.rankCandidates({
+		...base,
+		vacancy: { slotId: 'pm', periodIndex: 5, subject: 'Science', className: 'Class 9' }
+	}).find(item => item.teacher === 'Bela');
+	assert.equal(afternoon.blocked.includes('absent'), true, 'after she leaves she is absent');
+	assert.equal(afternoon.autoEligible, false);
+});
+
+test('allocation covers the half a teacher is away for and uses them for the other half', () => {
+	// Asha is away from the fifth period. Her own P1 class needs nobody - she
+	// is there to teach it - and the vacancy she does leave must not come
+	// back to her.
+	const plan = Engine.generatePlan({
+		day: 'Monday',
+		periodCount: 8,
+		teacherProfiles: Engine.buildTeacherProfiles(profileInput()),
+		absentTeachers: { Asha: [4, 5, 6, 7], Bela: [5] },
+		existingAssignments: [],
+		vacancies: [
+			{ slotId: 'bela-p6', periodIndex: 5, subject: 'Science', className: 'Class 9' }
+		]
+	});
+
+	const proposed = plan.assignments.concat(plan.reviewSuggestions);
+	const cover = proposed.find(item => item.slotId === 'bela-p6');
+	assert.ok(cover, 'the period Bela is away for still gets someone');
+	assert.notEqual(cover.teacher, 'Asha', 'Asha has gone home by Period 6');
+	assert.notEqual(cover.teacher, 'Bela', 'and Bela is the one being covered');
+
+	const early = Engine.rankCandidates({
+		day: 'Monday',
+		periodCount: 8,
+		teacherProfiles: Engine.buildTeacherProfiles(profileInput()),
+		absentTeachers: { Asha: [4, 5, 6, 7] },
+		assignments: [],
+		vacancy: { slotId: 'early', periodIndex: 3, subject: 'Physics', className: 'Class 11 Science' }
+	}).find(item => item.teacher === 'Asha');
+	assert.deepEqual(early.blocked, [],
+		'the whole point: a morning absence leaves an afternoon of cover available');
+});
+
+test('load is measured over the day a teacher is actually in school for', () => {
+	// The gate and the warning both used to count all eight periods, so a
+	// part-time teacher looked like she had hours of preparation time going
+	// spare, and the app said "teacher would have no free period" about
+	// periods she is not in the building for.
+	const input = profileInput();
+	input.policyOverrides = Engine.shiftsToPolicyOverrides({ Charu: { fromPeriodIndex: 6 } }, 8);
+	const profiles = Engine.buildTeacherProfiles(input);
+	const base = {
+		day: 'Monday',
+		periodCount: 8,
+		teacherProfiles: profiles,
+		absentTeachers: [],
+		assignments: []
+	};
+
+	const onlyTwo = Engine.rankCandidates({
+		...base,
+		vacancy: { slotId: 'p7', periodIndex: 6, subject: 'Sports', className: 'Class 7' }
+	}).find(item => item.teacher === 'Charu');
+	assert.equal(onlyTwo.load.dayLength, 2, 'she is here for P7 and P8, and that is her day');
+
+	// Her one other present period is now taken, so this cover fills her day.
+	const full = Engine.rankCandidates({
+		...base,
+		assignments: [{ slotId: 'p8', teacher: 'Charu', periodIndex: 7 }],
+		vacancy: { slotId: 'p7', periodIndex: 6, subject: 'Sports', className: 'Class 7' }
+	}).find(item => item.teacher === 'Charu');
+	assert.equal(full.load.freeAfter, 0, 'two of two periods busy is a full day for her');
+	assert.equal(full.warnings.includes('full_day'), true);
+	assert.equal(full.autoEligible, false, 'so a coordinator confirms it');
+
+	// A half day does the same thing for one date rather than every day.
+	const halfDay = Engine.rankCandidates({
+		...base,
+		absentTeachers: { Bela: [0, 1, 2, 3] },
+		vacancy: { slotId: 'p6', periodIndex: 5, subject: 'Science', className: 'Class 9' }
+	}).find(item => item.teacher === 'Bela');
+	assert.equal(halfDay.load.dayLength, 4, 'she arrives for the second half, so her day is four periods');
+});
+
+test('the allocator never fills a teacher\'s last free period by itself', () => {
+	// The per-candidate gate scores one cover against a plan that does not yet
+	// contain the flow's other choices, so two vacancies could each look fine
+	// alone and together leave one teacher with nothing free all day. Charu
+	// teaches nothing on Monday and is on site for two periods, so she has
+	// exactly two free periods and may be given exactly one.
+	const input = profileInput();
+	input.policyOverrides = Engine.shiftsToPolicyOverrides({ Charu: { fromPeriodIndex: 6 } }, 8);
+	const profiles = Engine.buildTeacherProfiles(input);
+
+	const plan = Engine.generatePlan({
+		day: 'Monday',
+		periodCount: 8,
+		teacherProfiles: profiles,
+		absentTeachers: ['Asha', 'Bela'],
+		existingAssignments: [],
+		vacancies: [
+			{ slotId: 'p7', periodIndex: 6, subject: 'Sports', className: 'Class 7' },
+			{ slotId: 'p8', periodIndex: 7, subject: 'Sports', className: 'Class 7' }
+		]
+	});
+
+	const hers = plan.assignments.filter(item => item.teacher === 'Charu');
+	assert.equal(hers.length, 1, 'one of the two, never both');
+	assert.equal(plan.assignments.length + plan.reviewSuggestions.length, 2,
+		'the other still gets a name - it just needs confirming');
+
+	// And a full-time teacher with room to spare is untouched by the cap.
+	const roomy = Engine.generatePlan({
+		day: 'Monday',
+		periodCount: 8,
+		teacherProfiles: Engine.buildTeacherProfiles(profileInput()),
+		absentTeachers: ['Asha'],
+		existingAssignments: [],
+		vacancies: [
+			{ slotId: 'a', periodIndex: 1, subject: 'Sports', className: 'Class 7' },
+			{ slotId: 'b', periodIndex: 2, subject: 'Sports', className: 'Class 7' }
+		]
+	});
+	assert.equal(roomy.assignments.filter(item => item.teacher === 'Charu').length, 2,
+		'Charu teaches nothing on Monday, so two covers still leave her six free periods');
+});
+
+test('a full day of nobody absent is measured exactly as it always was', () => {
+	// The regression guard for the change above: with no shift and no
+	// absence, every load fact has to read the way it did before any of this
+	// existed, or every plan the school has seen would quietly move.
+	const facts = Engine.rankCandidates({
+		...baseInput(),
+		vacancy: { slotId: 'plain', periodIndex: 5, subject: 'Science', className: 'Class 9' }
+	}).find(item => item.teacher === 'Charu').load;
+	assert.equal(facts.dayLength, 8);
+	assert.equal(facts.regular, 0, 'Charu teaches nothing on Monday');
+	assert.equal(facts.freeAfter, 7, 'one cover out of eight periods');
+});
+
 test('a late-shift teacher is blocked before arrival and usable after it', () => {
 	// Charu teaches nothing on Monday, so before this fix she was "free" all
 	// day and the planner handed her cover from Period 1.

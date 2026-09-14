@@ -105,6 +105,7 @@ The old `feat_*` flags went away with `perf.js`, `ui.js`, `a11y.js`, and `colors
 | `vppsm_role` | `teacher` or `admin` — admin defaults to the table views |
 | `vppsm_grid` | which of the four views are in table/week mode |
 | `vppsm_shifts` | this device's copy of the shift timings, as `{ policyVersion, shifts }` |
+| `vppsm_adminopen` | whether the admin drawer on the Substitutes view is open |
 | `vppsm_cls`, `vppsm_tsel` | last selected class and teacher |
 | `vpps-language` | EN/HI |
 | `vpps-substitution-plans-v1` | date-keyed substitution plans |
@@ -126,6 +127,23 @@ Anjana is part-time: **Periods 5–8 only**, and she is the only one — every o
 Her shift is **availability, not teaching load**. The timetable gives her P6–P8, but she is in the building from P5, which is exactly what makes P5 a period she can be asked to cover. The test suite therefore asserts containment, not equality: she may never be timetabled outside the window she is present for, so a future revision that moves her still fails a test.
 
 **A change to `DEFAULT_SHIFTS` must bump `Engine.SHIFT_POLICY_VERSION` in the same commit.** The stored copy in `localStorage` and in `teacher_shifts` beats the shipped default on every load — it has to, or the admin shift editor would not survive a refresh — so without the bump a new default reaches no device that has ever run the app. The version makes a stale stored set give way exactly once. See `docs/guides/SUBSTITUTION_ENGINE.md`.
+
+### 7a. An absence carries the periods it applies to
+
+`state.absences` is `{ teacher: [periodIndex, ...] }` — the periods that teacher is **away** for on `state.subsDay`. A whole day is every period. There is no separate list of names: `absentNames()` derives it, and `isAwayAt(teacher, index)` is the question every caller actually asks.
+
+The engine takes any of three shapes through `absentTeachers` and normalises them with `Engine.normalizeAbsences()`: a bare list of names (whole day, the original shape), a map of names to period lists, or `{ teacher, periods }` objects. **A bare name still means the whole day**, which is what keeps saved plans, the `absences` database column and any older build working.
+
+Half days touch four things and nothing else:
+
+- `buildPlan` creates a vacancy only where the teacher both teaches and is away, and asks the same question of the other teachers in a co-taught cell.
+- `candidateForTeacher` blocks `absent` per period, not per day.
+- `getLoadFacts` measures the day a teacher is actually in school for (`dayLength`) — shift and absence both shrink it — so `full_day` stops claiming somebody would lose a free period they were never going to have.
+- `autoCoverAllowance` caps flow capacity at free periods minus one, so several automatic covers cannot together do what one was refused for.
+
+Do not reach for `shiftsToPolicyOverrides` to express a half day. A shift is every day and lives in `teacher_shifts`; an absence is one date and is thrown away with the plan. Collapsing them would make it impossible to plan a half day for a part-time teacher, which is precisely the case the school has.
+
+The plan payload carries **both** `absent` (names) and `absencePeriods` (windows), and `substitution_plans` has a column for each. Keep writing both: the names column is what an older build reads, and reading it alone yields a whole-day absence — an over-statement of the cover needed, which is the safe direction.
 
 ### 8. There are two deployed sites, and localhost is not the live one
 
@@ -174,6 +192,14 @@ When nobody is free the period reads **Self Study**, styled neutrally, marked �
 ### 14. Print/PDF export and the free-teacher finder were removed
 
 The design has no place for them. Do not reintroduce them without an explicit request.
+
+### 14a. The phone is the primary device, and two rules follow from it
+
+**The swap sheet is anchored to the bottom of the screen.** It used to render in the page flow above the plan, so tapping a period in the seventh row of a long day opened a panel that was already scrolled off the top — and the tap was also what re-rendered the page, so there was no way back to it. `renderSlotEditor` emits a `.sheet` with a scrim, rendered last in `renderSubs`. Do not put it back in flow.
+
+**Settings do not go above the task.** The shift editor and the fairness ledger open the Substitutes view for an admin, and together they are a full screen of panel — nineteen chips belonging to something touched a few times a year — before the day picker and the absence chips. They live in `renderAdminDrawer()` at the foot of the view, collapsed, remembered in `vppsm_adminopen`. The sync pill moved to the plan summary, because whether the plan saved is about the plan, not about shift timings; on staging that pill is the only warning that this is not the live plan, so it must stay somewhere always visible.
+
+Related: `render()` restores both scroll positions, `tick()` only redraws when the minute actually turns, and `--header-h` is measured on every render because anything sticky has to clear a header whose height changes with the notch inset and with Hindi.
 
 ### 15. Every grid runs periods along the top
 

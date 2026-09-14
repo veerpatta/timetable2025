@@ -54,13 +54,16 @@ create table if not exists substitution_plans (
   day_name         text        not null,
   schedule_version text        not null,
   absences         jsonb       not null default '[]'::jsonb,
+  absence_periods  jsonb       not null default '{}'::jsonb,
   assignments      jsonb       not null default '[]'::jsonb,
   pins             jsonb       not null default '{}'::jsonb,
   updated_at       timestamptz not null default now()
 );
 ```
 
-`pins` and `policy_version` were added after the first release and are applied with `alter table … add column if not exists` inside the same idempotent schema step, so an existing database picks them up with no migration. Rows written before the column existed default to version 1.
+`pins`, `policy_version` and `absence_periods` were added after the first release and are applied with `alter table … add column if not exists` inside the same idempotent schema step, so an existing database picks them up with no migration. Rows written before the column existed default to version 1.
+
+`absences` and `absence_periods` are two halves of one answer, and the split is deliberate. `absences` keeps its original meaning — the names who are away — so a build without half-day support reads the row and sees the absence, just as a whole day; that over-states the cover needed rather than under-stating it, which is the safe direction to be wrong in. `absence_periods` says which periods each of those names is actually away for, and an empty object means all of them are away all day, which is exactly what the older column said on its own. See [SUBSTITUTION_ENGINE.md](SUBSTITUTION_ENGINE.md).
 
 `policy_version` records which edition of `Engine.DEFAULT_SHIFTS` a row was written against. The stored set normally wins over the shipped default — otherwise the shift editor would not survive a refresh — so without this stamp a shipped policy change would reach nobody. `loadShifts()` reports the **lowest** version across the rows, and `startSync()` discards a set below `Engine.SHIFT_POLICY_VERSION` in favour of the built-in default, writing it back at the new version. See [SUBSTITUTION_ENGINE.md](SUBSTITUTION_ENGINE.md).
 

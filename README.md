@@ -109,7 +109,7 @@ View renderers:
 
 Interaction uses one delegated `click` handler on `document.body`. Buttons declare `data-action` and `data-value`; `ACTIONS` maps the action name to a state mutation, then `render()` runs.
 
-Preferences persist in `localStorage` under `vppsm_theme`, `vppsm_me`, `vppsm_role`, `vppsm_grid`, `vppsm_shifts`, `vppsm_cls`, `vppsm_tsel`. Language persists under `vpps-language` via `I18n`, and substitution plans under `vpps-substitution-plans-v1` via the engine's plan store.
+Preferences persist in `localStorage` under `vppsm_theme`, `vppsm_me`, `vppsm_role`, `vppsm_grid`, `vppsm_shifts`, `vppsm_adminopen`, `vppsm_cls`, `vppsm_tsel`. Language persists under `vpps-language` via `I18n`, and substitution plans under `vpps-substitution-plans-v1` via the engine's plan store.
 
 `vppsm_role` matters for layout: an admin opens straight into the table views, a teacher into the phone lists. An explicit switch is remembered in `vppsm_grid` and outranks the role default.
 
@@ -126,6 +126,8 @@ Preferences persist in `localStorage` under `vppsm_theme`, `vppsm_me`, `vppsm_ro
 ### Substitution planner
 
 `app.js` builds teacher profiles and a vacancy list from the absent teachers, then calls `SubstitutionEngine.generatePlan()`. Results are grouped per absent teacher.
+
+**An absence carries the periods it applies to.** Tapping a name marks the whole day and opens its window; *Before break* / *After break* or the eight period toggles narrow it to a half day. Only periods inside the window become vacancies, and a teacher is an ordinary cover candidate for the half they are in school for. A whole day is just every period, so anything written before this — a saved plan, a database row — still means what it did. Details in [docs/guides/SUBSTITUTION_ENGINE.md](docs/guides/SUBSTITUTION_ENGINE.md).
 
 **Cover is ranked by how useful it is to the class, familiarity first** — a teacher those children already know can hold a useful lesson where a stranger with the right subject often cannot. The tiers run `class_subject` → `class` → `exact` → `approved` → `related` → `general` → `reserve`, and fatigue, repetition and 30 days of cover history reorder candidates *within* a tier but can never cross one. Full rules in [docs/guides/SUBSTITUTION_ENGINE.md](docs/guides/SUBSTITUTION_ENGINE.md).
 

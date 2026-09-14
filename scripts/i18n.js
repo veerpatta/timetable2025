@@ -82,7 +82,7 @@
 			'teacher.title': 'Teacher timetable',
 
 			'subs.title': 'Substitution planner',
-			'subs.sub': 'Pick a day, mark absent teachers, and get free-teacher suggestions for every affected period.',
+			'subs.sub': 'Pick a day and mark who is away. Set a half day where you need one; every affected period gets a suggestion.',
 			'subs.markAbsent': 'Mark absent teachers',
 			'subs.share': 'Share this plan',
 			'subs.whatsapp': 'Send on WhatsApp',
@@ -91,12 +91,22 @@
 			'subs.summary': '{covered} covered · {review} to check · {selfStudy} self study',
 			'subs.pinned': '{count} changed by hand',
 
+			'absence.allDay': 'All day',
+			'absence.firstHalf': 'Before break',
+			'absence.secondHalf': 'After break',
+			'absence.pickPeriods': 'Or tap the periods they are away',
+			'absence.away': 'away',
+			'absence.inSchool': 'in school',
+			'absence.noteDay': 'Away all day · {n} periods need cover',
+			'absence.notePart': 'Away {away} · in school {here} · {n} periods need cover',
+
 			'shift.title': 'Shift timings',
 			'shift.sub': 'For staff who are not in school the whole day. Turn off the periods they are away, so the planner never gives them cover then.',
 			'shift.allDay': 'Full day',
 			'shift.none': 'Everyone is in school all day.',
 			'shift.window': 'In school {periods}',
 			'shift.pick': 'Choose a teacher',
+			'shift.drawerMeta': '{n} on a part-time shift',
 
 			'sync.ok': 'Saved to the school database',
 			'sync.offline': 'Saved on this device only',
@@ -104,7 +114,7 @@
 			'sync.test': 'TEST database · not the live plan',
 
 			'msg.title': 'Substitution Plan',
-			'msg.absent': 'absent',
+			'msg.absent': 'Away',
 			'msg.noCover': 'NO TEACHER FREE — please arrange',
 			'msg.heldOpen': 'being arranged by the office',
 			'msg.team': 'covered by the co-teacher',
@@ -148,6 +158,7 @@
 			'sub.heldOpen': 'Left open on purpose',
 			'sub.openShort': 'Left open',
 
+			'edit.title': 'Change the cover for this period',
 			'edit.close': 'Close',
 			'edit.auto': 'Best available',
 			'edit.autoWhy': 'Let the planner choose, and re-choose if anything changes',
@@ -260,7 +271,7 @@
 			'teacher.title': 'शिक्षक समय-सारणी',
 
 			'subs.title': 'प्रतिस्थापन योजना',
-			'subs.sub': 'दिन चुनें, अनुपस्थित शिक्षकों को चिह्नित करें, और हर प्रभावित पीरियड के लिए खाली शिक्षक के सुझाव पाएँ।',
+			'subs.sub': 'दिन चुनें और देखें कौन अनुपस्थित है। ज़रूरत हो तो आधा दिन तय करें; हर प्रभावित पीरियड के लिए सुझाव मिलेगा।',
 			'subs.markAbsent': 'अनुपस्थित शिक्षक चुनें',
 			'subs.share': 'योजना साझा करें',
 			'subs.whatsapp': 'व्हाट्सऐप पर भेजें',
@@ -269,12 +280,22 @@
 			'subs.summary': '{covered} कवर · {review} जाँचें · {selfStudy} स्वयं अध्ययन',
 			'subs.pinned': '{count} स्वयं बदले गए',
 
+			'absence.allDay': 'पूरा दिन',
+			'absence.firstHalf': 'अवकाश से पहले',
+			'absence.secondHalf': 'अवकाश के बाद',
+			'absence.pickPeriods': 'या जिन पीरियड में वे अनुपस्थित हैं उन्हें चुनें',
+			'absence.away': 'अनुपस्थित',
+			'absence.inSchool': 'विद्यालय में',
+			'absence.noteDay': 'पूरे दिन अनुपस्थित · {n} पीरियड के लिए व्यवस्था चाहिए',
+			'absence.notePart': 'अनुपस्थित {away} · विद्यालय में {here} · {n} पीरियड के लिए व्यवस्था चाहिए',
+
 			'shift.title': 'ड्यूटी समय',
 			'shift.sub': 'जो शिक्षक पूरे दिन विद्यालय में नहीं रहते, उनके अनुपस्थित पीरियड बंद करें, ताकि उस समय उन्हें प्रतिस्थापन न दिया जाए।',
 			'shift.allDay': 'पूरा दिन',
 			'shift.none': 'सभी शिक्षक पूरे दिन विद्यालय में हैं।',
 			'shift.window': 'विद्यालय में {periods}',
 			'shift.pick': 'शिक्षक चुनें',
+			'shift.drawerMeta': '{n} अंशकालिक शिफ्ट पर',
 
 			'sync.ok': 'विद्यालय डेटाबेस में सहेजा गया',
 			'sync.offline': 'केवल इस डिवाइस पर सहेजा गया',
@@ -326,6 +347,7 @@
 			'sub.heldOpen': 'जानबूझकर खुला रखा गया',
 			'sub.openShort': 'खुला रखा',
 
+			'edit.title': 'इस पीरियड की व्यवस्था बदलें',
 			'edit.close': 'बंद करें',
 			'edit.auto': 'सर्वोत्तम उपलब्ध',
 			'edit.autoWhy': 'योजनाकार स्वयं चुने, और बदलाव होने पर फिर से चुने',

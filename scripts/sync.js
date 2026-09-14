@@ -111,7 +111,13 @@
 		'alter table substitution_plans add column if not exists pins jsonb not null default \'{}\'::jsonb',
 		// Which edition of the built-in shift policy these rows were written
 		// against. Rows that predate the column are version 1 by definition.
-		'alter table teacher_shifts add column if not exists policy_version smallint not null default 1'
+		'alter table teacher_shifts add column if not exists policy_version smallint not null default 1',
+		// Half days. `absences` keeps its original meaning - the names who are
+		// away - so an older build reading this row still sees the absence,
+		// just as a whole day. This column says which periods each of those
+		// names is actually away for; an empty object means every one of them
+		// is away all day, which is exactly what the old column said alone.
+		'alter table substitution_plans add column if not exists absence_periods jsonb not null default \'{}\'::jsonb'
 	];
 
 	/** Created once per page load, then remembered. */
@@ -214,7 +220,8 @@
 	function loadPlan(planDate) {
 		return ensureSchema()
 			.then(() => sql(
-				'select plan_date, day_name, schedule_version, absences, assignments, pins, updated_at ' +
+				'select plan_date, day_name, schedule_version, absences, absence_periods, ' +
+				'assignments, pins, updated_at ' +
 				'from substitution_plans where plan_date = $1',
 				[planDate]
 			))
@@ -226,6 +233,7 @@
 					day: row.day_name,
 					scheduleVersion: row.schedule_version,
 					absent: parseJson(row.absences, []),
+					absencePeriods: parseJson(row.absence_periods, {}),
 					assignments: parseJson(row.assignments, []),
 					pins: parseJson(row.pins, {}),
 					updatedAt: row.updated_at
@@ -237,17 +245,20 @@
 		return ensureSchema()
 			.then(() => sql(
 				'insert into substitution_plans ' +
-				'(plan_date, day_name, schedule_version, absences, assignments, pins, updated_at) ' +
-				'values ($1, $2, $3, $4::jsonb, $5::jsonb, $6::jsonb, now()) ' +
+				'(plan_date, day_name, schedule_version, absences, absence_periods, ' +
+				'assignments, pins, updated_at) ' +
+				'values ($1, $2, $3, $4::jsonb, $5::jsonb, $6::jsonb, $7::jsonb, now()) ' +
 				'on conflict (plan_date) do update set ' +
 				'day_name = excluded.day_name, schedule_version = excluded.schedule_version, ' +
-				'absences = excluded.absences, assignments = excluded.assignments, ' +
+				'absences = excluded.absences, absence_periods = excluded.absence_periods, ' +
+				'assignments = excluded.assignments, ' +
 				'pins = excluded.pins, updated_at = now()',
 				[
 					planDate,
 					plan.day || '',
 					plan.scheduleVersion || '',
 					JSON.stringify(plan.absent || []),
+					JSON.stringify(plan.absencePeriods || {}),
 					JSON.stringify(plan.assignments || []),
 					JSON.stringify(plan.pins || {})
 				]

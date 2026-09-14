@@ -225,6 +225,79 @@
 	}
 
 	/*
+	 * An absence is one day - but not always the whole of one.
+	 *
+	 * Teachers leave after the fourth period for a hospital appointment, or
+	 * arrive at the fifth from one. Modelled as a whole day, those hours read
+	 * as absent when the teacher is standing in the staff room: the planner
+	 * invents vacancies nobody needs and refuses the cover this teacher could
+	 * actually give. Modelled as "not absent at all", the periods they really
+	 * are away go uncovered.
+	 *
+	 * So an absence carries the periods it applies to. A whole day is simply
+	 * every period, which is why the old shape - a bare list of names - still
+	 * means exactly what it always did.
+	 *
+	 * This is not a shift. A shift is a standing working window that holds
+	 * every day and lives in `teacher_shifts`; an absence belongs to one
+	 * date and is thrown away with the plan. Anjana's part-time window is the
+	 * first; her going home early on a Tuesday is the second. Keeping them
+	 * apart is what lets a half day be planned for a part-time teacher.
+	 */
+	function normalizeAbsences(absences, periodCount) {
+		const count = periodCount || 8;
+		const wholeDay = Array.from({ length: count }, (_, index) => index);
+		const normalized = {};
+
+		function add(teacher, periods) {
+			const name = String(teacher || '').trim();
+			if (!name) return;
+			// `true`, `null` and a missing list all mean the whole day: every
+			// caller that knows nothing about half days keeps working.
+			const list = (periods === true || periods == null)
+				? wholeDay
+				: toArray(periods)
+					.map(Number)
+					.filter(value => Number.isInteger(value) && value >= 0 && value < count);
+			const merged = new Set((normalized[name] || []).concat(list));
+			normalized[name] = Array.from(merged).sort((a, b) => a - b);
+		}
+
+		if (Array.isArray(absences)) {
+			absences.forEach(entry => {
+				if (typeof entry === 'string') add(entry, wholeDay);
+				else if (entry) add(entry.teacher || entry.name, entry.periods || entry.periodIndexes);
+			});
+		} else if (absences && typeof absences === 'object') {
+			Object.keys(absences).forEach(teacher => {
+				const value = absences[teacher];
+				const periods = (value && typeof value === 'object' && !Array.isArray(value))
+					? (value.periods || value.periodIndexes)
+					: value;
+				add(teacher, periods);
+			});
+		}
+
+		// An entry with no periods is not an absence. Dropping it here means no
+		// caller has to decide what an empty one would have meant.
+		Object.keys(normalized).forEach(teacher => {
+			if (!normalized[teacher].length) delete normalized[teacher];
+		});
+		return normalized;
+	}
+
+	/** Is this teacher away for this particular period? */
+	function isAbsentAt(normalizedAbsences, teacher, periodIndex) {
+		const periods = normalizedAbsences && normalizedAbsences[teacher];
+		return Boolean(periods) && periods.indexOf(Number(periodIndex)) !== -1;
+	}
+
+	/** The names with an absence today, whole day or part of one. */
+	function absentNames(normalizedAbsences) {
+		return Object.keys(normalizedAbsences || {});
+	}
+
+	/*
 	 * Combining two classes under one teacher.
 	 *
 	 * When nobody is free, a school does not leave thirty children alone - it
@@ -384,8 +457,29 @@
 		return longest;
 	}
 
-	function getLoadFacts(profile, day, periodIndex, assignments, periodCount, slotId) {
-		const regular = getRegularBusyPeriods(profile, day, periodCount);
+	/**
+	 * How loaded a teacher is, measured over the day they are actually here
+	 * for.
+	 *
+	 * `dayLength` is not always the eight periods on the bell schedule. A
+	 * part-time teacher is on site for four of them; a teacher who goes home
+	 * after the break is here for four more. Measured against eight, both look
+	 * as though they have hours of preparation time going spare, and the app
+	 * would say "teacher would have no free period" about periods they are
+	 * not in the building for - a sentence a coordinator can see is false, on
+	 * the screen where they are deciding whether to believe the rest of it.
+	 *
+	 * So the periods a teacher is away or off shift for are not busy and not
+	 * free: they are not part of today at all. They also break a consecutive
+	 * run, because leaving the building is the longest break there is.
+	 */
+	function getLoadFacts(profile, day, periodIndex, assignments, periodCount, slotId, awayPeriods) {
+		const away = awayPeriods || [];
+		const here = Array.from({ length: periodCount }, (_, index) =>
+			isAvailableByPolicy(profile, index) && away.indexOf(index) === -1);
+		const dayLength = here.filter(Boolean).length;
+		const regular = getRegularBusyPeriods(profile, day, periodCount)
+			.map((busy, index) => busy && here[index]);
 		const planned = Array(periodCount).fill(false);
 		normalizeAssignmentList(assignments).forEach(item => {
 			if (item.teacher === profile.teacher && item.slotId !== slotId && Number.isFinite(Number(item.periodIndex))) {
@@ -401,10 +495,14 @@
 			regular: regular.filter(Boolean).length,
 			substitutions,
 			totalAfter,
+			// The periods this teacher is in school for today. Everyone
+			// full-time and present gets the whole bell schedule, which is
+			// what it has always silently been.
+			dayLength,
 			// Free periods left once this cover is taken. Preparation and
 			// marking time is real: taking the last one is not the same as
 			// taking one of four.
-			freeAfter: Math.max(0, periodCount - totalAfter),
+			freeAfter: Math.max(0, dayLength - totalAfter),
 			consecutiveBefore: longestConsecutiveRun(before),
 			consecutiveAfter: longestConsecutiveRun(after)
 		};
@@ -416,11 +514,15 @@
 		const periodIndex = Number(vacancy.periodIndex);
 		const periodCount = input.periodCount || 8;
 		const assignments = input.assignments || [];
-		const absentTeachers = input.absentTeachers || [];
+		// Built once per ranking pass where there is one; `validateAssignment`
+		// calls in alone, so it still normalises for itself.
+		const absences = input.absenceIndex || normalizeAbsences(input.absentTeachers, periodCount);
 		const blocked = [];
 		const warnings = [];
 		if (!profile) return null;
-		if (absentTeachers.includes(teacher)) blocked.push('absent');
+		// Absent *now*, not absent today: a teacher who goes home after the
+		// fourth period is an ordinary candidate for the first four.
+		if (isAbsentAt(absences, teacher, periodIndex)) blocked.push('absent');
 		if (profile.schedule?.[input.day]?.[periodIndex]) blocked.push('regular_class');
 		if (isTeacherAssignedInPeriod(teacher, periodIndex, assignments, vacancy.slotId)) blocked.push('double_booked');
 		if (!isAvailableByPolicy(profile, periodIndex)) blocked.push('unavailable');
@@ -458,9 +560,11 @@
 		if (matchTier === 'class') warnings.push('class_not_subject');
 		if (matchTier === 'related') warnings.push('related_subject');
 		if (matchTier === 'general') warnings.push('subject_mismatch');
-		const load = getLoadFacts(profile, input.day, periodIndex, assignments, periodCount, vacancy.slotId);
+		const load = getLoadFacts(profile, input.day, periodIndex, assignments, periodCount,
+			vacancy.slotId, absences[teacher]);
 		if (load.substitutions >= profile.maxAutoSubstitutions) warnings.push('over_substitution_limit');
-		if (load.totalAfter >= periodCount) warnings.push('full_day');
+		// Against the day they are here for, not the one on the bell schedule.
+		if (load.totalAfter >= load.dayLength) warnings.push('full_day');
 		const maxConsecutive = input.policy?.maxConsecutive || DEFAULT_MAX_CONSECUTIVE;
 		if (load.consecutiveAfter > Math.max(maxConsecutive, load.consecutiveBefore)) warnings.push('excessive_consecutive');
 
@@ -475,7 +579,7 @@
 		modifiers += Math.min(classPeriods * WEIGHTS.classPeriod, WEIGHTS.classPeriodMax);
 		if (exactGrade) modifiers += WEIGHTS.sameGrade;
 		else if (sameBand) modifiers += WEIGHTS.sameBand;
-		modifiers += Math.max(0, (periodCount - load.regular) * WEIGHTS.lightDay);
+		modifiers += Math.max(0, (load.dayLength - load.regular) * WEIGHTS.lightDay);
 		modifiers -= load.consecutiveAfter * WEIGHTS.consecutiveEach;
 		modifiers -= Math.max(0, load.consecutiveAfter - maxConsecutive) * WEIGHTS.consecutiveOver;
 		if (load.freeAfter === 0) modifiers -= WEIGHTS.lastFreePeriod;
@@ -515,8 +619,11 @@
 	}
 
 	function rankCandidates(input) {
-		return Object.keys(input.teacherProfiles || {})
-			.map(teacher => candidateForTeacher(input, teacher))
+		const scoped = input.absenceIndex
+			? input
+			: { ...input, absenceIndex: normalizeAbsences(input.absentTeachers, input.periodCount || 8) };
+		return Object.keys(scoped.teacherProfiles || {})
+			.map(teacher => candidateForTeacher(scoped, teacher))
 			.filter(Boolean)
 			.sort((a, b) => {
 				if (a.blocked.length !== b.blocked.length) return a.blocked.length - b.blocked.length;
@@ -576,7 +683,43 @@
 		return { flow, cost };
 	}
 
+	/**
+	 * How many covers the allocator may hand one teacher without a
+	 * coordinator confirming.
+	 *
+	 * `full_day` already refuses a single cover that would take a teacher's
+	 * last free period - but it is scored per candidate, against a plan that
+	 * does not yet include the flow's other choices. The flow decides several
+	 * at once, so on a day with two people away it could give somebody two
+	 * automatic covers and fill their day between them, each one having
+	 * looked fine on its own. That is the exact outcome the gate exists to
+	 * prevent, so the flow has to state it too: leave one free period, and
+	 * let a coordinator be the one to take it.
+	 *
+	 * Pinned periods are excluded from the free count rather than capped,
+	 * because a pin is already a decision somebody made on purpose.
+	 */
+	function autoCoverAllowance(profile, day, existingAssignments, periodCount, awayPeriods) {
+		const away = awayPeriods || [];
+		const schedule = profile?.schedule?.[day] || [];
+		const pinned = normalizeAssignmentList(existingAssignments)
+			.filter(item => item.teacher === profile.teacher)
+			.map(item => Number(item.periodIndex));
+		let free = 0;
+		for (let index = 0; index < periodCount; index++) {
+			if (!isAvailableByPolicy(profile, index)) continue;
+			if (away.indexOf(index) !== -1) continue;
+			if (schedule[index] || pinned.indexOf(index) !== -1) continue;
+			free += 1;
+		}
+		return Math.max(0, free - 1);
+	}
+
 	function generatePlan(input) {
+		// One index for the whole allocation: the flow and the suggestion pass
+		// must agree about who is in the building in which period.
+		const absenceIndex = input.absenceIndex ||
+			normalizeAbsences(input.absentTeachers, input.periodCount || 8);
 		const vacancies = (input.vacancies || []).map((vacancy, index) => ({
 			...vacancy,
 			slotId: vacancy.slotId || `${input.day}|${vacancy.className}|${vacancy.periodIndex}|${index}`
@@ -588,6 +731,7 @@
 		vacancies.forEach(vacancy => {
 			candidateMatrix[vacancy.slotId] = rankCandidates({
 				...input,
+				absenceIndex,
 				vacancy,
 				assignments: existingAssignments,
 				teacherProfiles
@@ -614,7 +758,11 @@
 		teachers.forEach(teacher => {
 			const profile = teacherProfiles[teacher];
 			const used = countTeacherAssignments(teacher, existingAssignments);
-			const capacity = Math.max(0, profile.maxAutoSubstitutions - used);
+			const capacity = Math.max(0, Math.min(
+				profile.maxAutoSubstitutions - used,
+				autoCoverAllowance(profile, input.day, existingAssignments,
+					input.periodCount || 8, absenceIndex[teacher])
+			));
 			// One unit-capacity edge per cover, each dearer than the last, so a
 			// teacher's second period genuinely costs the optimiser more than
 			// their first. A single edge of capacity 2 priced them the same,
@@ -683,6 +831,7 @@
 		vacancies.filter(vacancy => !assignedSlotIds.has(vacancy.slotId)).forEach(vacancy => {
 			const candidates = rankCandidates({
 				...input,
+				absenceIndex,
 				vacancy,
 				assignments: proposed,
 				teacherProfiles
@@ -847,6 +996,9 @@
 		shiftPeriods,
 		isFullDayShift,
 		isOnShift,
+		normalizeAbsences,
+		isAbsentAt,
+		absentNames,
 		normalizeShifts,
 		shiftsToPolicyOverrides,
 		buildTeacherProfiles,
