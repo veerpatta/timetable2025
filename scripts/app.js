@@ -1630,7 +1630,12 @@
 			(absentNames().length
 				? '<span class="section-meta">' +
 					esc(t('sub.selected', { count: absentNames().length })) + '</span>'
-				: '') +
+				// Exactly one sync pill, always on screen, always in the place
+				// that is useful. Once a plan exists the sticky summary carries
+				// it and follows the reader down a long day; before that there
+				// is no summary, and on staging nobody should get as far as
+				// marking somebody absent without having seen the red badge.
+				: syncPill()) +
 			'</div>' +
 			chipRow(db.teacherNames.map(name => ({
 				label: name,

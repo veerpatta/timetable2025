@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-09-14T03:14:19.448Z",
+  "timestamp": "2026-09-14T03:55:16.030Z",
   "files": [
     {
       "file": "index.html",
@@ -33,15 +33,15 @@
     },
     {
       "file": "scripts/app.js",
-      "rawSize": 107230,
-      "gzippedSize": 29846,
-      "compression": "72.2%"
+      "rawSize": 107574,
+      "gzippedSize": 29989,
+      "compression": "72.1%"
     },
     {
       "file": "styles/app.css",
-      "rawSize": 42887,
-      "gzippedSize": 9619,
-      "compression": "77.6%"
+      "rawSize": 43053,
+      "gzippedSize": 9689,
+      "compression": "77.5%"
     },
     {
       "file": "sw.js",
@@ -57,7 +57,7 @@
     }
   ],
   "totals": {
-    "raw": 266760,
-    "gzipped": 73435
+    "raw": 267270,
+    "gzipped": 73648
   }
 }
